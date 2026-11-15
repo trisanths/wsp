@@ -1,0 +1,116 @@
+{
+  "id": "mlp_early_month-token_family_l5_64_units_lfm3_1.7b_L5_k64_001",
+  "kind": "mlp_cluster",
+  "title": "LFM3-1.7B layer 5, early month-token family (L5, 64 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm3_1.7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM3-1.7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3865,
+      "control_value": 0.0092,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm3_1.7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.1588"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM3-1.7B",
+  "layer": 5,
+  "layers": [
+    5
+  ],
+  "units_file": "components/LiquidAI__LFM3-1.7B/mlp_early_month-token_family_l5_64_units_lfm3_1.7b_L5_k64_001.pt",
+  "units_remote": "person_a/parts/lfm3_1.7b/mlp_early_month-token_family_l5_64_units_lfm3_1.7b_L5_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "early month-token family (L5, 64 units)",
+    "num_units": 64,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0026,
+      "math|heldout": 0.0101,
+      "code|search": 0.0027,
+      "code|heldout": 0.0043,
+      "facts|search": 0.1109,
+      "facts|heldout": 0.1078,
+      "multilingual|search": 0.0086,
+      "multilingual|heldout": 0.0184,
+      "general_text|search": 0.0442,
+      "general_text|heldout": 0.0331,
+      "roman_numeral|search": -0.103,
+      "roman_numeral__control|search": -0.226,
+      "roman_numeral|heldout": -0.2114,
+      "roman_numeral__control|heldout": -0.271,
+      "number_word|search": 0.0042,
+      "number_word__control|search": 0.0047,
+      "number_word|heldout": 0.008,
+      "number_word__control|heldout": 0.0201,
+      "month_successor|search": 0.5485,
+      "month_successor__control|search": 0.1537,
+      "month_successor|heldout": 0.3865,
+      "month_successor__control|heldout": 0.1588,
+      "weekday_successor|search": 0.0705,
+      "weekday_successor__control|search": 0.1849,
+      "weekday_successor|heldout": 0.0355,
+      "weekday_successor__control|heldout": 0.2486,
+      "object_color|search": 0.0173,
+      "object_color__control|search": -0.0476,
+      "object_color|heldout": 0.0171,
+      "object_color__control|heldout": -0.0481,
+      "nationality_to_country|search": -0.0016,
+      "nationality_to_country__control|search": 0.0002,
+      "nationality_to_country|heldout": -0.0002,
+      "nationality_to_country__control|heldout": 0.0005,
+      "ordinal_word|search": -0.0033,
+      "ordinal_word__control|search": 0.0031,
+      "ordinal_word|heldout": -0.0039,
+      "ordinal_word__control|heldout": 0.013,
+      "comparative_adjective|search": 0.0599,
+      "comparative_adjective__control|search": -0.001,
+      "comparative_adjective|heldout": 0.0072,
+      "comparative_adjective__control|heldout": -0.0011
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1828,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0004,
+      0.0002,
+      0.0114,
+      0.0023,
+      0.0325
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L5 month attribution seeds share a gate family (sim .36-.48), grown to 64 units by gate + down similarity. This is the earliest stage of the month chain (L5\u2192L8\u2192L12-L16). Ablation: month .548, control .154, others \u2264 .111."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm3_1.7b/month_successor.json",
+    "hash": "9870002fb3dae8fa",
+    "description": "Name the month k (1-3) months after a given month. Control: same format with integer + k.",
+    "name": "month_successor"
+  },
+  "catalog_id": "mlp_early_month-token_family_l5_64_units_lfm3_1.7b_L5_k64_001",
+  "exported_copy": "library/lfm3_1.7b/mlp_early_month-token_family_l5_64_units_lfm3_1.7b_L5_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

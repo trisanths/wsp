@@ -1,0 +1,1220 @@
+{
+ "name": "month_successor",
+ "description": "Name the month that comes k months after a given month (calendar month arithmetic). Control: integer successor with the same sentence frame.",
+ "hash": "d32b08204ae7ef0d",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nM=['January','February','March','April','May','June','July','August','September','October','November','December']\nitems=[];control=[]\ntemplates=[\"Q: What month comes {k} after {m}?\\nA: The answer is\",\"If it is {m} now, then {k} from now it will be\"]\nfor i in range(120):\n    j=random.randrange(12); k=random.choice([1,1,2,3]); t=random.choice(templates)\n    ks={1:'one month',2:'two months',3:'three months'}[k]\n    items.append({\"prompt\":t.format(k=ks,m=M[j]),\"answer\":\" \"+M[(j+k)%12]})\nfor i in range(120):\n    n=random.randrange(3,90); k=random.choice([1,1,2,3]); t=random.choice([\"Q: What number comes {k} after {m}?\\nA: The answer is\",\"If the counter shows {m} now, then {k} later it will show\"])\n    ks={1:'one step',2:'two steps',3:'three steps'}[k]\n    control.append({\"prompt\":t.format(k=ks,m=n),\"answer\":\" \"+str(n+k)})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Q: What month comes three months after October?\nA: The answer is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after February?\nA: The answer is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after October?\nA: The answer is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after October?\nA: The answer is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "If it is July now, then one month from now it will be",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "If it is October now, then two months from now it will be",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after March?\nA: The answer is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "If it is August now, then one month from now it will be",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "If it is November now, then three months from now it will be",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "If it is January now, then two months from now it will be",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after February?\nA: The answer is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after March?\nA: The answer is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "If it is June now, then one month from now it will be",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after July?\nA: The answer is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after September?\nA: The answer is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after April?\nA: The answer is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "If it is February now, then three months from now it will be",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after September?\nA: The answer is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "If it is May now, then three months from now it will be",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "If it is January now, then three months from now it will be",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "If it is September now, then one month from now it will be",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after July?\nA: The answer is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after April?\nA: The answer is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after May?\nA: The answer is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "If it is December now, then one month from now it will be",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after August?\nA: The answer is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "If it is October now, then one month from now it will be",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after December?\nA: The answer is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "If it is July now, then three months from now it will be",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after January?\nA: The answer is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "If it is September now, then three months from now it will be",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after March?\nA: The answer is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "If it is November now, then two months from now it will be",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after September?\nA: The answer is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after January?\nA: The answer is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "If it is December now, then three months from now it will be",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after December?\nA: The answer is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "If it is April now, then two months from now it will be",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "If it is September now, then one month from now it will be",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after June?\nA: The answer is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after July?\nA: The answer is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "If it is April now, then two months from now it will be",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "If it is February now, then one month from now it will be",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "If it is February now, then two months from now it will be",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after May?\nA: The answer is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "If it is July now, then one month from now it will be",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after July?\nA: The answer is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "If it is December now, then one month from now it will be",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "If it is August now, then one month from now it will be",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after February?\nA: The answer is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "If it is December now, then three months from now it will be",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "If it is April now, then one month from now it will be",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after December?\nA: The answer is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "If it is May now, then one month from now it will be",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after June?\nA: The answer is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after April?\nA: The answer is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "If it is October now, then three months from now it will be",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after June?\nA: The answer is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "If it is January now, then three months from now it will be",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after April?\nA: The answer is",
+    "continuation": " May",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What month comes one month after May?\nA: The answer is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after January?\nA: The answer is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after December?\nA: The answer is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "If it is July now, then one month from now it will be",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "If it is August now, then three months from now it will be",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after November?\nA: The answer is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "If it is December now, then one month from now it will be",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after July?\nA: The answer is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "If it is August now, then one month from now it will be",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after September?\nA: The answer is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "If it is May now, then three months from now it will be",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "If it is June now, then one month from now it will be",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "If it is November now, then two months from now it will be",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after July?\nA: The answer is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "If it is October now, then one month from now it will be",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after June?\nA: The answer is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after February?\nA: The answer is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "If it is November now, then three months from now it will be",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after February?\nA: The answer is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after July?\nA: The answer is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after February?\nA: The answer is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after November?\nA: The answer is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "If it is September now, then one month from now it will be",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "If it is February now, then one month from now it will be",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after December?\nA: The answer is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after July?\nA: The answer is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after February?\nA: The answer is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after May?\nA: The answer is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after July?\nA: The answer is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "If it is July now, then two months from now it will be",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after October?\nA: The answer is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "If it is February now, then two months from now it will be",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after May?\nA: The answer is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after January?\nA: The answer is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "If it is January now, then one month from now it will be",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after February?\nA: The answer is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after December?\nA: The answer is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after September?\nA: The answer is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "If it is March now, then one month from now it will be",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "If it is October now, then two months from now it will be",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "If it is March now, then two months from now it will be",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after March?\nA: The answer is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "If it is March now, then one month from now it will be",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after March?\nA: The answer is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "If it is May now, then one month from now it will be",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "If it is November now, then one month from now it will be",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "If it is September now, then one month from now it will be",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after December?\nA: The answer is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "If it is July now, then two months from now it will be",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after May?\nA: The answer is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "If it is October now, then one month from now it will be",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "If it is December now, then one month from now it will be",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "If it is June now, then two months from now it will be",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after August?\nA: The answer is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes two months after October?\nA: The answer is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after December?\nA: The answer is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes three months after November?\nA: The answer is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "If it is June now, then two months from now it will be",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes one month after July?\nA: The answer is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "If it is September now, then three months from now it will be",
+    "continuation": " December",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Q: What number comes one step after 75?\nA: The answer is",
+    "continuation": " 76",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 19 now, then one step later it will show",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 8?\nA: The answer is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 50 now, then two steps later it will show",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 3 now, then two steps later it will show",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 5?\nA: The answer is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 66 now, then three steps later it will show",
+    "continuation": " 69",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 33 now, then one step later it will show",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 55 now, then one step later it will show",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 75 now, then three steps later it will show",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 46 now, then two steps later it will show",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 34 now, then three steps later it will show",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 22 now, then three steps later it will show",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 31?\nA: The answer is",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 11 now, then three steps later it will show",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 64 now, then two steps later it will show",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 49 now, then two steps later it will show",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 8 now, then three steps later it will show",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 56?\nA: The answer is",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 79?\nA: The answer is",
+    "continuation": " 82",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 12?\nA: The answer is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 71 now, then one step later it will show",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 69 now, then one step later it will show",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 60?\nA: The answer is",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 52?\nA: The answer is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 21?\nA: The answer is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 83?\nA: The answer is",
+    "continuation": " 84",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 27 now, then three steps later it will show",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 80 now, then one step later it will show",
+    "continuation": " 81",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 85?\nA: The answer is",
+    "continuation": " 86",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 76?\nA: The answer is",
+    "continuation": " 77",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 82?\nA: The answer is",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 21 now, then three steps later it will show",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 29?\nA: The answer is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 7 now, then three steps later it will show",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 40 now, then two steps later it will show",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 69 now, then three steps later it will show",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 72 now, then three steps later it will show",
+    "continuation": " 75",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 73?\nA: The answer is",
+    "continuation": " 75",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 71?\nA: The answer is",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 11 now, then three steps later it will show",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 79?\nA: The answer is",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 84 now, then three steps later it will show",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 57 now, then one step later it will show",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 83?\nA: The answer is",
+    "continuation": " 84",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 41 now, then three steps later it will show",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 29?\nA: The answer is",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 6 now, then three steps later it will show",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 11?\nA: The answer is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 47?\nA: The answer is",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 83?\nA: The answer is",
+    "continuation": " 85",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 32?\nA: The answer is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 50?\nA: The answer is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 70?\nA: The answer is",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 10 now, then three steps later it will show",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 44?\nA: The answer is",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 60?\nA: The answer is",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 19 now, then three steps later it will show",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 28 now, then three steps later it will show",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 11?\nA: The answer is",
+    "continuation": " 12",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What number comes three steps after 60?\nA: The answer is",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 86 now, then one step later it will show",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 55 now, then one step later it will show",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 67?\nA: The answer is",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 89?\nA: The answer is",
+    "continuation": " 92",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 6?\nA: The answer is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 34 now, then three steps later it will show",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 89 now, then one step later it will show",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 15?\nA: The answer is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 71?\nA: The answer is",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 40 now, then three steps later it will show",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 52?\nA: The answer is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 14?\nA: The answer is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 26?\nA: The answer is",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 12 now, then two steps later it will show",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 75?\nA: The answer is",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 87?\nA: The answer is",
+    "continuation": " 88",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 3?\nA: The answer is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 84?\nA: The answer is",
+    "continuation": " 86",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 14 now, then three steps later it will show",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 52?\nA: The answer is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 37?\nA: The answer is",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 27?\nA: The answer is",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 6?\nA: The answer is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 35 now, then three steps later it will show",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 84 now, then one step later it will show",
+    "continuation": " 85",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 11 now, then one step later it will show",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 83?\nA: The answer is",
+    "continuation": " 85",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 15?\nA: The answer is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 72?\nA: The answer is",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 26?\nA: The answer is",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 41 now, then two steps later it will show",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 38?\nA: The answer is",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 39?\nA: The answer is",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 48?\nA: The answer is",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 44?\nA: The answer is",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 36 now, then one step later it will show",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 79?\nA: The answer is",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 51?\nA: The answer is",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 17 now, then one step later it will show",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 53 now, then three steps later it will show",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 89?\nA: The answer is",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 48?\nA: The answer is",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 66?\nA: The answer is",
+    "continuation": " 69",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 71 now, then three steps later it will show",
+    "continuation": " 74",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes two steps after 30?\nA: The answer is",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 18?\nA: The answer is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 56 now, then two steps later it will show",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 56 now, then one step later it will show",
+    "continuation": " 57",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 16?\nA: The answer is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 39?\nA: The answer is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 48 now, then one step later it will show",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 7 now, then one step later it will show",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 52?\nA: The answer is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 49?\nA: The answer is",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 62 now, then one step later it will show",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes three steps after 57?\nA: The answer is",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 59 now, then one step later it will show",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes one step after 19?\nA: The answer is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "If the counter shows 77 now, then two steps later it will show",
+    "continuation": " 79",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.6073
+}

@@ -1,0 +1,116 @@
+{
+  "id": "mlp_dense-prefix_calendarperiodicity_feature_month_a_lfm2_24b_a2b_L1_k1_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2-24B-A2B layer 1, dense-prefix calendar/periodicity feature (month arithmetic)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5539,
+      "control_value": 0.048,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0249"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 1,
+  "layers": [
+    1
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/mlp_dense-prefix_calendarperiodicity_feature_month_a_lfm2_24b_a2b_L1_k1_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/mlp_dense-prefix_calendarperiodicity_feature_month_a_lfm2_24b_a2b_L1_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "dense-prefix calendar/periodicity feature (month arithmetic)",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0033,
+      "math|heldout": -0.0107,
+      "code|search": -0.0307,
+      "code|heldout": -0.0309,
+      "facts|search": -0.125,
+      "facts|heldout": -0.157,
+      "multilingual|search": 0.0121,
+      "multilingual|heldout": -0.0085,
+      "general_text|search": 0.0048,
+      "general_text|heldout": -0.0051,
+      "month_successor|search": 0.4599,
+      "month_successor__control|search": -0.0042,
+      "month_successor|heldout": 0.5539,
+      "month_successor__control|heldout": -0.0249,
+      "weekday_successor|search": 0.1408,
+      "weekday_successor__control|search": -0.6617,
+      "weekday_successor|heldout": 0.0432,
+      "weekday_successor__control|heldout": -0.9,
+      "roman_numeral|search": 0.0181,
+      "roman_numeral__control|search": -0.0534,
+      "roman_numeral|heldout": 0.0331,
+      "roman_numeral__control|heldout": -0.0452,
+      "antonym|search": -0.0105,
+      "antonym__control|search": -0.7729,
+      "antonym|heldout": -0.0117,
+      "antonym__control|heldout": -0.8536,
+      "chinese_numeral|search": 0.052,
+      "chinese_numeral__control|search": -0.1646,
+      "chinese_numeral|heldout": 0.0783,
+      "chinese_numeral__control|heldout": -0.1072,
+      "a_an_article|search": 0.0679,
+      "a_an_article__control|search": 0.1259,
+      "a_an_article|heldout": -0.0952,
+      "a_an_article__control|heldout": -0.0225,
+      "subject_verb_agreement|search": 0.0186,
+      "subject_verb_agreement__control|search": -0.0011,
+      "subject_verb_agreement|heldout": 0.0743,
+      "subject_verb_agreement__control|heldout": -0.139,
+      "en_fr_translation|search": 0.0039,
+      "en_fr_translation__control|search": 0.0097,
+      "en_fr_translation|heldout": -0.0006,
+      "en_fr_translation__control|heldout": 0.0093
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1533,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0122,
+      0.0405,
+      0.06,
+      0.0649,
+      0.0625
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The logit lens of this L1 dense-MLP unit's w2 column has calendar and periodicity words on its negative pole (' annual', ' calend', ' descending', ' incoming'). Attribution scored month .344 versus weekday .042. Ablation gave month .46 with the number-successor control at -.004 and weekday .141."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/month_successor.json",
+    "hash": "d32b08204ae7ef0d",
+    "description": "Name the month that comes k months after a given month (calendar month arithmetic). Control: integer successor with the same sentence frame.",
+    "name": "month_successor"
+  },
+  "catalog_id": "mlp_dense-prefix_calendarperiodicity_feature_month_a_lfm2_24b_a2b_L1_k1_001",
+  "exported_copy": "library/lfm2_24b_a2b/mlp_dense-prefix_calendarperiodicity_feature_month_a_lfm2_24b_a2b_L1_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "expert_antonym_opposite-word_expert_pool_l7_lfm2_24b_a2b_L7_k4_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 7, antonym (opposite-word) expert pool (L7)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "antonym"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'antonym' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3445,
+      "control_value": 0.0659,
+      "split": "person_a held-out skill items (antonym)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0414"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 7,
+  "layers": [
+    7
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_antonym_opposite-word_expert_pool_l7_lfm2_24b_a2b_L7_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_antonym_opposite-word_expert_pool_l7_lfm2_24b_a2b_L7_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'antonym'",
+    "label": "antonym (opposite-word) expert pool (L7)",
+    "num_units": 4,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0003,
+      "math|heldout": 0.0344,
+      "code|search": -0.0233,
+      "code|heldout": -0.0255,
+      "facts|search": -0.0338,
+      "facts|heldout": -0.0874,
+      "multilingual|search": 0.0179,
+      "multilingual|heldout": 0.0005,
+      "general_text|search": -0.0008,
+      "general_text|heldout": 0.0127,
+      "month_successor|search": 0.0821,
+      "month_successor__control|search": -0.009,
+      "month_successor|heldout": 0.0714,
+      "month_successor__control|heldout": -0.0069,
+      "weekday_successor|search": -0.0707,
+      "weekday_successor__control|search": -0.3209,
+      "weekday_successor|heldout": -0.0235,
+      "weekday_successor__control|heldout": -0.3667,
+      "roman_numeral|search": -0.004,
+      "roman_numeral__control|search": -0.2183,
+      "roman_numeral|heldout": 0.0022,
+      "roman_numeral__control|heldout": -0.1676,
+      "antonym|search": 0.3443,
+      "antonym__control|search": 0.0657,
+      "antonym|heldout": 0.3445,
+      "antonym__control|heldout": -0.0414,
+      "chinese_numeral|search": -0.0006,
+      "chinese_numeral__control|search": 0.0713,
+      "chinese_numeral|heldout": 0.01,
+      "chinese_numeral__control|heldout": 0.1272,
+      "a_an_article|search": -0.0186,
+      "a_an_article__control|search": 0.1457,
+      "a_an_article|heldout": 0.0908,
+      "a_an_article__control|heldout": 0.0597,
+      "subject_verb_agreement|search": -0.0102,
+      "subject_verb_agreement__control|search": -0.1446,
+      "subject_verb_agreement|heldout": 0.006,
+      "subject_verb_agreement__control|heldout": 0.0196,
+      "en_fr_translation|search": 0.0038,
+      "en_fr_translation__control|search": 0.0278,
+      "en_fr_translation|heldout": 0.0013,
+      "en_fr_translation__control|heldout": 0.0025
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1148,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0115,
+      0.2362,
+      -0.0219,
+      0.1276,
+      -0.0011
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L7 block drops antonym .35. Two L7 attribution pools (month and chinese) each leaked antonym (.451/.321), and splitting them isolated e23/e46 and e42/e38 as the antonym carriers. The month (e34/e20/e62) and chinese (e40/e60/e4) experts are excluded. Ablation: antonym .344, control .066, month .082, other skills \u2264 .02."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/antonym.json",
+    "hash": "686de13a2a82f35b",
+    "description": "Produce the antonym of an English adjective. Control: copy the same adjective in the same frame.",
+    "name": "antonym"
+  },
+  "catalog_id": "expert_antonym_opposite-word_expert_pool_l7_lfm2_24b_a2b_L7_k4_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_antonym_opposite-word_expert_pool_l7_lfm2_24b_a2b_L7_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

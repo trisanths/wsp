@@ -1,0 +1,1220 @@
+{
+ "name": "ordinal_words",
+ "description": "Write the ordinal word for a number (3 -> third), few-shot. Control: same format but write the cardinal number word (3 -> three).",
+ "hash": "8a38baaad71ded46",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\ncard=['one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve']\nordn=['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth','eleventh','twelfth']\nitems=[];control=[]\nfor _ in range(120):\n    ex=random.sample(range(12),3)\n    p=\"Write the ordinal word.\\n\"+\"\".join(f\"{e+1}: {ordn[e]}\\n\" for e in ex[:2])+f\"{ex[2]+1}:\"\n    items.append({\"prompt\":p,\"answer\":\" \"+ordn[ex[2]]})\n    c=\"Write the number word.\\n\"+\"\".join(f\"{e+1}: {card[e]}\\n\" for e in ex[:2])+f\"{ex[2]+1}:\"\n    control.append({\"prompt\":c,\"answer\":\" \"+card[ex[2]]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Write the ordinal word.\n2: second\n5: fifth\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n2: second\n8: eighth\n7:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n12: twelfth\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n6: sixth\n10: tenth\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n9: ninth\n6: sixth\n11:",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n6: sixth\n7: seventh\n3:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n9: ninth\n1: first\n8:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n2: second\n5: fifth\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n10: tenth\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n9: ninth\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n11: eleventh\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n8: eighth\n7:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n2: second\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n2: second\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n1: first\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n8: eighth\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n7: seventh\n11: eleventh\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n3: third\n4: fourth\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n7: seventh\n5: fifth\n8:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n3: third\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n2: second\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n12: twelfth\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n2: second\n4: fourth\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n12: twelfth\n8:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n6: sixth\n1: first\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n3: third\n6: sixth\n7:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n4: fourth\n1:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n9: ninth\n3: third\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n3: third\n5: fifth\n7:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n7: seventh\n10: tenth\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n6: sixth\n7: seventh\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n6: sixth\n9: ninth\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n11: eleventh\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n12: twelfth\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n2: second\n1:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n8: eighth\n6: sixth\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n9: ninth\n5: fifth\n1:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n2: second\n1: first\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n6: sixth\n9: ninth\n8:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n1: first\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n5: fifth\n3:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n9: ninth\n8: eighth\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n9: ninth\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n3: third\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n9: ninth\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n12: twelfth\n3:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n9: ninth\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n8: eighth\n2: second\n11:",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n6: sixth\n11:",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n7: seventh\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n4: fourth\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n7: seventh\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n2: second\n8:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n1: first\n3:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n8: eighth\n1: first\n7:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n7: seventh\n1:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n9: ninth\n1: first\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n12: twelfth\n11:",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n2: second\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n6: sixth\n3:",
+    "continuation": " third",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Write the ordinal word.\n9: ninth\n3: third\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n7: seventh\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n10: tenth\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n6: sixth\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n8: eighth\n2: second\n11:",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n7: seventh\n1: first\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n6: sixth\n8:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n7: seventh\n12: twelfth\n1:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n11: eleventh\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n11: eleventh\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n9: ninth\n8:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n1: first\n11:",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n3: third\n5: fifth\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n7: seventh\n10: tenth\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n3: third\n6: sixth\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n9: ninth\n7: seventh\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n6: sixth\n2: second\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n9: ninth\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n8: eighth\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n11: eleventh\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n2: second\n8: eighth\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n1: first\n11:",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n8: eighth\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n8: eighth\n2: second\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n6: sixth\n7:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n9: ninth\n8:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n1: first\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n10: tenth\n7:",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n8: eighth\n9: ninth\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n3: third\n11:",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n2: second\n6: sixth\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n10: tenth\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n8: eighth\n6: sixth\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n3: third\n8:",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n8: eighth\n11: eleventh\n3:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n3: third\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n11: eleventh\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n9: ninth\n8: eighth\n11:",
+    "continuation": " eleventh",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n3: third\n1:",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n2: second\n10: tenth\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n11: eleventh\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n4: fourth\n6: sixth\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n3: third\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n7: seventh\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n2: second\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n2: second\n3:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n10: tenth\n2:",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n8: eighth\n12: twelfth\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n5: fifth\n3: third\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n10: tenth\n2: second\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n7: seventh\n2: second\n6:",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n12: twelfth\n7: seventh\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n11: eleventh\n3:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n2: second\n9:",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n3: third\n2: second\n10:",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n4: fourth\n3:",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n11: eleventh\n8: eighth\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n7: seventh\n11: eleventh\n12:",
+    "continuation": " twelfth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n1: first\n2: second\n4:",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Write the ordinal word.\n2: second\n3: third\n5:",
+    "continuation": " fifth",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Write the number word.\n6: six\n2: two\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n7: seven\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n8: eight\n2: two\n11:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n3: three\n8:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n8: eight\n11: eleven\n3:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n6: six\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n9: nine\n3: three\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n11: eleven\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n8: eight\n12: twelve\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n6: six\n7: seven\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n9: nine\n1: one\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n9: nine\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n2: two\n5: five\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n11: eleven\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n7: seven\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n6: six\n7:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n9: nine\n1: one\n8:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n2: two\n1: one\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n8: eight\n1: one\n7:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n8: eight\n9: nine\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n10: ten\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n7: seven\n10: ten\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n3: three\n1:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n8: eight\n6: six\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n2: two\n6: six\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n11: eleven\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n8: eight\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n12: twelve\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n8: eight\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n2: two\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n6: six\n9: nine\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n9: nine\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n12: twelve\n8:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n3: three\n2: two\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n9: nine\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n2: two\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n11: eleven\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n2: two\n1:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n2: two\n4: four\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n1: one\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n10: ten\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n3: three\n6: six\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n3: three\n11:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n9: nine\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n7: seven\n2: two\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n8: eight\n2: two\n11:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n6: six\n1: one\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n6: six\n7: seven\n3:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n3: three\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n3: three\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n1: one\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n11: eleven\n3:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n3: three\n5: five\n7:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n8: eight\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n2: two\n3:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n10: ten\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n6: six\n9: nine\n8:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n11: eleven\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n3: three\n5: five\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n10: ten\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Write the number word.\n1: one\n12: twelve\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n4: four\n1:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n1: one\n3:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n2: two\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n2: two\n8: eight\n7:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n4: four\n3:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n7: seven\n1: one\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n7: seven\n10: ten\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n2: two\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n3: three\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n6: six\n11:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n3: three\n6: six\n7:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n9: nine\n8: eight\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n9: nine\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n9: nine\n6: six\n11:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n9: nine\n7: seven\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n4: four\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n2: two\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n7: seven\n11: eleven\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n2: two\n8:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n7: seven\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n3: three\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n9: nine\n8:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n8: eight\n7:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n12: twelve\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n10: ten\n7:",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n7: seven\n5: five\n8:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n2: two\n10: ten\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n2: two\n8: eight\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n9: nine\n5: five\n1:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n1: one\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n3: three\n4: four\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n1: one\n11:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n7: seven\n9:",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n12: twelve\n11:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n8: eight\n2: two\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n7: seven\n12: twelve\n1:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n11: eleven\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n8: eight\n6: six\n10:",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n1: one\n11:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n2: two\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n6: six\n10: ten\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n7: seven\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n9: nine\n8: eight\n11:",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n8: eight\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n2: two\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n10: ten\n11: eleven\n2:",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n6: six\n3:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n1: one\n9: nine\n8:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n2: two\n5: five\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n9: nine\n3: three\n4:",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n6: six\n8:",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n7: seven\n1:",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n3: three\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n12: twelve\n2: two\n6:",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n7: seven\n11: eleven\n12:",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n5: five\n12: twelve\n3:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n2: two\n3: three\n5:",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n11: eleven\n5: five\n3:",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Write the number word.\n4: four\n6: six\n2:",
+    "continuation": " two",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.33
+}

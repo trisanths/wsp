@@ -1,0 +1,1220 @@
+{
+ "name": "comparative_adjective",
+ "description": "Form the English comparative of an adjective in a few-shot mapping (e.g. 'tall -> taller, cold -> colder, fast ->' -> ' faster'). Control: same few-shot format but identity mapping (word copied unchanged).",
+ "hash": "843c4bb5f5dc8973",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nA={'tall':'taller','short':'shorter','fast':'faster','slow':'slower','big':'bigger','small':'smaller','old':'older','young':'younger','cold':'colder','hot':'hotter','long':'longer','high':'higher','low':'lower','strong':'stronger','weak':'weaker','rich':'richer','poor':'poorer','dark':'darker','light':'lighter','hard':'harder','soft':'softer','large':'larger','deep':'deeper','wide':'wider','thin':'thinner','fat':'fatter','warm':'warmer','cheap':'cheaper','loud':'louder','quiet':'quieter','happy':'happier','easy':'easier','early':'earlier','heavy':'heavier','good':'better','bad':'worse','near':'nearer','safe':'safer','clean':'cleaner','sharp':'sharper'}\nks=list(A)\nitems=[];ctrl=[]\nfor t in ks:\n    for r in range(3):\n        shots=random.sample([k for k in ks if k!=t],3)\n        items.append({'prompt':', '.join(f'{s} -> {A[s]}' for s in shots)+f', {t} ->','answer':' '+A[t]})\n        ctrl.append({'prompt':', '.join(f'{s} -> {s}' for s in shots)+f', {t} ->','answer':' '+t})\njson.dump({'items':items,'control':ctrl},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "easy -> easier, safe -> safer, long -> longer, hard ->",
+    "continuation": " harder",
+    "digits_only": false
+   },
+   {
+    "context": "large -> larger, wide -> wider, small -> smaller, good ->",
+    "continuation": " better",
+    "digits_only": false
+   },
+   {
+    "context": "wide -> wider, bad -> worse, high -> higher, heavy ->",
+    "continuation": " heavier",
+    "digits_only": false
+   },
+   {
+    "context": "wide -> wider, clean -> cleaner, weak -> weaker, short ->",
+    "continuation": " shorter",
+    "digits_only": false
+   },
+   {
+    "context": "fat -> fatter, large -> larger, hard -> harder, safe ->",
+    "continuation": " safer",
+    "digits_only": false
+   },
+   {
+    "context": "long -> longer, deep -> deeper, good -> better, hard ->",
+    "continuation": " harder",
+    "digits_only": false
+   },
+   {
+    "context": "long -> longer, rich -> richer, weak -> weaker, thin ->",
+    "continuation": " thinner",
+    "digits_only": false
+   },
+   {
+    "context": "bad -> worse, weak -> weaker, sharp -> sharper, young ->",
+    "continuation": " younger",
+    "digits_only": false
+   },
+   {
+    "context": "fast -> faster, small -> smaller, bad -> worse, long ->",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "fat -> fatter, large -> larger, safe -> safer, cold ->",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharper, short -> shorter, low -> lower, rich ->",
+    "continuation": " richer",
+    "digits_only": false
+   },
+   {
+    "context": "light -> lighter, deep -> deeper, clean -> cleaner, wide ->",
+    "continuation": " wider",
+    "digits_only": false
+   },
+   {
+    "context": "near -> nearer, clean -> cleaner, hard -> harder, young ->",
+    "continuation": " younger",
+    "digits_only": false
+   },
+   {
+    "context": "bad -> worse, dark -> darker, cold -> colder, deep ->",
+    "continuation": " deeper",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> cheaper, fast -> faster, warm -> warmer, fat ->",
+    "continuation": " fatter",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> stronger, safe -> safer, rich -> richer, small ->",
+    "continuation": " smaller",
+    "digits_only": false
+   },
+   {
+    "context": "warm -> warmer, soft -> softer, tall -> taller, loud ->",
+    "continuation": " louder",
+    "digits_only": false
+   },
+   {
+    "context": "small -> smaller, cold -> colder, long -> longer, hot ->",
+    "continuation": " hotter",
+    "digits_only": false
+   },
+   {
+    "context": "warm -> warmer, soft -> softer, easy -> easier, tall ->",
+    "continuation": " taller",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safer, cheap -> cheaper, fast -> faster, fat ->",
+    "continuation": " fatter",
+    "digits_only": false
+   },
+   {
+    "context": "deep -> deeper, easy -> easier, near -> nearer, fast ->",
+    "continuation": " faster",
+    "digits_only": false
+   },
+   {
+    "context": "near -> nearer, cold -> colder, light -> lighter, bad ->",
+    "continuation": " worse",
+    "digits_only": false
+   },
+   {
+    "context": "big -> bigger, short -> shorter, young -> younger, weak ->",
+    "continuation": " weaker",
+    "digits_only": false
+   },
+   {
+    "context": "cold -> colder, tall -> taller, fat -> fatter, loud ->",
+    "continuation": " louder",
+    "digits_only": false
+   },
+   {
+    "context": "easy -> easier, quiet -> quieter, cheap -> cheaper, early ->",
+    "continuation": " earlier",
+    "digits_only": false
+   },
+   {
+    "context": "low -> lower, sharp -> sharper, safe -> safer, weak ->",
+    "continuation": " weaker",
+    "digits_only": false
+   },
+   {
+    "context": "thin -> thinner, young -> younger, fast -> faster, rich ->",
+    "continuation": " richer",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> cheaper, fast -> faster, hard -> harder, clean ->",
+    "continuation": " cleaner",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharper, tall -> taller, fast -> faster, warm ->",
+    "continuation": " warmer",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> stronger, poor -> poorer, short -> shorter, low ->",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "large -> larger, weak -> weaker, near -> nearer, slow ->",
+    "continuation": " slower",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quieter, small -> smaller, sharp -> sharper, cold ->",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "high -> higher, young -> younger, easy -> easier, poor ->",
+    "continuation": " poorer",
+    "digits_only": false
+   },
+   {
+    "context": "bad -> worse, loud -> louder, old -> older, poor ->",
+    "continuation": " poorer",
+    "digits_only": false
+   },
+   {
+    "context": "large -> larger, fast -> faster, dark -> darker, good ->",
+    "continuation": " better",
+    "digits_only": false
+   },
+   {
+    "context": "good -> better, deep -> deeper, young -> younger, easy ->",
+    "continuation": " easier",
+    "digits_only": false
+   },
+   {
+    "context": "tall -> taller, old -> older, warm -> warmer, big ->",
+    "continuation": " bigger",
+    "digits_only": false
+   },
+   {
+    "context": "big -> bigger, soft -> softer, wide -> wider, dark ->",
+    "continuation": " darker",
+    "digits_only": false
+   },
+   {
+    "context": "cold -> colder, near -> nearer, deep -> deeper, young ->",
+    "continuation": " younger",
+    "digits_only": false
+   },
+   {
+    "context": "warm -> warmer, old -> older, bad -> worse, safe ->",
+    "continuation": " safer",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharper, low -> lower, large -> larger, thin ->",
+    "continuation": " thinner",
+    "digits_only": false
+   },
+   {
+    "context": "short -> shorter, dark -> darker, loud -> louder, happy ->",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "small -> smaller, large -> larger, young -> younger, high ->",
+    "continuation": " higher",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavier, early -> earlier, young -> younger, old ->",
+    "continuation": " older",
+    "digits_only": false
+   },
+   {
+    "context": "bad -> worse, sharp -> sharper, long -> longer, fast ->",
+    "continuation": " faster",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hotter, dark -> darker, large -> larger, good ->",
+    "continuation": " better",
+    "digits_only": false
+   },
+   {
+    "context": "fast -> faster, strong -> stronger, poor -> poorer, easy ->",
+    "continuation": " easier",
+    "digits_only": false
+   },
+   {
+    "context": "soft -> softer, near -> nearer, hard -> harder, old ->",
+    "continuation": " older",
+    "digits_only": false
+   },
+   {
+    "context": "big -> bigger, small -> smaller, low -> lower, sharp ->",
+    "continuation": " sharper",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> happier, young -> younger, easy -> easier, clean ->",
+    "continuation": " cleaner",
+    "digits_only": false
+   },
+   {
+    "context": "dark -> darker, easy -> easier, big -> bigger, hot ->",
+    "continuation": " hotter",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quieter, early -> earlier, wide -> wider, high ->",
+    "continuation": " higher",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavier, happy -> happier, fast -> faster, light ->",
+    "continuation": " lighter",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharper, low -> lower, hard -> harder, quiet ->",
+    "continuation": " quieter",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hotter, dark -> darker, short -> shorter, easy ->",
+    "continuation": " easier",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poorer, large -> larger, big -> bigger, small ->",
+    "continuation": " smaller",
+    "digits_only": false
+   },
+   {
+    "context": "tall -> taller, early -> earlier, deep -> deeper, big ->",
+    "continuation": " bigger",
+    "digits_only": false
+   },
+   {
+    "context": "slow -> slower, hard -> harder, high -> higher, near ->",
+    "continuation": " nearer",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> stronger, slow -> slower, long -> longer, hard ->",
+    "continuation": " harder",
+    "digits_only": false
+   },
+   {
+    "context": "low -> lower, near -> nearer, small -> smaller, cheap ->",
+    "continuation": " cheaper",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "heavy -> heavier, hot -> hotter, hard -> harder, short ->",
+    "continuation": " shorter",
+    "digits_only": false
+   },
+   {
+    "context": "early -> earlier, soft -> softer, hard -> harder, cheap ->",
+    "continuation": " cheaper",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> happier, slow -> slower, warm -> warmer, cheap ->",
+    "continuation": " cheaper",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hotter, rich -> richer, fast -> faster, strong ->",
+    "continuation": " stronger",
+    "digits_only": false
+   },
+   {
+    "context": "warm -> warmer, good -> better, light -> lighter, long ->",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> stronger, tall -> taller, good -> better, loud ->",
+    "continuation": " louder",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavier, hard -> harder, wide -> wider, large ->",
+    "continuation": " larger",
+    "digits_only": false
+   },
+   {
+    "context": "fat -> fatter, cheap -> cheaper, slow -> slower, tall ->",
+    "continuation": " taller",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavier, big -> bigger, hard -> harder, near ->",
+    "continuation": " nearer",
+    "digits_only": false
+   },
+   {
+    "context": "easy -> easier, quiet -> quieter, good -> better, slow ->",
+    "continuation": " slower",
+    "digits_only": false
+   },
+   {
+    "context": "dark -> darker, heavy -> heavier, early -> earlier, tall ->",
+    "continuation": " taller",
+    "digits_only": false
+   },
+   {
+    "context": "young -> younger, poor -> poorer, cold -> colder, happy ->",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "soft -> softer, young -> younger, small -> smaller, fast ->",
+    "continuation": " faster",
+    "digits_only": false
+   },
+   {
+    "context": "large -> larger, hot -> hotter, long -> longer, clean ->",
+    "continuation": " cleaner",
+    "digits_only": false
+   },
+   {
+    "context": "small -> smaller, large -> larger, fast -> faster, deep ->",
+    "continuation": " deeper",
+    "digits_only": false
+   },
+   {
+    "context": "low -> lower, poor -> poorer, wide -> wider, light ->",
+    "continuation": " lighter",
+    "digits_only": false
+   },
+   {
+    "context": "weak -> weaker, slow -> slower, thin -> thinner, sharp ->",
+    "continuation": " sharper",
+    "digits_only": false
+   },
+   {
+    "context": "cold -> colder, hard -> harder, fat -> fatter, wide ->",
+    "continuation": " wider",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poorer, hard -> harder, low -> lower, cold ->",
+    "continuation": " colder",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poorer, long -> longer, quiet -> quieter, warm ->",
+    "continuation": " warmer",
+    "digits_only": false
+   },
+   {
+    "context": "loud -> louder, slow -> slower, old -> older, strong ->",
+    "continuation": " stronger",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharper, old -> older, warm -> warmer, light ->",
+    "continuation": " lighter",
+    "digits_only": false
+   },
+   {
+    "context": "long -> longer, hot -> hotter, clean -> cleaner, bad ->",
+    "continuation": " worse",
+    "digits_only": false
+   },
+   {
+    "context": "dark -> darker, high -> higher, old -> older, quiet ->",
+    "continuation": " quieter",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> cheaper, small -> smaller, tall -> taller, wide ->",
+    "continuation": " wider",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poorer, young -> younger, sharp -> sharper, soft ->",
+    "continuation": " softer",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safer, bad -> worse, sharp -> sharper, weak ->",
+    "continuation": " weaker",
+    "digits_only": false
+   },
+   {
+    "context": "old -> older, low -> lower, young -> younger, quiet ->",
+    "continuation": " quieter",
+    "digits_only": false
+   },
+   {
+    "context": "young -> younger, wide -> wider, loud -> louder, slow ->",
+    "continuation": " slower",
+    "digits_only": false
+   },
+   {
+    "context": "near -> nearer, thin -> thinner, small -> smaller, sharp ->",
+    "continuation": " sharper",
+    "digits_only": false
+   },
+   {
+    "context": "thin -> thinner, long -> longer, deep -> deeper, strong ->",
+    "continuation": " stronger",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quieter, small -> smaller, large -> larger, old ->",
+    "continuation": " older",
+    "digits_only": false
+   },
+   {
+    "context": "long -> longer, quiet -> quieter, big -> bigger, fat ->",
+    "continuation": " fatter",
+    "digits_only": false
+   },
+   {
+    "context": "easy -> easier, fat -> fatter, small -> smaller, happy ->",
+    "continuation": " happier",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> richer, easy -> easier, wide -> wider, deep ->",
+    "continuation": " deeper",
+    "digits_only": false
+   },
+   {
+    "context": "good -> better, poor -> poorer, weak -> weaker, long ->",
+    "continuation": " longer",
+    "digits_only": false
+   },
+   {
+    "context": "good -> better, early -> earlier, near -> nearer, warm ->",
+    "continuation": " warmer",
+    "digits_only": false
+   },
+   {
+    "context": "dark -> darker, slow -> slower, near -> nearer, big ->",
+    "continuation": " bigger",
+    "digits_only": false
+   },
+   {
+    "context": "near -> nearer, soft -> softer, wide -> wider, early ->",
+    "continuation": " earlier",
+    "digits_only": false
+   },
+   {
+    "context": "light -> lighter, tall -> taller, cold -> colder, heavy ->",
+    "continuation": " heavier",
+    "digits_only": false
+   },
+   {
+    "context": "early -> earlier, clean -> cleaner, deep -> deeper, low ->",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poorer, long -> longer, bad -> worse, small ->",
+    "continuation": " smaller",
+    "digits_only": false
+   },
+   {
+    "context": "fat -> fatter, poor -> poorer, hot -> hotter, large ->",
+    "continuation": " larger",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> stronger, low -> lower, fast -> faster, hot ->",
+    "continuation": " hotter",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quieter, fat -> fatter, safe -> safer, thin ->",
+    "continuation": " thinner",
+    "digits_only": false
+   },
+   {
+    "context": "young -> younger, warm -> warmer, small -> smaller, rich ->",
+    "continuation": " richer",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quieter, high -> higher, tall -> taller, soft ->",
+    "continuation": " softer",
+    "digits_only": false
+   },
+   {
+    "context": "light -> lighter, young -> younger, rich -> richer, low ->",
+    "continuation": " lower",
+    "digits_only": false
+   },
+   {
+    "context": "light -> lighter, wide -> wider, fat -> fatter, bad ->",
+    "continuation": " worse",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> stronger, thin -> thinner, clean -> cleaner, heavy ->",
+    "continuation": " heavier",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poorer, big -> bigger, weak -> weaker, dark ->",
+    "continuation": " darker",
+    "digits_only": false
+   },
+   {
+    "context": "easy -> easier, cheap -> cheaper, safe -> safer, soft ->",
+    "continuation": " softer",
+    "digits_only": false
+   },
+   {
+    "context": "near -> nearer, tall -> taller, happy -> happier, large ->",
+    "continuation": " larger",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> cleaner, cheap -> cheaper, light -> lighter, high ->",
+    "continuation": " higher",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hotter, young -> younger, dark -> darker, short ->",
+    "continuation": " shorter",
+    "digits_only": false
+   },
+   {
+    "context": "loud -> louder, high -> higher, slow -> slower, dark ->",
+    "continuation": " darker",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> happier, large -> larger, young -> younger, safe ->",
+    "continuation": " safer",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safer, fast -> faster, sharp -> sharper, early ->",
+    "continuation": " earlier",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> stronger, slow -> slower, short -> shorter, poor ->",
+    "continuation": " poorer",
+    "digits_only": false
+   },
+   {
+    "context": "young -> younger, happy -> happier, rich -> richer, near ->",
+    "continuation": " nearer",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "weak -> weak, slow -> slow, thin -> thin, sharp ->",
+    "continuation": " sharp",
+    "digits_only": false
+   },
+   {
+    "context": "early -> early, soft -> soft, hard -> hard, cheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "soft -> soft, near -> near, hard -> hard, old ->",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "easy -> easy, fat -> fat, small -> small, happy ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "rich -> rich, easy -> easy, wide -> wide, deep ->",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hot, rich -> rich, fast -> fast, strong ->",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavy, hot -> hot, hard -> hard, short ->",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "good -> good, early -> early, near -> near, warm ->",
+    "continuation": " warm",
+    "digits_only": false
+   },
+   {
+    "context": "light -> light, young -> young, rich -> rich, low ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "large -> large, weak -> weak, near -> near, slow ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "tall -> tall, early -> early, deep -> deep, big ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "fast -> fast, strong -> strong, poor -> poor, easy ->",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "bad -> bad, weak -> weak, sharp -> sharp, young ->",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poor, long -> long, quiet -> quiet, warm ->",
+    "continuation": " warm",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> happy, young -> young, easy -> easy, clean ->",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> cheap, small -> small, tall -> tall, wide ->",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "long -> long, rich -> rich, weak -> weak, thin ->",
+    "continuation": " thin",
+    "digits_only": false
+   },
+   {
+    "context": "big -> big, soft -> soft, wide -> wide, dark ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hot, dark -> dark, short -> short, easy ->",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "young -> young, wide -> wide, loud -> loud, slow ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> happy, slow -> slow, warm -> warm, cheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "large -> large, hot -> hot, long -> long, clean ->",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "near -> near, soft -> soft, wide -> wide, early ->",
+    "continuation": " early",
+    "digits_only": false
+   },
+   {
+    "context": "good -> good, deep -> deep, young -> young, easy ->",
+    "continuation": " easy",
+    "digits_only": false
+   },
+   {
+    "context": "thin -> thin, long -> long, deep -> deep, strong ->",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "early -> early, clean -> clean, deep -> deep, low ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "long -> long, hot -> hot, clean -> clean, bad ->",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "bad -> bad, loud -> loud, old -> old, poor ->",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> strong, safe -> safe, rich -> rich, small ->",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "clean -> clean, cheap -> cheap, light -> light, high ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quiet, small -> small, sharp -> sharp, cold ->",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "bad -> bad, sharp -> sharp, long -> long, fast ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "cold -> cold, tall -> tall, fat -> fat, loud ->",
+    "continuation": " loud",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hot, young -> young, dark -> dark, short ->",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "small -> small, large -> large, young -> young, high ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quiet, fat -> fat, safe -> safe, thin ->",
+    "continuation": " thin",
+    "digits_only": false
+   },
+   {
+    "context": "easy -> easy, quiet -> quiet, good -> good, slow ->",
+    "continuation": " slow",
+    "digits_only": false
+   },
+   {
+    "context": "large -> large, fast -> fast, dark -> dark, good ->",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "big -> big, short -> short, young -> young, weak ->",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "warm -> warm, old -> old, bad -> bad, safe ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "fast -> fast, small -> small, bad -> bad, long ->",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "small -> small, large -> large, fast -> fast, deep ->",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "near -> near, thin -> thin, small -> small, sharp ->",
+    "continuation": " sharp",
+    "digits_only": false
+   },
+   {
+    "context": "fat -> fat, large -> large, safe -> safe, cold ->",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poor, big -> big, weak -> weak, dark ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "warm -> warm, good -> good, light -> light, long ->",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "easy -> easy, quiet -> quiet, cheap -> cheap, early ->",
+    "continuation": " early",
+    "digits_only": false
+   },
+   {
+    "context": "long -> long, deep -> deep, good -> good, hard ->",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavy, early -> early, young -> young, old ->",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "fat -> fat, poor -> poor, hot -> hot, large ->",
+    "continuation": " large",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safe, bad -> bad, sharp -> sharp, weak ->",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "near -> near, tall -> tall, happy -> happy, large ->",
+    "continuation": " large",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharp, tall -> tall, fast -> fast, warm ->",
+    "continuation": " warm",
+    "digits_only": false
+   },
+   {
+    "context": "happy -> happy, large -> large, young -> young, safe ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "young -> young, warm -> warm, small -> small, rich ->",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quiet, high -> high, tall -> tall, soft ->",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "cold -> cold, near -> near, deep -> deep, young ->",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharp, short -> short, low -> low, rich ->",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "soft -> soft, young -> young, small -> small, fast ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quiet, small -> small, large -> large, old ->",
+    "continuation": " old",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "wide -> wide, bad -> bad, high -> high, heavy ->",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "thin -> thin, young -> young, fast -> fast, rich ->",
+    "continuation": " rich",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharp, low -> low, hard -> hard, quiet ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "near -> near, clean -> clean, hard -> hard, young ->",
+    "continuation": " young",
+    "digits_only": false
+   },
+   {
+    "context": "large -> large, wide -> wide, small -> small, good ->",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "loud -> loud, high -> high, slow -> slow, dark ->",
+    "continuation": " dark",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> strong, tall -> tall, good -> good, loud ->",
+    "continuation": " loud",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> strong, poor -> poor, short -> short, low ->",
+    "continuation": " low",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> strong, slow -> slow, long -> long, hard ->",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safe, cheap -> cheap, fast -> fast, fat ->",
+    "continuation": " fat",
+    "digits_only": false
+   },
+   {
+    "context": "big -> big, small -> small, low -> low, sharp ->",
+    "continuation": " sharp",
+    "digits_only": false
+   },
+   {
+    "context": "low -> low, sharp -> sharp, safe -> safe, weak ->",
+    "continuation": " weak",
+    "digits_only": false
+   },
+   {
+    "context": "short -> short, dark -> dark, loud -> loud, happy ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "cold -> cold, hard -> hard, fat -> fat, wide ->",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "fat -> fat, large -> large, hard -> hard, safe ->",
+    "continuation": " safe",
+    "digits_only": false
+   },
+   {
+    "context": "low -> low, poor -> poor, wide -> wide, light ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "dark -> dark, easy -> easy, big -> big, hot ->",
+    "continuation": " hot",
+    "digits_only": false
+   },
+   {
+    "context": "bad -> bad, dark -> dark, cold -> cold, deep ->",
+    "continuation": " deep",
+    "digits_only": false
+   },
+   {
+    "context": "warm -> warm, soft -> soft, tall -> tall, loud ->",
+    "continuation": " loud",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavy, happy -> happy, fast -> fast, light ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> strong, low -> low, fast -> fast, hot ->",
+    "continuation": " hot",
+    "digits_only": false
+   },
+   {
+    "context": "light -> light, wide -> wide, fat -> fat, bad ->",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "dark -> dark, heavy -> heavy, early -> early, tall ->",
+    "continuation": " tall",
+    "digits_only": false
+   },
+   {
+    "context": "light -> light, deep -> deep, clean -> clean, wide ->",
+    "continuation": " wide",
+    "digits_only": false
+   },
+   {
+    "context": "near -> near, cold -> cold, light -> light, bad ->",
+    "continuation": " bad",
+    "digits_only": false
+   },
+   {
+    "context": "old -> old, low -> low, young -> young, quiet ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "warm -> warm, soft -> soft, easy -> easy, tall ->",
+    "continuation": " tall",
+    "digits_only": false
+   },
+   {
+    "context": "light -> light, tall -> tall, cold -> cold, heavy ->",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "loud -> loud, slow -> slow, old -> old, strong ->",
+    "continuation": " strong",
+    "digits_only": false
+   },
+   {
+    "context": "tall -> tall, old -> old, warm -> warm, big ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> cheap, fast -> fast, warm -> warm, fat ->",
+    "continuation": " fat",
+    "digits_only": false
+   },
+   {
+    "context": "small -> small, cold -> cold, long -> long, hot ->",
+    "continuation": " hot",
+    "digits_only": false
+   },
+   {
+    "context": "young -> young, poor -> poor, cold -> cold, happy ->",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "quiet -> quiet, early -> early, wide -> wide, high ->",
+    "continuation": " high",
+    "digits_only": false
+   },
+   {
+    "context": "slow -> slow, hard -> hard, high -> high, near ->",
+    "continuation": " near",
+    "digits_only": false
+   },
+   {
+    "context": "dark -> dark, high -> high, old -> old, quiet ->",
+    "continuation": " quiet",
+    "digits_only": false
+   },
+   {
+    "context": "fat -> fat, cheap -> cheap, slow -> slow, tall ->",
+    "continuation": " tall",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavy, big -> big, hard -> hard, near ->",
+    "continuation": " near",
+    "digits_only": false
+   },
+   {
+    "context": "long -> long, quiet -> quiet, big -> big, fat ->",
+    "continuation": " fat",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharp, old -> old, warm -> warm, light ->",
+    "continuation": " light",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> strong, slow -> slow, short -> short, poor ->",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "wide -> wide, clean -> clean, weak -> weak, short ->",
+    "continuation": " short",
+    "digits_only": false
+   },
+   {
+    "context": "easy -> easy, cheap -> cheap, safe -> safe, soft ->",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "dark -> dark, slow -> slow, near -> near, big ->",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poor, hard -> hard, low -> low, cold ->",
+    "continuation": " cold",
+    "digits_only": false
+   },
+   {
+    "context": "strong -> strong, thin -> thin, clean -> clean, heavy ->",
+    "continuation": " heavy",
+    "digits_only": false
+   },
+   {
+    "context": "high -> high, young -> young, easy -> easy, poor ->",
+    "continuation": " poor",
+    "digits_only": false
+   },
+   {
+    "context": "low -> low, near -> near, small -> small, cheap ->",
+    "continuation": " cheap",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poor, young -> young, sharp -> sharp, soft ->",
+    "continuation": " soft",
+    "digits_only": false
+   },
+   {
+    "context": "easy -> easy, safe -> safe, long -> long, hard ->",
+    "continuation": " hard",
+    "digits_only": false
+   },
+   {
+    "context": "cheap -> cheap, fast -> fast, hard -> hard, clean ->",
+    "continuation": " clean",
+    "digits_only": false
+   },
+   {
+    "context": "heavy -> heavy, hard -> hard, wide -> wide, large ->",
+    "continuation": " large",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poor, large -> large, big -> big, small ->",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "good -> good, poor -> poor, weak -> weak, long ->",
+    "continuation": " long",
+    "digits_only": false
+   },
+   {
+    "context": "deep -> deep, easy -> easy, near -> near, fast ->",
+    "continuation": " fast",
+    "digits_only": false
+   },
+   {
+    "context": "safe -> safe, fast -> fast, sharp -> sharp, early ->",
+    "continuation": " early",
+    "digits_only": false
+   },
+   {
+    "context": "hot -> hot, dark -> dark, large -> large, good ->",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "young -> young, happy -> happy, rich -> rich, near ->",
+    "continuation": " near",
+    "digits_only": false
+   },
+   {
+    "context": "sharp -> sharp, low -> low, large -> large, thin ->",
+    "continuation": " thin",
+    "digits_only": false
+   },
+   {
+    "context": "poor -> poor, long -> long, bad -> bad, small ->",
+    "continuation": " small",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.3544
+}

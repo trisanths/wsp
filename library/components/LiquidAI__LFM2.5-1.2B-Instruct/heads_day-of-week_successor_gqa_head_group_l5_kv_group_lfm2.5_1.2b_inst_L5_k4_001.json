@@ -1,0 +1,116 @@
+{
+  "id": "heads_day-of-week_successor_gqa_head_group_l5_kv_group_lfm2.5_1.2b_inst_L5_k4_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-1.2B-Instruct layer 5, day-of-week successor GQA head group (L5 KV group 6)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7803,
+      "control_value": 0.1432,
+      "split": "person_a held-out skill items (weekday_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0709"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 5,
+  "layers": [
+    5
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/heads_day-of-week_successor_gqa_head_group_l5_kv_group_lfm2.5_1.2b_inst_L5_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/heads_day-of-week_successor_gqa_head_group_l5_kv_group_lfm2.5_1.2b_inst_L5_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_successor'",
+    "label": "day-of-week successor GQA head group (L5 KV group 6)",
+    "num_units": 4,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0037,
+      "math|heldout": -0.0107,
+      "code|search": 0.0082,
+      "code|heldout": 0.0069,
+      "facts|search": 0.0581,
+      "facts|heldout": -0.0507,
+      "multilingual|search": 0.012,
+      "multilingual|heldout": 0.0056,
+      "general_text|search": 0.0246,
+      "general_text|heldout": 0.0271,
+      "month_successor|search": -0.6529,
+      "month_successor__control|search": -0.0977,
+      "month_successor|heldout": -0.4502,
+      "month_successor__control|heldout": -0.0291,
+      "weekday_successor|search": 0.619,
+      "weekday_successor__control|search": 0.1209,
+      "weekday_successor|heldout": 0.7803,
+      "weekday_successor__control|heldout": 0.0709,
+      "object_color|search": -0.038,
+      "object_color__control|search": -0.2337,
+      "object_color|heldout": -0.0072,
+      "object_color__control|heldout": -0.343,
+      "feminine_pronoun|search": 0.0461,
+      "feminine_pronoun__control|search": 0.1251,
+      "feminine_pronoun|heldout": 0.0078,
+      "feminine_pronoun__control|heldout": 0.1631,
+      "month_list_next|search": -0.0011,
+      "month_list_next__control|search": 0.0082,
+      "month_list_next|heldout": -0.0002,
+      "month_list_next__control|heldout": 0.0071,
+      "weekday_list_next|search": -0.0017,
+      "weekday_list_next__control|search": -0.0211,
+      "weekday_list_next|heldout": 0.0077,
+      "weekday_list_next__control|heldout": -0.0376,
+      "roman_numeral|search": -0.0665,
+      "roman_numeral__control|search": 0.1047,
+      "roman_numeral|heldout": -0.247,
+      "roman_numeral__control|heldout": 0.0842,
+      "masculine_pronoun|search": 0.0063,
+      "masculine_pronoun__control|search": 0.0005,
+      "masculine_pronoun|heldout": 0.0746,
+      "masculine_pronoun__control|heldout": -0.0106
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2063,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.3528,
+      0.3867,
+      0.5422,
+      0.0001,
+      0.14
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Heads 24-27 share one KV projection (KV head 6 of 8), so the four query heads read the same values and form a natural transferable unit. Ablating the group dropped weekday_successor by .619, with the weekday control at .121 and all built-ins under .03."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_1.2b_inst/weekday_successor.json",
+    "hash": "c781e35f930e1a16",
+    "description": "Name the weekday k days after a given weekday. Control: same template with integer successor.",
+    "name": "weekday_successor"
+  },
+  "catalog_id": "heads_day-of-week_successor_gqa_head_group_l5_kv_group_lfm2.5_1.2b_inst_L5_k4_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/heads_day-of-week_successor_gqa_head_group_l5_kv_group_lfm2.5_1.2b_inst_L5_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

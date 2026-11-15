@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_liquidai__lfm2-24b-a2b_politics_geography_l22",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 22, 8 experts for politics_geography (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "politics_geography"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 22 of LFM2-24B-A2B on 'politics_geography' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.08906,
+      "control_value": 0.00368,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 22 of LFM2-24B-A2B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.01076,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 4.18635,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-24B-A2B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/map_expert_liquidai__lfm2-24b-a2b_politics_geography_l22.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "politics_geography",
+    "data": "cais/mmlu all test (subjects: high_school_government_and_politics, us_foreign_policy, public_relations, security_studies, high_school_geography, global_facts): politics geography questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      30,
+      31,
+      48,
+      2,
+      47,
+      46,
+      36,
+      27
+    ],
+    "details": [
+      {
+        "expert": 30,
+        "skill_freq": 0.047054,
+        "general_freq": 0.0,
+        "log_ratio": 6.156,
+        "heldout_log_ratio": 6.1562
+      },
+      {
+        "expert": 31,
+        "skill_freq": 0.025009,
+        "general_freq": 0.0,
+        "log_ratio": 5.5258,
+        "heldout_log_ratio": 5.5212
+      },
+      {
+        "expert": 48,
+        "skill_freq": 0.166358,
+        "general_freq": 0.001541,
+        "log_ratio": 4.6194,
+        "heldout_log_ratio": 5.1814
+      },
+      {
+        "expert": 2,
+        "skill_freq": 0.050019,
+        "general_freq": 0.000616,
+        "log_ratio": 4.2485,
+        "heldout_log_ratio": 4.8862
+      },
+      {
+        "expert": 47,
+        "skill_freq": 0.059466,
+        "general_freq": 0.000924,
+        "log_ratio": 4.0634,
+        "heldout_log_ratio": 2.9586
+      },
+      {
+        "expert": 46,
+        "skill_freq": 0.25176,
+        "general_freq": 0.016333,
+        "log_ratio": 2.7296,
+        "heldout_log_ratio": 3.0331
+      },
+      {
+        "expert": 36,
+        "skill_freq": 0.074102,
+        "general_freq": 0.006009,
+        "log_ratio": 2.497,
+        "heldout_log_ratio": 1.2616
+      },
+      {
+        "expert": 27,
+        "skill_freq": 0.038718,
+        "general_freq": 0.004006,
+        "log_ratio": 2.2464,
+        "heldout_log_ratio": 4.4925
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_government_and_politics, us_foreign_policy, public_relations, security_studies, high_school_geography, global_facts): politics geography questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 23.84,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "20052c41d2a7ccca3d5325331dd54de0c4d9021e"
+}

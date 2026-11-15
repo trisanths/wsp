@@ -1,0 +1,620 @@
+{
+ "name": "object_color",
+ "description": "Name the typical colour of a common object. Control: same template asking the object's typical number/shape-free attribute (count of legs/wheels).",
+ "hash": "e651aaddb20dc04e",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nC={'grass':'green','snow':'white','coal':'black','a banana':'yellow','a tomato':'red','the clear sky':'blue','a lemon':'yellow','blood':'red','milk':'white','an emerald':'green','a ripe cherry':'red','a crow':'black','chocolate':'brown','a pumpkin':'orange','a carrot':'orange','a sapphire':'blue','a lime':'green','charcoal':'black','an eggplant':'purple','a flamingo':'pink','a polar bear':'white','a strawberry':'red','a fire truck':'red','a school bus':'yellow','soil':'brown','a frog':'green','ink in most pens':'blue','a raven':'black','sugar':'white','a tangerine':'orange','a ruby':'red','cucumber skin':'green','a dandelion flower':'yellow','tree bark':'brown','a lavender flower':'purple','the ocean':'blue','a panther':'black','a cloud':'white','a sunflower':'yellow','a pine tree':'green'}\nN={'a spider':'eight','a dog':'four','a bird':'two','an insect':'six','a bicycle':'two','a tricycle':'three','a car':'four','an octopus':'eight','a cat':'four','a human':'two','a horse':'four','an ant':'six','a chicken':'two','a cow':'four','a duck':'two','a beetle':'six','a sheep':'four','an ostrich':'two','a scorpion':'eight','a goat':'four'}\nitems=[];control=[]\nfor o,c in C.items():\n    items.append({'prompt':f'Q: What color is {o}?\\nA: The color is','answer':' '+c})\n    items.append({'prompt':f'The usual color of {o} is','answer':' '+c})\nfor o,c in N.items():\n    for t in ('legs' if o not in ('a bicycle','a tricycle','a car') else 'wheels',):\n        control.append({'prompt':f'Q: How many {t} does {o} have?\\nA: The number is','answer':' '+c})\n        control.append({'prompt':f'The usual number of {t} on {o} is','answer':' '+c})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Q: What color is sugar?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a fire truck?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a strawberry?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a frog?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is chocolate?\nA: The color is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a sapphire is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lavender flower?\nA: The color is",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of the clear sky is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is tree bark?\nA: The color is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a polar bear is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a cloud is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a tomato?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of an eggplant is",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a carrot is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of grass is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is blood?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is ink in most pens?\nA: The color is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a tangerine is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of cucumber skin is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is an emerald?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a school bus is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is snow?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pine tree?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a cloud?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a crow is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a banana is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is the clear sky?\nA: The color is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a ruby?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pumpkin?\nA: The color is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of blood is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a raven is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of the ocean is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of chocolate is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a sunflower is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of snow is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is milk?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a sunflower?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a carrot?\nA: The color is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a pine tree is",
+    "continuation": " green",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What color is soil?\nA: The color is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a lemon is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a polar bear?\nA: The color is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a flamingo is",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a ripe cherry?\nA: The color is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a lavender flower is",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a crow?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a raven?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of charcoal is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a sapphire?\nA: The color is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a ripe cherry is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a strawberry is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coal?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a school bus?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a banana?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of an emerald is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a tomato is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of sugar is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a panther?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a panther is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is the ocean?\nA: The color is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is charcoal?\nA: The color is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a tangerine?\nA: The color is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lime?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lemon?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of tree bark is",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is an eggplant?\nA: The color is",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of milk is",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a dandelion flower?\nA: The color is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a pumpkin is",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a fire truck is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a ruby is",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a flamingo?\nA: The color is",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a frog is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is cucumber skin?\nA: The color is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a dandelion flower is",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of a lime is",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of coal is",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of ink in most pens is",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "The usual color of soil is",
+    "continuation": " brown",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The usual number of legs on an ant is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a dog have?\nA: The number is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of wheels on a tricycle is",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a spider is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a scorpion is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a sheep have?\nA: The number is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a bird is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of wheels on a bicycle is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a cat is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a duck is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does an ostrich have?\nA: The number is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a horse have?\nA: The number is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a goat have?\nA: The number is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a horse is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a cow is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does an ant have?\nA: The number is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many wheels does a tricycle have?\nA: The number is",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a sheep is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a human have?\nA: The number is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on an ostrich is",
+    "continuation": " two",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The usual number of legs on a goat is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does an octopus have?\nA: The number is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a cow have?\nA: The number is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a human is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of wheels on a car is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many wheels does a car have?\nA: The number is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a spider have?\nA: The number is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on an octopus is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a dog is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does an insect have?\nA: The number is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a chicken is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a chicken have?\nA: The number is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a beetle have?\nA: The number is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a duck have?\nA: The number is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on a beetle is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "The usual number of legs on an insect is",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a cat have?\nA: The number is",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a bird have?\nA: The number is",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many legs does a scorpion have?\nA: The number is",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Q: How many wheels does a bicycle have?\nA: The number is",
+    "continuation": " two",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.7008
+}

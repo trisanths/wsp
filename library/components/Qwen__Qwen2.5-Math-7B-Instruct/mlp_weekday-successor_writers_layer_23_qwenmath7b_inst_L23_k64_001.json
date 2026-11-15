@@ -1,0 +1,116 @@
+{
+  "id": "mlp_weekday-successor_writers_layer_23_qwenmath7b_inst_L23_k64_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-7B-Instruct layer 23, weekday-successor writers (layer 23)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_successor"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7787,
+      "control_value": -0.0004,
+      "split": "person_a held-out skill items (weekday_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0302"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 23,
+  "layers": [
+    23
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/mlp_weekday-successor_writers_layer_23_qwenmath7b_inst_L23_k64_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/mlp_weekday-successor_writers_layer_23_qwenmath7b_inst_L23_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_successor'",
+    "label": "weekday-successor writers (layer 23)",
+    "num_units": 64,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0007,
+      "math|heldout": 0.0013,
+      "code|search": -0.0003,
+      "code|heldout": -0.0002,
+      "facts|search": 0.0082,
+      "facts|heldout": 0.0021,
+      "multilingual|search": 0.0011,
+      "multilingual|heldout": 0.0017,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0,
+      "weekday_successor|search": 0.6336,
+      "weekday_successor__control|search": 0.0432,
+      "weekday_successor|heldout": 0.7787,
+      "weekday_successor__control|heldout": 0.0302,
+      "number_to_word|search": -0.0329,
+      "number_to_word__control|search": 0.0045,
+      "number_to_word|heldout": -0.1671,
+      "number_to_word__control|heldout": 0.0047,
+      "object_color|search": -0.0058,
+      "object_color__control|search": 0.0056,
+      "object_color|heldout": 0.0021,
+      "object_color__control|heldout": -0.0074,
+      "month_successor|search": -0.0099,
+      "month_successor__control|search": 0.0186,
+      "month_successor|heldout": -0.0151,
+      "month_successor__control|heldout": 0.0278,
+      "parity|search": 0.0004,
+      "parity__control|search": 0.0001,
+      "parity|heldout": 0.0096,
+      "parity__control|heldout": -0.0003,
+      "product_sign|search": 0.0005,
+      "product_sign__control|search": 0.0075,
+      "product_sign|heldout": 0.0001,
+      "product_sign__control|heldout": 0.0058,
+      "ordinal_word|search": 0.1354,
+      "ordinal_word__control|search": -0.0995,
+      "ordinal_word|heldout": 0.1444,
+      "ordinal_word__control|heldout": -0.0691,
+      "greek_letter_name|search": 0.0255,
+      "greek_letter_name__control|search": 0.0,
+      "greek_letter_name|heldout": 0.0362,
+      "greek_letter_name__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2112,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0012,
+      -0.0039,
+      -0.0037,
+      0.0047,
+      0.002
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "64 L23 down_proj columns ranked by norm fraction in the 7-dim weekday unembedding subspace minus max fraction in number-word/ordinal/month subspaces; includes contrastive day writers 268/3116 (from the subspace top list) near screened unit 16578."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/weekday_successor.json",
+    "hash": "9b466c6b62781be1",
+    "description": "Name the weekday that is k days after a given weekday. Control: same sentence format with integer successor (n + k).",
+    "name": "weekday_successor"
+  },
+  "catalog_id": "mlp_weekday-successor_writers_layer_23_qwenmath7b_inst_L23_k64_001",
+  "exported_copy": "library/qwenmath7b_inst/mlp_weekday-successor_writers_layer_23_qwenmath7b_inst_L23_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

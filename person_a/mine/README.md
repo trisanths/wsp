@@ -1,6 +1,6 @@
 # mine/: v2 parts-mining pipeline
 
-Teammates: follow `RUNBOOK.md` at the repo root. This file is a developer reference.
+Teammates: follow `person_a/RUNBOOK.md` (one folder up). This file is a developer reference.
 
 ## What it does
 For one donor model, a weight-space programming agent (`gpt-6-astra`):
@@ -14,14 +14,19 @@ Every ablation scores all active skills in one teacher-forced pass, measured as 
 ## Files
 | File | Role |
 |---|---|
-| `engine_app.py` | Deployed Modal class `Engine(model_key, hf_id, revision)`. Loads the donor and scores skills. Runs ablations, random baselines, activation/attribution/routing scans, and the optional math generation check. The client chooses the GPU per call through `with_options`. |
+| `engine_app.py` | Deployed Modal classes `EngineL4` to `EngineB200x8`, one per GPU tier, each `(model_key, hf_id, revision)` with the shared code of `EngineBase`. Loads the donor and scores skills. Runs ablations, random baselines, activation/attribution/routing scans, per-layer unit rankings, skill maps, and the optional math generation check. The client picks the class by model size (`common.pick_gpu`). |
 | `adapter.py` | Discovers layers, attention out-projections (heads), MLP down-projections and MoE expert modules, then installs zero-ablation hooks (see below). |
 | `client.py` | `Miner`: pinned revision, state, skill payloads, light gate, catalog and `.pt` writer. |
+| `evidence.py` | Evidence fields of a catalog row, from stored numbers: z-score against random parts, guard, `selection_data`, expert routing. |
+| `enrich_rows.py` | Backfills those fields into existing `catalog/<model>.jsonl` rows. No GPU call unless `--routing` is given. |
 | `skills.py` | `define_skill`: agent-written tests, with the generator run in the sandbox, a matched control, a chance check and freezing. |
 | `agent.py` | OpenAI Responses tool loop (weight-first unlock, budgets, notes, cost log). |
 | `weight_sandbox.py`, `wsp_helpers.py` | The weight sandbox. Its weights come from the engine's HF cache on the `swarmy-models` volume, at the pinned snapshot. |
 | `build_data.py` | Builds `data/builtin_skills.json` (math, code, facts, multilingual, general_text; 100 search + 50 held-out each). |
 | `run.py` / `run_many.py` | Entry points. `--smoke` checks the setup without the agent. |
+| `sweep.py` | Sweep miner with no LLM: ranks the units of every layer by attribution (engine methods `attribution_units` / `activation_units`), builds large parts, and screens the best with the light gate plus a z-score rule. See RUNBOOK section 5b. Tests: `tests/test_sweep.py`, `tests/test_top_units.py`, `tests/test_engine_units.py`. |
+| `maps.py` / `maps_many.py` | Model-level skill maps with no agent: layer scores, blocks, expert pick rates, and with `--modules` the attention and feed-forward score of every layer. Output: `atlas/pool_entries/`. See RUNBOOK section 8a. |
+| `regate.py` | Applies the light gate of today to the stored evidence of a catalog; rows that fail move to `catalog/<model>.rejected.jsonl`. |
 | `compile_catalog.py` | Merges `catalog/*.jsonl` into `catalog.jsonl`. |
 
 ## How each part kind is switched off (zero ablation)
@@ -42,7 +47,7 @@ A part passes only if all of these hold:
   This is `gate_version` 2. `mine/regate.py` re-applies it to stored evidence.
 - The target drop beats each of 5 random parts of the same size and kind in the same layer. For blocks, the random parts have the same length but a different start.
 
-Optional tier `confirmed` (math parts only): greedy GSM8K accuracy on 40 problems drops at least 20% relative.
+Optional tier `confirmed` (math parts only): greedy accuracy on 40 problems of the engine's built-in math set drops at least 20% relative.
 
 ## Outputs per model (no merge conflicts)
 - `catalog/<model>.jsonl`

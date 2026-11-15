@@ -1,0 +1,116 @@
+{
+  "id": "mlp_masculine_pronoun_output_family_l15_mlp_128_unit_lfm2.5_1.2b_inst_L15_k125_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-1.2B-Instruct layer 15, masculine pronoun output family (L15 MLP, 128 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "masculine_pronoun"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'masculine_pronoun' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5254,
+      "control_value": -0.0394,
+      "split": "person_a held-out skill items (masculine_pronoun)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.1024"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 15,
+  "layers": [
+    15
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/mlp_masculine_pronoun_output_family_l15_mlp_128_unit_lfm2.5_1.2b_inst_L15_k125_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/mlp_masculine_pronoun_output_family_l15_mlp_128_unit_lfm2.5_1.2b_inst_L15_k125_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'masculine_pronoun'",
+    "label": "masculine pronoun output family (L15 MLP, 128 units)",
+    "num_units": 125,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0007,
+      "math|heldout": -0.0015,
+      "code|search": 0.0075,
+      "code|heldout": 0.0059,
+      "facts|search": 0.0085,
+      "facts|heldout": 0.0005,
+      "multilingual|search": 0.015,
+      "multilingual|heldout": 0.0282,
+      "general_text|search": 0.0403,
+      "general_text|heldout": 0.0472,
+      "month_successor|search": -0.0192,
+      "month_successor__control|search": -0.1364,
+      "month_successor|heldout": -0.0238,
+      "month_successor__control|heldout": -0.1567,
+      "weekday_successor|search": -0.0105,
+      "weekday_successor__control|search": -0.0204,
+      "weekday_successor|heldout": 0.0074,
+      "weekday_successor__control|heldout": -0.0147,
+      "object_color|search": -0.0491,
+      "object_color__control|search": -0.0105,
+      "object_color|heldout": -0.0568,
+      "object_color__control|heldout": -0.0435,
+      "feminine_pronoun|search": -0.05,
+      "feminine_pronoun__control|search": 0.6576,
+      "feminine_pronoun|heldout": -0.0086,
+      "feminine_pronoun__control|heldout": 0.5947,
+      "month_list_next|search": 0.0004,
+      "month_list_next__control|search": -0.0017,
+      "month_list_next|heldout": -0.0004,
+      "month_list_next__control|heldout": -0.0005,
+      "weekday_list_next|search": -0.0079,
+      "weekday_list_next__control|search": -0.0021,
+      "weekday_list_next|heldout": -0.0012,
+      "weekday_list_next__control|heldout": -0.0047,
+      "roman_numeral|search": 0.0079,
+      "roman_numeral__control|search": -0.0427,
+      "roman_numeral|heldout": 0.0,
+      "roman_numeral__control|heldout": -0.0471,
+      "masculine_pronoun|search": 0.5723,
+      "masculine_pronoun__control|search": -0.0163,
+      "masculine_pronoun|heldout": 0.5254,
+      "masculine_pronoun__control|heldout": -0.1024
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1908,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0052,
+      -0.0278,
+      -0.1946,
+      0.0039,
+      0.0164
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "128 L15 units closest to masculine writer 1280 (+7170/6296), feminine seeds subtracted. Ablation masculine .572, own control -.016."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_1.2b_inst/masculine_pronoun.json",
+    "hash": "54468cf7f941ddad",
+    "description": "Continue a sentence about a named man with the right masculine pronoun form (he/his/himself). Control: identical templates with female names.",
+    "name": "masculine_pronoun"
+  },
+  "catalog_id": "mlp_masculine_pronoun_output_family_l15_mlp_128_unit_lfm2.5_1.2b_inst_L15_k125_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/mlp_masculine_pronoun_output_family_l15_mlp_128_unit_lfm2.5_1.2b_inst_L15_k125_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

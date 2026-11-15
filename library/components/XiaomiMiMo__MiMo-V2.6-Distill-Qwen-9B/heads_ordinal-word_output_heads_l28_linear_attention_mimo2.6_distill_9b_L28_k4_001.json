@@ -1,0 +1,116 @@
+{
+  "id": "heads_ordinal-word_output_heads_l28_linear_attention_mimo2.6_distill_9b_L28_k4_001",
+  "kind": "attn_heads",
+  "title": "MiMo-V2.6-Distill-Qwen-9B layer 28, ordinal-word output heads (L28 linear attention)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "ordinal_word"
+  ],
+  "models": [
+    "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'ordinal_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7282,
+      "control_value": -0.0164,
+      "split": "person_a held-out skill items (ordinal_word)",
+      "seeds": null,
+      "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0642"
+    }
+  ],
+  "generated": true,
+  "model": "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+  "layer": 28,
+  "layers": [
+    28
+  ],
+  "units_file": "components/XiaomiMiMo__MiMo-V2.6-Distill-Qwen-9B/heads_ordinal-word_output_heads_l28_linear_attention_mimo2.6_distill_9b_L28_k4_001.pt",
+  "units_remote": "person_a/parts/mimo2.6_distill_9b/heads_ordinal-word_output_heads_l28_linear_attention_mimo2.6_distill_9b_L28_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'ordinal_word'",
+    "label": "ordinal-word output heads (L28 linear attention)",
+    "num_units": 4,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0007,
+      "math|heldout": 0.0025,
+      "code|search": 0.0032,
+      "code|heldout": 0.0005,
+      "facts|search": -0.0088,
+      "facts|heldout": -0.0037,
+      "multilingual|search": 0.0105,
+      "multilingual|heldout": 0.0072,
+      "general_text|search": 0.0293,
+      "general_text|heldout": 0.0256,
+      "month_successor|search": 0.0801,
+      "month_successor__control|search": 0.0182,
+      "month_successor|heldout": 0.0944,
+      "month_successor__control|heldout": 0.0125,
+      "roman_numeral|search": 0.0503,
+      "roman_numeral__control|search": 0.0123,
+      "roman_numeral|heldout": 0.0495,
+      "roman_numeral__control|heldout": 0.0096,
+      "ordinal_word|search": 0.7347,
+      "ordinal_word__control|search": 0.0491,
+      "ordinal_word|heldout": 0.7282,
+      "ordinal_word__control|heldout": 0.0642,
+      "weekday_successor|search": 0.0968,
+      "weekday_successor__control|search": 0.043,
+      "weekday_successor|heldout": 0.1007,
+      "weekday_successor__control|heldout": 0.0465,
+      "color_of_object|search": 0.0592,
+      "color_of_object__control|search": 0.0051,
+      "color_of_object|heldout": 0.0506,
+      "color_of_object__control|heldout": 0.0002,
+      "greek_letter_successor|search": 0.0246,
+      "greek_letter_successor__control|search": 0.0065,
+      "greek_letter_successor|heldout": 0.0187,
+      "greek_letter_successor__control|heldout": -0.0053,
+      "country_of_city|search": 0.0182,
+      "country_of_city__control|search": 0.0017,
+      "country_of_city|heldout": 0.0162,
+      "country_of_city__control|heldout": -0.0026,
+      "en_fr_translation|search": 0.0228,
+      "en_fr_translation__control|search": 0.0035,
+      "en_fr_translation|heldout": 0.0104,
+      "en_fr_translation__control|heldout": 0.0021
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2449,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0385,
+      0.0213,
+      -0.0583,
+      -0.0166,
+      0.0099
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The 4 L28 GatedDeltaNet heads whose out_proj column spaces carry the most ordinal-word token energy through final norm + lm_head: h25 5.62x a random-token baseline, h6 1.67x, h26 1.2x, h23 1.1x. h25 is also the top ordinal attribution (.881)."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/mimo2.6_distill_9b/ordinal_word.json",
+    "hash": "34b5a74cc6ee1d2b",
+    "description": "Convert a digit 1-12 into its English ordinal word (third, seventh). Control converts the same digit to its cardinal word (three, seven).",
+    "name": "ordinal_word"
+  },
+  "catalog_id": "heads_ordinal-word_output_heads_l28_linear_attention_mimo2.6_distill_9b_L28_k4_001",
+  "exported_copy": "library/mimo2.6_distill_9b/heads_ordinal-word_output_heads_l28_linear_attention_mimo2.6_distill_9b_L28_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

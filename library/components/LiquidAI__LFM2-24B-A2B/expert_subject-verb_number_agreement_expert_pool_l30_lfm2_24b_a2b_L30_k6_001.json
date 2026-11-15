@@ -1,0 +1,116 @@
+{
+  "id": "expert_subject-verb_number_agreement_expert_pool_l30_lfm2_24b_a2b_L30_k6_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 30, subject-verb number agreement expert pool (L30)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "subject_verb_agreement"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'subject_verb_agreement' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2605,
+      "control_value": 0.0008,
+      "split": "person_a held-out skill items (subject_verb_agreement)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.038"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 30,
+  "layers": [
+    30
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_subject-verb_number_agreement_expert_pool_l30_lfm2_24b_a2b_L30_k6_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_subject-verb_number_agreement_expert_pool_l30_lfm2_24b_a2b_L30_k6_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'subject_verb_agreement'",
+    "label": "subject-verb number agreement expert pool (L30)",
+    "num_units": 6,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0011,
+      "math|heldout": -0.0004,
+      "code|search": 0.0015,
+      "code|heldout": 0.001,
+      "facts|search": 0.0215,
+      "facts|heldout": 0.0339,
+      "multilingual|search": 0.0091,
+      "multilingual|heldout": 0.0068,
+      "general_text|search": 0.004,
+      "general_text|heldout": -0.0008,
+      "month_successor|search": 0.072,
+      "month_successor__control|search": -0.0027,
+      "month_successor|heldout": 0.0777,
+      "month_successor__control|heldout": 0.0,
+      "weekday_successor|search": -0.004,
+      "weekday_successor__control|search": -0.0199,
+      "weekday_successor|heldout": 0.004,
+      "weekday_successor__control|heldout": 0.0267,
+      "roman_numeral|search": 0.001,
+      "roman_numeral__control|search": 0.0021,
+      "roman_numeral|heldout": -0.0021,
+      "roman_numeral__control|heldout": 0.0012,
+      "antonym|search": -0.0047,
+      "antonym__control|search": -0.0277,
+      "antonym|heldout": -0.0147,
+      "antonym__control|heldout": -0.0198,
+      "chinese_numeral|search": -0.0481,
+      "chinese_numeral__control|search": -0.0008,
+      "chinese_numeral|heldout": -0.0575,
+      "chinese_numeral__control|heldout": -0.0042,
+      "a_an_article|search": 0.0184,
+      "a_an_article__control|search": -0.0352,
+      "a_an_article|heldout": 0.0186,
+      "a_an_article__control|heldout": 0.0052,
+      "subject_verb_agreement|search": 0.232,
+      "subject_verb_agreement__control|search": 0.0408,
+      "subject_verb_agreement|heldout": 0.2605,
+      "subject_verb_agreement__control|heldout": 0.038,
+      "en_fr_translation|search": 0.0004,
+      "en_fr_translation__control|search": 0.0005,
+      "en_fr_translation|heldout": -0.0004,
+      "en_fr_translation__control|heldout": 0.0021
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0773,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0053,
+      0.0016,
+      -0.0015,
+      -0.0026,
+      0.0014
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L30 e36 holds the SVA attribution (.20, 20x the next L30 expert). It is grouped with the next SVA-attributed L30 experts (e49, e53, e31, e58, e19), which are disjoint from the L30 roman pool (e10/e14/e30) and the facts experts (e43/e6). Ablation drops SVA .232 with control .041 and every other skill at most .072."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/subject_verb_agreement.json",
+    "hash": "124a8ab3be6759a9",
+    "description": "Choose 'is' vs 'are' to agree with a singular/plural subject across an attractor prepositional phrase. Control: same sentences ending with a modal, answer ' be'.",
+    "name": "subject_verb_agreement"
+  },
+  "catalog_id": "expert_subject-verb_number_agreement_expert_pool_l30_lfm2_24b_a2b_L30_k6_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_subject-verb_number_agreement_expert_pool_l30_lfm2_24b_a2b_L30_k6_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -16,6 +16,7 @@ Open http://localhost:8765. The server serves `studio/web/` at `/` and the API u
 | Variable | Default | Values |
 |---|---|---|
 | `WSP_STUDIO_BACKEND` | `stub` | `stub`, `local`, `modal` |
+| `WSP_STUDIO_PIPELINE` | `synth` | `synth` compiles programs with grafts or inserted layers with `wsp/synth.py`; `classic` uses the older compile |
 | `WSP_STUDIO_LLM` | `auto` | `auto`, `none`, `openai_compat`, `anthropic`, `modal_vllm` |
 | `WSP_STUDIO_OPENAI_MODEL` | `gpt-5.4-mini` | any OpenAI chat model |
 | `EXA_API_KEY` | unset | enables Exa web search for benchmark research (read by `exa_py`, never printed) |
@@ -28,12 +29,20 @@ Benchmark research starts when a spec is drafted. It picks a search provider in 
 
 Every response from the stub backend carries `"stub": true`, and the web app shows a STUB badge and a note on every page of stub numbers. The comparison rows made up by the stub are marked.
 
+## Demo mode
+
+Demo mode runs the web app on sample runs, specs and scores in the browser, so a demo needs no GPU. The parts library is the real one: in demo mode the page reads `GET /api/catalog` and the library lists from the server it was loaded from, leaves out the stub backend's made-up parts, and treats every part that is not rejected as placeable, as on the GPU backend. The demo programs use real library parts. On a plain static host with no API, it falls back to the small mock list. Turn it on with the Demo mode switch at the bottom of the sidebar, with `?demo=1` in the URL, or with Ctrl+Shift+D (Cmd+Shift+D on a Mac). `?demo=0` or the same switch turns it off. Demo runs, specs and recents use their own browser storage keys, so they never mix with real ones.
+
+`#/demo` lists every scene in presenting order: the prompt typed out, research working, a ready spec, a live agent run (overview, activity, one agent), a finished run and its results, a run that scored nothing, the builder (canvas and code), a shrink spec and result, the parts library, deletions, measured results, and the runs page. A small control at the bottom right moves between scenes (Alt+Right and Alt+Left), lists them, sets the live run speed (1x, 2x, 4x) and the theme, and hides itself (Alt+H) for a clean screen share.
+
+In demo mode one "Demo" pill in the top bar takes the place of the STUB badges, so sample numbers are never shown as measured. The measured results card keeps its real numbers. `?mock=1` without demo mode is unchanged: same mock data, with the STUB labels. Files: `web/demo-flag.js`, `web/demo-data.js`, `web/screens/demo.js`, `web/demo.css`; the seeding is in `web/mock.js`.
+
 ## Real GPUs (Modal)
 
     MODAL_PROFILE=trisanth .venv/bin/modal deploy studio/modal_studio.py
     MODAL_PROFILE=trisanth WSP_STUDIO_BACKEND=modal .venv/bin/uvicorn studio.server.app:app --port 8771
 
-`studio/modal_studio.py` is the `wsp-studio` Modal app. Each call compiles one program, trains its taps, then its LoRA or heal, and scores it in one GPU container (L40S, or H100 when a donor is above about 10B parameters). Redeploy after a change to `wsp/`, `wsp_eval/` or `parts_extracted/`, since they are copied into the image.
+`studio/modal_studio.py` is the `wsp-studio` Modal app. Each call compiles one program, trains its taps, then its LoRA or heal, and scores it in one GPU container (L40S, or H100 when a donor is above about 10B parameters). A program with grafts or inserted layers goes through `synth_remote`, which compiles with `wsp/synth.py`, scores the one saved network, and returns a verdict per component (contributes, no better than random, or harmful), stage summaries, drift from the host and measured sizes. The older path stays behind `WSP_STUDIO_PIPELINE=classic`. Redeploy after a change to `wsp/`, `wsp_eval/` or `parts_extracted/`, since they are copied into the image.
 
 - MMLU is scored as in rounds 6 and 7: the log-prob of " A" to " D", on the round 6 dev items (search, 1000) and the round 7 held-out items (2000). Other tasks use the eval harness.
 - Taps are not in Sapien. The Modal functions refuse a program with taps.
@@ -60,6 +69,7 @@ Backends: `stub` returns a made-up result (marked stub). `modal` calls `shrink_r
 - `server/compare.py`: the comparison set (base, LoRA, distillation, random, best existing model) and the verdict.
 - `server/envs.py`: builds a run's env, with the Modal backend when it is chosen.
 - `server/modal_backend.py`: the backend that calls the `wsp-studio` Modal app.
+- `server/synth_report.py`: which pipeline a program uses, what the synthesis pipeline refuses, the stub verdicts and the shape of component results.
 - `server/llm_openai.py`: the OpenAI client for GPT-5 models.
 - `server/programs.py`: program text render, parse and validate.
 

@@ -1,0 +1,1220 @@
+{
+ "name": "en_to_de_noun",
+ "description": "Translate short English sentence into German; answer is German noun after the article. Control: reverse direction (German->English), English noun.",
+ "hash": "4377338c94e879c2",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nnouns=[(\"house\",\"Haus\",\"dem\"),(\"table\",\"Tisch\",\"dem\"),(\"car\",\"Auto\",\"dem\"),(\"door\",\"T\u00fcr\",\"der\"),(\"window\",\"Fenster\",\"dem\"),(\"book\",\"Buch\",\"dem\"),(\"garden\",\"Garten\",\"dem\"),(\"kitchen\",\"K\u00fcche\",\"der\"),(\"city\",\"Stadt\",\"der\"),(\"street\",\"Stra\u00dfe\",\"der\"),(\"school\",\"Schule\",\"der\"),(\"church\",\"Kirche\",\"der\"),(\"forest\",\"Wald\",\"dem\"),(\"river\",\"Fluss\",\"dem\"),(\"bed\",\"Bett\",\"dem\"),(\"box\",\"Kiste\",\"der\"),(\"bag\",\"Tasche\",\"der\"),(\"tree\",\"Baum\",\"dem\"),(\"room\",\"Zimmer\",\"dem\"),(\"market\",\"Markt\",\"dem\"),(\"train\",\"Zug\",\"dem\"),(\"boat\",\"Boot\",\"dem\"),(\"park\",\"Park\",\"dem\"),(\"office\",\"B\u00fcro\",\"dem\"),(\"village\",\"Dorf\",\"dem\"),(\"bottle\",\"Flasche\",\"der\"),(\"shop\",\"Laden\",\"dem\"),(\"field\",\"Feld\",\"dem\"),(\"castle\",\"Schloss\",\"dem\"),(\"library\",\"Bibliothek\",\"der\")]\nsubj=[(\"The dog\",\"Der Hund\"),(\"The cat\",\"Die Katze\"),(\"My brother\",\"Mein Bruder\"),(\"The child\",\"Das Kind\"),(\"The teacher\",\"Der Lehrer\"),(\"My mother\",\"Meine Mutter\")]\npreps=[(\"is in\",\"ist in\"),(\"is near\",\"ist neben\"),(\"is behind\",\"ist hinter\"),(\"is under\",\"ist unter\"),(\"sleeps in\",\"schl\u00e4ft in\"),(\"waits behind\",\"wartet hinter\")]\nitems=[];ctrl=[];seen=set()\nwhile len(items)<120:\n    n=random.choice(nouns);s=random.choice(subj);p=random.choice(preps)\n    key=(n[0],s[0],p[0])\n    if key in seen: continue\n    seen.add(key)\n    en=f\"{s[0]} {p[0]} the {n[0]}.\"\n    items.append({\"prompt\":f\"English: {en}\\nGerman: {s[1]} {p[1]} {n[2]}\",\"answer\":\" \"+n[1]})\n    ctrl.append({\"prompt\":f\"German: {s[1]} {p[1]} {n[2]} {n[1]}.\\nEnglish: {s[0]} {p[0]} the\",\"answer\":\" \"+n[0]})\njson.dump({\"items\":items,\"control\":ctrl},open('/work/skill.json','w'),ensure_ascii=False)",
+ "items": {
+  "search": [
+   {
+    "context": "English: The teacher sleeps in the train.\nGerman: Der Lehrer schl\u00e4ft in dem",
+    "continuation": " Zug",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the castle.\nGerman: Das Kind schl\u00e4ft in dem",
+    "continuation": " Schloss",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother sleeps in the forest.\nGerman: Meine Mutter schl\u00e4ft in dem",
+    "continuation": " Wald",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the box.\nGerman: Mein Bruder schl\u00e4ft in der",
+    "continuation": " Kiste",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the garden.\nGerman: Der Hund wartet hinter dem",
+    "continuation": " Garten",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the market.\nGerman: Der Lehrer ist in dem",
+    "continuation": " Markt",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is under the church.\nGerman: Meine Mutter ist unter der",
+    "continuation": " Kirche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is near the field.\nGerman: Der Hund ist neben dem",
+    "continuation": " Feld",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher sleeps in the garden.\nGerman: Der Lehrer schl\u00e4ft in dem",
+    "continuation": " Garten",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the bed.\nGerman: Der Hund ist in dem",
+    "continuation": " Bett",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is in the library.\nGerman: Mein Bruder ist in der",
+    "continuation": " Bibliothek",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is in the river.\nGerman: Die Katze ist in dem",
+    "continuation": " Fluss",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the library.\nGerman: Der Lehrer ist neben der",
+    "continuation": " Bibliothek",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is in the car.\nGerman: Die Katze ist in dem",
+    "continuation": " Auto",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the park.\nGerman: Meine Mutter ist neben dem",
+    "continuation": " Park",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the table.\nGerman: Der Lehrer ist in dem",
+    "continuation": " Tisch",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the house.\nGerman: Das Kind wartet hinter dem",
+    "continuation": " Haus",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the tree.\nGerman: Mein Bruder schl\u00e4ft in dem",
+    "continuation": " Baum",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is behind the box.\nGerman: Das Kind ist hinter der",
+    "continuation": " Kiste",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the village.\nGerman: Der Hund wartet hinter dem",
+    "continuation": " Dorf",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the park.\nGerman: Der Lehrer ist neben dem",
+    "continuation": " Park",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is near the bottle.\nGerman: Das Kind ist neben der",
+    "continuation": " Flasche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the bottle.\nGerman: Die Katze ist neben der",
+    "continuation": " Flasche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher waits behind the window.\nGerman: Der Lehrer wartet hinter dem",
+    "continuation": " Fenster",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the field.\nGerman: Das Kind ist in dem",
+    "continuation": " Feld",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the shop.\nGerman: Das Kind schl\u00e4ft in dem",
+    "continuation": " Laden",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother waits behind the boat.\nGerman: Meine Mutter wartet hinter dem",
+    "continuation": " Boot",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the city.\nGerman: Meine Mutter ist neben der",
+    "continuation": " Stadt",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is under the book.\nGerman: Der Hund ist unter dem",
+    "continuation": " Buch",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the box.\nGerman: Der Hund ist in der",
+    "continuation": " Kiste",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the car.\nGerman: Meine Mutter ist hinter dem",
+    "continuation": " Auto",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat sleeps in the kitchen.\nGerman: Die Katze schl\u00e4ft in der",
+    "continuation": " K\u00fcche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the school.\nGerman: Der Lehrer ist in der",
+    "continuation": " Schule",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the school.\nGerman: Die Katze ist neben der",
+    "continuation": " Schule",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the market.\nGerman: Der Hund ist in dem",
+    "continuation": " Markt",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the shop.\nGerman: Meine Mutter ist in dem",
+    "continuation": " Laden",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the market.\nGerman: Meine Mutter ist neben dem",
+    "continuation": " Markt",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the door.\nGerman: Meine Mutter ist neben der",
+    "continuation": " T\u00fcr",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother waits behind the office.\nGerman: Mein Bruder wartet hinter dem",
+    "continuation": " B\u00fcro",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the bag.\nGerman: Der Lehrer ist in der",
+    "continuation": " Tasche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the forest.\nGerman: Die Katze ist hinter dem",
+    "continuation": " Wald",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the window.\nGerman: Meine Mutter ist hinter dem",
+    "continuation": " Fenster",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is in the shop.\nGerman: Die Katze ist in dem",
+    "continuation": " Laden",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is under the house.\nGerman: Der Lehrer ist unter dem",
+    "continuation": " Haus",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog sleeps in the village.\nGerman: Der Hund schl\u00e4ft in dem",
+    "continuation": " Dorf",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the book.\nGerman: Das Kind schl\u00e4ft in dem",
+    "continuation": " Buch",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the park.\nGerman: Mein Bruder ist neben dem",
+    "continuation": " Park",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the shop.\nGerman: Mein Bruder ist neben dem",
+    "continuation": " Laden",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the city.\nGerman: Das Kind ist in der",
+    "continuation": " Stadt",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the train.\nGerman: Die Katze ist hinter dem",
+    "continuation": " Zug",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the street.\nGerman: Meine Mutter ist in der",
+    "continuation": " Stra\u00dfe",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the street.\nGerman: Die Katze ist neben der",
+    "continuation": " Stra\u00dfe",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the river.\nGerman: Der Hund ist in dem",
+    "continuation": " Fluss",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is under the window.\nGerman: Die Katze ist unter dem",
+    "continuation": " Fenster",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the house.\nGerman: Der Lehrer ist neben dem",
+    "continuation": " Haus",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is behind the field.\nGerman: Der Lehrer ist hinter dem",
+    "continuation": " Feld",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the tree.\nGerman: Das Kind ist unter dem",
+    "continuation": " Baum",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the shop.\nGerman: Meine Mutter ist neben dem",
+    "continuation": " Laden",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the boat.\nGerman: Der Hund ist in dem",
+    "continuation": " Boot",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the shop.\nGerman: Meine Mutter ist hinter dem",
+    "continuation": " Laden",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: The cat sleeps in the castle.\nGerman: Die Katze schl\u00e4ft in dem",
+    "continuation": " Schloss",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the boat.\nGerman: Das Kind schl\u00e4ft in dem",
+    "continuation": " Boot",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is under the train.\nGerman: Mein Bruder ist unter dem",
+    "continuation": " Zug",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the boat.\nGerman: Das Kind wartet hinter dem",
+    "continuation": " Boot",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is under the room.\nGerman: Mein Bruder ist unter dem",
+    "continuation": " Zimmer",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother waits behind the car.\nGerman: Mein Bruder wartet hinter dem",
+    "continuation": " Auto",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the book.\nGerman: Meine Mutter ist in dem",
+    "continuation": " Buch",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the field.\nGerman: Das Kind ist unter dem",
+    "continuation": " Feld",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is in the river.\nGerman: Mein Bruder ist in dem",
+    "continuation": " Fluss",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the box.\nGerman: Der Lehrer ist in der",
+    "continuation": " Kiste",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the table.\nGerman: Mein Bruder schl\u00e4ft in dem",
+    "continuation": " Tisch",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is under the forest.\nGerman: Meine Mutter ist unter dem",
+    "continuation": " Wald",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the bottle.\nGerman: Mein Bruder schl\u00e4ft in der",
+    "continuation": " Flasche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the door.\nGerman: Das Kind ist unter der",
+    "continuation": " T\u00fcr",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is behind the market.\nGerman: Der Hund ist hinter dem",
+    "continuation": " Markt",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog sleeps in the kitchen.\nGerman: Der Hund schl\u00e4ft in der",
+    "continuation": " K\u00fcche",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the field.\nGerman: Mein Bruder ist neben dem",
+    "continuation": " Feld",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the bag.\nGerman: Das Kind ist in der",
+    "continuation": " Tasche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is under the school.\nGerman: Der Lehrer ist unter der",
+    "continuation": " Schule",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is in the bag.\nGerman: Mein Bruder ist in der",
+    "continuation": " Tasche",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother sleeps in the castle.\nGerman: Meine Mutter schl\u00e4ft in dem",
+    "continuation": " Schloss",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat waits behind the bottle.\nGerman: Die Katze wartet hinter der",
+    "continuation": " Flasche",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is behind the box.\nGerman: Mein Bruder ist hinter der",
+    "continuation": " Kiste",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is behind the church.\nGerman: Der Lehrer ist hinter der",
+    "continuation": " Kirche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the market.\nGerman: Der Hund wartet hinter dem",
+    "continuation": " Markt",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is behind the forest.\nGerman: Der Hund ist hinter dem",
+    "continuation": " Wald",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the bag.\nGerman: Mein Bruder schl\u00e4ft in der",
+    "continuation": " Tasche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is behind the table.\nGerman: Der Lehrer ist hinter dem",
+    "continuation": " Tisch",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the street.\nGerman: Der Hund wartet hinter der",
+    "continuation": " Stra\u00dfe",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the train.\nGerman: Der Hund ist in dem",
+    "continuation": " Zug",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the library.\nGerman: Der Hund ist in der",
+    "continuation": " Bibliothek",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother waits behind the park.\nGerman: Meine Mutter wartet hinter dem",
+    "continuation": " Park",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the book.\nGerman: Die Katze ist hinter dem",
+    "continuation": " Buch",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the boat.\nGerman: Mein Bruder schl\u00e4ft in dem",
+    "continuation": " Boot",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is behind the train.\nGerman: Mein Bruder ist hinter dem",
+    "continuation": " Zug",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is under the car.\nGerman: Der Lehrer ist unter dem",
+    "continuation": " Auto",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the market.\nGerman: Das Kind wartet hinter dem",
+    "continuation": " Markt",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is behind the church.\nGerman: Das Kind ist hinter der",
+    "continuation": " Kirche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat waits behind the kitchen.\nGerman: Die Katze wartet hinter der",
+    "continuation": " K\u00fcche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is under the table.\nGerman: Die Katze ist unter dem",
+    "continuation": " Tisch",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the market.\nGerman: Meine Mutter ist hinter dem",
+    "continuation": " Markt",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is under the car.\nGerman: Meine Mutter ist unter dem",
+    "continuation": " Auto",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat waits behind the box.\nGerman: Die Katze wartet hinter der",
+    "continuation": " Kiste",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the door.\nGerman: Mein Bruder schl\u00e4ft in der",
+    "continuation": " T\u00fcr",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the shop.\nGerman: Der Lehrer ist neben dem",
+    "continuation": " Laden",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the city.\nGerman: Das Kind ist unter der",
+    "continuation": " Stadt",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the shop.\nGerman: Der Hund ist in dem",
+    "continuation": " Laden",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the boat.\nGerman: Die Katze ist neben dem",
+    "continuation": " Boot",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the shop.\nGerman: Das Kind ist in dem",
+    "continuation": " Laden",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother waits behind the river.\nGerman: Meine Mutter wartet hinter dem",
+    "continuation": " Fluss",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the house.\nGerman: Meine Mutter ist hinter dem",
+    "continuation": " Haus",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is near the market.\nGerman: Der Hund ist neben dem",
+    "continuation": " Markt",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the bottle.\nGerman: Der Hund wartet hinter der",
+    "continuation": " Flasche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the school.\nGerman: Der Lehrer ist neben der",
+    "continuation": " Schule",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the window.\nGerman: Mein Bruder ist neben dem",
+    "continuation": " Fenster",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the church.\nGerman: Die Katze ist hinter der",
+    "continuation": " Kirche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog sleeps in the garden.\nGerman: Der Hund schl\u00e4ft in dem",
+    "continuation": " Garten",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the bed.\nGerman: Das Kind wartet hinter dem",
+    "continuation": " Bett",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher waits behind the box.\nGerman: Der Lehrer wartet hinter der",
+    "continuation": " Kiste",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the tree.\nGerman: Meine Mutter ist in dem",
+    "continuation": " Baum",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "German: Mein Bruder ist neben dem Feld.\nEnglish: My brother is near the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind schl\u00e4ft in dem Boot.\nEnglish: The child sleeps in the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist neben dem Laden.\nEnglish: My brother is near the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder schl\u00e4ft in dem Boot.\nEnglish: My brother sleeps in the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist hinter dem Zug.\nEnglish: My brother is behind the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind wartet hinter dem Boot.\nEnglish: The child waits behind the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze schl\u00e4ft in dem Schloss.\nEnglish: The cat sleeps in the",
+    "continuation": " castle",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind wartet hinter dem Markt.\nEnglish: The child waits behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist neben dem Boot.\nEnglish: The cat is near the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist hinter dem Auto.\nEnglish: My mother is behind the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist unter dem Baum.\nEnglish: The child is under the",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist neben dem Park.\nEnglish: My brother is near the",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist neben dem Feld.\nEnglish: The dog is near the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist in der Tasche.\nEnglish: My brother is in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist hinter dem Zug.\nEnglish: The cat is behind the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund wartet hinter dem Markt.\nEnglish: The dog waits behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist unter der Kirche.\nEnglish: My mother is under the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist neben der T\u00fcr.\nEnglish: My mother is near the",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist neben dem Haus.\nEnglish: The teacher is near the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund wartet hinter der Stra\u00dfe.\nEnglish: The dog waits behind the",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist unter dem Zug.\nEnglish: My brother is under the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist unter der T\u00fcr.\nEnglish: The child is under the",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze wartet hinter der K\u00fcche.\nEnglish: The cat waits behind the",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist in dem Laden.\nEnglish: My mother is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist in der Bibliothek.\nEnglish: The dog is in the",
+    "continuation": " library",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist hinter dem Markt.\nEnglish: My mother is behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist hinter der Kiste.\nEnglish: My brother is behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist neben der Schule.\nEnglish: The cat is near the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist in dem Tisch.\nEnglish: The teacher is in the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist neben der Schule.\nEnglish: The teacher is near the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze schl\u00e4ft in der K\u00fcche.\nEnglish: The cat sleeps in the",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund schl\u00e4ft in dem Dorf.\nEnglish: The dog sleeps in the",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer wartet hinter dem Fenster.\nEnglish: The teacher waits behind the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist neben dem Fenster.\nEnglish: My brother is near the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist in dem Laden.\nEnglish: The cat is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist neben dem Laden.\nEnglish: The teacher is near the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist in der Kiste.\nEnglish: The teacher is in the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist in dem Markt.\nEnglish: The dog is in the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist neben der Flasche.\nEnglish: The cat is near the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist in der Tasche.\nEnglish: The teacher is in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer schl\u00e4ft in dem Garten.\nEnglish: The teacher sleeps in the",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist hinter dem Markt.\nEnglish: The dog is behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist in dem Zug.\nEnglish: The dog is in the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist in dem Bett.\nEnglish: The dog is in the",
+    "continuation": " bed",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist hinter dem Haus.\nEnglish: My mother is behind the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist unter dem Zimmer.\nEnglish: My brother is under the",
+    "continuation": " room",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist in dem Feld.\nEnglish: The child is in the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist in dem Markt.\nEnglish: The teacher is in the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist unter dem Haus.\nEnglish: The teacher is under the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze wartet hinter der Kiste.\nEnglish: The cat waits behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder schl\u00e4ft in der Tasche.\nEnglish: My brother sleeps in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund wartet hinter der Flasche.\nEnglish: The dog waits behind the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist unter dem Buch.\nEnglish: The dog is under the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund schl\u00e4ft in dem Garten.\nEnglish: The dog sleeps in the",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist unter der Stadt.\nEnglish: The child is under the",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist in dem Laden.\nEnglish: The dog is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder wartet hinter dem B\u00fcro.\nEnglish: My brother waits behind the",
+    "continuation": " office",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist in der Bibliothek.\nEnglish: My brother is in the",
+    "continuation": " library",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder schl\u00e4ft in der Flasche.\nEnglish: My brother sleeps in the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter wartet hinter dem Park.\nEnglish: My mother waits behind the",
+    "continuation": " park",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "German: Meine Mutter schl\u00e4ft in dem Wald.\nEnglish: My mother sleeps in the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter wartet hinter dem Boot.\nEnglish: My mother waits behind the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist unter dem Fenster.\nEnglish: The cat is under the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist neben der Bibliothek.\nEnglish: The teacher is near the",
+    "continuation": " library",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind schl\u00e4ft in dem Schloss.\nEnglish: The child sleeps in the",
+    "continuation": " castle",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist hinter der Kirche.\nEnglish: The cat is behind the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder wartet hinter dem Auto.\nEnglish: My brother waits behind the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist in der Kiste.\nEnglish: The dog is in the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist in dem Boot.\nEnglish: The dog is in the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund wartet hinter dem Dorf.\nEnglish: The dog waits behind the",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist in der Stadt.\nEnglish: The child is in the",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind schl\u00e4ft in dem Laden.\nEnglish: The child sleeps in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist hinter dem Fenster.\nEnglish: My mother is behind the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist in der Tasche.\nEnglish: The child is in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund wartet hinter dem Garten.\nEnglish: The dog waits behind the",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund schl\u00e4ft in der K\u00fcche.\nEnglish: The dog sleeps in the",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist in der Stra\u00dfe.\nEnglish: My mother is in the",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist in dem Auto.\nEnglish: The cat is in the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind wartet hinter dem Haus.\nEnglish: The child waits behind the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist in dem Fluss.\nEnglish: The dog is in the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder schl\u00e4ft in der T\u00fcr.\nEnglish: My brother sleeps in the",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist in dem Laden.\nEnglish: The child is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder schl\u00e4ft in dem Tisch.\nEnglish: My brother sleeps in the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist in dem Fluss.\nEnglish: The cat is in the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist neben der Flasche.\nEnglish: The child is near the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist hinter dem Tisch.\nEnglish: The teacher is behind the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist hinter der Kiste.\nEnglish: The child is behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist unter dem Tisch.\nEnglish: The cat is under the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter schl\u00e4ft in dem Schloss.\nEnglish: My mother sleeps in the",
+    "continuation": " castle",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist neben dem Markt.\nEnglish: My mother is near the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist neben dem Park.\nEnglish: My mother is near the",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder schl\u00e4ft in dem Baum.\nEnglish: My brother sleeps in the",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist unter dem Wald.\nEnglish: My mother is under the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist neben der Stra\u00dfe.\nEnglish: The cat is near the",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist neben dem Laden.\nEnglish: My mother is near the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist hinter der Kirche.\nEnglish: The teacher is behind the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist unter dem Feld.\nEnglish: The child is under the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder ist in dem Fluss.\nEnglish: My brother is in the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist hinter dem Buch.\nEnglish: The cat is behind the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze wartet hinter der Flasche.\nEnglish: The cat waits behind the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer wartet hinter der Kiste.\nEnglish: The teacher waits behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "German: Mein Bruder schl\u00e4ft in der Kiste.\nEnglish: My brother sleeps in the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist neben dem Markt.\nEnglish: The dog is near the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind ist hinter der Kirche.\nEnglish: The child is behind the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist unter der Schule.\nEnglish: The teacher is under the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter wartet hinter dem Fluss.\nEnglish: My mother waits behind the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist in der Schule.\nEnglish: The teacher is in the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist hinter dem Laden.\nEnglish: My mother is behind the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Hund ist hinter dem Wald.\nEnglish: The dog is behind the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer schl\u00e4ft in dem Zug.\nEnglish: The teacher sleeps in the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist neben der Stadt.\nEnglish: My mother is near the",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist in dem Buch.\nEnglish: My mother is in the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist hinter dem Feld.\nEnglish: The teacher is behind the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist unter dem Auto.\nEnglish: The teacher is under the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "German: Der Lehrer ist neben dem Park.\nEnglish: The teacher is near the",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind wartet hinter dem Bett.\nEnglish: The child waits behind the",
+    "continuation": " bed",
+    "digits_only": false
+   },
+   {
+    "context": "German: Das Kind schl\u00e4ft in dem Buch.\nEnglish: The child sleeps in the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist in dem Baum.\nEnglish: My mother is in the",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "German: Die Katze ist hinter dem Wald.\nEnglish: The cat is behind the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "German: Meine Mutter ist unter dem Auto.\nEnglish: My mother is under the",
+    "continuation": " car",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.6797
+}

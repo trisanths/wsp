@@ -86,6 +86,10 @@ DEFAULTS = {
     "max_grafts": 4,             # grafts per program
     "glue_ranks": [None, 64],    # allowed glue ranks, None is full rank (round 2: r64 matched it at 7% of the params)
     "heal_steps_allowed": [0, 100, 300, 600],  # the heal steps a program may ask for
+    # The lora_grid arm (host LoRA, the "versus regular training" baseline): it tunes rank, learning
+    # rate and steps within the same eval budget. LoRA needs its own learning rates: round 3 and 4 found
+    # rank 64 at the glue's 3e-4 scored 28.8% on GSM8K against 46.7% at 5e-5.
+    "lora_grid": {"ranks": [1, 4, 16, 64], "lrs": [3e-4, 1e-4, 5e-5], "steps": [300, 600]},
     "heal_lr_allowed": [3e-4],   # one heal recipe for every arm: the learning rate,
     "heal_batch_size_allowed": [8],  # the batch size,
     "heal_seq_len_allowed": [384],   # and the sequence length

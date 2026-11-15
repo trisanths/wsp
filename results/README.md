@@ -4,6 +4,23 @@ All numbers here are on the GSM8K search split (200 items from GSM8K train)
 unless a row says held-out. Search-split numbers are interim checks, not
 results to report.
 
+## Caveat on GSM8K in runs 1 to 5 and the baselines (found 2026-11-14)
+
+The GSM8K numbers in runs 1 to 5, the hour-8 gate, and the baselines came
+from the wsp_eval harness task: a bare "Question: ... Answer:" prompt with
+no chat template and a 256-token limit. Instruct models are cut off before
+the final number. The studio session measured it on the same 200 items:
+Llama-3.2-1B-Instruct scores 0.23 under the harness prompt and 0.58 with
+the chat template, "The answer is N", and 512 tokens (wsp.skills_eval);
+Qwen2.5-1.5B-Instruct scores 0.125 and 0.795.
+
+So those GSM8K numbers measure truncated outputs. They are not comparable
+with runs 16 and later, which use wsp.skills_eval. The conclusions drawn
+from them (no graft beats LoRA on GSM8K; selected clusters do not beat
+random clusters) were drawn on a broken protocol and need a rerun before
+anyone cites them. The MMLU, MedMCQA, and loss numbers in runs 6 to 15 are
+log-prob or loss measures and are not affected.
+
 ## Run 1 (2026-11-14): first cross-family graft
 
 Host unsloth/Llama-3.2-1B-Instruct. Donor Qwen/Qwen2.5-Math-1.5B, layer 18.
@@ -550,27 +567,29 @@ Base Qwen2.5-0.5B-Instruct, donor and teacher Qwen2.5-14B-Instruct. The
 heal is KL to the teacher's logits plus LM loss, 1500 steps, LoRA r16
 on the base plus the seam glue. The heal text includes MMLU auxiliary
 items, so this run is a diagnostic, not evidence under the heal data
-rule. MMLU dev 1000 / held-out 2000. Raw rows: round14c_rows.json (two
-cells still running when this was written).
+rule. MMLU dev 1000 / held-out 2000. Raw rows: round14c_rows.json.
 
 | Arm | Params | Dev | Held-out |
 |---|---|---|---|
-| Distill into LoRA only (seed 1) | 0.50B | 45.8 | 46.0 |
+| Distill into LoRA only (seeds 0, 1) | 0.50B | 46.3, 45.8 | 47.6, 46.0 |
 | + Qwen-14B layers 14..34, distill (seeds 0, 1) | 6.35B | 51.8, 51.0 | 51.0, 50.1 |
-| + another 20-layer range of Qwen-14B, distill (seed 0) | 6.35B | 57.4 | 55.2 |
+| + another 20-layer range of Qwen-14B, distill (seeds 0, 1) | 6.35B | 57.4, 46.3 | 55.2, 47.1 |
 
 Reading:
-- Distillation alone does nothing for the 0.5B base (46.0 against 45.8
-  untrained). The base has no room to take the teacher's knowledge.
-- With 20 frozen donor layers written in, the same distillation gives
-  +4 to +9 points. The donor layers are frozen, so this is their
-  pretrained computation being used, not new capacity being trained.
-- Which 20 layers does not matter (the other range scored higher). The
-  "random block" control in runs 14, 14b, and 14c is another range of
-  the same pretrained donor, so it tests block choice, not whether donor
-  knowledge is used. A control with no knowledge (shuffled or
-  spectrum-matched weights) is still missing.
-- Cost: 6.35B parameters for 51 to 55 points, where Qwen2.5-7B itself
+- Distillation alone gives the 0.5B base about 1 point (46.8 mean against
+  45.8 untrained). The base has little room to take the teacher's
+  knowledge.
+- With the chosen 20 frozen donor layers written in, the same
+  distillation gives 50.6 mean, about 4 points over distillation alone,
+  on both seeds. The donor layers are frozen, so this is their pretrained
+  computation being used.
+- Another 20-layer range of the same donor averages 51.2 but swings 8
+  points between seeds (55.2 and 47.1). So the choice of layers is not
+  shown to matter, and two seeds cannot rank the two ranges. This
+  control is another range of the same pretrained donor: it tests block
+  choice, not whether donor knowledge is used. A control with no
+  knowledge (scrambled weights, wsp/scramble.py) is in runs 20 and 22.
+- Cost: 6.35B parameters for about 51 points, where Qwen2.5-7B itself
   scores about 71. Usable, but far from efficient.
 
 ## Run 16c (2026-11-14, partial): where the specialists' skill lives
@@ -608,6 +627,66 @@ Reading:
   TIES collapse. Their components must go through translation layers
   (wsp/synth.py), and per-layer weight mixing is only for true
   fine-tunes (wsp/weave.py lists verified ones from 7B to 32B).
+
+## Run 19 (2026-11-14): removing skills to keep one
+
+Qwen3-30B-A3B-Instruct-2507 (128 experts per layer, top 8). For code,
+each layer keeps its top N experts and the rest are deleted with their
+router rows (wsp/slim.py). Ranking and heal text are non-benchmark code
+instructions (wsp.healdata). Heals are 500 steps of distillation from the
+full model. Scored once with wsp.skills_eval: HumanEval 164, MBPP 257,
+GSM8K 200, MMLU 1000. One run per cell; random cells have three seeds.
+Raw rows: round19_rows.json.
+
+| Cell | Total params | HumanEval | MBPP | GSM8K | MMLU |
+|---|---|---|---|---|---|
+| Full model | 30.5B | 91.5 | 84.4 | 91.5 | 77.8 |
+| Full model, 500-step heal (heal control) | 30.5B | 90.9 | 85.6 | 91.5 | 77.5 |
+| Keep 64 by code saliency, no heal | 16.0B | 87.8 | 79.0 | 80.5 | 44.9 |
+| Keep 32 by code saliency, no heal | 8.78B | 57.9 | 55.3 | 2.5 | 26.1 |
+| Keep 32 by code saliency, healed | 8.78B | 73.8 | 61.9 | 2.0 | 25.6 |
+| Keep 16 by code saliency, no heal | 5.15B | 3.7 | 7.8 | 0.5 | 23.6 |
+| Keep 16 by code saliency, healed | 5.15B | 45.7 | 47.9 | 0.5 | 24.1 |
+| Keep 32 by routing frequency | 8.78B | 7.9 | 11.7 | 0.0 | 24.4 |
+| Keep 32 by skill-to-general ratio | 8.78B | 0.0 | 0.0 | 0.0 | 23.9 |
+| Keep 32 by general-text frequency | 8.78B | 0.0 | 0.0 | 0.0 | 24.4 |
+| Keep 32 random, no heal (3 seeds) | 8.78B | 0.0, 0.0, 0.0 | 0.0, 0.0, 0.0 | 0 to 0.5 | 23 to 24 |
+| Keep 32 random, healed (3 seeds) | 8.78B | 6.1, 11.6, 7.9 | 7.4, 23.3, 12.5 | 1.5 to 2.5 | 24 |
+
+Dense slimming of Qwen2.5-Coder-7B (full: HumanEval 85.4, MBPP 86.0 at
+7.62B) by removing layers, neurons, and heads ranked on code:
+
+| Cell | Total params | HumanEval | MBPP |
+|---|---|---|---|
+| Slimmed to 3.1B by skill, healed 1000 steps | 3.10B | 3.7 | 17.5 |
+| Slimmed to 3.1B, greedy re-ranking, healed | 3.10B | 6.1 | 17.5 |
+| Slimmed to 3.1B at random, healed | 3.10B | 2.4 | 4.7 |
+| Slimmed to 1.6B by skill, healed | 1.60B | 0.0 | 0.4 |
+| Native Qwen2.5-Coder-3B, same heal | 3.09B | 84.1 | 74.3 |
+| Native Qwen2.5-Coder-1.5B | 1.54B | 71.3 | 65.4 |
+
+Params run per token stay about 3.03B in every MoE cell. Decode speed in
+this harness is 7 to 10 tokens per second for every MoE cell (the
+Hugging Face MoE loop), so no speed claim is made here; modal_serve.py
+measures it with vLLM.
+
+Reading:
+- MoE expert removal works and dense slimming does not. Saliency (routing
+  weight times the size of what the expert writes, summed over code
+  tokens) is the only ranking that holds code; random, frequency, ratio,
+  and general-text rankings all collapse.
+- Half the experts keep code within 4 to 5 points with no training, and
+  MMLU falls 33 points in the same model: the other skills are removed.
+- The heal is not what keeps the skill: the full model is unchanged by the
+  same heal (90.9 and 85.6), and random experts with the heal stay at 6
+  to 12 HumanEval. On saliency-kept experts the heal recovers 16 points
+  at 32 experts and 42 points at 16.
+- The 8.78B healed model (73.8, 61.9) is below Qwen2.5-Coder-7B (85.4,
+  86.0) at a similar total size, so it is not the model to pick for code
+  today. The 64-expert model is the useful point: 16.0B stored, 3.0B run
+  per token, code within 4 to 5 points of the 30.5B model.
+- Dense slimming of a 7B coder to 3.1B destroys it (3.7 HumanEval) while
+  the native 3B coder scores 84.1. This path stops.
 
 ## Run 22 (2026-11-14): parallel grafts with functional alignment (wsp/pgraft.py)
 

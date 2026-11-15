@@ -1,0 +1,108 @@
+{
+  "id": "mlp_english_derivational_suffix_extraction_granite8b_L39_k4_001",
+  "kind": "mlp_cluster",
+  "title": "granite-3.3-8b-instruct layer 39, English derivational suffix extraction",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/granite8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "derivational_suffix"
+  ],
+  "models": [
+    "ibm-granite/granite-3.3-8b-instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'derivational_suffix' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2915,
+      "control_value": 0.0005,
+      "split": "person_a held-out skill items (derivational_suffix)",
+      "seeds": null,
+      "source": "person_a/catalog/granite8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0594"
+    }
+  ],
+  "generated": true,
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "layer": 39,
+  "layers": [
+    39
+  ],
+  "units_file": "components/ibm-granite__granite-3.3-8b-instruct/mlp_english_derivational_suffix_extraction_granite8b_L39_k4_001.pt",
+  "units_remote": "person_a/parts/granite8b/mlp_english_derivational_suffix_extraction_granite8b_L39_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'derivational_suffix'",
+    "label": "English derivational suffix extraction",
+    "num_units": 4,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": 0.0,
+      "code|search": 0.0004,
+      "code|heldout": 0.0,
+      "facts|search": 0.0005,
+      "facts|heldout": 0.0002,
+      "multilingual|search": -0.0004,
+      "multilingual|heldout": -0.0003,
+      "general_text|search": 0.0006,
+      "general_text|heldout": 0.0006,
+      "past_copula|search": -0.0002,
+      "past_copula__control|search": 0.0005,
+      "past_copula|heldout": -0.0004,
+      "past_copula__control|heldout": 0.005,
+      "possessive_determiner|search": -0.0024,
+      "possessive_determiner__control|search": 0.0009,
+      "possessive_determiner|heldout": 0.0018,
+      "possessive_determiner__control|heldout": 0.0023,
+      "emotion_valence|search": 0.0044,
+      "emotion_valence__control|search": -0.0001,
+      "emotion_valence|heldout": -0.0013,
+      "emotion_valence__control|heldout": -0.0015,
+      "writing_system|search": 0.0011,
+      "writing_system__control|search": -0.0009,
+      "writing_system|heldout": 0.0011,
+      "writing_system__control|heldout": 0.0006,
+      "courtesy_function|search": -0.0013,
+      "courtesy_function__control|search": -0.0001,
+      "courtesy_function|heldout": 0.0014,
+      "courtesy_function__control|heldout": 0.0002,
+      "derivational_suffix|search": 0.2919,
+      "derivational_suffix__control|search": -0.0249,
+      "derivational_suffix|heldout": 0.2915,
+      "derivational_suffix__control|heldout": -0.0594
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0973,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0003,
+      0.0005,
+      0.0007,
+      0.0008,
+      -0.0
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Four complementary L39 suffix readers:2140 gate ly .690/ness .317;11428 ness .521/ity .465;9118 less .745 plus less output .681;7516 least .634/less .421/lessly .324. Independent derivational-suffix attribution ranks these units .064,.059,.040,.019."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/granite8b/derivational_suffix.json",
+    "hash": "33787de1aa7e1f58",
+    "description": "Identify productive English derivational suffixes from base/derived word pairs; matched control returns the base word.",
+    "name": "derivational_suffix"
+  },
+  "catalog_id": "mlp_english_derivational_suffix_extraction_granite8b_L39_k4_001",
+  "exported_copy": "library/granite8b/mlp_english_derivational_suffix_extraction_granite8b_L39_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

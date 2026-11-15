@@ -1,0 +1,104 @@
+{
+  "id": "mlp_past-tense_verb_output_writer_lfm2.5_vl_450m_L14_k3_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 14, past-tense verb output writer",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "irregular_past_tense"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'irregular_past_tense' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3126,
+      "control_value": -0.0,
+      "split": "person_a held-out skill items (irregular_past_tense)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.001"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_past-tense_verb_output_writer_lfm2.5_vl_450m_L14_k3_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_past-tense_verb_output_writer_lfm2.5_vl_450m_L14_k3_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'irregular_past_tense'",
+    "label": "past-tense verb output writer",
+    "num_units": 3,
+    "d_model": 1024,
+    "effect": {
+      "math|search": -0.0004,
+      "math|heldout": 0.0001,
+      "code|search": 0.0005,
+      "code|heldout": 0.0013,
+      "facts|search": 0.0042,
+      "facts|heldout": 0.0007,
+      "multilingual|search": 0.0025,
+      "multilingual|heldout": -0.0008,
+      "general_text|search": 0.0058,
+      "general_text|heldout": 0.0051,
+      "month_successor|search": -0.0063,
+      "month_successor__control|search": 0.0001,
+      "month_successor|heldout": -0.0021,
+      "month_successor__control|heldout": 0.0003,
+      "numberword_successor|search": -0.0004,
+      "numberword_successor__control|search": -0.0001,
+      "numberword_successor|heldout": 0.0013,
+      "numberword_successor__control|heldout": -0.0002,
+      "weekday_successor|search": -0.0018,
+      "weekday_successor__control|search": -0.0005,
+      "weekday_successor|heldout": -0.004,
+      "weekday_successor__control|heldout": 0.0006,
+      "comparative_adjective|search": -0.0025,
+      "comparative_adjective__control|search": 0.0,
+      "comparative_adjective|heldout": -0.0028,
+      "comparative_adjective__control|heldout": -0.0004,
+      "irregular_past_tense|search": 0.2989,
+      "irregular_past_tense__control|search": 0.0005,
+      "irregular_past_tense|heldout": 0.3126,
+      "irregular_past_tense__control|heldout": 0.001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0996,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0018,
+      0.0023,
+      -0.0048,
+      -0.0007,
+      0.0049
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L14 562 (cos -.37 to mean irregular past-tense unembedding; lens: was/had/did/took/went/became) and 3703 (-.31; lens: created/constructed/made/formed) are the strongest past-tense writers in L14; 4192 added from attribution. Ablation .299 vs identity control .001."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/irregular_past_tense.json",
+    "hash": "2503e9d5562d81b8",
+    "description": "Map an English verb to its irregular past tense in few-shot format (e.g. 'eat -> ate, see -> saw, go ->' -> ' went'). Control: same few-shot format with identity mapping.",
+    "name": "irregular_past_tense"
+  },
+  "catalog_id": "mlp_past-tense_verb_output_writer_lfm2.5_vl_450m_L14_k3_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_past-tense_verb_output_writer_lfm2.5_vl_450m_L14_k3_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

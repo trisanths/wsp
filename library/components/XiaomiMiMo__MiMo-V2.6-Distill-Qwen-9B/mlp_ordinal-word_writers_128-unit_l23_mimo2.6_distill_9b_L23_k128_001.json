@@ -1,0 +1,116 @@
+{
+  "id": "mlp_ordinal-word_writers_128-unit_l23_mimo2.6_distill_9b_L23_k128_001",
+  "kind": "mlp_cluster",
+  "title": "MiMo-V2.6-Distill-Qwen-9B layer 23, ordinal-word writers, 128-unit (L23)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "ordinal_word"
+  ],
+  "models": [
+    "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'ordinal_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3409,
+      "control_value": -0.0096,
+      "split": "person_a held-out skill items (ordinal_word)",
+      "seeds": null,
+      "source": "person_a/catalog/mimo2.6_distill_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0264"
+    }
+  ],
+  "generated": true,
+  "model": "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+  "layer": 23,
+  "layers": [
+    23
+  ],
+  "units_file": "components/XiaomiMiMo__MiMo-V2.6-Distill-Qwen-9B/mlp_ordinal-word_writers_128-unit_l23_mimo2.6_distill_9b_L23_k128_001.pt",
+  "units_remote": "person_a/parts/mimo2.6_distill_9b/mlp_ordinal-word_writers_128-unit_l23_mimo2.6_distill_9b_L23_k128_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'ordinal_word'",
+    "label": "ordinal-word writers, 128-unit (L23)",
+    "num_units": 128,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0002,
+      "math|heldout": 0.0006,
+      "code|search": 0.0012,
+      "code|heldout": 0.0001,
+      "facts|search": 0.0007,
+      "facts|heldout": 0.0083,
+      "multilingual|search": 0.0015,
+      "multilingual|heldout": 0.0033,
+      "general_text|search": 0.0007,
+      "general_text|heldout": 0.0012,
+      "month_successor|search": 0.0215,
+      "month_successor__control|search": 0.0109,
+      "month_successor|heldout": 0.036,
+      "month_successor__control|heldout": 0.0091,
+      "roman_numeral|search": 0.0239,
+      "roman_numeral__control|search": 0.0044,
+      "roman_numeral|heldout": 0.0218,
+      "roman_numeral__control|heldout": 0.0017,
+      "ordinal_word|search": 0.3505,
+      "ordinal_word__control|search": -0.0267,
+      "ordinal_word|heldout": 0.3409,
+      "ordinal_word__control|heldout": -0.0264,
+      "weekday_successor|search": -0.0095,
+      "weekday_successor__control|search": 0.001,
+      "weekday_successor|heldout": -0.0211,
+      "weekday_successor__control|heldout": 0.0018,
+      "color_of_object|search": 0.0119,
+      "color_of_object__control|search": -0.0084,
+      "color_of_object|heldout": 0.0059,
+      "color_of_object__control|heldout": 0.0,
+      "greek_letter_successor|search": 0.0388,
+      "greek_letter_successor__control|search": 0.0039,
+      "greek_letter_successor|heldout": 0.0194,
+      "greek_letter_successor__control|heldout": -0.0006,
+      "country_of_city|search": -0.0027,
+      "country_of_city__control|search": -0.041,
+      "country_of_city|heldout": -0.0067,
+      "country_of_city__control|heldout": -0.057,
+      "en_fr_translation|search": 0.0013,
+      "en_fr_translation__control|search": -0.0001,
+      "en_fr_translation|heldout": -0.0008,
+      "en_fr_translation__control|heldout": -0.0005
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1168,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0112,
+      -0.0084,
+      -0.0207,
+      0.0067,
+      -0.0146
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Seed 3497 (ordinal attribution .35) plus the 127 L23 units whose down_proj columns most promote ordinal tokens (first..twelfth, cased variants) through final norm + lm_head. This is a larger version of the screened 64-unit cluster."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/mimo2.6_distill_9b/ordinal_word.json",
+    "hash": "34b5a74cc6ee1d2b",
+    "description": "Convert a digit 1-12 into its English ordinal word (third, seventh). Control converts the same digit to its cardinal word (three, seven).",
+    "name": "ordinal_word"
+  },
+  "catalog_id": "mlp_ordinal-word_writers_128-unit_l23_mimo2.6_distill_9b_L23_k128_001",
+  "exported_copy": "library/mimo2.6_distill_9b/mlp_ordinal-word_writers_128-unit_l23_mimo2.6_distill_9b_L23_k128_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

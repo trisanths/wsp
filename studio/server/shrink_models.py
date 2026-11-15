@@ -26,6 +26,17 @@ DENSE_FAMILIES = ["qwen2", "qwen3", "llama", "mistral", "phi3", "gemma2"]
 # rule and the width rule: skill is skill_cost layers and skill neurons, and so on.
 EXPERT_RULES = ["freq", "saliency", "selective", "random", "general"]
 DENSE_RULES = ["skill", "skill_cost", "specific", "general", "random"]
+# A plain phrase for each rule, to finish "Keep 4 of 8 experts per layer ...".
+RULE_PHRASES = {
+    "saliency": "by how much the skill text uses them",
+    "freq": "by how often the skill text routes to them",
+    "selective": "by how specific they are to the skill",
+    "random": "at random (control)",
+    "general": "by use on general text (control)",
+    "skill_cost": "by their cost on the skill text",
+    "specific": "by how specific they are to the skill",
+    "skill": "by how much the skill text uses them",
+}
 DEFAULT_EXPERT_RULE = "saliency"
 DEFAULT_DENSE_RULE = "skill"
 
@@ -172,14 +183,28 @@ SKILL_WORDS = [
     ("code", ["code", "coding", "coder", "programming", "programmer", "python", "software", "developer"]),
     ("math", ["math", "maths", "mathematics", "arithmetic", "algebra", "calculus", "gsm8k"]),
     ("medicine", ["medical", "medicine", "clinical", "health", "doctor", "biomedical", "healthcare"]),
+    ("law", ["law", "legal", "lawyer", "contract", "contracts", "statute", "court"]),
+    ("multilingual", ["multilingual", "translation", "translate", "translator", "languages"]),
+    ("reasoning", ["reasoning", "logic", "logical", "puzzle", "puzzles"]),
+    ("knowledge", ["knowledge", "facts", "factual", "trivia", "encyclopedia"]),
     ("prose", ["prose", "writing", "story", "stories", "essay", "essays", "creative"]),
     ("general", ["general", "chat", "chatbot", "assistant", "conversation", "instruction"]),
 ]
+# Words for the pools the studio knows by name. A pool wsp/healdata.py adds later still works:
+# skill_label falls back to "<pool> text" and SKILL_TAGS to the pool name.
 SKILL_LABELS = {"code": "coding text", "math": "math text", "medicine": "medical text",
-                "general": "general chat text", "prose": "prose"}
+                "general": "general chat text", "prose": "prose", "law": "legal text",
+                "multilingual": "text in several languages", "reasoning": "reasoning text",
+                "knowledge": "factual text"}
 # The library tags a model with these words for each pool.
 SKILL_TAGS = {"code": ["code"], "math": ["math"], "medicine": ["medicine"], "general": ["general", "knowledge"],
-              "prose": ["general"]}
+              "prose": ["general"], "law": ["law"], "multilingual": ["multilingual"], "reasoning": ["reasoning"],
+              "knowledge": ["knowledge", "general"]}
+
+
+def rule_phrase(rule):
+    """The plain phrase for a rule. An unknown rule is named as it is."""
+    return RULE_PHRASES.get(rule, "by the " + str(rule) + " rule")
 
 
 def skill_from_text(text):
@@ -255,8 +280,10 @@ def skill_rank(facts, skill):
 def why_text(facts, skill, target_b):
     pieces = []
     rank = skill_rank(facts, skill)
-    if rank == 0:
+    if skill in facts["skills"]:
         pieces.append("tagged for " + skill)
+    elif rank == 0:
+        pieces.append("a general model, which fits " + skill)
     elif rank == 1:
         pieces.append("a general model")
     if facts["kind"] == "moe":

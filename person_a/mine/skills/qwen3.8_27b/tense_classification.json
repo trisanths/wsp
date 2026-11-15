@@ -1,0 +1,1220 @@
+{
+ "name": "tense_classification",
+ "description": "Classify a simple English clause as past, present, or future; matched controls identify its subject.",
+ "hash": "72030bc4e53e3597",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nverbs=['walk','play','cook','work','jump','talk','paint','dance','smile','laugh','clean','visit']\nsubjects=['I','you','we','they']\nitems=[]; controls=[]\nfor i in range(120):\n v=random.choice(verbs); s=random.choice(subjects); k=i%3\n form=[v+('d' if v.endswith('e') else 'ed'),v,'will '+v][k]\n sentence=s+' '+form+'.'\n items.append({'prompt':f'Classify the grammatical tense as past, present, or future. Sentence: \"{sentence}\"\\nTense:', 'answer':' '+['past','present','future'][k]})\n controls.append({'prompt':f'Identify the subject of this sentence. Sentence: \"{sentence}\"\\nSubject:', 'answer':' '+s})\njson.dump({'items':items,'control':controls},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you played.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we dance.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I danced.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we painted.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we visited.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they will talk.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I clean.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you talk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we played.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you work.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you will smile.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you worked.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will visit.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I talk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I laughed.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they smile.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they talk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they will talk.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they will smile.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I jump.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will play.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will visit.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you play.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we worked.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will cook.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will cook.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we visit.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they walk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will cook.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they laugh.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I jump.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I visited.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they worked.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they will dance.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will laugh.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they walked.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I dance.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we play.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they laughed.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you cook.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I visited.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they play.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will laugh.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they play.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you smiled.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you cooked.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will laugh.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will visit.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they cook.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they painted.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I play.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you smile.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we danced.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you walk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they clean.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you talked.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they will talk.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I clean.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you talk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they will visit.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we dance.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they smiled.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I walk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will walk.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we smile.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you will laugh.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I walked.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they painted.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you will walk.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will visit.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we walk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you will clean.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you jump.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they will visit.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I painted.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will walk.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will play.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I visit.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you will work.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we cleaned.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you work.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you work.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we cleaned.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will cook.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you will dance.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I walked.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I danced.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you visited.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you smiled.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I cleaned.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you jumped.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I walked.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will work.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we smiled.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will walk.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will visit.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they talk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we cleaned.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we cleaned.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will smile.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I danced.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we will dance.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you clean.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they smiled.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they will smile.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they played.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you cook.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you will talk.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you laugh.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I talk.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we cleaned.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will walk.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will laugh.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we smiled.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"you will laugh.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"I will laugh.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they will work.\"\nTense:",
+    "continuation": " future",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we paint.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"we laugh.\"\nTense:",
+    "continuation": " present",
+    "digits_only": false
+   },
+   {
+    "context": "Classify the grammatical tense as past, present, or future. Sentence: \"they painted.\"\nTense:",
+    "continuation": " past",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will play.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they smiled.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will visit.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we smiled.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will walk.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will walk.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we dance.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they talk.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you will talk.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I jump.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they will talk.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will laugh.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you talk.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we cleaned.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they painted.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you will dance.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I clean.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we play.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they clean.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you smiled.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I walk.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they will visit.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we cleaned.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they walked.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you jumped.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I danced.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we cleaned.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they will dance.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they smile.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we smiled.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I visited.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you smiled.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we worked.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you will laugh.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will laugh.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they will smile.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will visit.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will laugh.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you play.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you cook.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we played.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I painted.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I cleaned.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you work.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we cleaned.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we smile.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will cook.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they will talk.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they play.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you clean.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I danced.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will laugh.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will cook.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they will work.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they played.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you cook.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they laughed.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you will smile.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you jump.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I walked.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I danced.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we visit.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you walk.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will visit.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we dance.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will laugh.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you will laugh.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they laugh.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you talk.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I jump.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they cook.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will cook.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they play.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I visit.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we visited.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will walk.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I play.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I talk.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they talk.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we danced.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they smiled.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you laugh.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we walk.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you worked.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will visit.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you visited.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they will smile.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will smile.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you work.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I dance.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I laughed.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they will talk.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you will clean.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you smile.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I clean.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will cook.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they painted.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you will walk.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will work.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you work.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we laugh.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we painted.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will walk.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we cleaned.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you will work.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I talk.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they worked.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they will visit.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I walked.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you played.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they walk.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I walked.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you talked.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I will visit.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will play.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we paint.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"you cooked.\"\nSubject:",
+    "continuation": " you",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"they painted.\"\nSubject:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"I visited.\"\nSubject:",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the subject of this sentence. Sentence: \"we will dance.\"\nSubject:",
+    "continuation": " we",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.9813
+}

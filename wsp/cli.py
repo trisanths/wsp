@@ -5,6 +5,8 @@
     sapien score out_dir --skills gsm8k,mmlu
     sapien library query --kind block --skill math
     sapien atlas best --skill math --max-params-b 2
+    sapien plan request.json [--json] [--facts facts.json]
+    sapien make request.json -o out_dir
 
 python -m wsp.cli does the same. A program is a text file (.sap, or .wsp)
 or a .json file from Program.to_dict(). The syntax is in docs/language.md.
@@ -573,6 +575,77 @@ def run_score(args):
     return 0
 
 
+# plan and make (the agnostic front door, wsp/auto.py)
+
+
+def load_static_lineage(path):
+    """Read a facts file for an offline plan: {"models": {id: {params, config, tokenizer}}, "relations": [[base, source, kind]]}."""
+    from wsp.auto import StaticLineage
+
+    try:
+        with open(path) as handle:
+            data = json.load(handle)
+    except (OSError, ValueError) as error:
+        raise CliError(f"{path}: {error}")
+    relations = {}
+    for row in data.get("relations", []):
+        relations[(row[0], row[1])] = row[2]
+    return StaticLineage(data["models"], relations)
+
+
+def make_plan_for(args):
+    from wsp import auto
+
+    try:
+        request = auto.load_request(args.request)
+    except (OSError, ValueError) as error:
+        raise CliError(str(error))
+    lineage = load_static_lineage(args.facts) if args.facts else None
+    try:
+        return request, auto.plan(request, lineage=lineage)
+    except KeyError as error:
+        raise CliError(f"no facts for {error}; give --facts or run with network access")
+    except (OSError, ValueError, RuntimeError) as error:
+        raise CliError(f"the plan could not be made: {error}")
+
+
+def run_plan(args):
+    from wsp import auto
+
+    request, plan_ = make_plan_for(args)
+    if args.json:
+        print(json.dumps(plan_, indent=2, default=str))
+    else:
+        print(auto.format_plan(plan_))
+        print()
+        print(json.dumps(plan_, indent=2, default=str))
+    return 0 if plan_["feasible"] else 1
+
+
+def run_make(args):
+    from wsp import auto
+
+    request, plan_ = make_plan_for(args)
+    if not plan_["feasible"]:
+        print(auto.format_plan(plan_))
+        raise CliError("the plan cannot run; see the refusals above")
+    biggest = plan_["base"]["params"]
+    for source in plan_["sources"]:
+        biggest = max(biggest, source["params_b"] * 1e9)
+    if biggest / 1e9 > args.max_local_b:
+        print(f"the largest model is {biggest / 1e9:.2f}b, above --max-local-b {args.max_local_b}. Run it on Modal:")
+        print(f"    modal run modal_sapien.py --request {args.request}")
+        return 0
+    backend = auto.HubBackend(device=args.device)
+    result = auto.make(request, args.out, backend, plan_=plan_)
+    verdict = result.report["verdict"]
+    print(f"verdict: {verdict['verdict']}")
+    for reason in verdict["reasons"]:
+        print(f"  - {reason}")
+    print(f"report: {os.path.join(args.out, 'sapien_report.json')}")
+    return 0
+
+
 # library and atlas
 
 
@@ -662,6 +735,18 @@ def build_parser():
     best.add_argument("--entries", default=ATLAS_ENTRIES, help="atlas entries folder (default: atlas/entries)")
     best.add_argument("--top", type=int, default=10)
     best.add_argument("--json", action="store_true", help="print JSON lines")
+
+    front = commands.add_parser("plan", help="plan a request: methods, stages, sizes, text, controls (no GPU, no weights)")
+    front.add_argument("request")
+    front.add_argument("--json", action="store_true", help="print only the JSON")
+    front.add_argument("--facts", default=None, help="a facts file for an offline plan (no network)")
+
+    make = commands.add_parser("make", help="run a request: locally for small models, else print the Modal command")
+    make.add_argument("request")
+    make.add_argument("-o", "--out", required=True, help="output directory")
+    make.add_argument("--facts", default=None)
+    make.add_argument("--device", default=None)
+    make.add_argument("--max-local-b", type=float, default=0.6, help="largest model (billions) to run on this machine")
     return parser
 
 
@@ -681,6 +766,10 @@ def main(argv=None):
             return run_library(args)
         if args.command == "atlas":
             return run_atlas(args)
+        if args.command == "plan":
+            return run_plan(args)
+        if args.command == "make":
+            return run_make(args)
     except CliError as error:
         print(f"error: {error}", file=sys.stderr)
         return 1

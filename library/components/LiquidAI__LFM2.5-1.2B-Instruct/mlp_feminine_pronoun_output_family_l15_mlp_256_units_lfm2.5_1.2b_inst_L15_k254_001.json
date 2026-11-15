@@ -1,0 +1,116 @@
+{
+  "id": "mlp_feminine_pronoun_output_family_l15_mlp_256_units_lfm2.5_1.2b_inst_L15_k254_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-1.2B-Instruct layer 15, feminine pronoun output family (L15 MLP, 256 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "feminine_pronoun"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'feminine_pronoun' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2586,
+      "control_value": -0.0113,
+      "split": "person_a held-out skill items (feminine_pronoun)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.1063"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 15,
+  "layers": [
+    15
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/mlp_feminine_pronoun_output_family_l15_mlp_256_units_lfm2.5_1.2b_inst_L15_k254_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/mlp_feminine_pronoun_output_family_l15_mlp_256_units_lfm2.5_1.2b_inst_L15_k254_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'feminine_pronoun'",
+    "label": "feminine pronoun output family (L15 MLP, 256 units)",
+    "num_units": 254,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0004,
+      "math|heldout": -0.0007,
+      "code|search": 0.0045,
+      "code|heldout": 0.0047,
+      "facts|search": 0.0098,
+      "facts|heldout": 0.0179,
+      "multilingual|search": 0.0232,
+      "multilingual|heldout": 0.0191,
+      "general_text|search": 0.0125,
+      "general_text|heldout": 0.0103,
+      "month_successor|search": -0.0002,
+      "month_successor__control|search": -0.0228,
+      "month_successor|heldout": 0.0008,
+      "month_successor__control|heldout": -0.0333,
+      "weekday_successor|search": -0.0003,
+      "weekday_successor__control|search": -0.0188,
+      "weekday_successor|heldout": -0.0372,
+      "weekday_successor__control|heldout": -0.0145,
+      "object_color|search": 0.0328,
+      "object_color__control|search": 0.0465,
+      "object_color|heldout": 0.0303,
+      "object_color__control|heldout": 0.0606,
+      "feminine_pronoun|search": 0.2806,
+      "feminine_pronoun__control|search": 0.063,
+      "feminine_pronoun|heldout": 0.2586,
+      "feminine_pronoun__control|heldout": 0.1063,
+      "month_list_next|search": 0.0001,
+      "month_list_next__control|search": -0.0019,
+      "month_list_next|heldout": -0.0,
+      "month_list_next__control|heldout": -0.0023,
+      "weekday_list_next|search": -0.0025,
+      "weekday_list_next__control|search": -0.0035,
+      "weekday_list_next|heldout": -0.0038,
+      "weekday_list_next__control|heldout": -0.0029,
+      "roman_numeral|search": 0.027,
+      "roman_numeral__control|search": -0.0416,
+      "roman_numeral|heldout": 0.1056,
+      "roman_numeral__control|heldout": -0.0447,
+      "masculine_pronoun|search": 0.0643,
+      "masculine_pronoun__control|search": 0.2158,
+      "masculine_pronoun|heldout": 0.0692,
+      "masculine_pronoun__control|heldout": 0.2226
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0935,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0268,
+      0.0803,
+      -0.0549,
+      -0.0081,
+      -0.0468
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "256 L15 units closest to feminine-attributed 2997/6185, masculine writers subtracted. Ablation feminine .281, own control .063, masculine .064."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_1.2b_inst/feminine_pronoun.json",
+    "hash": "ac133397a2eca233",
+    "description": "Continue a sentence about a named woman with the right feminine pronoun form (she/her/herself). Control: identical templates with male names (he/his/himself).",
+    "name": "feminine_pronoun"
+  },
+  "catalog_id": "mlp_feminine_pronoun_output_family_l15_mlp_256_units_lfm2.5_1.2b_inst_L15_k254_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/mlp_feminine_pronoun_output_family_l15_mlp_256_units_lfm2.5_1.2b_inst_L15_k254_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

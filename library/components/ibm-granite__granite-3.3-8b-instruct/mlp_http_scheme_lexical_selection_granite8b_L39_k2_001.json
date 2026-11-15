@@ -1,0 +1,104 @@
+{
+  "id": "mlp_http_scheme_lexical_selection_granite8b_L39_k2_001",
+  "kind": "mlp_cluster",
+  "title": "granite-3.3-8b-instruct layer 39, HTTP scheme lexical selection",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/granite8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "url_scheme"
+  ],
+  "models": [
+    "ibm-granite/granite-3.3-8b-instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'url_scheme' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1641,
+      "control_value": 0.0002,
+      "split": "person_a held-out skill items (url_scheme)",
+      "seeds": null,
+      "source": "person_a/catalog/granite8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0001"
+    }
+  ],
+  "generated": true,
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "layer": 39,
+  "layers": [
+    39
+  ],
+  "units_file": "components/ibm-granite__granite-3.3-8b-instruct/mlp_http_scheme_lexical_selection_granite8b_L39_k2_001.pt",
+  "units_remote": "person_a/parts/granite8b/mlp_http_scheme_lexical_selection_granite8b_L39_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'url_scheme'",
+    "label": "HTTP scheme lexical selection",
+    "num_units": 2,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0001,
+      "math|heldout": 0.0,
+      "code|search": -0.0001,
+      "code|heldout": 0.0001,
+      "facts|search": -0.0001,
+      "facts|heldout": -0.0002,
+      "multilingual|search": -0.0004,
+      "multilingual|heldout": 0.0006,
+      "general_text|search": 0.0001,
+      "general_text|heldout": -0.0001,
+      "json_literals|search": 0.0105,
+      "json_literals__control|search": 0.0035,
+      "json_literals|heldout": 0.0159,
+      "json_literals__control|heldout": 0.0024,
+      "url_scheme|search": 0.1883,
+      "url_scheme__control|search": -0.0002,
+      "url_scheme|heldout": 0.1641,
+      "url_scheme__control|heldout": -0.0001,
+      "sql_keywords|search": -0.0003,
+      "sql_keywords__control|search": 0.0,
+      "sql_keywords|heldout": -0.0039,
+      "sql_keywords__control|heldout": 0.0001,
+      "si_unit_symbols|search": 0.0024,
+      "si_unit_symbols__control|search": 0.0,
+      "si_unit_symbols|heldout": -0.0002,
+      "si_unit_symbols__control|heldout": 0.0,
+      "html_escape|search": -0.0013,
+      "html_escape__control|search": 0.0001,
+      "html_escape|heldout": -0.0005,
+      "html_escape__control|heldout": -0.0006
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0628,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0024,
+      0.0011,
+      0.0006,
+      0.0008,
+      0.0009
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Test just the attribution-supported HTTP readers, excluding broad positive http/https writer2879 whose inclusion produced cancellation. 4598 gate has http .525/HTTP .431;5973 has HTTP .129 with request/POST/timeout cues."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/granite8b/url_scheme.json",
+    "hash": "7cbee16d977b3049",
+    "description": "Complete secure or unencrypted website URLs by supplying the correct HTTP scheme; matched controls complete the hostname in the same URL format.",
+    "name": "url_scheme"
+  },
+  "catalog_id": "mlp_http_scheme_lexical_selection_granite8b_L39_k2_001",
+  "exported_copy": "library/granite8b/mlp_http_scheme_lexical_selection_granite8b_L39_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

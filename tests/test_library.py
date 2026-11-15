@@ -508,3 +508,98 @@ def test_recipe_text_parses_back(built):
         assert os.path.exists(os.path.join(built, data["program_file"]))
         checked += 1
     assert checked >= 10
+
+
+# Missing part files
+
+
+def mini_repo(tmp_path, with_file):
+    """A repo with one parts_extracted record. The part file is present only when with_file is true."""
+    repo = tmp_path / "mini_repo"
+    folder = repo / "parts_extracted" / "Qwen__Qwen2.5-Math-1.5B"
+    folder.mkdir(parents=True, exist_ok=True)
+    source = os.path.join(REPO, "parts_extracted", "Qwen__Qwen2.5-Math-1.5B", "records.jsonl")
+    with open(source) as f:
+        record = json.loads(f.readline())
+    record["controls"] = []
+    with open(folder / "records.jsonl", "w") as f:
+        f.write(json.dumps(record) + "\n")
+    units = repo / record["units"]
+    if with_file:
+        units.write_bytes(b"units-bytes")
+    elif units.exists():
+        units.unlink()
+    return str(repo), record
+
+
+def mini_build(repo, library, capsys=None):
+    report = lib.build(repo, library, quiet=capsys is None)
+    out = ""
+    if capsys is not None:
+        out = capsys.readouterr().out
+    return report, out
+
+
+def test_build_keeps_units_file_when_part_file_is_absent(tmp_path, capsys):
+    library = str(tmp_path / "library")
+    repo, record = mini_repo(tmp_path, True)
+    mini_build(repo, library)
+    path = os.path.join(library, "components", lib.model_key(record["model"]), record["id"] + ".json")
+    before = read(path)
+    assert before["units_file"].endswith(os.path.basename(record["units"]))
+    assert "units_missing" not in before
+    repo, record = mini_repo(tmp_path, False)
+    report, out = mini_build(repo, library, capsys)
+    after = read(path)
+    assert after["units_file"] == before["units_file"]
+    assert after["units_missing"] is True
+    assert after["units_expected"] == record["units"]
+    assert after["units_remote"] == before["units_remote"]
+    assert os.path.exists(os.path.join(library, after["units_file"]))
+    assert len(report["units_missing"]) == 1
+    assert record["id"] in report["units_missing"][0]
+    assert "part files missing" in out
+    assert record["id"] in out
+
+
+def test_build_without_file_or_old_entry_records_the_flag(tmp_path):
+    library = str(tmp_path / "library")
+    repo, record = mini_repo(tmp_path, False)
+    lib.build(repo, library, quiet=True)
+    path = os.path.join(library, "components", lib.model_key(record["model"]), record["id"] + ".json")
+    data = read(path)
+    assert data["units_file"] is None
+    assert data["units_missing"] is True
+
+
+def test_validate_warns_on_units_missing_without_an_error(tmp_path):
+    library = str(tmp_path / "library")
+    repo, record = mini_repo(tmp_path, True)
+    lib.build(repo, library, quiet=True)
+    repo, record = mini_repo(tmp_path, False)
+    lib.build(repo, library, quiet=True)
+    warnings = []
+    errors = lib.validate(library, check_index=False, warnings=warnings)
+    assert errors == []
+    assert len(warnings) == 1
+    assert record["id"] in warnings[0]
+    assert "part file missing" in warnings[0]
+    assert lib.validate(library, check_index=False) == []
+
+
+def test_later_build_with_the_file_clears_the_flag(tmp_path):
+    library = str(tmp_path / "library")
+    repo, record = mini_repo(tmp_path, False)
+    lib.build(repo, library, quiet=True)
+    path = os.path.join(library, "components", lib.model_key(record["model"]), record["id"] + ".json")
+    assert read(path)["units_file"] is None
+    repo, record = mini_repo(tmp_path, True)
+    report = lib.build(repo, library, quiet=True)
+    data = read(path)
+    assert data["units_file"].endswith(os.path.basename(record["units"]))
+    assert "units_missing" not in data
+    assert "units_expected" not in data
+    assert report["units_missing"] == []
+    warnings = []
+    assert lib.validate(library, check_index=False, warnings=warnings) == []
+    assert warnings == []

@@ -1,0 +1,116 @@
+{
+  "id": "mlp_colour-name_writer_cluster_l19_64_units_lfm3_1.7b_L19_k64_001",
+  "kind": "mlp_cluster",
+  "title": "LFM3-1.7B layer 19, colour-name writer cluster (L19, 64 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm3_1.7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "object_color"
+  ],
+  "models": [
+    "LiquidAI/LFM3-1.7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'object_color' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2713,
+      "control_value": -0.0006,
+      "split": "person_a held-out skill items (object_color)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm3_1.7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0316"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM3-1.7B",
+  "layer": 19,
+  "layers": [
+    19
+  ],
+  "units_file": "components/LiquidAI__LFM3-1.7B/mlp_colour-name_writer_cluster_l19_64_units_lfm3_1.7b_L19_k64_001.pt",
+  "units_remote": "person_a/parts/lfm3_1.7b/mlp_colour-name_writer_cluster_l19_64_units_lfm3_1.7b_L19_k64_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'object_color'",
+    "label": "colour-name writer cluster (L19, 64 units)",
+    "num_units": 64,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0002,
+      "math|heldout": -0.0013,
+      "code|search": 0.0033,
+      "code|heldout": 0.0016,
+      "facts|search": 0.024,
+      "facts|heldout": 0.0105,
+      "multilingual|search": 0.0027,
+      "multilingual|heldout": 0.0064,
+      "general_text|search": 0.0036,
+      "general_text|heldout": 0.0066,
+      "roman_numeral|search": 0.0066,
+      "roman_numeral__control|search": -0.015,
+      "roman_numeral|heldout": -0.0218,
+      "roman_numeral__control|heldout": -0.0081,
+      "number_word|search": 0.0028,
+      "number_word__control|search": 0.0055,
+      "number_word|heldout": 0.0022,
+      "number_word__control|heldout": 0.0095,
+      "month_successor|search": 0.0225,
+      "month_successor__control|search": -0.004,
+      "month_successor|heldout": 0.0221,
+      "month_successor__control|heldout": -0.0035,
+      "weekday_successor|search": 0.0125,
+      "weekday_successor__control|search": -0.0175,
+      "weekday_successor|heldout": 0.0043,
+      "weekday_successor__control|heldout": -0.0017,
+      "object_color|search": 0.4437,
+      "object_color__control|search": 0.1036,
+      "object_color|heldout": 0.2713,
+      "object_color__control|heldout": 0.0316,
+      "nationality_to_country|search": 0.0003,
+      "nationality_to_country__control|search": -0.0001,
+      "nationality_to_country|heldout": 0.0011,
+      "nationality_to_country__control|heldout": -0.0001,
+      "ordinal_word|search": 0.0012,
+      "ordinal_word__control|search": 0.0,
+      "ordinal_word|heldout": 0.0024,
+      "ordinal_word__control|heldout": 0.0001,
+      "comparative_adjective|search": 0.0043,
+      "comparative_adjective__control|search": -0.0,
+      "comparative_adjective|heldout": 0.0016,
+      "comparative_adjective__control|heldout": -0.0002
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1479,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0052,
+      0.0005,
+      0.0067,
+      -0.0018,
+      -0.0034
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Colour attribution seeds at L19 (5534, 2139, 357, ...) share a gate direction (sim .3-.58). Their mean down-column's negative lens is white/dark/green/black. Grown to 64 units by gate + down similarity. Ablation: object_color .444, control .104, others \u2264 .024."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm3_1.7b/object_color.json",
+    "hash": "e8bf48573ec22644",
+    "description": "Name the typical colour of a familiar object (banana->yellow, grass->green). Control: same sentences asking for the object's category (fruit, plant...).",
+    "name": "object_color"
+  },
+  "catalog_id": "mlp_colour-name_writer_cluster_l19_64_units_lfm3_1.7b_L19_k64_001",
+  "exported_copy": "library/lfm3_1.7b/mlp_colour-name_writer_cluster_l19_64_units_lfm3_1.7b_L19_k64_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

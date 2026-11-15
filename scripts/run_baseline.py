@@ -24,7 +24,7 @@ if REPO_ROOT not in sys.path:
 if SCRIPTS_DIR not in sys.path:
     sys.path.append(SCRIPTS_DIR)
 
-from run_swarm import print_summary  # noqa: E402
+from run_swarm import print_summary, researched_overrides  # noqa: E402
 from wsp.swarm.baselines import METHODS, run_baseline  # noqa: E402
 from wsp.swarm.config import load_dotenv, make_config  # noqa: E402
 
@@ -50,6 +50,10 @@ def parse_args(argv=None):
                         help="modal backend: interim (gsm8k only, default) | harness (gsm8k + if_guard, no cascade)")
     parser.add_argument("--heldout-top", type=int, default=None,
                         help="programs scored on held-out at the end, each with 2 controls (default 3; 0 skips it)")
+    parser.add_argument("--lora", default=None,
+                        help="lora_grid with one setting, rank:lr:steps, for example 64:5e-5:300 (a single LoRA run)")
+    parser.add_argument("--benchmarks", default=None,
+                        help="a researched setup from scripts/research_benchmarks.py (overrides --task-type)")
     return parser.parse_args(argv)
 
 
@@ -75,6 +79,13 @@ def build_config(args):
         overrides["modal_scorer"] = args.modal_scorer
     if args.heldout_top is not None:
         overrides["heldout_top"] = args.heldout_top
+    if args.lora is not None:
+        pieces = args.lora.split(":")
+        if len(pieces) != 3:
+            raise SystemExit("--lora takes rank:lr:steps, for example 64:5e-5:300; got " + args.lora)
+        overrides["lora_grid"] = {"ranks": [int(pieces[0])], "lrs": [float(pieces[1])], "steps": [int(pieces[2])]}
+    if args.benchmarks is not None:
+        overrides.update(researched_overrides(args.benchmarks))
     return make_config(overrides)
 
 

@@ -1,0 +1,720 @@
+{
+ "name": "en_fr_translation",
+ "description": "Translate a common English noun into French (first token of the French word). Control: same template, but repeat the English word.",
+ "hash": "b6de326ef9d38a30",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\npairs = {\"dog\":\"chien\",\"cat\":\"chat\",\"house\":\"maison\",\"water\":\"eau\",\"book\":\"livre\",\"tree\":\"arbre\",\"car\":\"voiture\",\"sun\":\"soleil\",\"moon\":\"lune\",\"bread\":\"pain\",\"cheese\":\"fromage\",\"apple\":\"pomme\",\"door\":\"porte\",\"window\":\"fen\u00eatre\",\"friend\":\"ami\",\"city\":\"ville\",\"school\":\"\u00e9cole\",\"flower\":\"fleur\",\"bird\":\"oiseau\",\"fish\":\"poisson\",\"horse\":\"cheval\",\"milk\":\"lait\",\"table\":\"table\",\"chair\":\"chaise\",\"sea\":\"mer\",\"mountain\":\"montagne\",\"river\":\"rivi\u00e8re\",\"night\":\"nuit\",\"day\":\"jour\",\"heart\":\"c\u0153ur\",\"hand\":\"main\",\"head\":\"t\u00eate\",\"king\":\"roi\",\"queen\":\"reine\",\"child\":\"enfant\",\"woman\":\"femme\",\"man\":\"homme\",\"boy\":\"gar\u00e7on\",\"girl\":\"fille\",\"world\":\"monde\",\"love\":\"amour\",\"time\":\"temps\",\"money\":\"argent\",\"wine\":\"vin\",\"garden\":\"jardin\",\"street\":\"rue\",\"country\":\"pays\",\"sky\":\"ciel\",\"fire\":\"feu\",\"earth\":\"terre\",\"snow\":\"neige\",\"rain\":\"pluie\",\"wind\":\"vent\",\"key\":\"cl\u00e9\",\"pen\":\"stylo\",\"shoe\":\"chaussure\",\"hat\":\"chapeau\",\"egg\":\"\u0153uf\",\"meat\":\"viande\",\"sugar\":\"sucre\",\"salt\":\"sel\",\"butter\":\"beurre\",\"forest\":\"for\u00eat\",\"island\":\"\u00eele\",\"bridge\":\"pont\",\"church\":\"\u00e9glise\",\"village\":\"village\",\"star\":\"\u00e9toile\",\"song\":\"chanson\",\"dream\":\"r\u00eave\",\"word\":\"mot\",\"week\":\"semaine\",\"year\":\"ann\u00e9e\"}\nwords = list(pairs)\nrandom.shuffle(words)\nshots = [(\"dog\",\"chien\"),(\"water\",\"eau\"),(\"book\",\"livre\")]\ndef pre(tgt_lang_fn):\n    return \"\".join(f\"English: {e}\\n{tgt_lang_fn(e, f)}\\n\" for e, f in shots)\nitems = []; control = []\nfor w in words:\n    if w in (\"dog\",\"water\",\"book\"): continue\n    p = \"\".join(f\"English: {e}\\nFrench: {f}\\n\" for e, f in shots) + f\"English: {w}\\nFrench:\"\n    items.append({\"prompt\": p, \"answer\": \" \" + pairs[w]})\n    c = \"\".join(f\"English: {e}\\nRepeat: {e}\\n\" for e, f in shots) + f\"English: {w}\\nRepeat:\"\n    control.append({\"prompt\": c, \"answer\": \" \" + w})\njson.dump({\"items\": items, \"control\": control}, open(\"/work/skill.json\", \"w\"))",
+ "items": {
+  "search": [
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: heart\nFrench:",
+    "continuation": " c\u0153ur",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: butter\nFrench:",
+    "continuation": " beurre",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: tree\nFrench:",
+    "continuation": " arbre",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: fish\nFrench:",
+    "continuation": " poisson",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: mountain\nFrench:",
+    "continuation": " montagne",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: milk\nFrench:",
+    "continuation": " lait",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: table\nFrench:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: window\nFrench:",
+    "continuation": " fen\u00eatre",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: bridge\nFrench:",
+    "continuation": " pont",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: day\nFrench:",
+    "continuation": " jour",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: bread\nFrench:",
+    "continuation": " pain",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: year\nFrench:",
+    "continuation": " ann\u00e9e",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: house\nFrench:",
+    "continuation": " maison",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: moon\nFrench:",
+    "continuation": " lune",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: head\nFrench:",
+    "continuation": " t\u00eate",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: door\nFrench:",
+    "continuation": " porte",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: river\nFrench:",
+    "continuation": " rivi\u00e8re",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: country\nFrench:",
+    "continuation": " pays",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: dream\nFrench:",
+    "continuation": " r\u00eave",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: sky\nFrench:",
+    "continuation": " ciel",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: queen\nFrench:",
+    "continuation": " reine",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: cat\nFrench:",
+    "continuation": " chat",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: word\nFrench:",
+    "continuation": " mot",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: salt\nFrench:",
+    "continuation": " sel",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: cheese\nFrench:",
+    "continuation": " fromage",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: chair\nFrench:",
+    "continuation": " chaise",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: sea\nFrench:",
+    "continuation": " mer",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: rain\nFrench:",
+    "continuation": " pluie",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: school\nFrench:",
+    "continuation": " \u00e9cole",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: child\nFrench:",
+    "continuation": " enfant",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: apple\nFrench:",
+    "continuation": " pomme",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: song\nFrench:",
+    "continuation": " chanson",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: king\nFrench:",
+    "continuation": " roi",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: star\nFrench:",
+    "continuation": " \u00e9toile",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: flower\nFrench:",
+    "continuation": " fleur",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: meat\nFrench:",
+    "continuation": " viande",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: week\nFrench:",
+    "continuation": " semaine",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: night\nFrench:",
+    "continuation": " nuit",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: forest\nFrench:",
+    "continuation": " for\u00eat",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: man\nFrench:",
+    "continuation": " homme",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: shoe\nFrench:",
+    "continuation": " chaussure",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: earth\nFrench:",
+    "continuation": " terre",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: boy\nFrench:",
+    "continuation": " gar\u00e7on",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: friend\nFrench:",
+    "continuation": " ami",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: woman\nFrench:",
+    "continuation": " femme",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: island\nFrench:",
+    "continuation": " \u00eele",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: horse\nFrench:",
+    "continuation": " cheval",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: sun\nFrench:",
+    "continuation": " soleil",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: hand\nFrench:",
+    "continuation": " main",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: wind\nFrench:",
+    "continuation": " vent",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: village\nFrench:",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: street\nFrench:",
+    "continuation": " rue",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: city\nFrench:",
+    "continuation": " ville",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: hat\nFrench:",
+    "continuation": " chapeau",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: time\nFrench:",
+    "continuation": " temps",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: love\nFrench:",
+    "continuation": " amour",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: garden\nFrench:",
+    "continuation": " jardin",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: money\nFrench:",
+    "continuation": " argent",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: snow\nFrench:",
+    "continuation": " neige",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: pen\nFrench:",
+    "continuation": " stylo",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: key\nFrench:",
+    "continuation": " cl\u00e9",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: car\nFrench:",
+    "continuation": " voiture",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: egg\nFrench:",
+    "continuation": " \u0153uf",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: fire\nFrench:",
+    "continuation": " feu",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: girl\nFrench:",
+    "continuation": " fille",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: church\nFrench:",
+    "continuation": " \u00e9glise",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: sugar\nFrench:",
+    "continuation": " sucre",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: wine\nFrench:",
+    "continuation": " vin",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: bird\nFrench:",
+    "continuation": " oiseau",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nFrench: chien\nEnglish: water\nFrench: eau\nEnglish: book\nFrench: livre\nEnglish: world\nFrench:",
+    "continuation": " monde",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: fish\nRepeat:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: money\nRepeat:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: cat\nRepeat:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: sky\nRepeat:",
+    "continuation": " sky",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: shoe\nRepeat:",
+    "continuation": " shoe",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: mountain\nRepeat:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: word\nRepeat:",
+    "continuation": " word",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: city\nRepeat:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: country\nRepeat:",
+    "continuation": " country",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: bread\nRepeat:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: key\nRepeat:",
+    "continuation": " key",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: pen\nRepeat:",
+    "continuation": " pen",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: sun\nRepeat:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: house\nRepeat:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: sugar\nRepeat:",
+    "continuation": " sugar",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: table\nRepeat:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: wine\nRepeat:",
+    "continuation": " wine",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: year\nRepeat:",
+    "continuation": " year",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: forest\nRepeat:",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: night\nRepeat:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: fire\nRepeat:",
+    "continuation": " fire",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: friend\nRepeat:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: tree\nRepeat:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: chair\nRepeat:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: man\nRepeat:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: bridge\nRepeat:",
+    "continuation": " bridge",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: head\nRepeat:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: river\nRepeat:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: child\nRepeat:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: queen\nRepeat:",
+    "continuation": " queen",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: snow\nRepeat:",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: school\nRepeat:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: island\nRepeat:",
+    "continuation": " island",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: hand\nRepeat:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: king\nRepeat:",
+    "continuation": " king",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: boy\nRepeat:",
+    "continuation": " boy",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: moon\nRepeat:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: church\nRepeat:",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: horse\nRepeat:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: milk\nRepeat:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: girl\nRepeat:",
+    "continuation": " girl",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: window\nRepeat:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: star\nRepeat:",
+    "continuation": " star",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: egg\nRepeat:",
+    "continuation": " egg",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: garden\nRepeat:",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: apple\nRepeat:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: earth\nRepeat:",
+    "continuation": " earth",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: heart\nRepeat:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: song\nRepeat:",
+    "continuation": " song",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: salt\nRepeat:",
+    "continuation": " salt",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: world\nRepeat:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: village\nRepeat:",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: woman\nRepeat:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: flower\nRepeat:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: butter\nRepeat:",
+    "continuation": " butter",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: bird\nRepeat:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: sea\nRepeat:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: day\nRepeat:",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: wind\nRepeat:",
+    "continuation": " wind",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: love\nRepeat:",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: car\nRepeat:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: door\nRepeat:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: week\nRepeat:",
+    "continuation": " week",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: street\nRepeat:",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: meat\nRepeat:",
+    "continuation": " meat",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: rain\nRepeat:",
+    "continuation": " rain",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: dream\nRepeat:",
+    "continuation": " dream",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: time\nRepeat:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: hat\nRepeat:",
+    "continuation": " hat",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nRepeat: dog\nEnglish: water\nRepeat: water\nEnglish: book\nRepeat: book\nEnglish: cheese\nRepeat:",
+    "continuation": " cheese",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 13.1626
+}

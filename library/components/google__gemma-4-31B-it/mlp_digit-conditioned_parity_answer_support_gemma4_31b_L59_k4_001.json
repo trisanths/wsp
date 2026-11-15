@@ -1,0 +1,88 @@
+{
+  "id": "mlp_digit-conditioned_parity_answer_support_gemma4_31b_L59_k4_001",
+  "kind": "mlp_cluster",
+  "title": "gemma-4-31B-it layer 59, Digit-conditioned parity answer support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/gemma4_31b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "integer_parity"
+  ],
+  "models": [
+    "google/gemma-4-31B-it"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'integer_parity' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 1.0,
+      "control_value": 0.0024,
+      "split": "person_a held-out skill items (integer_parity)",
+      "seeds": null,
+      "source": "person_a/catalog/gemma4_31b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0676"
+    }
+  ],
+  "generated": true,
+  "model": "google/gemma-4-31B-it",
+  "layer": 59,
+  "layers": [
+    59
+  ],
+  "units_file": "components/google__gemma-4-31B-it/mlp_digit-conditioned_parity_answer_support_gemma4_31b_L59_k4_001.pt",
+  "units_remote": "person_a/parts\\gemma4_31b\\mlp_digit-conditioned_parity_answer_support_gemma4_31b_L59_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'integer_parity'",
+    "label": "Digit-conditioned parity answer support",
+    "num_units": 4,
+    "d_model": 5376,
+    "effect": {
+      "math|search": -0.0001,
+      "math|heldout": -0.001,
+      "code|search": -0.0006,
+      "code|heldout": 0.002,
+      "facts|search": null,
+      "facts|heldout": null,
+      "multilingual|search": -0.0139,
+      "multilingual|heldout": -0.033,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0,
+      "integer_parity|search": 0.9647,
+      "integer_parity__control|search": -0.0434,
+      "integer_parity|heldout": 1.0,
+      "integer_parity__control|heldout": -0.0676
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.3216,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0,
+      0.0,
+      0.0118,
+      0.0118,
+      -0.0118
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L59 gate5941 reads odd/even; gates18377/15238 favor digits 6\u20139; down columns4398 and18377 promote even. Independent attribution agrees. Four-unit ablation drops parity .965 versus -.043 on matched sign control, with tiny baseline changes."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\gemma4_31b\\integer_parity.json",
+    "hash": "45964ede1029fa7a",
+    "description": "Classify integer parity as even or odd; matched control classifies sign in the same format.",
+    "name": "integer_parity"
+  },
+  "catalog_id": "mlp_digit-conditioned_parity_answer_support_gemma4_31b_L59_k4_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

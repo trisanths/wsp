@@ -1,0 +1,1220 @@
+{
+ "name": "derivational_suffix",
+ "description": "Identify productive English derivational suffixes from base/derived word pairs; matched control returns the base word.",
+ "hash": "33787de1aa7e1f58",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\ngroups={'ly':['quick','slow','kind','neat','calm','loud','soft','safe','clear','fair','bold','bad','sad','warm','quiet'], 'ness':['kind','dark','weak','sad','calm','neat','soft','bold','cold','cool','tall','short','sweet','thick','still'], 'less':['care','hope','fear','harm','help','use','pain','power','home','end','rest','sleep','speech','worth','thought'], 'ful':['care','hope','fear','harm','help','use','pain','power','joy','peace','cheer','color','grace','skill','thought']}\nitems=[];control=[]\nfor suffix,bases in groups.items():\n for base in bases:\n  word=base+suffix\n  for form in range(2):\n   record=f'Base word: {base}. Derived word: {word}.' if form==0 else f'Word formation: {base} -> {word}.'\n   # Compute the suffix by removing the supplied root.\n   answer=word[len(base):]\n   items.append({'prompt':f'Identify the suffix added to the base word.\\n{record}\\nAnswer: \"','answer':answer+'\"'})\n   control.append({'prompt':f'Identify the base word before the suffix was added.\\n{record}\\nAnswer: \"','answer':base+'\"'})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: peace -> peaceful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: warm -> warmly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: use -> useful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: slow -> slowly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: hope. Derived word: hopeless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: sleep -> sleepless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: skill. Derived word: skillful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: soft -> softness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: loud. Derived word: loudly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: bold. Derived word: boldness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: bold. Derived word: boldly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: loud -> loudly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: speech. Derived word: speechless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: quick. Derived word: quickly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: thick. Derived word: thickness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: speech -> speechless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: care. Derived word: careless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: sad -> sadness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: help -> helpful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: thought -> thoughtful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: kind. Derived word: kindness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: calm. Derived word: calmness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: fair -> fairly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: use -> useless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: harm. Derived word: harmful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: neat. Derived word: neatly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: fear -> fearful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: short -> shortness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: neat. Derived word: neatness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: short. Derived word: shortness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: cold -> coldness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: help. Derived word: helpful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: thought. Derived word: thoughtful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: quiet. Derived word: quietly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: power. Derived word: powerless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: care. Derived word: careful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: harm -> harmless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: sweet. Derived word: sweetness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: joy -> joyful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: fear -> fearless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: neat -> neatly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: fair. Derived word: fairly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: hope -> hopeful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: home. Derived word: homeless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: pain -> painless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: fear. Derived word: fearless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: dark. Derived word: darkness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: calm. Derived word: calmly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: cool -> coolness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: kind -> kindly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: rest. Derived word: restless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: power. Derived word: powerful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: fear. Derived word: fearful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: calm -> calmly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: help. Derived word: helpless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: clear. Derived word: clearly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: power -> powerless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: use. Derived word: useful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: still. Derived word: stillness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: thought -> thoughtless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: cheer -> cheerful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: sweet -> sweetness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: power -> powerful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: care -> careful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: sad. Derived word: sadly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: soft. Derived word: softness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: neat -> neatness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: thick -> thickness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: tall -> tallness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: help -> helpless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: pain -> painful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: home -> homeless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: bad. Derived word: badly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: color -> colorful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: hope -> hopeless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: safe. Derived word: safely.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: peace. Derived word: peaceful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: quick -> quickly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: cold. Derived word: coldness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: warm. Derived word: warmly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: pain. Derived word: painless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: safe -> safely.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: bold -> boldness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: skill -> skillful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: hope. Derived word: hopeful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: kind. Derived word: kindly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: weak -> weakness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: worth -> worthless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: sad -> sadly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: harm -> harmful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: color. Derived word: colorful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: slow. Derived word: slowly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: use. Derived word: useless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: calm -> calmness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: cheer. Derived word: cheerful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: cool. Derived word: coolness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: end. Derived word: endless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: bad -> badly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: end -> endless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: clear -> clearly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: soft -> softly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: quiet -> quietly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: kind -> kindness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: grace -> graceful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: harm. Derived word: harmless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: pain. Derived word: painful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: rest -> restless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: bold -> boldly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: care -> careless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: sad. Derived word: sadness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: weak. Derived word: weakness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: sleep. Derived word: sleepless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: worth. Derived word: worthless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: tall. Derived word: tallness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: still -> stillness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: thought. Derived word: thoughtless.\nAnswer: \"",
+    "continuation": "less\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nWord formation: dark -> darkness.\nAnswer: \"",
+    "continuation": "ness\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: soft. Derived word: softly.\nAnswer: \"",
+    "continuation": "ly\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: grace. Derived word: graceful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the suffix added to the base word.\nBase word: joy. Derived word: joyful.\nAnswer: \"",
+    "continuation": "ful\"",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: thick -> thickness.\nAnswer: \"",
+    "continuation": "thick\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: slow -> slowly.\nAnswer: \"",
+    "continuation": "slow\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: weak -> weakness.\nAnswer: \"",
+    "continuation": "weak\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: fair. Derived word: fairly.\nAnswer: \"",
+    "continuation": "fair\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: bad -> badly.\nAnswer: \"",
+    "continuation": "bad\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: care -> careful.\nAnswer: \"",
+    "continuation": "care\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: clear -> clearly.\nAnswer: \"",
+    "continuation": "clear\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: power. Derived word: powerful.\nAnswer: \"",
+    "continuation": "power\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: kind. Derived word: kindness.\nAnswer: \"",
+    "continuation": "kind\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: cold. Derived word: coldness.\nAnswer: \"",
+    "continuation": "cold\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: bold. Derived word: boldly.\nAnswer: \"",
+    "continuation": "bold\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: bold -> boldly.\nAnswer: \"",
+    "continuation": "bold\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: harm -> harmless.\nAnswer: \"",
+    "continuation": "harm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: sleep -> sleepless.\nAnswer: \"",
+    "continuation": "sleep\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: use -> useful.\nAnswer: \"",
+    "continuation": "use\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: kind. Derived word: kindly.\nAnswer: \"",
+    "continuation": "kind\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: harm. Derived word: harmful.\nAnswer: \"",
+    "continuation": "harm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: fair -> fairly.\nAnswer: \"",
+    "continuation": "fair\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: power -> powerful.\nAnswer: \"",
+    "continuation": "power\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: skill -> skillful.\nAnswer: \"",
+    "continuation": "skill\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: calm -> calmly.\nAnswer: \"",
+    "continuation": "calm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: sleep. Derived word: sleepless.\nAnswer: \"",
+    "continuation": "sleep\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: cold -> coldness.\nAnswer: \"",
+    "continuation": "cold\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: sweet. Derived word: sweetness.\nAnswer: \"",
+    "continuation": "sweet\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: tall -> tallness.\nAnswer: \"",
+    "continuation": "tall\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: color. Derived word: colorful.\nAnswer: \"",
+    "continuation": "color\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: soft. Derived word: softness.\nAnswer: \"",
+    "continuation": "soft\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: harm. Derived word: harmless.\nAnswer: \"",
+    "continuation": "harm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: cool -> coolness.\nAnswer: \"",
+    "continuation": "cool\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: sad -> sadness.\nAnswer: \"",
+    "continuation": "sad\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: worth -> worthless.\nAnswer: \"",
+    "continuation": "worth\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: joy -> joyful.\nAnswer: \"",
+    "continuation": "joy\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: help. Derived word: helpless.\nAnswer: \"",
+    "continuation": "help\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: help -> helpless.\nAnswer: \"",
+    "continuation": "help\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: soft -> softly.\nAnswer: \"",
+    "continuation": "soft\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: loud -> loudly.\nAnswer: \"",
+    "continuation": "loud\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: color -> colorful.\nAnswer: \"",
+    "continuation": "color\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: sad. Derived word: sadly.\nAnswer: \"",
+    "continuation": "sad\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: still -> stillness.\nAnswer: \"",
+    "continuation": "still\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: loud. Derived word: loudly.\nAnswer: \"",
+    "continuation": "loud\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: neat. Derived word: neatness.\nAnswer: \"",
+    "continuation": "neat\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: care -> careless.\nAnswer: \"",
+    "continuation": "care\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: speech. Derived word: speechless.\nAnswer: \"",
+    "continuation": "speech\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: pain -> painful.\nAnswer: \"",
+    "continuation": "pain\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: bad. Derived word: badly.\nAnswer: \"",
+    "continuation": "bad\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: fear -> fearful.\nAnswer: \"",
+    "continuation": "fear\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: care. Derived word: careful.\nAnswer: \"",
+    "continuation": "care\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: neat. Derived word: neatly.\nAnswer: \"",
+    "continuation": "neat\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: help. Derived word: helpful.\nAnswer: \"",
+    "continuation": "help\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: hope. Derived word: hopeful.\nAnswer: \"",
+    "continuation": "hope\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: sad -> sadly.\nAnswer: \"",
+    "continuation": "sad\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: warm. Derived word: warmly.\nAnswer: \"",
+    "continuation": "warm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: safe -> safely.\nAnswer: \"",
+    "continuation": "safe\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: bold -> boldness.\nAnswer: \"",
+    "continuation": "bold\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: thought. Derived word: thoughtful.\nAnswer: \"",
+    "continuation": "thought\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: warm -> warmly.\nAnswer: \"",
+    "continuation": "warm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: fear. Derived word: fearful.\nAnswer: \"",
+    "continuation": "fear\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: dark. Derived word: darkness.\nAnswer: \"",
+    "continuation": "dark\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: quick -> quickly.\nAnswer: \"",
+    "continuation": "quick\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: bold. Derived word: boldness.\nAnswer: \"",
+    "continuation": "bold\"",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: peace -> peaceful.\nAnswer: \"",
+    "continuation": "peace\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: quiet -> quietly.\nAnswer: \"",
+    "continuation": "quiet\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: harm -> harmful.\nAnswer: \"",
+    "continuation": "harm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: quick. Derived word: quickly.\nAnswer: \"",
+    "continuation": "quick\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: kind -> kindness.\nAnswer: \"",
+    "continuation": "kind\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: cheer -> cheerful.\nAnswer: \"",
+    "continuation": "cheer\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: pain -> painless.\nAnswer: \"",
+    "continuation": "pain\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: sad. Derived word: sadness.\nAnswer: \"",
+    "continuation": "sad\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: short -> shortness.\nAnswer: \"",
+    "continuation": "short\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: joy. Derived word: joyful.\nAnswer: \"",
+    "continuation": "joy\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: hope -> hopeless.\nAnswer: \"",
+    "continuation": "hope\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: calm. Derived word: calmness.\nAnswer: \"",
+    "continuation": "calm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: soft. Derived word: softly.\nAnswer: \"",
+    "continuation": "soft\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: pain. Derived word: painful.\nAnswer: \"",
+    "continuation": "pain\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: neat -> neatness.\nAnswer: \"",
+    "continuation": "neat\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: use -> useless.\nAnswer: \"",
+    "continuation": "use\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: peace. Derived word: peaceful.\nAnswer: \"",
+    "continuation": "peace\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: home. Derived word: homeless.\nAnswer: \"",
+    "continuation": "home\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: rest -> restless.\nAnswer: \"",
+    "continuation": "rest\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: thick. Derived word: thickness.\nAnswer: \"",
+    "continuation": "thick\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: short. Derived word: shortness.\nAnswer: \"",
+    "continuation": "short\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: rest. Derived word: restless.\nAnswer: \"",
+    "continuation": "rest\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: thought. Derived word: thoughtless.\nAnswer: \"",
+    "continuation": "thought\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: end -> endless.\nAnswer: \"",
+    "continuation": "end\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: power -> powerless.\nAnswer: \"",
+    "continuation": "power\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: kind -> kindly.\nAnswer: \"",
+    "continuation": "kind\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: care. Derived word: careless.\nAnswer: \"",
+    "continuation": "care\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: hope -> hopeful.\nAnswer: \"",
+    "continuation": "hope\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: thought -> thoughtful.\nAnswer: \"",
+    "continuation": "thought\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: cheer. Derived word: cheerful.\nAnswer: \"",
+    "continuation": "cheer\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: tall. Derived word: tallness.\nAnswer: \"",
+    "continuation": "tall\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: calm. Derived word: calmly.\nAnswer: \"",
+    "continuation": "calm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: neat -> neatly.\nAnswer: \"",
+    "continuation": "neat\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: cool. Derived word: coolness.\nAnswer: \"",
+    "continuation": "cool\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: safe. Derived word: safely.\nAnswer: \"",
+    "continuation": "safe\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: grace -> graceful.\nAnswer: \"",
+    "continuation": "grace\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: fear -> fearless.\nAnswer: \"",
+    "continuation": "fear\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: end. Derived word: endless.\nAnswer: \"",
+    "continuation": "end\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: worth. Derived word: worthless.\nAnswer: \"",
+    "continuation": "worth\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: pain. Derived word: painless.\nAnswer: \"",
+    "continuation": "pain\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: power. Derived word: powerless.\nAnswer: \"",
+    "continuation": "power\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: soft -> softness.\nAnswer: \"",
+    "continuation": "soft\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: use. Derived word: useful.\nAnswer: \"",
+    "continuation": "use\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: grace. Derived word: graceful.\nAnswer: \"",
+    "continuation": "grace\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: sweet -> sweetness.\nAnswer: \"",
+    "continuation": "sweet\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: weak. Derived word: weakness.\nAnswer: \"",
+    "continuation": "weak\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: speech -> speechless.\nAnswer: \"",
+    "continuation": "speech\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: home -> homeless.\nAnswer: \"",
+    "continuation": "home\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: calm -> calmness.\nAnswer: \"",
+    "continuation": "calm\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: clear. Derived word: clearly.\nAnswer: \"",
+    "continuation": "clear\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: thought -> thoughtless.\nAnswer: \"",
+    "continuation": "thought\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: use. Derived word: useless.\nAnswer: \"",
+    "continuation": "use\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: still. Derived word: stillness.\nAnswer: \"",
+    "continuation": "still\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: dark -> darkness.\nAnswer: \"",
+    "continuation": "dark\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: fear. Derived word: fearless.\nAnswer: \"",
+    "continuation": "fear\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: quiet. Derived word: quietly.\nAnswer: \"",
+    "continuation": "quiet\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: slow. Derived word: slowly.\nAnswer: \"",
+    "continuation": "slow\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: hope. Derived word: hopeless.\nAnswer: \"",
+    "continuation": "hope\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nWord formation: help -> helpful.\nAnswer: \"",
+    "continuation": "help\"",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the base word before the suffix was added.\nBase word: skill. Derived word: skillful.\nAnswer: \"",
+    "continuation": "skill\"",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.0419
+}

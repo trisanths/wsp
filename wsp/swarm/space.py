@@ -223,8 +223,29 @@ def validate(program, catalog, config=None):
             errors.append("graft " + str(pair[0]) + " at " + str(pair[1]) + " appears twice")
         seen.append(pair)
 
-    errors.extend(validate_heal(ps.heal(program), config))
+    lora = ps.lora(program)
+    errors.extend(validate_lora(lora, grafts, ps.heal(program), config))
+    errors.extend(validate_heal(ps.heal(program), config, lora is not None))
     errors.extend(validate_host_edits(program, catalog, n_host))
+    return errors
+
+
+def lora_grid(config):
+    """The lora_grid arm's settings: {"ranks", "lrs", "steps"} (config lora_grid)."""
+    return config.get("lora_grid") or {"ranks": [], "lrs": [], "steps": []}
+
+
+def validate_lora(lora, grafts, heal, config):
+    """A host LoRA is the regular-training baseline: no grafts, a heal to train it, a rank from the grid."""
+    if lora is None:
+        return []
+    errors = []
+    if len(grafts) > 0:
+        errors.append("a LoRA program has no grafts (the LoRA is the regular-training baseline)")
+    if heal is None:
+        errors.append("a LoRA program needs a heal pass to train the LoRA")
+    if lora.get("rank") not in lora_grid(config)["ranks"]:
+        errors.append("LoRA rank " + str(lora.get("rank")) + " not in " + str(lora_grid(config)["ranks"]))
     return errors
 
 
@@ -253,16 +274,26 @@ def validate_graft(graft, catalog, n_host, ranks):
     return errors
 
 
-def validate_heal(heal, config):
+def validate_heal(heal, config, has_lora=False):
     if heal is None:
         return []
     errors = []
-    if heal.get("steps") not in config["heal_steps_allowed"]:
-        errors.append("heal steps " + str(heal.get("steps")) + " not in " + str(config["heal_steps_allowed"]))
+    lrs = list(config["heal_lr_allowed"])
+    steps = list(config["heal_steps_allowed"])
+    if has_lora:
+        # A LoRA tunes its own learning rate and steps (config lora_grid); the glue keeps the shared recipe.
+        for value in lora_grid(config)["lrs"]:
+            if value not in lrs:
+                lrs.append(value)
+        for value in lora_grid(config)["steps"]:
+            if value not in steps:
+                steps.append(value)
+    if heal.get("steps") not in steps:
+        errors.append("heal steps " + str(heal.get("steps")) + " not in " + str(steps))
     if heal.get("data") not in heal_data_allowed(config):
         errors.append("heal data " + str(heal.get("data")) + " not in " + str(heal_data_allowed(config)))
-    if heal.get("lr") not in config["heal_lr_allowed"]:
-        errors.append("heal lr " + str(heal.get("lr")) + " not in " + str(config["heal_lr_allowed"]))
+    if heal.get("lr") not in lrs:
+        errors.append("heal lr " + str(heal.get("lr")) + " not in " + str(lrs))
     if heal.get("batch_size") not in config["heal_batch_size_allowed"]:
         errors.append("heal batch_size " + str(heal.get("batch_size")) + " not allowed")
     if heal.get("seq_len") not in config["heal_seq_len_allowed"]:
@@ -541,6 +572,12 @@ def describe(program):
             text += " + " + name + "@" + str(at)
         if ps.graft_glue_rank(graft) is not None:
             text += "/" + rank_text(ps.graft_glue_rank(graft))
+    lora = ps.lora(program)
+    if lora is not None:
+        text += " + LoRA r" + str(lora.get("rank"))
+        heal = ps.heal(program)
+        if heal is not None:
+            text += " lr " + ("%g" % heal.get("lr"))
     steps = ps.heal_steps(program)
     if steps is None:
         text += ", no heal"

@@ -1,0 +1,116 @@
+{
+  "id": "mlp_weekday-name_successor_writer_256-unit_l30_mlp_c_qwen3.5_9b_L30_k256_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3.5-9B layer 30, weekday-name successor writer (256-unit L30 MLP cluster)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3.5_9b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_successor"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-9B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2149,
+      "control_value": -0.0026,
+      "split": "person_a held-out skill items (weekday_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3.5_9b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0005"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3.5-9B",
+  "layer": 30,
+  "layers": [
+    30
+  ],
+  "units_file": "components/Qwen__Qwen3.5-9B/mlp_weekday-name_successor_writer_256-unit_l30_mlp_c_qwen3.5_9b_L30_k256_001.pt",
+  "units_remote": "person_a/parts/qwen3.5_9b/mlp_weekday-name_successor_writer_256-unit_l30_mlp_c_qwen3.5_9b_L30_k256_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_successor'",
+    "label": "weekday-name successor writer (256-unit L30 MLP cluster)",
+    "num_units": 256,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0003,
+      "math|heldout": -0.0006,
+      "code|search": -0.0012,
+      "code|heldout": 0.0017,
+      "facts|search": 0.0008,
+      "facts|heldout": 0.0149,
+      "multilingual|search": 0.0046,
+      "multilingual|heldout": 0.0009,
+      "general_text|search": 0.0025,
+      "general_text|heldout": 0.0086,
+      "roman_numeral|search": -0.0034,
+      "roman_numeral__control|search": 0.0028,
+      "roman_numeral|heldout": -0.0024,
+      "roman_numeral__control|heldout": 0.0028,
+      "weekday_successor|search": 0.2177,
+      "weekday_successor__control|search": 0.0009,
+      "weekday_successor|heldout": 0.2149,
+      "weekday_successor__control|heldout": -0.0005,
+      "month_successor|search": -0.0023,
+      "month_successor__control|search": 0.0006,
+      "month_successor|heldout": -0.0116,
+      "month_successor__control|heldout": 0.0008,
+      "ordinal_words|search": 0.0286,
+      "ordinal_words__control|search": 0.0091,
+      "ordinal_words|heldout": 0.0259,
+      "ordinal_words__control|heldout": 0.0133,
+      "color_naming|search": 0.0102,
+      "color_naming__control|search": -0.0456,
+      "color_naming|heldout": 0.0147,
+      "color_naming__control|heldout": -0.0205,
+      "past_tense|search": -0.0122,
+      "past_tense__control|search": 0.0127,
+      "past_tense|heldout": -0.0111,
+      "past_tense__control|heldout": 0.0154,
+      "plural_nouns|search": -0.0064,
+      "plural_nouns__control|search": 0.0124,
+      "plural_nouns|heldout": -0.0074,
+      "plural_nouns__control|heldout": 0.0143,
+      "capital_city|search": 0.0031,
+      "capital_city__control|search": -0.0016,
+      "capital_city|heldout": 0.0008,
+      "capital_city__control|heldout": 0.0006
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0726,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0104,
+      0.0115,
+      -0.0149,
+      -0.0131,
+      -0.0069
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L30 weekday seed subspace (6501, 2262, 7319, 87, 1789; weekday-aligned writers, z up to 14.9) grown to 256 units by down/gate/up projection minus the other skills' seed subspaces."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwen3.5_9b/weekday_successor.json",
+    "hash": "e4d81df85c64a075",
+    "description": "Name the weekday k (1-3) days after a given weekday, few-shot. Control: same arrow format with integer successor (n + k).",
+    "name": "weekday_successor"
+  },
+  "catalog_id": "mlp_weekday-name_successor_writer_256-unit_l30_mlp_c_qwen3.5_9b_L30_k256_001",
+  "exported_copy": "library/qwen3.5_9b/mlp_weekday-name_successor_writer_256-unit_l30_mlp_c_qwen3.5_9b_L30_k256_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -5,7 +5,7 @@ import { toast, clock, pctS, primaryTarget, useInterval } from '../util.js';
 import { Dot, CodeView, Composer } from '../components.js';
 import { ThinkLine, StreamText, SubtleNum } from '../motion.js';
 import { openProgramInBuilder } from './shared.js';
-import { nameOf, progName, ACTIVE, agentDot, STATUS_WORD } from './run-shared.js';
+import { nameOf, progName, ACTIVE, agentDot, STATUS_WORD, isEmptyEnd } from './run-shared.js';
 
 const cap = (s) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : s);
 const VERBS = { probe: 'Fit check', compile: 'Compile', heal: 'Heal', eval: 'Score', read_results: 'Read results', control: 'Random-part control' };
@@ -14,7 +14,7 @@ function plainCall(call) {
   const m = /^(\w+)\((.*)\)$/s.exec(call || '');
   if (!m) return call;
   const label = VERBS[m[1]] || cap(m[1].replace(/_/g, ' '));
-  return ['heal', 'eval', 'read_results'].includes(m[1]) && m[2] ? label + ', ' + m[2] : label;
+  return ['heal', 'eval', 'read_results'].includes(m[1]) && m[2] ? label + ' (' + m[2] + ')' : label;
 }
 
 export function AgentPage({ snap, id, agentId, cat }) {
@@ -52,7 +52,8 @@ export function AgentPage({ snap, id, agentId, cat }) {
   const a = d ? d.agent : (snap.agents.find((x) => x.id === agentId) || { id: agentId, name: agentId, status: 'idle', attempts: 0, collapses: 0 });
   const live = snap.agents.find((x) => x.id === agentId) || a;
   const t = primaryTarget(snap.spec);
-  const active = !!ACTIVE[live.status];
+  const ended = snap.status === 'done' || snap.status === 'error';
+  const active = !ended && !!ACTIVE[live.status];
   const cur = d && d.current;
   const thinking = d ? d.thinking.slice().reverse() : [];
   // the first load is the baseline: only later reasoning streams in
@@ -64,10 +65,10 @@ export function AgentPage({ snap, id, agentId, cat }) {
 
   return html`<div class="rpage agentp">
     <div class="ascroll"><div class="col">
-      <a class="back" href=${'#/run/' + id + '/agents'}>Agents</a>
+      <a class="back" href=${'#/run/' + id}>Overview</a>
       <div class="ahd">
         <h1 class="page-title">${a.name}</h1>
-        <span class="astat"><${Dot} color=${agentDot(live.status)} pulse=${active} />${STATUS_WORD[live.status] || live.status}</span>
+        <span class="astat"><${Dot} color=${agentDot(live.status, ended, isEmptyEnd(snap))} pulse=${active} />${ended && isEmptyEnd(snap) ? 'Ended' : STATUS_WORD[live.status] || live.status}</span>
       </div>
       <div class="ameta">${bits.join(', ')}</div>
       ${err && !d && html`<div class="down" style="margin-top:24px">${err.message}</div>`}

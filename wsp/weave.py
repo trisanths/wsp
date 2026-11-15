@@ -836,6 +836,7 @@ class Objective:
 # scored with forward passes only. No generation, no benchmark item.
 
 PROBE_TOP_K = 64
+SEQ_CHUNK = 96
 
 
 def text_hash(texts, max_length=384, top_k=PROBE_TOP_K):
@@ -856,7 +857,8 @@ def cache_path(directory, label, revision, texts_hash):
 
 
 @torch.no_grad()
-def build_teacher_cache(model, tokenizer, texts, top_k=PROBE_TOP_K, max_length=384, batch_size=8, vocab=None):
+def build_teacher_cache(model, tokenizer, texts, top_k=PROBE_TOP_K, max_length=384, batch_size=8, vocab=None,
+                        seq_chunk=SEQ_CHUNK):
     """Run texts through a model, teacher-forced, and keep the top-k distribution at every position.
 
     Returns a dict of numpy arrays. The tokens of all texts are stored flat:
@@ -866,7 +868,9 @@ def build_teacher_cache(model, tokenizer, texts, top_k=PROBE_TOP_K, max_length=3
       top_logp float16 [T, k] their log-probabilities (full softmax)
       tail     float16 [T]    the probability mass outside the top k
     vocab cuts the logits to the first vocab entries (a shared prefix when
-    vocabularies differ only by unused tail rows).
+    vocabularies differ only by unused tail rows). The float32 work runs on
+    seq_chunk positions at a time, so peak memory does not grow with the
+    batch or the sequence length.
     """
     device = probe.model_device(model)
     lengths = []
@@ -878,16 +882,25 @@ def build_teacher_cache(model, tokenizer, texts, top_k=PROBE_TOP_K, max_length=3
     used_k = None
     for start in range(0, len(texts), batch_size):
         ids, attention = probe.encode(tokenizer, texts[start:start + batch_size], max_length, device)
-        logits = model(input_ids=ids, attention_mask=attention).logits.float()
-        if vocab is not None:
-            logits = logits[..., :vocab]
-        used_vocab = int(logits.shape[-1])
+        raw = model(input_ids=ids, attention_mask=attention).logits
+        used_vocab = int(raw.shape[-1] if vocab is None else min(vocab, raw.shape[-1]))
         used_k = min(int(top_k), used_vocab)
-        logz = torch.logsumexp(logits, dim=-1, keepdim=True)
-        values, index = torch.topk(logits, used_k, dim=-1)
-        logp = values - logz
-        rest = logits.scatter(-1, index, float("-inf"))
-        tail = torch.exp(torch.logsumexp(rest, dim=-1) - logz.squeeze(-1))
+        index_parts = []
+        logp_parts = []
+        tail_parts = []
+        for lo in range(0, raw.shape[1], seq_chunk):
+            logits = raw[:, lo:lo + seq_chunk, :used_vocab].float()
+            logz = torch.logsumexp(logits, dim=-1, keepdim=True)
+            values, idx = torch.topk(logits, used_k, dim=-1)
+            rest = logits.scatter(-1, idx, float("-inf"))
+            tail_parts.append(torch.exp(torch.logsumexp(rest, dim=-1) - logz.squeeze(-1)))
+            index_parts.append(idx)
+            logp_parts.append(values - logz)
+            del logits, rest, values, logz
+        index = torch.cat(index_parts, dim=1)
+        logp = torch.cat(logp_parts, dim=1)
+        tail = torch.cat(tail_parts, dim=1)
+        del raw, index_parts, logp_parts, tail_parts
         for row in range(ids.shape[0]):
             count = int(attention[row].sum())
             lengths.append(count)
@@ -895,11 +908,62 @@ def build_teacher_cache(model, tokenizer, texts, top_k=PROBE_TOP_K, max_length=3
             flat_top.append(index[row, :count].cpu().numpy().astype(np.int32))
             flat_logp.append(logp[row, :count].cpu().numpy().astype(np.float16))
             flat_tail.append(tail[row, :count].cpu().numpy().astype(np.float16))
-        del logits, rest
     return {"lengths": np.array(lengths, dtype=np.int32), "ids": np.concatenate(flat_ids),
             "top_ids": np.concatenate(flat_top), "top_logp": np.concatenate(flat_logp),
             "tail": np.concatenate(flat_tail), "top_k": int(used_k), "vocab": int(used_vocab),
             "max_length": int(max_length), "texts_hash": text_hash(texts, max_length, top_k)}
+
+
+def free_gpu():
+    """Collect garbage and give the cached CUDA blocks back. Call after the last reference to a model is gone."""
+    import gc
+
+    gc.collect()
+    if torch.cuda.is_available():
+        torch.cuda.synchronize()
+        torch.cuda.empty_cache()
+
+
+def memory_report(stage, log=print):
+    """Print the peak CUDA memory since the last report, then reset the peak. Returns the numbers in GiB.
+
+    On a machine without CUDA it returns zeros and prints nothing.
+    """
+    if not torch.cuda.is_available():
+        return {"stage": stage, "peak_gib": 0.0, "now_gib": 0.0, "reserved_gib": 0.0}
+    gib = 1024.0 ** 3
+    out = {"stage": stage, "peak_gib": round(torch.cuda.max_memory_allocated() / gib, 2),
+           "now_gib": round(torch.cuda.memory_allocated() / gib, 2),
+           "reserved_gib": round(torch.cuda.memory_reserved() / gib, 2)}
+    torch.cuda.reset_peak_memory_stats()
+    log(f"memory {stage}: peak {out['peak_gib']} GiB, now {out['now_gib']} GiB, reserved {out['reserved_gib']} GiB")
+    return out
+
+
+def fill_caches(load_model, wanted, paths, tokenizer, vocab=None, top_k=PROBE_TOP_K, max_length=384, batch_size=8,
+                label="", log=print):
+    """Build the teacher caches whose files are missing, then free the model before returning.
+
+    load_model: a function with no arguments that returns the model; it is
+    called only when a file is missing. wanted: {key: texts}. paths:
+    {key: file path}. The function holds the only reference to the model, so
+    nothing stays on the GPU when it returns. Returns {key: cache}.
+    """
+    missing = [key for key in wanted if not os.path.exists(paths[key])]
+    if len(missing) > 0:
+        model = load_model()
+        model.eval()
+        try:
+            for key in missing:
+                cache = build_teacher_cache(model, tokenizer, wanted[key], top_k=top_k, max_length=max_length,
+                                            batch_size=batch_size, vocab=vocab)
+                save_cache(cache, paths[key])
+                log(f"cache {label} {key}: {len(wanted[key])} texts, {int(cache['lengths'].sum())} tokens")
+                del cache
+        finally:
+            del model
+        free_gpu()
+    return {key: load_cache(paths[key]) for key in wanted}
 
 
 def save_cache(cache, path):
@@ -925,15 +989,16 @@ def load_cache(path):
 
 
 @torch.no_grad()
-def kl_to_cache(model, cache, batch_size=8):
+def kl_to_cache(model, cache, batch_size=8, seq_chunk=SEQ_CHUNK):
     """Mean KL(teacher || model) per token in nats, on the cached top-k plus one tail bucket.
 
     The teacher is the cached distribution. The model reads the cached token
     ids. Per position: the sum over the top-k of p (log p - log q), plus the
     tail bucket p_tail (log p_tail - log q_tail). This is a lower bound of
     the full KL and is close to it when the top k holds most of the mass. The
-    first position of each text is left out, as in wsp.probe. Returns
-    {"kl": float, "tokens": int}.
+    first position of each text is left out, as in wsp.probe. The float32
+    work runs on seq_chunk positions at a time (None: all at once), so the
+    peak does not grow with the batch. Returns {"kl": float, "tokens": int}.
     """
     device = probe.model_device(model)
     lengths = cache["lengths"]
@@ -962,23 +1027,73 @@ def kl_to_cache(model, cache, batch_size=8):
             tail[row, :n] = cache["tail"][lo:hi].astype(np.float32)
         ids_t = torch.from_numpy(ids).to(device)
         att_t = torch.from_numpy(attention).to(device)
-        logits = model(input_ids=ids_t, attention_mask=att_t).logits.float()[..., :vocab]
-        logz = torch.logsumexp(logits, dim=-1, keepdim=True)
-        index = torch.from_numpy(top_ids).to(logits.device)
-        s_top = logits.gather(-1, index) - logz
-        rest = logits.scatter(-1, index, float("-inf"))
-        s_tail = (torch.logsumexp(rest, dim=-1) - logz.squeeze(-1)).clamp(min=-30.0)
-        t_logp = torch.from_numpy(top_logp).to(logits.device)
-        t_tail = torch.from_numpy(tail).to(logits.device)
-        kl = (t_logp.exp() * (t_logp - s_top)).sum(-1)
-        kl = kl + t_tail * (torch.log(t_tail.clamp(min=1e-8)) - s_tail)
-        mask = probe.token_mask(att_t).to(logits.device)
-        total += float((kl * mask).sum())
+        raw = model(input_ids=ids_t, attention_mask=att_t).logits
+        mask = probe.token_mask(att_t).to(raw.device)
+        t_logp_all = torch.from_numpy(top_logp).to(raw.device)
+        t_tail_all = torch.from_numpy(tail).to(raw.device)
+        index_all = torch.from_numpy(top_ids).to(raw.device)
+        for lo in range(0, width, seq_chunk or width):
+            hi_pos = width if not seq_chunk else min(width, lo + seq_chunk)
+            logits = raw[:, lo:hi_pos, :vocab].float()
+            logz = torch.logsumexp(logits, dim=-1, keepdim=True)
+            index = index_all[:, lo:hi_pos]
+            s_top = logits.gather(-1, index) - logz
+            rest = logits.scatter(-1, index, float("-inf"))
+            s_tail = (torch.logsumexp(rest, dim=-1) - logz.squeeze(-1)).clamp(min=-30.0)
+            t_logp = t_logp_all[:, lo:hi_pos]
+            t_tail = t_tail_all[:, lo:hi_pos]
+            kl = (t_logp.exp() * (t_logp - s_top)).sum(-1)
+            kl = kl + t_tail * (torch.log(t_tail.clamp(min=1e-8)) - s_tail)
+            total += float((kl * mask[:, lo:hi_pos]).sum())
+            del logits, rest, s_top, logz
         tokens += float(mask.sum())
-        del logits, rest
+        del raw
     if tokens == 0:
         return {"kl": 0.0, "tokens": 0}
     return {"kl": total / tokens, "tokens": int(tokens)}
+
+
+@torch.no_grad()
+def nll_on_cache(model, cache, batch_size=8, seq_chunk=SEQ_CHUNK):
+    """Mean next-token loss of the model on the cached texts, in nats per token.
+
+    Uses only the cached token ids. Returns {"nll": float, "tokens": int}.
+    """
+    device = probe.model_device(model)
+    lengths = cache["lengths"]
+    offsets = np.concatenate([[0], np.cumsum(lengths)])
+    vocab = int(cache["vocab"])
+    total = 0.0
+    tokens = 0.0
+    for start in range(0, len(lengths), batch_size):
+        stop = min(start + batch_size, len(lengths))
+        width = int(lengths[start:stop].max())
+        count = stop - start
+        ids = np.zeros((count, width), dtype=np.int64)
+        attention = np.zeros((count, width), dtype=np.int64)
+        for row in range(count):
+            lo = int(offsets[start + row])
+            hi = int(offsets[start + row + 1])
+            ids[row, :hi - lo] = cache["ids"][lo:hi]
+            attention[row, :hi - lo] = 1
+        ids_t = torch.from_numpy(ids).to(device)
+        att_t = torch.from_numpy(attention).to(device)
+        raw = model(input_ids=ids_t, attention_mask=att_t).logits
+        target_all = ids_t.to(raw.device)
+        mask_all = att_t.to(raw.device)
+        for lo in range(0, width - 1, seq_chunk or width):
+            hi_pos = width - 1 if not seq_chunk else min(width - 1, lo + seq_chunk)
+            logits = raw[:, lo:hi_pos, :vocab].float()
+            logz = torch.logsumexp(logits, dim=-1)
+            picked = logits.gather(-1, target_all[:, lo + 1:hi_pos + 1].unsqueeze(-1)).squeeze(-1) - logz
+            mask = mask_all[:, lo + 1:hi_pos + 1].float()
+            total += float((-picked * mask).sum())
+            tokens += float(mask.sum())
+            del logits, logz, picked
+        del raw
+    if tokens == 0:
+        return {"nll": 0.0, "tokens": 0}
+    return {"nll": total / tokens, "tokens": int(tokens)}
 
 
 class ProbeObjective:
@@ -986,10 +1101,17 @@ class ProbeObjective:
 
     For each member i with its own pool texts: the teacher is the member's
     cache. transfer_i = gap closed between KL(member_i || host) and 0, so the
-    host scores 0 and the member itself scores 1. Drift is KL(host || model)
-    on general texts, from the host's cache. The objective is
+    host scores 0 and the member itself scores 1. The guard is harm on
+    general text: the model's next-token loss there minus the host's. A
+    mix may move away from the host; it may not get worse at general text.
+    (The first real run showed why: a true fine-tune sits 0.4 nats of KL
+    from its host on general text, so a KL guard scored every member far
+    below the untouched host.) The objective is
 
-        mean over members of transfer_i - drift_weight * max(0, drift - drift_tolerance)
+        mean over members of transfer_i - drift_weight * max(0, harm - drift_tolerance)
+
+    With guard="kl" the old measure, KL(host || model), is the guard. Both
+    numbers are always reported ("harm" and "drift").
 
     Members whose gap to the host is zero (no signal on their pool) are
     left out of the mean and reported as None. Call calibrate(host model)
@@ -999,7 +1121,7 @@ class ProbeObjective:
     """
 
     def __init__(self, member_names, member_caches, drift_cache, drift_tolerance=0.05, drift_weight=10.0,
-                 batch_size=8, host_pool_caches=None):
+                 batch_size=8, host_pool_caches=None, guard="nll"):
         if len(set(member_names)) != len(member_names):
             raise ValueError("member names must be unique")
         self.names = list(member_names)
@@ -1009,8 +1131,12 @@ class ProbeObjective:
         self.drift_weight = float(drift_weight)
         self.batch_size = batch_size
         self.host_pool_caches = dict(host_pool_caches or {})
+        if guard not in ("nll", "kl"):
+            raise ValueError("guard must be 'nll' or 'kl'")
+        self.guard = guard
         self.baseline = None
         self.drift_floor = None
+        self.host_nll = None
 
     def calibrate(self, model):
         """Measure KL(member || host) on every member pool with the host weights in the model."""
@@ -1019,7 +1145,8 @@ class ProbeObjective:
             base[name] = kl_to_cache(model, self.caches[name], self.batch_size)["kl"]
         self.baseline = base
         self.drift_floor = kl_to_cache(model, self.drift_cache, self.batch_size)["kl"]
-        return {"baseline_kl": dict(base), "drift_floor": self.drift_floor}
+        self.host_nll = nll_on_cache(model, self.drift_cache, self.batch_size)["nll"]
+        return {"baseline_kl": dict(base), "drift_floor": self.drift_floor, "host_nll": self.host_nll}
 
     def scores(self, model):
         """Forward passes only. Returns {"transfer": {name: value or None}, "member_kl": {...}, "drift": float}."""
@@ -1032,7 +1159,9 @@ class ProbeObjective:
             kls[name] = kl
             transfers[name] = probe.gap_closed(self.baseline[name], kl, 0.0)
         drift = kl_to_cache(model, self.drift_cache, self.batch_size)["kl"]
-        out = {"transfer": transfers, "member_kl": kls, "drift": drift}
+        nll = nll_on_cache(model, self.drift_cache, self.batch_size)["nll"]
+        out = {"transfer": transfers, "member_kl": kls, "drift": drift, "general_nll": nll,
+               "harm": nll - self.host_nll}
         if len(self.host_pool_caches) > 0:
             pool_drift = {}
             for label in sorted(self.host_pool_caches):
@@ -1056,10 +1185,13 @@ class ProbeObjective:
         mean = self.mean_transfer(scores)
         if mean is None:
             mean = 0.0
-        excess = max(0.0, scores["drift"] - self.drift_tolerance)
+        guard_value = scores["drift"]
+        if self.guard == "nll":
+            guard_value = scores.get("harm", scores["drift"])
+        excess = max(0.0, guard_value - self.drift_tolerance)
         penalty = self.drift_weight * excess
         detail = {"transfer": dict(scores["transfer"]), "mean_transfer": mean, "drift": scores["drift"],
-                  "drift_excess": excess, "penalty": penalty}
+                  "harm": scores.get("harm"), "guard": self.guard, "drift_excess": excess, "penalty": penalty}
         return mean - penalty, detail
 
 

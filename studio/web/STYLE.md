@@ -16,7 +16,7 @@ Both themes ship. The default follows `prefers-color-scheme`; a toggle in the si
 | `--text-1` | `#1a1a1a` | `#e6e6e6` | primary text |
 | `--text-2` | `#4d4d4d` | `#b3b3b3` | secondary text |
 | `--text-3` | `#737373` | `#8c8c8c` | tertiary text, icons |
-| `--text-4` | `#b9b9b7` | `#595959` | disabled, placeholders |
+| `--text-4` | `#b9b9b7` | `#595959` | disabled and decoration only, never text people need to read |
 | `--line-1` | `#0000000a` | `#ffffff08` | faint dividers |
 | `--line-2` | `#0000000f` | `#ffffff0f` | borders on cards and inputs |
 | `--line-3` | `#00000024` | `#ffffff1f` | strong borders, the composer |

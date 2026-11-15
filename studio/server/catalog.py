@@ -70,16 +70,106 @@ def stub_catalog_path(stub_seed=0):
     return path
 
 
+UNIT_KINDS = ["mlp_cluster", "attn_heads", "expert"]
+BLOCK_KINDS = ["block", "inserted_layer"]
+_placement_cache = {}
+
+
+def units_path_for(entry):
+    """The units path a compiler record uses: relative to the repo root when the file is inside it."""
+    absolute = os.path.join(library.library_dir(), *str(entry["units_file"]).split("/"))
+    root = os.path.abspath(settings.REPO_ROOT)
+    if os.path.abspath(absolute).startswith(root + os.sep):
+        return os.path.relpath(absolute, root).replace(os.sep, "/")
+    return absolute
+
+
+def unit_record(entry):
+    """(record, reason) for a part with an index file: mlp_cluster, attn_heads or expert."""
+    layers = entry.get("layer_list") or []
+    if len(layers) == 0:
+        return None, "No donor layer in the library file."
+    if len(layers) > 1:
+        return None, "The library file lists " + str(len(layers)) + " donor layers; the compiler needs one."
+    units_file = entry.get("units_file")
+    if not units_file:
+        remote = entry.get("units_remote")
+        if remote:
+            return None, "No unit indices in the library file. The index file is only at " + str(remote) + "."
+        return None, "No unit indices in the library file."
+    absolute = os.path.join(library.library_dir(), *str(units_file).split("/"))
+    if not os.path.isfile(absolute):
+        return None, "The index file " + str(units_file) + " is named in the library but is not in the folder."
+    record = {"id": entry["catalog_id"], "type": entry["kind"], "model": entry["model"], "layer": layers[0],
+              "units": units_path_for(entry), "trained_on": ", ".join(entry.get("skills") or []) or None,
+              "source": "library entry " + entry["id"], "library_entry": entry["id"]}
+    return record, None
+
+
+def block_record(entry):
+    """(record, reason) for a block or an inserted layer: it needs the donor model and one run of layers."""
+    layers = entry.get("layer_list") or entry.get("layers") or []
+    if len(layers) == 0:
+        return None, "No layer range in the library file."
+    first = min(layers)
+    last = max(layers)
+    if entry["kind"] == "block" and len(layers) > 2 and last - first + 1 != len(set(layers)):
+        return None, "The layers are not one run, so the compiler cannot take them as a block."
+    record = {"id": entry["catalog_id"], "type": "block", "model": entry["model"], "layers": [first, last],
+              "source": "library entry " + entry["id"], "library_entry": entry["id"]}
+    return record, None
+
+
+def placement(entry):
+    """(record, reason) for one library entry: a compiler record, or why it cannot be placed."""
+    if entry.get("tap_only"):
+        return None, library.TAP_ONLY_REASON
+    if not entry.get("model"):
+        return None, "No donor model in the library file."
+    if entry["kind"] in UNIT_KINDS:
+        if entry.get("source") == "atlas":
+            return None, "The atlas entry lists expert numbers but has no index file."
+        return unit_record(entry)
+    if entry["kind"] in BLOCK_KINDS:
+        return block_record(entry)
+    return None, "The compiler does not take this kind of part."
+
+
+def library_placements():
+    """{catalog_id: (record, reason)} for every library and atlas part, built once per library load."""
+    data = library.get()
+    if _placement_cache.get("key") is not data:
+        found = {}
+        for entry in data["parts"]:
+            if entry["catalog_id"] not in found:
+                found[entry["catalog_id"]] = placement(entry)
+        _placement_cache["key"] = data
+        _placement_cache["map"] = found
+    return _placement_cache["map"]
+
+
+def library_records(skip_ids):
+    """Compiler records built from library entries, leaving out ids the real catalog already has."""
+    records = []
+    for part_id, found in sorted(library_placements().items()):
+        if found[0] is not None and part_id not in skip_ids:
+            records.append(found[0])
+    return records
+
+
 def modal_catalog_path():
     """Write the catalog the Modal backend runs against and return its path.
 
-    It is the repo's catalog.jsonl as it is. Taps need no record. The
-    containers get the records a program uses with each call, so this copy
-    is for the server and for anyone who wants to see what it used.
+    It is the repo's catalog.jsonl plus a record for every library part whose
+    file holds what the compiler needs (donor model, layer, and an index file
+    or a layer range). Taps need no record. The containers get the records a
+    program uses with each call, so this copy is for the server and for
+    anyone who wants to see what it used.
     """
     path = os.path.join(settings.out_dir(), "catalog_modal.jsonl")
     with _merge_lock:
         records = read_records(real_catalog_path())
+        records.extend(library_records(set(record["id"] for record in records)))
         temp_path = path + "." + str(os.getpid()) + ".tmp"
         with open(temp_path, "w", encoding="utf-8") as handle:
             for record in records:
@@ -215,6 +305,16 @@ def part_params_m(record, world):
     return round(world.part_params(part) / 1e6, 1)
 
 
+def depth_from_profile(record, ctx, n_host):
+    """The default host depth from the donor's layer count in the model profile, or the 6 of 16 default."""
+    info = ctx.models.get(record.get("model"))
+    layer = space.part_layer(record)
+    if info is not None and info.get("layers") and layer is not None:
+        depth = int(round(layer / float(info["layers"]) * n_host))
+        return max(0, min(n_host - 1, depth))
+    return int(round(6 / 16.0 * n_host))
+
+
 def catalog_part(record, config, catalog, n_host, world, ctx, entries):
     """One palette entry for a compiler catalog record, with the library status when the library has the part."""
     entry = entries.get(record["id"])
@@ -235,28 +335,51 @@ def catalog_part(record, config, catalog, n_host, world, ctx, entries):
         status = "candidate"
         evidence = "in the compiler catalog, no library entry yet"
         source = "catalog"
+    if record.get("library_entry"):
+        evidence = evidence + ". Compiler record built from the library file."
+    default_at = space.default_at(record, config, n_host)
+    if default_at is None:
+        default_at = depth_from_profile(record, ctx, n_host)
+    kind = record.get("type")
+    if entry is not None and entry["kind"] == "inserted_layer":
+        kind = "inserted_layer"
     return {
         "id": record["id"],
         "group": "add",
-        "kind": record.get("type"),
+        "kind": kind,
         "label": part_label(record),
         "donor": record.get("model"),
         "layers": layers_pair(record),
         "params_m": params_m,
-        "default_at": space.default_at(record, config, n_host),
+        "default_at": default_at,
         "summary": donor_short(record.get("model")) + " " + layers_text(record),
         "status": status,
         "evidence": evidence,
         "source": source,
         "usable": not (entry is not None and entry.get("tap_only")),
         "usable_reason": library.TAP_ONLY_REASON if entry is not None and entry.get("tap_only") else None,
+        "findings": list(entry["findings"]) if entry is not None else [],
+        "stitches": list(entry["stitches"]) if entry is not None else [],
+        "skills": list(entry["skills"]) if entry is not None else [],
+        "from_library": bool(record.get("library_entry")),
     }
 
 
 NOT_IN_CATALOG = "Not in the compiler catalog yet. Mine it into a catalog record before a program can use it."
+STUB_LOCK = "The stub backend has made-up parts only. Use the Modal backend to place library parts."
 
 
-def library_part(entry, config, n_host, ctx):
+def lock_reason(entry, backend):
+    """Why a library part is not in the compiler catalog: the specific thing that is missing."""
+    record, reason = library_placements().get(entry["catalog_id"], (None, None))
+    if reason is not None:
+        return reason
+    if record is not None and backend == "stub":
+        return STUB_LOCK
+    return NOT_IN_CATALOG
+
+
+def library_part(entry, config, n_host, ctx, backend="modal"):
     """One palette entry for a library or atlas component that the compiler catalog does not have."""
     found = sizing.part_size_b(entry["catalog_id"], ctx)
     params_m = None
@@ -289,8 +412,28 @@ def library_part(entry, config, n_host, ctx):
         "evidence": entry["evidence"],
         "source": entry["source"],
         "usable": False,
-        "usable_reason": library.TAP_ONLY_REASON if entry.get("tap_only") else NOT_IN_CATALOG,
+        "usable_reason": lock_reason(entry, backend),
+        "findings": list(entry["findings"]),
+        "stitches": list(entry["stitches"]),
+        "skills": list(entry["skills"]),
+        "from_library": False,
     }
+
+
+def palette_counts(parts, masks):
+    """Counts for the page: total, placeable, and each status, by kind (masks count as their own kind)."""
+    kinds = {}
+    status = {"candidate": 0, "validated": 0, "rejected": 0}
+    placeable = 0
+    for item in parts + [dict(mask, kind="deletion_mask") for mask in masks]:
+        row = kinds.setdefault(item["kind"], {"total": 0, "placeable": 0, "candidate": 0, "validated": 0, "rejected": 0})
+        row["total"] += 1
+        row[item["status"]] += 1
+        status[item["status"]] += 1
+        if item["usable"]:
+            row["placeable"] += 1
+            placeable += 1
+    return {"total": len(parts) + len(masks), "placeable": placeable, "kinds": kinds, "status": status}
 
 
 def build_palette(backend):
@@ -318,7 +461,7 @@ def build_palette(backend):
     for entry in library.get()["parts"]:
         if entry["catalog_id"] in seen:
             continue
-        extra.append(library_part(entry, config, n_host, ctx))
+        extra.append(library_part(entry, config, n_host, ctx, backend))
     extra.sort(key=lambda item: (str(item["kind"]), str(item["donor"]), item["layers"] or [0], item["id"]))
     parts.extend(extra)
     masks = []
@@ -347,7 +490,13 @@ def build_palette(backend):
             if part["kind"] == kind:
                 count += 1
         kinds.append({"kind": kind, "name": library.KIND_NAMES[kind], "count": count})
+    for mask in masks:
+        mask["findings"] = []
+        entry = entries.get(mask["id"])
+        if entry is not None:
+            mask["findings"] = list(entry["findings"])
     return {
+        "counts": palette_counts(parts, masks),
         "product": "Sapien",
         "stub": backend == "stub",
         "host": {"model": config["host"], "layers": n_host, "params_b": host_params_b(config["host"])},
@@ -355,5 +504,42 @@ def build_palette(backend):
         "masks": masks,
         "train": train,
         "kinds": kinds,
-        "library": {"path": data["path"], "atlas": data["atlas"] is not None, "counts": library.status_counts()},
+        "library": {"path": data["path"], "atlas": data["atlas"] is not None, "counts": library.status_counts(),
+                    "loaded": data["counts"], "failed": len(data["failed"])},
     }
+
+
+def recipe_list(backend):
+    """Recipes for the page. A recipe with a starting program also says what the builder would refuse about it."""
+    out = []
+    config = None
+    catalog = None
+    for recipe in library.get()["recipes"]:
+        item = dict(recipe)
+        item["start_problems"] = []
+        program = recipe["starting_program"]
+        if program is not None:
+            if config is None:
+                config, catalog = load_catalog(backend)
+            problems = []
+            for graft in program.get("grafts") or []:
+                if graft["id"] not in catalog.records:
+                    problems.append("Part " + str(graft["id"]) + " is not in the compiler catalog.")
+            if program.get("host") != config["host"]:
+                problems.append("The recipe host is " + str(program.get("host")) + ", the builder host is " +
+                                str(config["host"]) + ".")
+            item["start_problems"] = problems
+        out.append(item)
+    return out
+
+
+def finding_list():
+    return list(library.get()["findings"])
+
+
+def stitch_list():
+    return list(library.get()["stitches"])
+
+
+def model_list():
+    return list(library.get()["model_list"])

@@ -1,0 +1,116 @@
+{
+  "id": "heads_l14_addition_attention_head_group_7_heads_lfm2.5_8b_a1b_L14_k7_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-8B-A1B layer 14, L14 addition attention head group (7 heads)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "two_digit_addition"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'two_digit_addition' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5562,
+      "control_value": -0.007,
+      "split": "person_a held-out skill items (two_digit_addition)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_8b_a1b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0487"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-8B-A1B",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-8B-A1B/heads_l14_addition_attention_head_group_7_heads_lfm2.5_8b_a1b_L14_k7_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_8b_a1b/heads_l14_addition_attention_head_group_7_heads_lfm2.5_8b_a1b_L14_k7_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'two_digit_addition'",
+    "label": "L14 addition attention head group (7 heads)",
+    "num_units": 7,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0653,
+      "math|heldout": 0.0682,
+      "code|search": 0.1282,
+      "code|heldout": 0.1122,
+      "facts|search": 0.0976,
+      "facts|heldout": 0.2632,
+      "multilingual|search": 0.132,
+      "multilingual|heldout": 0.1592,
+      "general_text|search": 0.1718,
+      "general_text|heldout": 0.1849,
+      "en_to_fr_noun|search": -1.2055,
+      "en_to_fr_noun__control|search": 0.2322,
+      "en_to_fr_noun|heldout": -2.052,
+      "en_to_fr_noun__control|heldout": 0.0893,
+      "two_digit_addition|search": 0.5912,
+      "two_digit_addition__control|search": -0.0923,
+      "two_digit_addition|heldout": 0.5562,
+      "two_digit_addition__control|heldout": -0.0487,
+      "en_to_de_noun|search": -8.275,
+      "en_to_de_noun__control|search": 0.2002,
+      "en_to_de_noun|heldout": -3.6667,
+      "en_to_de_noun__control|heldout": 0.3236,
+      "en_to_es_noun|search": -0.2668,
+      "en_to_es_noun__control|search": 0.2847,
+      "en_to_es_noun|heldout": 0.0864,
+      "en_to_es_noun__control|heldout": 0.4422,
+      "en_to_ru_word|search": -0.2706,
+      "en_to_ru_word__control|search": 0.317,
+      "en_to_ru_word|heldout": -0.2955,
+      "en_to_ru_word__control|heldout": 0.4731,
+      "en_to_zh_word|search": -0.095,
+      "en_to_zh_word__control|search": 0.0931,
+      "en_to_zh_word|heldout": -0.1793,
+      "en_to_zh_word__control|heldout": -0.4223,
+      "en_to_it_word|search": -0.7984,
+      "en_to_it_word__control|search": 0.7628,
+      "en_to_it_word|heldout": -0.3519,
+      "en_to_it_word__control|heldout": 0.7069,
+      "en_to_ja_word|search": -0.3301,
+      "en_to_ja_word__control|search": 0.6487,
+      "en_to_ja_word|heldout": -0.4642,
+      "en_to_ja_word__control|heldout": 0.5573
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1971,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.3336,
+      0.0079,
+      -0.4609,
+      0.4227,
+      -0.3381
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The seven L14 heads with top two_digit_addition attribution (8/23/10/18/5/13/20), excluding the facts head h9. Grown from the passed 4- and 6-head groups. Ablation: addition .591, control -.092, others \u2264 .172."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_8b_a1b/two_digit_addition.json",
+    "hash": "26a7b508ee627c6b",
+    "description": "Compute a+b for two-digit numbers, answer written in digits. Control: copy a number of the same size from the prompt (digit output without computation).",
+    "name": "two_digit_addition"
+  },
+  "catalog_id": "heads_l14_addition_attention_head_group_7_heads_lfm2.5_8b_a1b_L14_k7_001",
+  "exported_copy": "library/lfm2.5_8b_a1b/heads_l14_addition_attention_head_group_7_heads_lfm2.5_8b_a1b_L14_k7_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

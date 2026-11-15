@@ -1,0 +1,1220 @@
+{
+ "name": "two_digit_subtraction",
+ "description": "Subtract two 2-digit numbers (a >= b), few-shot 'a - b = c'. Control: same format, answer copies the second operand ('second of a and b is b').",
+ "hash": "4198e0f0f1e8582b",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\ndef pair():\n    a,b=random.randint(10,99),random.randint(10,99)\n    return (max(a,b),min(a,b))\ndef make(ctrl,n=120):\n    out=[]\n    for _ in range(n):\n        shots=[pair() for _ in range(3)]; a,b=pair()\n        if ctrl:\n            p=\"\".join(f\"second of {x} and {y} is {y}\\n\" for x,y in shots)+f\"second of {a} and {b} is\"; ans=f\" {b}\"\n        else:\n            p=\"\".join(f\"{x} - {y} = {x-y}\\n\" for x,y in shots)+f\"{a} - {b} =\"; ans=f\" {a-b}\"\n        out.append({\"prompt\":p,\"answer\":ans})\n    return out\njson.dump({\"items\":make(False),\"control\":make(True)},open(\"/work/skill.json\",\"w\"))\n",
+ "items": {
+  "search": [
+   {
+    "context": "99 - 13 = 86\n77 - 67 = 10\n96 - 35 = 61\n73 - 25 =",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "90 - 24 = 66\n79 - 48 = 31\n87 - 29 = 58\n70 - 64 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "87 - 81 = 6\n98 - 29 = 69\n99 - 67 = 32\n61 - 33 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "97 - 19 = 78\n70 - 52 = 18\n81 - 22 = 59\n65 - 55 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "66 - 57 = 9\n90 - 82 = 8\n30 - 27 = 3\n99 - 25 =",
+    "continuation": " 74",
+    "digits_only": false
+   },
+   {
+    "context": "35 - 23 = 12\n68 - 58 = 10\n79 - 56 = 23\n29 - 23 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 96 = 3\n55 - 29 = 26\n62 - 14 = 48\n88 - 69 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "89 - 64 = 25\n43 - 22 = 21\n38 - 18 = 20\n92 - 19 =",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "71 - 40 = 31\n88 - 55 = 33\n96 - 46 = 50\n85 - 55 =",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "82 - 31 = 51\n99 - 96 = 3\n36 - 17 = 19\n96 - 30 =",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": "89 - 53 = 36\n15 - 14 = 1\n44 - 30 = 14\n84 - 29 =",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "39 - 12 = 27\n94 - 10 = 84\n48 - 33 = 15\n82 - 74 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "54 - 48 = 6\n65 - 33 = 32\n74 - 17 = 57\n69 - 15 =",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "83 - 21 = 62\n96 - 76 = 20\n86 - 19 = 67\n64 - 36 =",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "89 - 86 = 3\n90 - 26 = 64\n51 - 23 = 28\n99 - 80 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "90 - 85 = 5\n52 - 34 = 18\n41 - 12 = 29\n44 - 24 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "51 - 42 = 9\n55 - 20 = 35\n25 - 19 = 6\n98 - 55 =",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "68 - 11 = 57\n52 - 20 = 32\n79 - 15 = 64\n45 - 27 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "89 - 22 = 67\n78 - 42 = 36\n87 - 28 = 59\n49 - 22 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "93 - 54 = 39\n59 - 34 = 25\n72 - 24 = 48\n88 - 17 =",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "75 - 50 = 25\n72 - 23 = 49\n80 - 48 = 32\n47 - 25 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "96 - 35 = 61\n86 - 20 = 66\n19 - 14 = 5\n49 - 43 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "36 - 15 = 21\n97 - 43 = 54\n81 - 50 = 31\n82 - 56 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "29 - 13 = 16\n67 - 65 = 2\n97 - 63 = 34\n73 - 13 =",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "57 - 47 = 10\n70 - 21 = 49\n33 - 23 = 10\n45 - 24 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 15 = 84\n93 - 87 = 6\n92 - 73 = 19\n91 - 68 =",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "27 - 11 = 16\n44 - 29 = 15\n53 - 52 = 1\n57 - 21 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "73 - 28 = 45\n89 - 16 = 73\n37 - 13 = 24\n70 - 55 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "90 - 19 = 71\n15 - 15 = 0\n72 - 42 = 30\n76 - 13 =",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": "80 - 34 = 46\n91 - 20 = 71\n26 - 11 = 15\n96 - 61 =",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "66 - 21 = 45\n86 - 59 = 27\n83 - 50 = 33\n47 - 40 =",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "86 - 22 = 64\n99 - 60 = 39\n43 - 35 = 8\n70 - 55 =",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "56 - 47 = 9\n80 - 60 = 20\n47 - 26 = 21\n71 - 24 =",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "52 - 48 = 4\n63 - 23 = 40\n81 - 22 = 59\n71 - 70 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "96 - 21 = 75\n73 - 39 = 34\n79 - 61 = 18\n90 - 45 =",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "40 - 33 = 7\n57 - 47 = 10\n94 - 63 = 31\n26 - 15 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "97 - 79 = 18\n77 - 60 = 17\n76 - 45 = 31\n40 - 37 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "48 - 14 = 34\n97 - 52 = 45\n31 - 29 = 2\n90 - 82 =",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "33 - 25 = 8\n71 - 36 = 35\n96 - 17 = 79\n79 - 12 =",
+    "continuation": " 67",
+    "digits_only": false
+   },
+   {
+    "context": "58 - 25 = 33\n85 - 61 = 24\n69 - 27 = 42\n95 - 81 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "17 - 14 = 3\n71 - 63 = 8\n72 - 28 = 44\n87 - 20 =",
+    "continuation": " 67",
+    "digits_only": false
+   },
+   {
+    "context": "51 - 33 = 18\n85 - 20 = 65\n78 - 23 = 55\n84 - 49 =",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 43 = 56\n67 - 30 = 37\n77 - 72 = 5\n87 - 81 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "19 - 13 = 6\n91 - 25 = 66\n87 - 34 = 53\n83 - 25 =",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "88 - 10 = 78\n73 - 52 = 21\n51 - 41 = 10\n34 - 18 =",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 10 = 89\n89 - 67 = 22\n69 - 10 = 59\n48 - 37 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "80 - 48 = 32\n63 - 28 = 35\n85 - 64 = 21\n91 - 48 =",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "60 - 21 = 39\n57 - 24 = 33\n87 - 14 = 73\n34 - 12 =",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 91 = 8\n47 - 39 = 8\n83 - 28 = 55\n46 - 34 =",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "98 - 74 = 24\n73 - 50 = 23\n93 - 17 = 76\n66 - 48 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "93 - 55 = 38\n94 - 59 = 35\n42 - 29 = 13\n98 - 81 =",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 82 = 17\n94 - 63 = 31\n31 - 15 = 16\n67 - 18 =",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "59 - 11 = 48\n60 - 22 = 38\n81 - 76 = 5\n67 - 47 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "47 - 10 = 37\n98 - 57 = 41\n87 - 13 = 74\n39 - 28 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "86 - 12 = 74\n60 - 19 = 41\n99 - 19 = 80\n63 - 26 =",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 92 = 7\n55 - 20 = 35\n88 - 51 = 37\n72 - 24 =",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "96 - 85 = 11\n84 - 63 = 21\n67 - 45 = 22\n94 - 73 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "47 - 46 = 1\n76 - 27 = 49\n83 - 76 = 7\n90 - 36 =",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "60 - 42 = 18\n92 - 36 = 56\n37 - 15 = 22\n89 - 28 =",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "82 - 64 = 18\n23 - 20 = 3\n63 - 18 = 45\n63 - 22 =",
+    "continuation": " 41",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "88 - 50 = 38\n91 - 36 = 55\n80 - 71 = 9\n76 - 66 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "95 - 82 = 13\n83 - 37 = 46\n39 - 21 = 18\n90 - 74 =",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 77 = 22\n74 - 63 = 11\n49 - 24 = 25\n64 - 28 =",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "45 - 12 = 33\n67 - 24 = 43\n42 - 27 = 15\n93 - 76 =",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "91 - 89 = 2\n49 - 26 = 23\n63 - 59 = 4\n93 - 20 =",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "54 - 13 = 41\n54 - 32 = 22\n39 - 11 = 28\n56 - 19 =",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "77 - 14 = 63\n42 - 28 = 14\n87 - 29 = 58\n84 - 58 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "63 - 59 = 4\n43 - 15 = 28\n75 - 72 = 3\n61 - 48 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "78 - 23 = 55\n91 - 62 = 29\n79 - 61 = 18\n47 - 45 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "34 - 33 = 1\n33 - 14 = 19\n94 - 88 = 6\n70 - 43 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "71 - 55 = 16\n84 - 37 = 47\n74 - 27 = 47\n46 - 27 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "58 - 30 = 28\n28 - 26 = 2\n50 - 38 = 12\n75 - 41 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "82 - 38 = 44\n40 - 28 = 12\n79 - 67 = 12\n21 - 20 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "60 - 11 = 49\n77 - 18 = 59\n97 - 20 = 77\n97 - 95 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "93 - 68 = 25\n74 - 57 = 17\n77 - 58 = 19\n74 - 14 =",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "84 - 43 = 41\n65 - 31 = 34\n55 - 34 = 21\n24 - 18 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "65 - 23 = 42\n68 - 52 = 16\n59 - 31 = 28\n63 - 52 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "52 - 42 = 10\n73 - 18 = 55\n48 - 43 = 5\n62 - 59 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "53 - 30 = 23\n77 - 42 = 35\n86 - 25 = 61\n95 - 66 =",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "89 - 47 = 42\n59 - 26 = 33\n97 - 47 = 50\n76 - 25 =",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "98 - 45 = 53\n33 - 22 = 11\n70 - 60 = 10\n90 - 20 =",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": "84 - 72 = 12\n96 - 37 = 59\n64 - 20 = 44\n57 - 38 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "25 - 12 = 13\n95 - 44 = 51\n15 - 10 = 5\n60 - 42 =",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "68 - 33 = 35\n71 - 24 = 47\n54 - 43 = 11\n26 - 13 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "59 - 17 = 42\n92 - 30 = 62\n40 - 26 = 14\n52 - 46 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "86 - 72 = 14\n82 - 28 = 54\n91 - 61 = 30\n97 - 64 =",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "93 - 92 = 1\n54 - 24 = 30\n45 - 29 = 16\n15 - 12 =",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "86 - 28 = 58\n36 - 10 = 26\n94 - 36 = 58\n96 - 25 =",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "80 - 52 = 28\n79 - 36 = 43\n87 - 80 = 7\n85 - 46 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "60 - 10 = 50\n56 - 15 = 41\n89 - 24 = 65\n44 - 10 =",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "88 - 22 = 66\n34 - 25 = 9\n93 - 87 = 6\n48 - 35 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 38 = 61\n83 - 15 = 68\n91 - 78 = 13\n97 - 87 =",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "99 - 69 = 30\n90 - 88 = 2\n93 - 53 = 40\n97 - 25 =",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "56 - 36 = 20\n70 - 52 = 18\n47 - 47 = 0\n91 - 80 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "78 - 47 = 31\n86 - 63 = 23\n71 - 59 = 12\n87 - 85 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "86 - 10 = 76\n99 - 34 = 65\n52 - 30 = 22\n40 - 38 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "34 - 14 = 20\n66 - 60 = 6\n57 - 34 = 23\n68 - 55 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "21 - 18 = 3\n96 - 26 = 70\n29 - 14 = 15\n99 - 20 =",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": "55 - 20 = 35\n66 - 41 = 25\n90 - 57 = 33\n91 - 77 =",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "69 - 55 = 14\n91 - 90 = 1\n71 - 21 = 50\n47 - 36 =",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "14 - 10 = 4\n73 - 51 = 22\n69 - 49 = 20\n63 - 16 =",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "57 - 38 = 19\n52 - 31 = 21\n64 - 17 = 47\n28 - 22 =",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "70 - 47 = 23\n20 - 18 = 2\n76 - 15 = 61\n38 - 18 =",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "32 - 11 = 21\n97 - 70 = 27\n82 - 62 = 20\n75 - 49 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "68 - 59 = 9\n22 - 16 = 6\n70 - 29 = 41\n14 - 12 =",
+    "continuation": " 2",
+    "digits_only": false
+   },
+   {
+    "context": "65 - 57 = 8\n78 - 32 = 46\n58 - 36 = 22\n85 - 47 =",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "76 - 73 = 3\n96 - 51 = 45\n73 - 73 = 0\n95 - 91 =",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "63 - 50 = 13\n37 - 10 = 27\n11 - 10 = 1\n96 - 77 =",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "84 - 77 = 7\n66 - 60 = 6\n42 - 23 = 19\n55 - 46 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "65 - 63 = 2\n41 - 32 = 9\n68 - 53 = 15\n76 - 28 =",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "53 - 53 = 0\n71 - 25 = 46\n99 - 24 = 75\n73 - 64 =",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "79 - 35 = 44\n88 - 38 = 50\n53 - 11 = 42\n51 - 50 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "26 - 15 = 11\n48 - 11 = 37\n67 - 52 = 15\n30 - 29 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "91 - 67 = 24\n96 - 58 = 38\n82 - 63 = 19\n61 - 14 =",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "43 - 17 = 26\n80 - 11 = 69\n61 - 21 = 40\n95 - 90 =",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "91 - 58 = 33\n21 - 18 = 3\n35 - 20 = 15\n38 - 17 =",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "55 - 48 = 7\n90 - 70 = 20\n63 - 37 = 26\n72 - 71 =",
+    "continuation": " 1",
+    "digits_only": false
+   },
+   {
+    "context": "58 - 17 = 41\n62 - 11 = 51\n63 - 51 = 12\n66 - 36 =",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "40 - 16 = 24\n49 - 32 = 17\n76 - 19 = 57\n61 - 48 =",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "78 - 53 = 25\n77 - 25 = 52\n41 - 30 = 11\n63 - 18 =",
+    "continuation": " 45",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "second of 43 and 30 is 30\nsecond of 90 and 53 is 53\nsecond of 74 and 52 is 52\nsecond of 98 and 78 is",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "second of 92 and 68 is 68\nsecond of 88 and 40 is 40\nsecond of 76 and 68 is 68\nsecond of 52 and 30 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "second of 91 and 78 is 78\nsecond of 44 and 43 is 43\nsecond of 39 and 12 is 12\nsecond of 88 and 25 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "second of 25 and 22 is 22\nsecond of 54 and 13 is 13\nsecond of 32 and 12 is 12\nsecond of 88 and 61 is",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "second of 88 and 55 is 55\nsecond of 51 and 21 is 21\nsecond of 49 and 13 is 13\nsecond of 73 and 11 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "second of 59 and 31 is 31\nsecond of 74 and 10 is 10\nsecond of 89 and 27 is 27\nsecond of 94 and 75 is",
+    "continuation": " 75",
+    "digits_only": false
+   },
+   {
+    "context": "second of 96 and 32 is 32\nsecond of 88 and 39 is 39\nsecond of 88 and 48 is 48\nsecond of 75 and 21 is",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "second of 76 and 68 is 68\nsecond of 67 and 29 is 29\nsecond of 80 and 29 is 29\nsecond of 90 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "second of 64 and 27 is 27\nsecond of 67 and 37 is 37\nsecond of 65 and 28 is 28\nsecond of 55 and 49 is",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "second of 87 and 53 is 53\nsecond of 87 and 23 is 23\nsecond of 50 and 20 is 20\nsecond of 78 and 51 is",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "second of 49 and 15 is 15\nsecond of 80 and 19 is 19\nsecond of 68 and 11 is 11\nsecond of 73 and 66 is",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": "second of 80 and 30 is 30\nsecond of 99 and 28 is 28\nsecond of 32 and 30 is 30\nsecond of 91 and 30 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "second of 78 and 75 is 75\nsecond of 64 and 16 is 16\nsecond of 59 and 25 is 25\nsecond of 92 and 44 is",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "second of 43 and 32 is 32\nsecond of 43 and 35 is 35\nsecond of 99 and 51 is 51\nsecond of 43 and 42 is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "second of 62 and 44 is 44\nsecond of 58 and 36 is 36\nsecond of 54 and 27 is 27\nsecond of 26 and 24 is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "second of 82 and 45 is 45\nsecond of 51 and 13 is 13\nsecond of 70 and 60 is 60\nsecond of 76 and 27 is",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "second of 95 and 24 is 24\nsecond of 79 and 70 is 70\nsecond of 50 and 15 is 15\nsecond of 50 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "second of 42 and 36 is 36\nsecond of 82 and 24 is 24\nsecond of 52 and 41 is 41\nsecond of 96 and 85 is",
+    "continuation": " 85",
+    "digits_only": false
+   },
+   {
+    "context": "second of 76 and 29 is 29\nsecond of 90 and 46 is 46\nsecond of 14 and 10 is 10\nsecond of 58 and 53 is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "second of 97 and 38 is 38\nsecond of 87 and 60 is 60\nsecond of 81 and 38 is 38\nsecond of 68 and 34 is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "second of 93 and 27 is 27\nsecond of 81 and 70 is 70\nsecond of 79 and 17 is 17\nsecond of 76 and 20 is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "second of 92 and 19 is 19\nsecond of 97 and 19 is 19\nsecond of 79 and 64 is 64\nsecond of 80 and 27 is",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "second of 97 and 41 is 41\nsecond of 89 and 52 is 52\nsecond of 71 and 13 is 13\nsecond of 96 and 90 is",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "second of 76 and 22 is 22\nsecond of 52 and 20 is 20\nsecond of 55 and 22 is 22\nsecond of 70 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "second of 93 and 32 is 32\nsecond of 62 and 52 is 52\nsecond of 58 and 11 is 11\nsecond of 62 and 43 is",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "second of 55 and 12 is 12\nsecond of 90 and 72 is 72\nsecond of 17 and 13 is 13\nsecond of 40 and 15 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "second of 70 and 58 is 58\nsecond of 60 and 38 is 38\nsecond of 92 and 40 is 40\nsecond of 71 and 60 is",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "second of 16 and 12 is 12\nsecond of 44 and 14 is 14\nsecond of 97 and 42 is 42\nsecond of 97 and 84 is",
+    "continuation": " 84",
+    "digits_only": false
+   },
+   {
+    "context": "second of 40 and 22 is 22\nsecond of 62 and 29 is 29\nsecond of 66 and 37 is 37\nsecond of 88 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "second of 59 and 17 is 17\nsecond of 36 and 14 is 14\nsecond of 50 and 41 is 41\nsecond of 66 and 53 is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "second of 40 and 38 is 38\nsecond of 76 and 18 is 18\nsecond of 96 and 49 is 49\nsecond of 51 and 39 is",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "second of 95 and 93 is 93\nsecond of 80 and 65 is 65\nsecond of 84 and 68 is 68\nsecond of 72 and 42 is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "second of 67 and 52 is 52\nsecond of 75 and 58 is 58\nsecond of 91 and 56 is 56\nsecond of 27 and 25 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "second of 55 and 46 is 46\nsecond of 68 and 62 is 62\nsecond of 90 and 16 is 16\nsecond of 99 and 76 is",
+    "continuation": " 76",
+    "digits_only": false
+   },
+   {
+    "context": "second of 49 and 12 is 12\nsecond of 83 and 55 is 55\nsecond of 79 and 17 is 17\nsecond of 90 and 29 is",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "second of 60 and 26 is 26\nsecond of 91 and 45 is 45\nsecond of 95 and 62 is 62\nsecond of 86 and 28 is",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "second of 68 and 51 is 51\nsecond of 42 and 13 is 13\nsecond of 76 and 15 is 15\nsecond of 57 and 34 is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "second of 82 and 62 is 62\nsecond of 94 and 54 is 54\nsecond of 65 and 22 is 22\nsecond of 65 and 41 is",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "second of 97 and 31 is 31\nsecond of 81 and 31 is 31\nsecond of 64 and 20 is 20\nsecond of 86 and 23 is",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "second of 76 and 16 is 16\nsecond of 42 and 35 is 35\nsecond of 84 and 32 is 32\nsecond of 51 and 47 is",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "second of 86 and 77 is 77\nsecond of 72 and 55 is 55\nsecond of 68 and 49 is 49\nsecond of 38 and 11 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "second of 83 and 67 is 67\nsecond of 67 and 40 is 40\nsecond of 75 and 22 is 22\nsecond of 34 and 31 is",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "second of 31 and 29 is 29\nsecond of 36 and 31 is 31\nsecond of 39 and 13 is 13\nsecond of 77 and 27 is",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "second of 90 and 57 is 57\nsecond of 71 and 46 is 46\nsecond of 84 and 31 is 31\nsecond of 27 and 11 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "second of 99 and 47 is 47\nsecond of 97 and 36 is 36\nsecond of 77 and 76 is 76\nsecond of 59 and 53 is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "second of 93 and 81 is 81\nsecond of 94 and 30 is 30\nsecond of 73 and 71 is 71\nsecond of 79 and 50 is",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "second of 55 and 40 is 40\nsecond of 38 and 30 is 30\nsecond of 69 and 63 is 63\nsecond of 82 and 56 is",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "second of 74 and 24 is 24\nsecond of 90 and 79 is 79\nsecond of 87 and 59 is 59\nsecond of 65 and 44 is",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "second of 88 and 79 is 79\nsecond of 47 and 35 is 35\nsecond of 75 and 66 is 66\nsecond of 87 and 69 is",
+    "continuation": " 69",
+    "digits_only": false
+   },
+   {
+    "context": "second of 97 and 30 is 30\nsecond of 90 and 34 is 34\nsecond of 90 and 55 is 55\nsecond of 99 and 73 is",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "second of 99 and 28 is 28\nsecond of 52 and 20 is 20\nsecond of 40 and 32 is 32\nsecond of 41 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "second of 41 and 12 is 12\nsecond of 83 and 40 is 40\nsecond of 45 and 33 is 33\nsecond of 63 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "second of 84 and 32 is 32\nsecond of 92 and 75 is 75\nsecond of 50 and 14 is 14\nsecond of 34 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "second of 91 and 58 is 58\nsecond of 47 and 15 is 15\nsecond of 80 and 65 is 65\nsecond of 97 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "second of 58 and 53 is 53\nsecond of 90 and 13 is 13\nsecond of 73 and 14 is 14\nsecond of 55 and 21 is",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "second of 80 and 50 is 50\nsecond of 53 and 34 is 34\nsecond of 65 and 28 is 28\nsecond of 75 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "second of 32 and 22 is 22\nsecond of 63 and 41 is 41\nsecond of 46 and 37 is 37\nsecond of 94 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "second of 61 and 53 is 53\nsecond of 73 and 44 is 44\nsecond of 60 and 11 is 11\nsecond of 77 and 49 is",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "second of 70 and 37 is 37\nsecond of 53 and 44 is 44\nsecond of 15 and 15 is 15\nsecond of 30 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "second of 45 and 26 is 26\nsecond of 55 and 50 is 50\nsecond of 65 and 23 is 23\nsecond of 81 and 46 is",
+    "continuation": " 46",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "second of 59 and 27 is 27\nsecond of 82 and 11 is 11\nsecond of 84 and 30 is 30\nsecond of 97 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "second of 95 and 47 is 47\nsecond of 68 and 29 is 29\nsecond of 74 and 40 is 40\nsecond of 55 and 30 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "second of 89 and 87 is 87\nsecond of 96 and 42 is 42\nsecond of 82 and 49 is 49\nsecond of 68 and 62 is",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "second of 82 and 25 is 25\nsecond of 55 and 39 is 39\nsecond of 96 and 79 is 79\nsecond of 94 and 46 is",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "second of 56 and 27 is 27\nsecond of 75 and 37 is 37\nsecond of 78 and 61 is 61\nsecond of 26 and 19 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "second of 97 and 78 is 78\nsecond of 55 and 30 is 30\nsecond of 52 and 29 is 29\nsecond of 84 and 11 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "second of 62 and 15 is 15\nsecond of 92 and 17 is 17\nsecond of 99 and 49 is 49\nsecond of 59 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "second of 38 and 11 is 11\nsecond of 93 and 51 is 51\nsecond of 18 and 17 is 17\nsecond of 94 and 54 is",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "second of 77 and 32 is 32\nsecond of 31 and 18 is 18\nsecond of 94 and 91 is 91\nsecond of 84 and 30 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "second of 92 and 71 is 71\nsecond of 76 and 15 is 15\nsecond of 81 and 15 is 15\nsecond of 99 and 98 is",
+    "continuation": " 98",
+    "digits_only": false
+   },
+   {
+    "context": "second of 73 and 55 is 55\nsecond of 89 and 46 is 46\nsecond of 97 and 52 is 52\nsecond of 62 and 25 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "second of 90 and 89 is 89\nsecond of 68 and 29 is 29\nsecond of 88 and 87 is 87\nsecond of 42 and 15 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "second of 98 and 93 is 93\nsecond of 51 and 11 is 11\nsecond of 80 and 68 is 68\nsecond of 98 and 73 is",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "second of 99 and 59 is 59\nsecond of 84 and 14 is 14\nsecond of 69 and 55 is 55\nsecond of 82 and 26 is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "second of 57 and 24 is 24\nsecond of 54 and 28 is 28\nsecond of 90 and 55 is 55\nsecond of 90 and 70 is",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": "second of 82 and 15 is 15\nsecond of 66 and 26 is 26\nsecond of 53 and 11 is 11\nsecond of 95 and 71 is",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "second of 99 and 82 is 82\nsecond of 40 and 37 is 37\nsecond of 39 and 26 is 26\nsecond of 59 and 55 is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "second of 66 and 18 is 18\nsecond of 91 and 64 is 64\nsecond of 60 and 44 is 44\nsecond of 65 and 42 is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "second of 50 and 12 is 12\nsecond of 33 and 26 is 26\nsecond of 53 and 12 is 12\nsecond of 87 and 34 is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "second of 82 and 16 is 16\nsecond of 54 and 29 is 29\nsecond of 56 and 47 is 47\nsecond of 90 and 47 is",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "second of 60 and 29 is 29\nsecond of 75 and 32 is 32\nsecond of 27 and 19 is 19\nsecond of 73 and 36 is",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "second of 84 and 18 is 18\nsecond of 45 and 42 is 42\nsecond of 77 and 57 is 57\nsecond of 79 and 12 is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "second of 36 and 26 is 26\nsecond of 66 and 33 is 33\nsecond of 59 and 54 is 54\nsecond of 72 and 64 is",
+    "continuation": " 64",
+    "digits_only": false
+   },
+   {
+    "context": "second of 42 and 35 is 35\nsecond of 60 and 59 is 59\nsecond of 91 and 65 is 65\nsecond of 96 and 90 is",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "second of 88 and 87 is 87\nsecond of 70 and 40 is 40\nsecond of 45 and 15 is 15\nsecond of 88 and 51 is",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "second of 86 and 31 is 31\nsecond of 55 and 19 is 19\nsecond of 62 and 16 is 16\nsecond of 66 and 55 is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "second of 59 and 38 is 38\nsecond of 66 and 35 is 35\nsecond of 85 and 36 is 36\nsecond of 59 and 16 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "second of 16 and 14 is 14\nsecond of 83 and 24 is 24\nsecond of 88 and 28 is 28\nsecond of 96 and 29 is",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "second of 78 and 78 is 78\nsecond of 97 and 69 is 69\nsecond of 82 and 15 is 15\nsecond of 62 and 25 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "second of 49 and 48 is 48\nsecond of 76 and 59 is 59\nsecond of 71 and 42 is 42\nsecond of 54 and 40 is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "second of 61 and 28 is 28\nsecond of 75 and 49 is 49\nsecond of 30 and 17 is 17\nsecond of 27 and 26 is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "second of 87 and 85 is 85\nsecond of 90 and 26 is 26\nsecond of 73 and 23 is 23\nsecond of 88 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "second of 70 and 20 is 20\nsecond of 78 and 16 is 16\nsecond of 61 and 43 is 43\nsecond of 92 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "second of 95 and 94 is 94\nsecond of 94 and 38 is 38\nsecond of 54 and 43 is 43\nsecond of 95 and 30 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "second of 63 and 60 is 60\nsecond of 65 and 23 is 23\nsecond of 87 and 68 is 68\nsecond of 69 and 30 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "second of 33 and 13 is 13\nsecond of 68 and 43 is 43\nsecond of 59 and 34 is 34\nsecond of 55 and 18 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "second of 97 and 92 is 92\nsecond of 65 and 28 is 28\nsecond of 67 and 28 is 28\nsecond of 77 and 50 is",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "second of 53 and 31 is 31\nsecond of 70 and 62 is 62\nsecond of 85 and 30 is 30\nsecond of 74 and 46 is",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "second of 90 and 59 is 59\nsecond of 54 and 33 is 33\nsecond of 84 and 20 is 20\nsecond of 81 and 20 is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "second of 73 and 51 is 51\nsecond of 86 and 61 is 61\nsecond of 65 and 31 is 31\nsecond of 28 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "second of 97 and 14 is 14\nsecond of 68 and 60 is 60\nsecond of 61 and 25 is 25\nsecond of 73 and 54 is",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "second of 39 and 14 is 14\nsecond of 91 and 20 is 20\nsecond of 56 and 33 is 33\nsecond of 91 and 17 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "second of 94 and 29 is 29\nsecond of 99 and 82 is 82\nsecond of 59 and 56 is 56\nsecond of 69 and 14 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "second of 36 and 20 is 20\nsecond of 77 and 54 is 54\nsecond of 35 and 34 is 34\nsecond of 96 and 42 is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "second of 80 and 74 is 74\nsecond of 56 and 51 is 51\nsecond of 91 and 84 is 84\nsecond of 26 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "second of 59 and 32 is 32\nsecond of 29 and 12 is 12\nsecond of 51 and 13 is 13\nsecond of 75 and 10 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "second of 80 and 46 is 46\nsecond of 70 and 14 is 14\nsecond of 83 and 78 is 78\nsecond of 80 and 43 is",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "second of 53 and 10 is 10\nsecond of 23 and 20 is 20\nsecond of 87 and 64 is 64\nsecond of 82 and 55 is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "second of 49 and 46 is 46\nsecond of 64 and 11 is 11\nsecond of 45 and 43 is 43\nsecond of 78 and 77 is",
+    "continuation": " 77",
+    "digits_only": false
+   },
+   {
+    "context": "second of 94 and 42 is 42\nsecond of 88 and 34 is 34\nsecond of 80 and 18 is 18\nsecond of 64 and 45 is",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "second of 88 and 55 is 55\nsecond of 31 and 13 is 13\nsecond of 83 and 65 is 65\nsecond of 69 and 60 is",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "second of 81 and 62 is 62\nsecond of 91 and 88 is 88\nsecond of 39 and 12 is 12\nsecond of 77 and 56 is",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "second of 62 and 16 is 16\nsecond of 73 and 68 is 68\nsecond of 66 and 25 is 25\nsecond of 20 and 20 is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "second of 43 and 20 is 20\nsecond of 87 and 27 is 27\nsecond of 61 and 34 is 34\nsecond of 50 and 47 is",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "second of 54 and 10 is 10\nsecond of 93 and 47 is 47\nsecond of 27 and 10 is 10\nsecond of 64 and 18 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "second of 60 and 15 is 15\nsecond of 40 and 38 is 38\nsecond of 91 and 46 is 46\nsecond of 52 and 31 is",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "second of 58 and 13 is 13\nsecond of 65 and 63 is 63\nsecond of 97 and 82 is 82\nsecond of 52 and 41 is",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "second of 90 and 60 is 60\nsecond of 78 and 23 is 23\nsecond of 28 and 16 is 16\nsecond of 60 and 13 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "second of 20 and 15 is 15\nsecond of 82 and 54 is 54\nsecond of 56 and 10 is 10\nsecond of 34 and 18 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "second of 81 and 64 is 64\nsecond of 60 and 15 is 15\nsecond of 41 and 33 is 33\nsecond of 72 and 38 is",
+    "continuation": " 38",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.474
+}

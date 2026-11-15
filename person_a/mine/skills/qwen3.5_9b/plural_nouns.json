@@ -1,0 +1,1220 @@
+{
+ "name": "plural_nouns",
+ "description": "Give the plural of an English noun (regular and irregular), few-shot. Control: same nouns, copy the singular.",
+ "hash": "54a458288349714b",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nN=[('cat','cats'),('dog','dogs'),('house','houses'),('car','cars'),('tree','trees'),('book','books'),('boy','boys'),('girl','girls'),('child','children'),('mouse','mice'),('man','men'),('woman','women'),('foot','feet'),('tooth','teeth'),('goose','geese'),('person','people'),('box','boxes'),('city','cities'),('baby','babies'),('knife','knives'),('leaf','leaves'),('wolf','wolves'),('church','churches'),('bus','buses'),('story','stories'),('glass','glasses'),('potato','potatoes'),('hero','heroes'),('life','lives'),('wife','wives'),('ox','oxen'),('cactus','cacti'),('fish','fish'),('sheep','sheep'),('apple','apples'),('table','tables'),('chair','chairs'),('bird','birds'),('party','parties'),('dish','dishes'),('family','families'),('horse','horses')]\nitems=[];control=[]\nfor _ in range(120):\n    ex=random.sample(N,3)\n    items.append({\"prompt\":\"Plural.\\n\"+\"\".join(f\"{a}: {b}\\n\" for a,b in ex[:2])+f\"{ex[2][0]}:\",\"answer\":\" \"+ex[2][1]})\n    control.append({\"prompt\":\"Repeat the noun.\\n\"+\"\".join(f\"{a}: {a}\\n\" for a,b in ex[:2])+f\"{ex[2][0]}:\",\"answer\":\" \"+ex[2][0]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Plural.\nchurch: churches\nhero: heroes\nwoman:",
+    "continuation": " women",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbox: boxes\ntable: tables\nleaf:",
+    "continuation": " leaves",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ngirl: girls\nbox: boxes\nchild:",
+    "continuation": " children",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchurch: churches\nbird: birds\ntooth:",
+    "continuation": " teeth",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nwolf: wolves\nbus: buses\nbook:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhouse: houses\nparty: parties\nboy:",
+    "continuation": " boys",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchurch: churches\ndish: dishes\nbaby:",
+    "continuation": " babies",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ntable: tables\nbaby: babies\ngirl:",
+    "continuation": " girls",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbox: boxes\nox: oxen\ntree:",
+    "continuation": " trees",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbird: birds\nbaby: babies\nlife:",
+    "continuation": " lives",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ngirl: girls\nfamily: families\nfoot:",
+    "continuation": " feet",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nmouse: mice\ntable: tables\ncat:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ntable: tables\nwolf: wolves\napple:",
+    "continuation": " apples",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nfish: fish\nknife: knives\nhorse:",
+    "continuation": " horses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ndish: dishes\nchild: children\nknife:",
+    "continuation": " knives",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ncactus: cacti\nwolf: wolves\nperson:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nsheep: sheep\ncactus: cacti\ntable:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nwoman: women\nhouse: houses\ndish:",
+    "continuation": " dishes",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nglass: glasses\nknife: knives\nox:",
+    "continuation": " oxen",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nstory: stories\npotato: potatoes\nhorse:",
+    "continuation": " horses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ntree: trees\nwolf: wolves\nox:",
+    "continuation": " oxen",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhero: heroes\nbus: buses\napple:",
+    "continuation": " apples",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhero: heroes\ncar: cars\nboy:",
+    "continuation": " boys",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbox: boxes\nman: men\nlife:",
+    "continuation": " lives",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ndog: dogs\ncity: cities\nlife:",
+    "continuation": " lives",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nmouse: mice\ngoose: geese\nhouse:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nparty: parties\ntree: trees\ndog:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbus: buses\nglass: glasses\ntable:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nlife: lives\nstory: stories\nchair:",
+    "continuation": " chairs",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchurch: churches\nbook: books\nleaf:",
+    "continuation": " leaves",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhero: heroes\nleaf: leaves\ndish:",
+    "continuation": " dishes",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ntooth: teeth\nparty: parties\ntable:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nparty: parties\nchair: chairs\ngirl:",
+    "continuation": " girls",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ngirl: girls\nhouse: houses\nparty:",
+    "continuation": " parties",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbus: buses\nchair: chairs\nhouse:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ndish: dishes\nboy: boys\nfoot:",
+    "continuation": " feet",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbox: boxes\ncar: cars\ntable:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ngirl: girls\nox: oxen\ntooth:",
+    "continuation": " teeth",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ncactus: cacti\nboy: boys\nknife:",
+    "continuation": " knives",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nwolf: wolves\ndish: dishes\nhouse:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchild: children\nperson: people\nox:",
+    "continuation": " oxen",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nglass: glasses\npotato: potatoes\nleaf:",
+    "continuation": " leaves",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbird: birds\npotato: potatoes\ncity:",
+    "continuation": " cities",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nmouse: mice\napple: apples\nlife:",
+    "continuation": " lives",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbox: boxes\napple: apples\nparty:",
+    "continuation": " parties",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ndog: dogs\nhouse: houses\ntooth:",
+    "continuation": " teeth",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nfoot: feet\nknife: knives\ncity:",
+    "continuation": " cities",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbook: books\nleaf: leaves\nfish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nknife: knives\nwoman: women\nsheep:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nmouse: mice\nbird: birds\nbaby:",
+    "continuation": " babies",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbaby: babies\nwoman: women\nfoot:",
+    "continuation": " feet",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nsheep: sheep\nperson: people\ntooth:",
+    "continuation": " teeth",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhero: heroes\ndish: dishes\nboy:",
+    "continuation": " boys",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nwife: wives\ncar: cars\npotato:",
+    "continuation": " potatoes",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ngirl: girls\nparty: parties\nhorse:",
+    "continuation": " horses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nfamily: families\ncat: cats\ndish:",
+    "continuation": " dishes",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ncat: cats\nbook: books\nglass:",
+    "continuation": " glasses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbird: birds\nbaby: babies\ncat:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ncar: cars\nfish: fish\nwife:",
+    "continuation": " wives",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nman: men\nlife: lives\ntree:",
+    "continuation": " trees",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Plural.\nfish: fish\nchild: children\nbaby:",
+    "continuation": " babies",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\npotato: potatoes\nhouse: houses\nglass:",
+    "continuation": " glasses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchair: chairs\npotato: potatoes\nhouse:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ncity: cities\ngirl: girls\ngoose:",
+    "continuation": " geese",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbook: books\nchild: children\nmouse:",
+    "continuation": " mice",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nparty: parties\ncat: cats\nhouse:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nman: men\nwolf: wolves\nsheep:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nstory: stories\npotato: potatoes\nhouse:",
+    "continuation": " houses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchild: children\nmouse: mice\ncity:",
+    "continuation": " cities",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nfamily: families\ntooth: teeth\ntable:",
+    "continuation": " tables",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbox: boxes\nfish: fish\ncactus:",
+    "continuation": " cacti",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ncat: cats\ntooth: teeth\nsheep:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nmouse: mice\nknife: knives\nboy:",
+    "continuation": " boys",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchild: children\nbaby: babies\ngirl:",
+    "continuation": " girls",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nox: oxen\npotato: potatoes\nchair:",
+    "continuation": " chairs",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ntree: trees\nhorse: horses\nknife:",
+    "continuation": " knives",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ntree: trees\nknife: knives\nglass:",
+    "continuation": " glasses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nwife: wives\nbook: books\nwolf:",
+    "continuation": " wolves",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbook: books\nparty: parties\nstory:",
+    "continuation": " stories",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nfoot: feet\nwolf: wolves\nman:",
+    "continuation": " men",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nfoot: feet\nperson: people\ndog:",
+    "continuation": " dogs",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbox: boxes\ntree: trees\ngoose:",
+    "continuation": " geese",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nparty: parties\nhorse: horses\ncactus:",
+    "continuation": " cacti",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nfoot: feet\ntable: tables\nfamily:",
+    "continuation": " families",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhouse: houses\napple: apples\ncity:",
+    "continuation": " cities",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nglass: glasses\nfoot: feet\nbox:",
+    "continuation": " boxes",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbus: buses\nman: men\nwolf:",
+    "continuation": " wolves",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ncactus: cacti\nleaf: leaves\nknife:",
+    "continuation": " knives",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ntable: tables\nboy: boys\nchurch:",
+    "continuation": " churches",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nox: oxen\nperson: people\ncar:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbird: birds\nfamily: families\nwolf:",
+    "continuation": " wolves",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchair: chairs\ngoose: geese\nperson:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbook: books\ncat: cats\nparty:",
+    "continuation": " parties",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbook: books\nchild: children\ncat:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchurch: churches\nstory: stories\nbox:",
+    "continuation": " boxes",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhouse: houses\nbook: books\napple:",
+    "continuation": " apples",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nperson: people\ngoose: geese\nfamily:",
+    "continuation": " families",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nox: oxen\nlife: lives\nsheep:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nwoman: women\nboy: boys\nox:",
+    "continuation": " oxen",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ngirl: girls\nmouse: mice\ncity:",
+    "continuation": " cities",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nlife: lives\ncactus: cacti\nhorse:",
+    "continuation": " horses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nleaf: leaves\ntree: trees\nfoot:",
+    "continuation": " feet",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nbox: boxes\ngirl: girls\nparty:",
+    "continuation": " parties",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nleaf: leaves\nchair: chairs\nperson:",
+    "continuation": " people",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchurch: churches\nbird: birds\nfamily:",
+    "continuation": " families",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchair: chairs\nfamily: families\napple:",
+    "continuation": " apples",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchurch: churches\nox: oxen\nchair:",
+    "continuation": " chairs",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ndish: dishes\ngirl: girls\ncactus:",
+    "continuation": " cacti",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhorse: horses\nwife: wives\nfamily:",
+    "continuation": " families",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhorse: horses\nsheep: sheep\nchurch:",
+    "continuation": " churches",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ndog: dogs\nfoot: feet\nwoman:",
+    "continuation": " women",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nman: men\ntooth: teeth\ncar:",
+    "continuation": " cars",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nlife: lives\nwoman: women\ncat:",
+    "continuation": " cats",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nglass: glasses\nsheep: sheep\ncity:",
+    "continuation": " cities",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nchild: children\nboy: boys\ndish:",
+    "continuation": " dishes",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\ncar: cars\ndog: dogs\napple:",
+    "continuation": " apples",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nhouse: houses\ncity: cities\nman:",
+    "continuation": " men",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nglass: glasses\nfamily: families\nbook:",
+    "continuation": " books",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nglass: glasses\nbook: books\nbus:",
+    "continuation": " buses",
+    "digits_only": false
+   },
+   {
+    "context": "Plural.\nwoman: women\ntooth: teeth\nstory:",
+    "continuation": " stories",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Repeat the noun.\ntree: tree\nknife: knife\nglass:",
+    "continuation": " glass",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\npotato: potato\nhouse: house\nglass:",
+    "continuation": " glass",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbook: book\nleaf: leaf\nfish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbook: book\nchild: child\ncat:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchurch: church\nstory: story\nbox:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ncity: city\ngirl: girl\ngoose:",
+    "continuation": " goose",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nfish: fish\nchild: child\nbaby:",
+    "continuation": " baby",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nperson: person\ngoose: goose\nfamily:",
+    "continuation": " family",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ndish: dish\ngirl: girl\ncactus:",
+    "continuation": " cactus",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhero: hero\nleaf: leaf\ndish:",
+    "continuation": " dish",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ncat: cat\nbook: book\nglass:",
+    "continuation": " glass",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nfoot: foot\nknife: knife\ncity:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ntable: table\nbaby: baby\ngirl:",
+    "continuation": " girl",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nfoot: foot\nwolf: wolf\nman:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nmouse: mouse\nbird: bird\nbaby:",
+    "continuation": " baby",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhouse: house\napple: apple\ncity:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchurch: church\ndish: dish\nbaby:",
+    "continuation": " baby",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ngirl: girl\nox: ox\ntooth:",
+    "continuation": " tooth",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ngirl: girl\nparty: party\nhorse:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ntable: table\nboy: boy\nchurch:",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchair: chair\npotato: potato\nhouse:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchild: child\nbaby: baby\ngirl:",
+    "continuation": " girl",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nwoman: woman\nboy: boy\nox:",
+    "continuation": " ox",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ndish: dish\nboy: boy\nfoot:",
+    "continuation": " foot",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbird: bird\nfamily: family\nwolf:",
+    "continuation": " wolf",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nlife: life\ncactus: cactus\nhorse:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nparty: party\nhorse: horse\ncactus:",
+    "continuation": " cactus",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ngirl: girl\nhouse: house\nparty:",
+    "continuation": " party",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ncactus: cactus\nwolf: wolf\nperson:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nglass: glass\nsheep: sheep\ncity:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ntooth: tooth\nparty: party\ntable:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbox: box\napple: apple\nparty:",
+    "continuation": " party",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbox: box\nman: man\nlife:",
+    "continuation": " life",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchild: child\nboy: boy\ndish:",
+    "continuation": " dish",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbird: bird\npotato: potato\ncity:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchurch: church\nbird: bird\nfamily:",
+    "continuation": " family",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nfamily: family\ntooth: tooth\ntable:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbus: bus\nchair: chair\nhouse:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhero: hero\ncar: car\nboy:",
+    "continuation": " boy",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nwolf: wolf\ndish: dish\nhouse:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbox: box\nox: ox\ntree:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nox: ox\npotato: potato\nchair:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nox: ox\nperson: person\ncar:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbird: bird\nbaby: baby\nlife:",
+    "continuation": " life",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ndog: dog\nfoot: foot\nwoman:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbook: book\nchild: child\nmouse:",
+    "continuation": " mouse",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ndog: dog\ncity: city\nlife:",
+    "continuation": " life",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhouse: house\nparty: party\nboy:",
+    "continuation": " boy",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nmouse: mouse\napple: apple\nlife:",
+    "continuation": " life",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbox: box\ngirl: girl\nparty:",
+    "continuation": " party",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbus: bus\nman: man\nwolf:",
+    "continuation": " wolf",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nlife: life\nwoman: woman\ncat:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nlife: life\nstory: story\nchair:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhouse: house\ncity: city\nman:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchair: chair\nfamily: family\napple:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchurch: church\nox: ox\nchair:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ncactus: cactus\nboy: boy\nknife:",
+    "continuation": " knife",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ngirl: girl\nfamily: family\nfoot:",
+    "continuation": " foot",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nmouse: mouse\nknife: knife\nboy:",
+    "continuation": " boy",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchair: chair\ngoose: goose\nperson:",
+    "continuation": " person",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Repeat the noun.\ngirl: girl\nbox: box\nchild:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nparty: party\ntree: tree\ndog:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nwife: wife\ncar: car\npotato:",
+    "continuation": " potato",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ntable: table\nwolf: wolf\napple:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbox: box\ntable: table\nleaf:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ncar: car\ndog: dog\napple:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nparty: party\ncat: cat\nhouse:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchurch: church\nbook: book\nleaf:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ncar: car\nfish: fish\nwife:",
+    "continuation": " wife",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nstory: story\npotato: potato\nhorse:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nknife: knife\nwoman: woman\nsheep:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nmouse: mouse\ngoose: goose\nhouse:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nglass: glass\npotato: potato\nleaf:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nwife: wife\nbook: book\nwolf:",
+    "continuation": " wolf",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nwolf: wolf\nbus: bus\nbook:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ntree: tree\nhorse: horse\nknife:",
+    "continuation": " knife",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbaby: baby\nwoman: woman\nfoot:",
+    "continuation": " foot",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nfish: fish\nknife: knife\nhorse:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nsheep: sheep\ncactus: cactus\ntable:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhero: hero\ndish: dish\nboy:",
+    "continuation": " boy",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nleaf: leaf\nchair: chair\nperson:",
+    "continuation": " person",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhorse: horse\nwife: wife\nfamily:",
+    "continuation": " family",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbox: box\nfish: fish\ncactus:",
+    "continuation": " cactus",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nmouse: mouse\ntable: table\ncat:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhero: hero\nbus: bus\napple:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ncactus: cactus\nleaf: leaf\nknife:",
+    "continuation": " knife",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nglass: glass\nknife: knife\nox:",
+    "continuation": " ox",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ngirl: girl\nmouse: mouse\ncity:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nfoot: foot\nperson: person\ndog:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbox: box\ncar: car\ntable:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ndish: dish\nchild: child\nknife:",
+    "continuation": " knife",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nwoman: woman\nhouse: house\ndish:",
+    "continuation": " dish",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ncat: cat\ntooth: tooth\nsheep:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nsheep: sheep\nperson: person\ntooth:",
+    "continuation": " tooth",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbird: bird\nbaby: baby\ncat:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nfoot: foot\ntable: table\nfamily:",
+    "continuation": " family",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nstory: story\npotato: potato\nhouse:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchild: child\nmouse: mouse\ncity:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbook: book\ncat: cat\nparty:",
+    "continuation": " party",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbox: box\ntree: tree\ngoose:",
+    "continuation": " goose",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nglass: glass\nbook: book\nbus:",
+    "continuation": " bus",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchurch: church\nbird: bird\ntooth:",
+    "continuation": " tooth",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nman: man\ntooth: tooth\ncar:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nox: ox\nlife: life\nsheep:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbook: book\nparty: party\nstory:",
+    "continuation": " story",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhorse: horse\nsheep: sheep\nchurch:",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nparty: party\nchair: chair\ngirl:",
+    "continuation": " girl",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nman: man\nlife: life\ntree:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nglass: glass\nfoot: foot\nbox:",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchurch: church\nhero: hero\nwoman:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nbus: bus\nglass: glass\ntable:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nman: man\nwolf: wolf\nsheep:",
+    "continuation": " sheep",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nfamily: family\ncat: cat\ndish:",
+    "continuation": " dish",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nhouse: house\nbook: book\napple:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ntree: tree\nwolf: wolf\nox:",
+    "continuation": " ox",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nglass: glass\nfamily: family\nbook:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\ndog: dog\nhouse: house\ntooth:",
+    "continuation": " tooth",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nwoman: woman\ntooth: tooth\nstory:",
+    "continuation": " story",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nchild: child\nperson: person\nox:",
+    "continuation": " ox",
+    "digits_only": false
+   },
+   {
+    "context": "Repeat the noun.\nleaf: leaf\ntree: tree\nfoot:",
+    "continuation": " foot",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 12.725
+}

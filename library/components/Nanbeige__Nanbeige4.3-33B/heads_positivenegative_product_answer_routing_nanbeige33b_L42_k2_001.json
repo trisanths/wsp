@@ -1,0 +1,108 @@
+{
+  "id": "heads_positivenegative_product_answer_routing_nanbeige33b_L42_k2_001",
+  "kind": "attn_heads",
+  "title": "Nanbeige4.3-33B layer 42, positive/negative product answer routing",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/nanbeige33b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "product_sign"
+  ],
+  "models": [
+    "Nanbeige/Nanbeige4.3-33B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'product_sign' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3346,
+      "control_value": -0.0048,
+      "split": "person_a held-out skill items (product_sign)",
+      "seeds": null,
+      "source": "person_a/catalog/nanbeige33b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0324"
+    }
+  ],
+  "generated": true,
+  "model": "Nanbeige/Nanbeige4.3-33B",
+  "layer": 42,
+  "layers": [
+    42
+  ],
+  "units_file": "components/Nanbeige__Nanbeige4.3-33B/heads_positivenegative_product_answer_routing_nanbeige33b_L42_k2_001.pt",
+  "units_remote": "person_a/parts/nanbeige33b/heads_positivenegative_product_answer_routing_nanbeige33b_L42_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'product_sign'",
+    "label": "positive/negative product answer routing",
+    "num_units": 2,
+    "d_model": 7168,
+    "effect": {
+      "math|search": -0.0006,
+      "math|heldout": -0.0002,
+      "code|search": 0.0018,
+      "code|heldout": -0.0013,
+      "facts|search": 0.0023,
+      "facts|heldout": 0.0134,
+      "multilingual|search": 0.001,
+      "multilingual|heldout": 0.0015,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0021,
+      "digit_copy|search": 0.0031,
+      "digit_copy__control|search": 0.0048,
+      "digit_copy|heldout": 0.006,
+      "digit_copy__control|heldout": 0.0039,
+      "product_sign|search": 0.2597,
+      "product_sign__control|search": 0.0302,
+      "product_sign|heldout": 0.3346,
+      "product_sign__control|heldout": 0.0324,
+      "bracket_closure|search": 0.015,
+      "bracket_closure__control|search": -0.0014,
+      "bracket_closure|heldout": 0.015,
+      "bracket_closure__control|heldout": 0.0005,
+      "punctuation_copy|search": 0.0045,
+      "punctuation_copy__control|search": -0.015,
+      "punctuation_copy|heldout": 0.0044,
+      "punctuation_copy__control|heldout": -0.0063,
+      "letter_uppercase|search": -0.0067,
+      "letter_uppercase__control|search": -0.0494,
+      "letter_uppercase|heldout": -0.0098,
+      "letter_uppercase__control|heldout": -0.0273,
+      "letter_lowercase|search": -0.0063,
+      "letter_lowercase__control|search": -0.0178,
+      "letter_lowercase|heldout": -0.0115,
+      "letter_lowercase__control|heldout": -0.0123
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0866,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0063,
+      0.0176,
+      0.0177,
+      -0.0159,
+      -0.0497
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "H22 statically favors positive outputs for either sign input (.099/.092); H24 favors negative (.060/.111). They may supply complementary answer-polarity channels. H24 alone nearly meets threshold (.142 target/.017 control); H23+24 failed control specificity, so test a positive plus negative pairing instead."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/nanbeige33b/product_sign.json",
+    "hash": "29241d02be1c8146",
+    "description": "Infer positive or negative sign of product of two signed integers; control reports sign of first operand.",
+    "name": "product_sign"
+  },
+  "catalog_id": "heads_positivenegative_product_answer_routing_nanbeige33b_L42_k2_001",
+  "exported_copy": "library/nanbeige33b/heads_positivenegative_product_answer_routing_nanbeige33b_L42_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

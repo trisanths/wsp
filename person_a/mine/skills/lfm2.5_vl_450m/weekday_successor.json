@@ -1,0 +1,860 @@
+{
+ "name": "weekday_successor",
+ "description": "Continue a weekday sequence (e.g. 'Monday, Tuesday,' -> ' Wednesday'), wrapping Sunday->Monday. Control: same format with digit sequences.",
+ "hash": "96b4aa2a8bf28253",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nD=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']\nprefixes=['','Days: ','Schedule: ','Week: ','Next: ','Order: ']\nitems=[];ctrl=[]\nfor p in prefixes:\n    for L in [2,3]:\n        for s in range(7):\n            seq=[D[(s+k)%7] for k in range(L)]; ans=D[(s+L)%7]\n            ds=random.randint(1,40)\n            items.append((p+', '.join(seq)+',', ' '+ans)); ctrl.append((p+', '.join(str(ds+k) for k in range(L))+',', ' '+str(ds+L)))\nrandom.shuffle(items); random.shuffle(ctrl)\njson.dump({'items':[{'prompt':a,'answer':b} for a,b in items],'control':[{'prompt':a,'answer':b} for a,b in ctrl]},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Days: Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Order: Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Monday, Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Tuesday, Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Week: Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Sunday, Monday, Tuesday,",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday, Sunday, Monday,",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Days: Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Order: Tuesday, Wednesday,",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Friday, Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Wednesday, Thursday,",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Wednesday, Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: Thursday, Friday, Saturday,",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Saturday, Sunday,",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Next: Thursday, Friday,",
+    "continuation": " Saturday",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Next: 20, 21, 22,",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 25, 26, 27,",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 19, 20, 21,",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 36, 37, 38,",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 28, 29,",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "32, 33,",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 36, 37, 38,",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 21, 22,",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 31, 32, 33,",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 36, 37, 38,",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 1, 2,",
+    "continuation": " 3",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "33, 34, 35,",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "20, 21, 22,",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "33, 34,",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 31, 32, 33,",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 35, 36,",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 21, 22, 23,",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 26, 27,",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 36, 37, 38,",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 36, 37,",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 22, 23,",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 23, 24,",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "26, 27,",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "25, 26,",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 34, 35, 36,",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 37, 38, 39,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 38, 39,",
+    "continuation": " 40",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Days: 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "27, 28,",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "23, 24, 25,",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 37, 38, 39,",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 32, 33,",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 22, 23, 24,",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 35, 36,",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 19, 20, 21,",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 29, 30, 31,",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 21, 22, 23,",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 29, 30,",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 29, 30,",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 22, 23, 24,",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 35, 36,",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "31, 32, 33,",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 1, 2, 3,",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "38, 39, 40,",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 39, 40,",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 20, 21, 22,",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 21, 22,",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 19, 20,",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 39, 40,",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 32, 33,",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Next: 33, 34,",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 39, 40, 41,",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Order: 19, 20,",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Schedule: 36, 37,",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Week: 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Days: 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.2693
+}

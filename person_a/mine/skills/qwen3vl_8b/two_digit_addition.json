@@ -1,0 +1,1220 @@
+{
+ "name": "two_digit_addition",
+ "description": "Add two 2-digit numbers (few-shot 'a + b = c'). Control: same format, answer is copying the first operand ('first of a and b is a').",
+ "hash": "b276d5d4a7212db5",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\ndef make(ctrl,n=120):\n    out=[]\n    for _ in range(n):\n        shots=[(random.randint(10,99),random.randint(10,99)) for _ in range(3)]\n        a,b=random.randint(10,99),random.randint(10,99)\n        if ctrl:\n            p=\"\".join(f\"first of {x} and {y} is {x}\\n\" for x,y in shots)+f\"first of {a} and {b} is\"\n            ans=f\" {a}\"\n        else:\n            p=\"\".join(f\"{x} + {y} = {x+y}\\n\" for x,y in shots)+f\"{a} + {b} =\"\n            ans=f\" {a+b}\"\n        out.append({\"prompt\":p,\"answer\":ans})\n    return out\njson.dump({\"items\":make(False),\"control\":make(True)},open(\"/work/skill.json\",\"w\"))\n",
+ "items": {
+  "search": [
+   {
+    "context": "99 + 13 = 112\n77 + 67 = 144\n96 + 35 = 131\n25 + 73 =",
+    "continuation": " 98",
+    "digits_only": false
+   },
+   {
+    "context": "24 + 90 = 114\n48 + 79 = 127\n87 + 29 = 116\n64 + 70 =",
+    "continuation": " 134",
+    "digits_only": false
+   },
+   {
+    "context": "81 + 87 = 168\n98 + 29 = 127\n99 + 67 = 166\n61 + 33 =",
+    "continuation": " 94",
+    "digits_only": false
+   },
+   {
+    "context": "19 + 97 = 116\n52 + 70 = 122\n81 + 22 = 103\n55 + 65 =",
+    "continuation": " 120",
+    "digits_only": false
+   },
+   {
+    "context": "66 + 57 = 123\n82 + 90 = 172\n27 + 30 = 57\n25 + 99 =",
+    "continuation": " 124",
+    "digits_only": false
+   },
+   {
+    "context": "23 + 35 = 58\n68 + 58 = 126\n56 + 79 = 135\n29 + 23 =",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "96 + 99 = 195\n29 + 55 = 84\n62 + 14 = 76\n88 + 69 =",
+    "continuation": " 157",
+    "digits_only": false
+   },
+   {
+    "context": "64 + 89 = 153\n22 + 43 = 65\n18 + 38 = 56\n19 + 92 =",
+    "continuation": " 111",
+    "digits_only": false
+   },
+   {
+    "context": "40 + 71 = 111\n55 + 88 = 143\n46 + 96 = 142\n55 + 85 =",
+    "continuation": " 140",
+    "digits_only": false
+   },
+   {
+    "context": "82 + 31 = 113\n99 + 96 = 195\n36 + 17 = 53\n96 + 30 =",
+    "continuation": " 126",
+    "digits_only": false
+   },
+   {
+    "context": "53 + 89 = 142\n14 + 15 = 29\n44 + 30 = 74\n29 + 84 =",
+    "continuation": " 113",
+    "digits_only": false
+   },
+   {
+    "context": "39 + 12 = 51\n94 + 10 = 104\n33 + 48 = 81\n74 + 82 =",
+    "continuation": " 156",
+    "digits_only": false
+   },
+   {
+    "context": "48 + 54 = 102\n65 + 33 = 98\n17 + 74 = 91\n69 + 15 =",
+    "continuation": " 84",
+    "digits_only": false
+   },
+   {
+    "context": "83 + 21 = 104\n96 + 76 = 172\n86 + 19 = 105\n64 + 36 =",
+    "continuation": " 100",
+    "digits_only": false
+   },
+   {
+    "context": "86 + 89 = 175\n26 + 90 = 116\n51 + 23 = 74\n99 + 80 =",
+    "continuation": " 179",
+    "digits_only": false
+   },
+   {
+    "context": "85 + 90 = 175\n52 + 34 = 86\n41 + 12 = 53\n44 + 24 =",
+    "continuation": " 68",
+    "digits_only": false
+   },
+   {
+    "context": "51 + 42 = 93\n20 + 55 = 75\n19 + 25 = 44\n55 + 98 =",
+    "continuation": " 153",
+    "digits_only": false
+   },
+   {
+    "context": "11 + 68 = 79\n20 + 52 = 72\n15 + 79 = 94\n45 + 27 =",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "22 + 89 = 111\n42 + 78 = 120\n87 + 28 = 115\n49 + 22 =",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "93 + 54 = 147\n34 + 59 = 93\n72 + 24 = 96\n17 + 88 =",
+    "continuation": " 105",
+    "digits_only": false
+   },
+   {
+    "context": "50 + 75 = 125\n72 + 23 = 95\n48 + 80 = 128\n47 + 25 =",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "96 + 35 = 131\n86 + 20 = 106\n14 + 19 = 33\n43 + 49 =",
+    "continuation": " 92",
+    "digits_only": false
+   },
+   {
+    "context": "15 + 36 = 51\n97 + 43 = 140\n81 + 50 = 131\n56 + 82 =",
+    "continuation": " 138",
+    "digits_only": false
+   },
+   {
+    "context": "29 + 13 = 42\n67 + 65 = 132\n97 + 63 = 160\n13 + 73 =",
+    "continuation": " 86",
+    "digits_only": false
+   },
+   {
+    "context": "57 + 47 = 104\n70 + 21 = 91\n33 + 23 = 56\n45 + 24 =",
+    "continuation": " 69",
+    "digits_only": false
+   },
+   {
+    "context": "15 + 99 = 114\n87 + 93 = 180\n73 + 92 = 165\n68 + 91 =",
+    "continuation": " 159",
+    "digits_only": false
+   },
+   {
+    "context": "11 + 27 = 38\n29 + 44 = 73\n52 + 53 = 105\n57 + 21 =",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "28 + 73 = 101\n16 + 89 = 105\n37 + 13 = 50\n55 + 70 =",
+    "continuation": " 125",
+    "digits_only": false
+   },
+   {
+    "context": "90 + 19 = 109\n15 + 15 = 30\n72 + 42 = 114\n13 + 76 =",
+    "continuation": " 89",
+    "digits_only": false
+   },
+   {
+    "context": "34 + 80 = 114\n91 + 20 = 111\n26 + 11 = 37\n61 + 96 =",
+    "continuation": " 157",
+    "digits_only": false
+   },
+   {
+    "context": "66 + 21 = 87\n86 + 59 = 145\n50 + 83 = 133\n40 + 47 =",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": "86 + 22 = 108\n99 + 60 = 159\n35 + 43 = 78\n55 + 70 =",
+    "continuation": " 125",
+    "digits_only": false
+   },
+   {
+    "context": "47 + 56 = 103\n60 + 80 = 140\n26 + 47 = 73\n24 + 71 =",
+    "continuation": " 95",
+    "digits_only": false
+   },
+   {
+    "context": "52 + 48 = 100\n63 + 23 = 86\n22 + 81 = 103\n71 + 70 =",
+    "continuation": " 141",
+    "digits_only": false
+   },
+   {
+    "context": "21 + 96 = 117\n73 + 39 = 112\n79 + 61 = 140\n45 + 90 =",
+    "continuation": " 135",
+    "digits_only": false
+   },
+   {
+    "context": "40 + 33 = 73\n47 + 57 = 104\n63 + 94 = 157\n15 + 26 =",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "79 + 97 = 176\n60 + 77 = 137\n45 + 76 = 121\n40 + 37 =",
+    "continuation": " 77",
+    "digits_only": false
+   },
+   {
+    "context": "14 + 48 = 62\n52 + 97 = 149\n29 + 31 = 60\n90 + 82 =",
+    "continuation": " 172",
+    "digits_only": false
+   },
+   {
+    "context": "33 + 25 = 58\n71 + 36 = 107\n17 + 96 = 113\n12 + 79 =",
+    "continuation": " 91",
+    "digits_only": false
+   },
+   {
+    "context": "25 + 58 = 83\n61 + 85 = 146\n69 + 27 = 96\n81 + 95 =",
+    "continuation": " 176",
+    "digits_only": false
+   },
+   {
+    "context": "17 + 14 = 31\n71 + 63 = 134\n28 + 72 = 100\n87 + 20 =",
+    "continuation": " 107",
+    "digits_only": false
+   },
+   {
+    "context": "51 + 33 = 84\n85 + 20 = 105\n23 + 78 = 101\n84 + 49 =",
+    "continuation": " 133",
+    "digits_only": false
+   },
+   {
+    "context": "43 + 99 = 142\n30 + 67 = 97\n77 + 72 = 149\n81 + 87 =",
+    "continuation": " 168",
+    "digits_only": false
+   },
+   {
+    "context": "19 + 13 = 32\n25 + 91 = 116\n34 + 87 = 121\n83 + 25 =",
+    "continuation": " 108",
+    "digits_only": false
+   },
+   {
+    "context": "10 + 88 = 98\n73 + 52 = 125\n41 + 51 = 92\n18 + 34 =",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "10 + 99 = 109\n67 + 89 = 156\n69 + 10 = 79\n37 + 48 =",
+    "continuation": " 85",
+    "digits_only": false
+   },
+   {
+    "context": "48 + 80 = 128\n63 + 28 = 91\n85 + 64 = 149\n48 + 91 =",
+    "continuation": " 139",
+    "digits_only": false
+   },
+   {
+    "context": "60 + 21 = 81\n57 + 24 = 81\n14 + 87 = 101\n12 + 34 =",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "91 + 99 = 190\n47 + 39 = 86\n28 + 83 = 111\n46 + 34 =",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "98 + 74 = 172\n50 + 73 = 123\n93 + 17 = 110\n66 + 48 =",
+    "continuation": " 114",
+    "digits_only": false
+   },
+   {
+    "context": "93 + 55 = 148\n59 + 94 = 153\n42 + 29 = 71\n81 + 98 =",
+    "continuation": " 179",
+    "digits_only": false
+   },
+   {
+    "context": "99 + 82 = 181\n63 + 94 = 157\n15 + 31 = 46\n67 + 18 =",
+    "continuation": " 85",
+    "digits_only": false
+   },
+   {
+    "context": "59 + 11 = 70\n22 + 60 = 82\n81 + 76 = 157\n47 + 67 =",
+    "continuation": " 114",
+    "digits_only": false
+   },
+   {
+    "context": "10 + 47 = 57\n57 + 98 = 155\n13 + 87 = 100\n39 + 28 =",
+    "continuation": " 67",
+    "digits_only": false
+   },
+   {
+    "context": "86 + 12 = 98\n60 + 19 = 79\n99 + 19 = 118\n26 + 63 =",
+    "continuation": " 89",
+    "digits_only": false
+   },
+   {
+    "context": "92 + 99 = 191\n55 + 20 = 75\n51 + 88 = 139\n24 + 72 =",
+    "continuation": " 96",
+    "digits_only": false
+   },
+   {
+    "context": "96 + 85 = 181\n63 + 84 = 147\n45 + 67 = 112\n73 + 94 =",
+    "continuation": " 167",
+    "digits_only": false
+   },
+   {
+    "context": "47 + 46 = 93\n76 + 27 = 103\n83 + 76 = 159\n90 + 36 =",
+    "continuation": " 126",
+    "digits_only": false
+   },
+   {
+    "context": "60 + 42 = 102\n36 + 92 = 128\n15 + 37 = 52\n89 + 28 =",
+    "continuation": " 117",
+    "digits_only": false
+   },
+   {
+    "context": "82 + 64 = 146\n20 + 23 = 43\n63 + 18 = 81\n22 + 63 =",
+    "continuation": " 85",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "50 + 88 = 138\n91 + 36 = 127\n80 + 71 = 151\n66 + 76 =",
+    "continuation": " 142",
+    "digits_only": false
+   },
+   {
+    "context": "95 + 82 = 177\n83 + 37 = 120\n39 + 21 = 60\n90 + 74 =",
+    "continuation": " 164",
+    "digits_only": false
+   },
+   {
+    "context": "99 + 77 = 176\n63 + 74 = 137\n49 + 24 = 73\n28 + 64 =",
+    "continuation": " 92",
+    "digits_only": false
+   },
+   {
+    "context": "12 + 45 = 57\n67 + 24 = 91\n42 + 27 = 69\n93 + 76 =",
+    "continuation": " 169",
+    "digits_only": false
+   },
+   {
+    "context": "91 + 89 = 180\n26 + 49 = 75\n59 + 63 = 122\n93 + 20 =",
+    "continuation": " 113",
+    "digits_only": false
+   },
+   {
+    "context": "13 + 54 = 67\n54 + 32 = 86\n11 + 39 = 50\n56 + 19 =",
+    "continuation": " 75",
+    "digits_only": false
+   },
+   {
+    "context": "14 + 77 = 91\n28 + 42 = 70\n87 + 29 = 116\n58 + 84 =",
+    "continuation": " 142",
+    "digits_only": false
+   },
+   {
+    "context": "59 + 63 = 122\n15 + 43 = 58\n75 + 72 = 147\n61 + 48 =",
+    "continuation": " 109",
+    "digits_only": false
+   },
+   {
+    "context": "78 + 23 = 101\n62 + 91 = 153\n79 + 61 = 140\n45 + 47 =",
+    "continuation": " 92",
+    "digits_only": false
+   },
+   {
+    "context": "33 + 34 = 67\n33 + 14 = 47\n88 + 94 = 182\n43 + 70 =",
+    "continuation": " 113",
+    "digits_only": false
+   },
+   {
+    "context": "71 + 55 = 126\n84 + 37 = 121\n74 + 27 = 101\n46 + 27 =",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "30 + 58 = 88\n28 + 26 = 54\n38 + 50 = 88\n75 + 41 =",
+    "continuation": " 116",
+    "digits_only": false
+   },
+   {
+    "context": "82 + 38 = 120\n40 + 28 = 68\n79 + 67 = 146\n21 + 20 =",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "60 + 11 = 71\n77 + 18 = 95\n97 + 20 = 117\n97 + 95 =",
+    "continuation": " 192",
+    "digits_only": false
+   },
+   {
+    "context": "93 + 68 = 161\n57 + 74 = 131\n58 + 77 = 135\n74 + 14 =",
+    "continuation": " 88",
+    "digits_only": false
+   },
+   {
+    "context": "43 + 84 = 127\n31 + 65 = 96\n34 + 55 = 89\n24 + 18 =",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "23 + 65 = 88\n68 + 52 = 120\n59 + 31 = 90\n52 + 63 =",
+    "continuation": " 115",
+    "digits_only": false
+   },
+   {
+    "context": "42 + 52 = 94\n18 + 73 = 91\n43 + 48 = 91\n62 + 59 =",
+    "continuation": " 121",
+    "digits_only": false
+   },
+   {
+    "context": "30 + 53 = 83\n77 + 42 = 119\n25 + 86 = 111\n66 + 95 =",
+    "continuation": " 161",
+    "digits_only": false
+   },
+   {
+    "context": "89 + 47 = 136\n26 + 59 = 85\n47 + 97 = 144\n25 + 76 =",
+    "continuation": " 101",
+    "digits_only": false
+   },
+   {
+    "context": "45 + 98 = 143\n33 + 22 = 55\n70 + 60 = 130\n90 + 20 =",
+    "continuation": " 110",
+    "digits_only": false
+   },
+   {
+    "context": "72 + 84 = 156\n96 + 37 = 133\n64 + 20 = 84\n57 + 38 =",
+    "continuation": " 95",
+    "digits_only": false
+   },
+   {
+    "context": "12 + 25 = 37\n44 + 95 = 139\n15 + 10 = 25\n42 + 60 =",
+    "continuation": " 102",
+    "digits_only": false
+   },
+   {
+    "context": "33 + 68 = 101\n24 + 71 = 95\n54 + 43 = 97\n26 + 13 =",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "59 + 17 = 76\n30 + 92 = 122\n26 + 40 = 66\n46 + 52 =",
+    "continuation": " 98",
+    "digits_only": false
+   },
+   {
+    "context": "86 + 72 = 158\n28 + 82 = 110\n61 + 91 = 152\n97 + 64 =",
+    "continuation": " 161",
+    "digits_only": false
+   },
+   {
+    "context": "93 + 92 = 185\n54 + 24 = 78\n29 + 45 = 74\n12 + 15 =",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "86 + 28 = 114\n36 + 10 = 46\n36 + 94 = 130\n96 + 25 =",
+    "continuation": " 121",
+    "digits_only": false
+   },
+   {
+    "context": "80 + 52 = 132\n79 + 36 = 115\n87 + 80 = 167\n85 + 46 =",
+    "continuation": " 131",
+    "digits_only": false
+   },
+   {
+    "context": "60 + 10 = 70\n56 + 15 = 71\n24 + 89 = 113\n10 + 44 =",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "88 + 22 = 110\n34 + 25 = 59\n87 + 93 = 180\n35 + 48 =",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": "99 + 38 = 137\n15 + 83 = 98\n91 + 78 = 169\n87 + 97 =",
+    "continuation": " 184",
+    "digits_only": false
+   },
+   {
+    "context": "99 + 69 = 168\n88 + 90 = 178\n53 + 93 = 146\n25 + 97 =",
+    "continuation": " 122",
+    "digits_only": false
+   },
+   {
+    "context": "36 + 56 = 92\n52 + 70 = 122\n47 + 47 = 94\n80 + 91 =",
+    "continuation": " 171",
+    "digits_only": false
+   },
+   {
+    "context": "47 + 78 = 125\n86 + 63 = 149\n71 + 59 = 130\n87 + 85 =",
+    "continuation": " 172",
+    "digits_only": false
+   },
+   {
+    "context": "10 + 86 = 96\n34 + 99 = 133\n52 + 30 = 82\n40 + 38 =",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "34 + 14 = 48\n60 + 66 = 126\n57 + 34 = 91\n68 + 55 =",
+    "continuation": " 123",
+    "digits_only": false
+   },
+   {
+    "context": "18 + 21 = 39\n96 + 26 = 122\n29 + 14 = 43\n20 + 99 =",
+    "continuation": " 119",
+    "digits_only": false
+   },
+   {
+    "context": "55 + 20 = 75\n41 + 66 = 107\n90 + 57 = 147\n91 + 77 =",
+    "continuation": " 168",
+    "digits_only": false
+   },
+   {
+    "context": "55 + 69 = 124\n90 + 91 = 181\n21 + 71 = 92\n36 + 47 =",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": "10 + 14 = 24\n73 + 51 = 124\n49 + 69 = 118\n16 + 63 =",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": "38 + 57 = 95\n31 + 52 = 83\n64 + 17 = 81\n22 + 28 =",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "47 + 70 = 117\n18 + 20 = 38\n76 + 15 = 91\n18 + 38 =",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "32 + 11 = 43\n70 + 97 = 167\n62 + 82 = 144\n75 + 49 =",
+    "continuation": " 124",
+    "digits_only": false
+   },
+   {
+    "context": "59 + 68 = 127\n16 + 22 = 38\n70 + 29 = 99\n12 + 14 =",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "65 + 57 = 122\n78 + 32 = 110\n36 + 58 = 94\n85 + 47 =",
+    "continuation": " 132",
+    "digits_only": false
+   },
+   {
+    "context": "76 + 73 = 149\n96 + 51 = 147\n73 + 73 = 146\n91 + 95 =",
+    "continuation": " 186",
+    "digits_only": false
+   },
+   {
+    "context": "63 + 50 = 113\n10 + 37 = 47\n11 + 10 = 21\n96 + 77 =",
+    "continuation": " 173",
+    "digits_only": false
+   },
+   {
+    "context": "77 + 84 = 161\n60 + 66 = 126\n23 + 42 = 65\n55 + 46 =",
+    "continuation": " 101",
+    "digits_only": false
+   },
+   {
+    "context": "63 + 65 = 128\n32 + 41 = 73\n68 + 53 = 121\n76 + 28 =",
+    "continuation": " 104",
+    "digits_only": false
+   },
+   {
+    "context": "53 + 53 = 106\n25 + 71 = 96\n24 + 99 = 123\n73 + 64 =",
+    "continuation": " 137",
+    "digits_only": false
+   },
+   {
+    "context": "35 + 79 = 114\n88 + 38 = 126\n11 + 53 = 64\n50 + 51 =",
+    "continuation": " 101",
+    "digits_only": false
+   },
+   {
+    "context": "26 + 15 = 41\n48 + 11 = 59\n67 + 52 = 119\n30 + 29 =",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "91 + 67 = 158\n58 + 96 = 154\n82 + 63 = 145\n14 + 61 =",
+    "continuation": " 75",
+    "digits_only": false
+   },
+   {
+    "context": "43 + 17 = 60\n80 + 11 = 91\n21 + 61 = 82\n95 + 90 =",
+    "continuation": " 185",
+    "digits_only": false
+   },
+   {
+    "context": "58 + 91 = 149\n21 + 18 = 39\n20 + 35 = 55\n38 + 17 =",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "48 + 55 = 103\n90 + 70 = 160\n63 + 37 = 100\n71 + 72 =",
+    "continuation": " 143",
+    "digits_only": false
+   },
+   {
+    "context": "17 + 58 = 75\n62 + 11 = 73\n63 + 51 = 114\n66 + 36 =",
+    "continuation": " 102",
+    "digits_only": false
+   },
+   {
+    "context": "40 + 16 = 56\n49 + 32 = 81\n76 + 19 = 95\n48 + 61 =",
+    "continuation": " 109",
+    "digits_only": false
+   },
+   {
+    "context": "78 + 53 = 131\n25 + 77 = 102\n41 + 30 = 71\n18 + 63 =",
+    "continuation": " 81",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "first of 43 and 30 is 43\nfirst of 53 and 90 is 53\nfirst of 74 and 52 is 74\nfirst of 78 and 98 is",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "first of 92 and 68 is 92\nfirst of 88 and 40 is 88\nfirst of 68 and 76 is 68\nfirst of 30 and 52 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "first of 78 and 91 is 78\nfirst of 43 and 44 is 43\nfirst of 39 and 12 is 39\nfirst of 25 and 88 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "first of 22 and 25 is 22\nfirst of 13 and 54 is 13\nfirst of 12 and 32 is 12\nfirst of 61 and 88 is",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "first of 55 and 88 is 55\nfirst of 51 and 21 is 51\nfirst of 49 and 13 is 49\nfirst of 73 and 11 is",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "first of 59 and 31 is 59\nfirst of 10 and 74 is 10\nfirst of 27 and 89 is 27\nfirst of 94 and 75 is",
+    "continuation": " 94",
+    "digits_only": false
+   },
+   {
+    "context": "first of 96 and 32 is 96\nfirst of 39 and 88 is 39\nfirst of 48 and 88 is 48\nfirst of 21 and 75 is",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "first of 76 and 68 is 76\nfirst of 29 and 67 is 29\nfirst of 80 and 29 is 80\nfirst of 14 and 90 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "first of 64 and 27 is 64\nfirst of 37 and 67 is 37\nfirst of 65 and 28 is 65\nfirst of 55 and 49 is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "first of 53 and 87 is 53\nfirst of 23 and 87 is 23\nfirst of 20 and 50 is 20\nfirst of 51 and 78 is",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "first of 15 and 49 is 15\nfirst of 80 and 19 is 80\nfirst of 11 and 68 is 11\nfirst of 73 and 66 is",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "first of 30 and 80 is 30\nfirst of 99 and 28 is 99\nfirst of 30 and 32 is 30\nfirst of 30 and 91 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "first of 78 and 75 is 78\nfirst of 64 and 16 is 64\nfirst of 25 and 59 is 25\nfirst of 92 and 44 is",
+    "continuation": " 92",
+    "digits_only": false
+   },
+   {
+    "context": "first of 32 and 43 is 32\nfirst of 35 and 43 is 35\nfirst of 51 and 99 is 51\nfirst of 42 and 43 is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "first of 62 and 44 is 62\nfirst of 58 and 36 is 58\nfirst of 54 and 27 is 54\nfirst of 26 and 24 is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "first of 82 and 45 is 82\nfirst of 51 and 13 is 51\nfirst of 60 and 70 is 60\nfirst of 76 and 27 is",
+    "continuation": " 76",
+    "digits_only": false
+   },
+   {
+    "context": "first of 24 and 95 is 24\nfirst of 79 and 70 is 79\nfirst of 15 and 50 is 15\nfirst of 13 and 50 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "first of 42 and 36 is 42\nfirst of 24 and 82 is 24\nfirst of 52 and 41 is 52\nfirst of 85 and 96 is",
+    "continuation": " 85",
+    "digits_only": false
+   },
+   {
+    "context": "first of 29 and 76 is 29\nfirst of 90 and 46 is 90\nfirst of 14 and 10 is 14\nfirst of 58 and 53 is",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "first of 97 and 38 is 97\nfirst of 87 and 60 is 87\nfirst of 81 and 38 is 81\nfirst of 68 and 34 is",
+    "continuation": " 68",
+    "digits_only": false
+   },
+   {
+    "context": "first of 93 and 27 is 93\nfirst of 70 and 81 is 70\nfirst of 17 and 79 is 17\nfirst of 20 and 76 is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "first of 19 and 92 is 19\nfirst of 97 and 19 is 97\nfirst of 64 and 79 is 64\nfirst of 80 and 27 is",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "first of 97 and 41 is 97\nfirst of 89 and 52 is 89\nfirst of 13 and 71 is 13\nfirst of 90 and 96 is",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "first of 76 and 22 is 76\nfirst of 20 and 52 is 20\nfirst of 55 and 22 is 55\nfirst of 70 and 14 is",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": "first of 32 and 93 is 32\nfirst of 52 and 62 is 52\nfirst of 58 and 11 is 58\nfirst of 62 and 43 is",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "first of 55 and 12 is 55\nfirst of 72 and 90 is 72\nfirst of 17 and 13 is 17\nfirst of 40 and 15 is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "first of 70 and 58 is 70\nfirst of 38 and 60 is 38\nfirst of 40 and 92 is 40\nfirst of 71 and 60 is",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "first of 16 and 12 is 16\nfirst of 44 and 14 is 44\nfirst of 42 and 97 is 42\nfirst of 97 and 84 is",
+    "continuation": " 97",
+    "digits_only": false
+   },
+   {
+    "context": "first of 40 and 22 is 40\nfirst of 29 and 62 is 29\nfirst of 37 and 66 is 37\nfirst of 88 and 19 is",
+    "continuation": " 88",
+    "digits_only": false
+   },
+   {
+    "context": "first of 59 and 17 is 59\nfirst of 36 and 14 is 36\nfirst of 50 and 41 is 50\nfirst of 53 and 66 is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "first of 38 and 40 is 38\nfirst of 18 and 76 is 18\nfirst of 49 and 96 is 49\nfirst of 51 and 39 is",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "first of 95 and 93 is 95\nfirst of 80 and 65 is 80\nfirst of 84 and 68 is 84\nfirst of 72 and 42 is",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "first of 67 and 52 is 67\nfirst of 58 and 75 is 58\nfirst of 56 and 91 is 56\nfirst of 25 and 27 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "first of 46 and 55 is 46\nfirst of 62 and 68 is 62\nfirst of 16 and 90 is 16\nfirst of 99 and 76 is",
+    "continuation": " 99",
+    "digits_only": false
+   },
+   {
+    "context": "first of 49 and 12 is 49\nfirst of 55 and 83 is 55\nfirst of 79 and 17 is 79\nfirst of 90 and 29 is",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "first of 60 and 26 is 60\nfirst of 91 and 45 is 91\nfirst of 62 and 95 is 62\nfirst of 28 and 86 is",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "first of 68 and 51 is 68\nfirst of 42 and 13 is 42\nfirst of 76 and 15 is 76\nfirst of 34 and 57 is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "first of 62 and 82 is 62\nfirst of 94 and 54 is 94\nfirst of 22 and 65 is 22\nfirst of 65 and 41 is",
+    "continuation": " 65",
+    "digits_only": false
+   },
+   {
+    "context": "first of 31 and 97 is 31\nfirst of 81 and 31 is 81\nfirst of 20 and 64 is 20\nfirst of 86 and 23 is",
+    "continuation": " 86",
+    "digits_only": false
+   },
+   {
+    "context": "first of 76 and 16 is 76\nfirst of 35 and 42 is 35\nfirst of 32 and 84 is 32\nfirst of 51 and 47 is",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "first of 77 and 86 is 77\nfirst of 55 and 72 is 55\nfirst of 68 and 49 is 68\nfirst of 11 and 38 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "first of 83 and 67 is 83\nfirst of 40 and 67 is 40\nfirst of 75 and 22 is 75\nfirst of 34 and 31 is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "first of 31 and 29 is 31\nfirst of 36 and 31 is 36\nfirst of 39 and 13 is 39\nfirst of 77 and 27 is",
+    "continuation": " 77",
+    "digits_only": false
+   },
+   {
+    "context": "first of 57 and 90 is 57\nfirst of 71 and 46 is 71\nfirst of 84 and 31 is 84\nfirst of 27 and 11 is",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "first of 99 and 47 is 99\nfirst of 97 and 36 is 97\nfirst of 77 and 76 is 77\nfirst of 53 and 59 is",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "first of 81 and 93 is 81\nfirst of 30 and 94 is 30\nfirst of 73 and 71 is 73\nfirst of 79 and 50 is",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": "first of 40 and 55 is 40\nfirst of 38 and 30 is 38\nfirst of 63 and 69 is 63\nfirst of 56 and 82 is",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "first of 24 and 74 is 24\nfirst of 90 and 79 is 90\nfirst of 87 and 59 is 87\nfirst of 65 and 44 is",
+    "continuation": " 65",
+    "digits_only": false
+   },
+   {
+    "context": "first of 88 and 79 is 88\nfirst of 35 and 47 is 35\nfirst of 66 and 75 is 66\nfirst of 87 and 69 is",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": "first of 30 and 97 is 30\nfirst of 34 and 90 is 34\nfirst of 55 and 90 is 55\nfirst of 99 and 73 is",
+    "continuation": " 99",
+    "digits_only": false
+   },
+   {
+    "context": "first of 99 and 28 is 99\nfirst of 20 and 52 is 20\nfirst of 40 and 32 is 40\nfirst of 41 and 12 is",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "first of 12 and 41 is 12\nfirst of 83 and 40 is 83\nfirst of 45 and 33 is 45\nfirst of 63 and 19 is",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": "first of 84 and 32 is 84\nfirst of 92 and 75 is 92\nfirst of 14 and 50 is 14\nfirst of 19 and 34 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "first of 58 and 91 is 58\nfirst of 15 and 47 is 15\nfirst of 80 and 65 is 80\nfirst of 14 and 97 is",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "first of 53 and 58 is 53\nfirst of 13 and 90 is 13\nfirst of 14 and 73 is 14\nfirst of 21 and 55 is",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "first of 80 and 50 is 80\nfirst of 53 and 34 is 53\nfirst of 65 and 28 is 65\nfirst of 10 and 75 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "first of 22 and 32 is 22\nfirst of 63 and 41 is 63\nfirst of 37 and 46 is 37\nfirst of 94 and 10 is",
+    "continuation": " 94",
+    "digits_only": false
+   },
+   {
+    "context": "first of 61 and 53 is 61\nfirst of 44 and 73 is 44\nfirst of 60 and 11 is 60\nfirst of 49 and 77 is",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "first of 70 and 37 is 70\nfirst of 53 and 44 is 53\nfirst of 15 and 15 is 15\nfirst of 16 and 30 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "first of 26 and 45 is 26\nfirst of 55 and 50 is 55\nfirst of 65 and 23 is 65\nfirst of 81 and 46 is",
+    "continuation": " 81",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "first of 27 and 59 is 27\nfirst of 82 and 11 is 82\nfirst of 30 and 84 is 30\nfirst of 10 and 97 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "first of 47 and 95 is 47\nfirst of 29 and 68 is 29\nfirst of 40 and 74 is 40\nfirst of 55 and 30 is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "first of 87 and 89 is 87\nfirst of 42 and 96 is 42\nfirst of 49 and 82 is 49\nfirst of 68 and 62 is",
+    "continuation": " 68",
+    "digits_only": false
+   },
+   {
+    "context": "first of 25 and 82 is 25\nfirst of 55 and 39 is 55\nfirst of 96 and 79 is 96\nfirst of 94 and 46 is",
+    "continuation": " 94",
+    "digits_only": false
+   },
+   {
+    "context": "first of 27 and 56 is 27\nfirst of 75 and 37 is 75\nfirst of 78 and 61 is 78\nfirst of 19 and 26 is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "first of 78 and 97 is 78\nfirst of 55 and 30 is 55\nfirst of 29 and 52 is 29\nfirst of 11 and 84 is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "first of 15 and 62 is 15\nfirst of 92 and 17 is 92\nfirst of 99 and 49 is 99\nfirst of 59 and 16 is",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "first of 11 and 38 is 11\nfirst of 93 and 51 is 93\nfirst of 18 and 17 is 18\nfirst of 54 and 94 is",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "first of 32 and 77 is 32\nfirst of 31 and 18 is 31\nfirst of 94 and 91 is 94\nfirst of 30 and 84 is",
+    "continuation": " 30",
+    "digits_only": false
+   },
+   {
+    "context": "first of 71 and 92 is 71\nfirst of 15 and 76 is 15\nfirst of 15 and 81 is 15\nfirst of 98 and 99 is",
+    "continuation": " 98",
+    "digits_only": false
+   },
+   {
+    "context": "first of 73 and 55 is 73\nfirst of 89 and 46 is 89\nfirst of 52 and 97 is 52\nfirst of 25 and 62 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "first of 89 and 90 is 89\nfirst of 68 and 29 is 68\nfirst of 88 and 87 is 88\nfirst of 15 and 42 is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "first of 98 and 93 is 98\nfirst of 11 and 51 is 11\nfirst of 68 and 80 is 68\nfirst of 98 and 73 is",
+    "continuation": " 98",
+    "digits_only": false
+   },
+   {
+    "context": "first of 59 and 99 is 59\nfirst of 14 and 84 is 14\nfirst of 69 and 55 is 69\nfirst of 82 and 26 is",
+    "continuation": " 82",
+    "digits_only": false
+   },
+   {
+    "context": "first of 24 and 57 is 24\nfirst of 54 and 28 is 54\nfirst of 90 and 55 is 90\nfirst of 70 and 90 is",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": "first of 82 and 15 is 82\nfirst of 66 and 26 is 66\nfirst of 53 and 11 is 53\nfirst of 71 and 95 is",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "first of 82 and 99 is 82\nfirst of 37 and 40 is 37\nfirst of 26 and 39 is 26\nfirst of 59 and 55 is",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "first of 66 and 18 is 66\nfirst of 64 and 91 is 64\nfirst of 60 and 44 is 60\nfirst of 42 and 65 is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "first of 50 and 12 is 50\nfirst of 33 and 26 is 33\nfirst of 12 and 53 is 12\nfirst of 87 and 34 is",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": "first of 16 and 82 is 16\nfirst of 29 and 54 is 29\nfirst of 56 and 47 is 56\nfirst of 90 and 47 is",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "first of 60 and 29 is 60\nfirst of 32 and 75 is 32\nfirst of 19 and 27 is 19\nfirst of 36 and 73 is",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "first of 84 and 18 is 84\nfirst of 42 and 45 is 42\nfirst of 77 and 57 is 77\nfirst of 79 and 12 is",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": "first of 26 and 36 is 26\nfirst of 33 and 66 is 33\nfirst of 54 and 59 is 54\nfirst of 64 and 72 is",
+    "continuation": " 64",
+    "digits_only": false
+   },
+   {
+    "context": "first of 42 and 35 is 42\nfirst of 60 and 59 is 60\nfirst of 65 and 91 is 65\nfirst of 90 and 96 is",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "first of 87 and 88 is 87\nfirst of 70 and 40 is 70\nfirst of 45 and 15 is 45\nfirst of 88 and 51 is",
+    "continuation": " 88",
+    "digits_only": false
+   },
+   {
+    "context": "first of 86 and 31 is 86\nfirst of 55 and 19 is 55\nfirst of 62 and 16 is 62\nfirst of 66 and 55 is",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": "first of 59 and 38 is 59\nfirst of 35 and 66 is 35\nfirst of 36 and 85 is 36\nfirst of 16 and 59 is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "first of 14 and 16 is 14\nfirst of 24 and 83 is 24\nfirst of 88 and 28 is 88\nfirst of 29 and 96 is",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "first of 78 and 78 is 78\nfirst of 97 and 69 is 97\nfirst of 15 and 82 is 15\nfirst of 25 and 62 is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "first of 48 and 49 is 48\nfirst of 76 and 59 is 76\nfirst of 42 and 71 is 42\nfirst of 54 and 40 is",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "first of 28 and 61 is 28\nfirst of 49 and 75 is 49\nfirst of 17 and 30 is 17\nfirst of 26 and 27 is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "first of 87 and 85 is 87\nfirst of 26 and 90 is 26\nfirst of 73 and 23 is 73\nfirst of 88 and 13 is",
+    "continuation": " 88",
+    "digits_only": false
+   },
+   {
+    "context": "first of 70 and 20 is 70\nfirst of 16 and 78 is 16\nfirst of 61 and 43 is 61\nfirst of 13 and 92 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "first of 95 and 94 is 95\nfirst of 94 and 38 is 94\nfirst of 43 and 54 is 43\nfirst of 95 and 30 is",
+    "continuation": " 95",
+    "digits_only": false
+   },
+   {
+    "context": "first of 63 and 60 is 63\nfirst of 65 and 23 is 65\nfirst of 68 and 87 is 68\nfirst of 69 and 30 is",
+    "continuation": " 69",
+    "digits_only": false
+   },
+   {
+    "context": "first of 33 and 13 is 33\nfirst of 68 and 43 is 68\nfirst of 34 and 59 is 34\nfirst of 18 and 55 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "first of 92 and 97 is 92\nfirst of 65 and 28 is 65\nfirst of 67 and 28 is 67\nfirst of 77 and 50 is",
+    "continuation": " 77",
+    "digits_only": false
+   },
+   {
+    "context": "first of 31 and 53 is 31\nfirst of 70 and 62 is 70\nfirst of 30 and 85 is 30\nfirst of 46 and 74 is",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "first of 90 and 59 is 90\nfirst of 33 and 54 is 33\nfirst of 84 and 20 is 84\nfirst of 20 and 81 is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "first of 51 and 73 is 51\nfirst of 61 and 86 is 61\nfirst of 65 and 31 is 65\nfirst of 10 and 28 is",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "first of 97 and 14 is 97\nfirst of 68 and 60 is 68\nfirst of 25 and 61 is 25\nfirst of 54 and 73 is",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "first of 14 and 39 is 14\nfirst of 91 and 20 is 91\nfirst of 33 and 56 is 33\nfirst of 17 and 91 is",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "first of 29 and 94 is 29\nfirst of 99 and 82 is 99\nfirst of 59 and 56 is 59\nfirst of 69 and 14 is",
+    "continuation": " 69",
+    "digits_only": false
+   },
+   {
+    "context": "first of 20 and 36 is 20\nfirst of 77 and 54 is 77\nfirst of 34 and 35 is 34\nfirst of 42 and 96 is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "first of 80 and 74 is 80\nfirst of 51 and 56 is 51\nfirst of 84 and 91 is 84\nfirst of 13 and 26 is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "first of 59 and 32 is 59\nfirst of 29 and 12 is 29\nfirst of 13 and 51 is 13\nfirst of 75 and 10 is",
+    "continuation": " 75",
+    "digits_only": false
+   },
+   {
+    "context": "first of 46 and 80 is 46\nfirst of 70 and 14 is 70\nfirst of 78 and 83 is 78\nfirst of 80 and 43 is",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "first of 53 and 10 is 53\nfirst of 20 and 23 is 20\nfirst of 64 and 87 is 64\nfirst of 55 and 82 is",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "first of 49 and 46 is 49\nfirst of 11 and 64 is 11\nfirst of 45 and 43 is 45\nfirst of 78 and 77 is",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "first of 94 and 42 is 94\nfirst of 88 and 34 is 88\nfirst of 18 and 80 is 18\nfirst of 64 and 45 is",
+    "continuation": " 64",
+    "digits_only": false
+   },
+   {
+    "context": "first of 88 and 55 is 88\nfirst of 31 and 13 is 31\nfirst of 65 and 83 is 65\nfirst of 60 and 69 is",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "first of 81 and 62 is 81\nfirst of 91 and 88 is 91\nfirst of 39 and 12 is 39\nfirst of 56 and 77 is",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "first of 16 and 62 is 16\nfirst of 73 and 68 is 73\nfirst of 66 and 25 is 66\nfirst of 20 and 20 is",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "first of 20 and 43 is 20\nfirst of 27 and 87 is 27\nfirst of 61 and 34 is 61\nfirst of 50 and 47 is",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "first of 54 and 10 is 54\nfirst of 47 and 93 is 47\nfirst of 10 and 27 is 10\nfirst of 18 and 64 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "first of 60 and 15 is 60\nfirst of 38 and 40 is 38\nfirst of 91 and 46 is 91\nfirst of 52 and 31 is",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "first of 58 and 13 is 58\nfirst of 63 and 65 is 63\nfirst of 82 and 97 is 82\nfirst of 52 and 41 is",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "first of 60 and 90 is 60\nfirst of 23 and 78 is 23\nfirst of 16 and 28 is 16\nfirst of 60 and 13 is",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "first of 15 and 20 is 15\nfirst of 82 and 54 is 82\nfirst of 56 and 10 is 56\nfirst of 18 and 34 is",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "first of 64 and 81 is 64\nfirst of 60 and 15 is 60\nfirst of 33 and 41 is 33\nfirst of 72 and 38 is",
+    "continuation": " 72",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.237
+}

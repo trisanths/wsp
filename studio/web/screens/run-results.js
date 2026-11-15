@@ -6,12 +6,15 @@ import { BenchBar, BenchLegend, CodeView, Tag } from '../components.js';
 import { SubtleNum } from '../motion.js';
 import { nameOf } from './run-shared.js';
 import { ModelLogo } from '../logos.js';
-import { Logos, donorsOf, Compare, HealNote, usesHeal } from '../cmp.js';
+import { Logos, donorsOf, Compare, HealNote, usesHeal, healNoteOf, PartsList } from '../cmp.js';
 
 // a thin line chart: the best score so far, the LoRA and target bars as dashed hairlines
 export function LineChart({ curve, bench, total }) {
   const W = 760, H = 220, L = 40, R = 14, T = 14, B = 24;
-  const vals = [bench.base, bench.target, bench.lora, ...curve.map((c) => c.best), ...curve.map((c) => c.score)].filter((x) => x != null);
+  curve = (curve || []).filter((c) => c && c.eval != null);
+  const scored = curve.filter((c) => c.best != null);
+  const vals = [bench.base, bench.target, bench.lora, ...scored.map((c) => c.best), ...curve.map((c) => c.score)].filter((x) => x != null);
+  if (!vals.length) vals.push(0.2, 0.6);
   let lo = Math.floor((Math.min(...vals) - 0.03) * 20) / 20;
   let hi = Math.ceil((Math.max(...vals) + 0.04) * 20) / 20;
   lo = Math.max(0, lo); hi = Math.min(1, hi);
@@ -19,16 +22,16 @@ export function LineChart({ curve, bench, total }) {
   const Y = (v) => T + (1 - (v - lo) / (hi - lo)) * (H - T - B);
   const ticks = [];
   for (let i = 0; i <= 4; i++) ticks.push(lo + ((hi - lo) * i) / 4);
-  const pts = curve.map((c) => [X(c.eval), Y(c.best)]);
-  const line = pts.length ? 'M' + X(0) + ',' + Y(bench.base) + ' ' + pts.map((p) => 'L' + p[0] + ',' + p[1]).join(' ') : '';
+  const pts = scored.map((c) => [X(c.eval), Y(c.best)]);
+  const line = pts.length ? 'M' + X(0) + ',' + Y(bench.base ?? scored[0].best) + ' ' + pts.map((p) => 'L' + p[0] + ',' + p[1]).join(' ') : '';
   return html`<svg class="lchart" viewBox=${'0 0 ' + W + ' ' + H} style=${{ width: '100%', height: 'auto', display: 'block' }}>
     ${ticks.map((t) => html`<g><line class="lc-grid" x1=${L} x2=${W - R} y1=${Y(t)} y2=${Y(t)}/><text class="lc-txt" x=${L - 6} y=${Y(t) + 3} font-size="10" text-anchor="end">${Math.round(t * 100)}%</text></g>`)}
     <text class="lc-txt" x=${L} y=${H - 6} font-size="10">0</text>
     <text class="lc-txt" x=${W - R} y=${H - 6} font-size="10" text-anchor="end">eval ${total}</text>
     ${bench.target != null && html`<g><line class="lc-target" x1=${L} x2=${W - R} y1=${Y(bench.target)} y2=${Y(bench.target)} stroke-dasharray="3 4"/><text class="lc-txt" x=${W - R} y=${Y(bench.target) - 5} font-size="10" text-anchor="end">target ${pct(bench.target, 0)}%</text></g>`}
     ${bench.lora != null && html`<g><line class="lc-lora" x1=${L} x2=${W - R} y1=${Y(bench.lora)} y2=${Y(bench.lora)} stroke-dasharray="6 4"/><text class="lc-txt" x=${W - R} y=${Y(bench.lora) + 12} font-size="10" text-anchor="end">LoRA ${pct(bench.lora)}%</text></g>`}
-    <line class="lc-base" x1=${L} x2=${W - R} y1=${Y(bench.base)} y2=${Y(bench.base)} stroke-dasharray="1 4"/>
-    ${curve.map((c) => html`<circle class="lc-dot" cx=${X(c.eval)} cy=${Y(c.score)} r="1.8"/>`)}
+    ${bench.base != null && html`<line class="lc-base" x1=${L} x2=${W - R} y1=${Y(bench.base)} y2=${Y(bench.base)} stroke-dasharray="1 4"/>`}
+    ${curve.filter((c) => c.score != null).map((c) => html`<circle class="lc-dot" cx=${X(c.eval)} cy=${Y(c.score)} r="1.8"/>`)}
     ${pts.length > 0 && html`<path class="lc-line" d=${line} fill="none" stroke-width="1.5" stroke-linejoin="round"/><circle class="lc-end" cx=${pts[pts.length - 1][0]} cy=${pts[pts.length - 1][1]} r="3.5"/>`}
     ${!pts.length && html`<text class="lc-txt" x=${W / 2} y=${H / 2} font-size="12" text-anchor="middle">Waiting for the first score</text>`}
   </svg>`;
@@ -39,7 +42,8 @@ function Detail({ r, snap, cat, text, onBuild }) {
   const name = (aid) => (snap.agents.find((a) => a.id === aid) || { name: aid }).name;
   return html`<div class="detin">
     <div class="detgrid">${bs.map((b) => html`<div><div class="detbar"><span class="dim">${b.name}</span><b class="num">${pct(r.scores[b.id])}%</b></div><${BenchBar} b=${b} value=${r.scores[b.id]} tall /></div>`)}</div>
-    ${r.comparison && html`<div class="detcmp"><${Compare} c=${r.comparison} compact heal=${usesHeal(r.program)} /></div>`}
+    ${r.components && r.components.length > 0 && html`<div class="detparts"><div class="label">Parts</div><${PartsList} components=${r.components} compact /></div>`}
+    ${r.comparison && html`<div class="detcmp"><${Compare} c=${r.comparison} compact heal=${usesHeal(r.program)} note=${healNoteOf(r)} /></div>`}
     ${text != null ? html`<div class="well"><${CodeView} text=${text} /></div>` : html`<div class="faint">Loading the program text.</div>`}
     <div class="detfoot"><span class="faint">Found by ${name(r.agent)}. ${r.vs_control == null ? 'The random-part control has not run yet.' : 'It scores ' + (r.vs_control * 100).toFixed(1) + ' points above its random-part control.'}</span><span class="grow"></span>
       <button class="linkbtn" onClick=${() => onBuild(r.program)}>Open in builder</button>
@@ -64,22 +68,28 @@ function Leaderboard({ snap, cat, onBuild }) {
   useEffect(() => () => clearTimeout(timer.current), []);
   if (!snap.leaderboard.length) return html`<div class="faint">No scored programs yet.</div>`;
   const short = (n) => (n.length > 10 ? n.slice(0, 9) + '.' : n);
-  return html`<div class="tscroll"><table class="lb rlb"><thead><tr><th style="width:32px">#</th><th>Program</th>${bs.map((b) => html`<th class="r" style="width:76px" title=${b.name}>${short(b.name)}</th>`)}<th class="r" style="width:84px">vs random</th><th class="r" style="width:64px">Size</th><th style="width:28px"></th></tr></thead>
-    <tbody>${snap.leaderboard.map((r) => {
+  return html`<div class="tscroll"><table class="lb rlb"><thead><tr><th style="width:32px">#</th><th style="min-width:240px">Program</th>${bs.map((b) => html`<th class="r" style="width:76px" title=${b.name}>${short(b.name)}</th>`)}<th class="r" style="width:84px">vs random</th><th class="r" style="width:64px">Size</th><th style="width:28px"></th></tr></thead>
+    <tbody>${(() => {
+      // two different programs must never read the same: a repeated name gets the start of its program hash
+      const seen = {};
+      for (const r of snap.leaderboard) { const n = nameOf(r, cat); seen[n] = (seen[n] || 0) + 1; }
+      const label = (r) => { const n = nameOf(r, cat); return seen[n] > 1 && r.program_hash ? n + ' · ' + String(r.program_hash).slice(0, 6) : n; };
+      return snap.leaderboard.map((r) => {
       const ok = r.status === 'ok';
       const isOpen = open === r.program_hash;
       const body = isOpen || closing === r.program_hash;
       return html`<${Fragment} key=${r.program_hash}>
         <tr class=${'row' + (isOpen ? ' open' : '')} onClick=${() => toggle(r)}>
-          <td class="num dim3">${r.rank}</td><td><div class="desc"><${Logos} models=${donorsOf(r.program, cat)} max=${3} size=${16} /><span title=${nameOf(r, cat)}>${nameOf(r, cat)}</span><${HealNote} show=${usesHeal(r.program)} mark /></div></td>
+          <td class="num dim3">${r.rank}</td><td><div class="desc"><${Logos} models=${donorsOf(r.program, cat)} max=${3} size=${16} /><span title=${label(r)}>${label(r)}</span><${HealNote} show=${usesHeal(r.program)} mark note=${healNoteOf(r)} /></div></td>
           ${bs.map((b) => { const v = r.scores[b.id]; const bad = b.kind === 'guard' && v != null && v < b.floor; return html`<td class=${'num r' + (bad ? ' down' : '')}>${v != null ? html`<${SubtleNum} text=${pct(v)} />` : '-'}</td>`; })}
-          <td class="r">${!ok ? html`<${Tag} kind="r">${r.status.replace(/_/g, ' ')}<//>` : r.vs_control == null ? html`<span class="faint">pending</span>` : html`<span class=${r.vs_control > 0.02 ? 'up' : 'dim3'}>${sgn(r.vs_control)}</span>`}</td>
+          <td class="r">${!ok ? html`<${Tag} kind="r">${r.status.replace(/_/g, ' ')}<//>` : r.vs_control == null && !(r.program && r.program.grafts && r.program.grafts.length) ? html`<span class="faint" title="No parts, so there is no random-parts control">-</span>` : r.vs_control == null ? html`<span class="faint">pending</span>` : html`<span class=${r.vs_control > 0.02 ? 'up' : 'dim3'}>${sgn(r.vs_control)}</span>`}</td>
           <td class="num r">${bsize(r.params_b)}</td>
           <td><span class="t-acc faint" data-open=${isOpen ? 'true' : 'false'}><span class="t-acc-chevron"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></span></td>
         </tr>
         <tr class="t-acc det" data-open=${isOpen ? 'true' : 'false'}><td colspan=${bs.length + 5}><div class="t-acc-panel"><div class="t-acc-panel-inner">${body && html`<${Detail} r=${r} snap=${snap} cat=${cat} text=${texts[r.program_hash]} onBuild=${onBuild} />`}</div></div></td></tr>
       <//>`;
-    })}</tbody></table></div>`;
+      });
+    })()}</tbody></table></div>`;
 }
 
 function Targets({ snap }) {
@@ -99,7 +109,7 @@ function Sources({ snap }) {
 export function ResultsPage({ snap, id, cat, onBuild }) {
   const t = primaryTarget(snap.spec);
   return html`<div class="rpage"><div class="col wide">
-    <section class="rsec"><h2 class="rh2">Leaderboard</h2><${Leaderboard} snap=${snap} cat=${cat} onBuild=${onBuild} /></section>
+    <section class="rsec"><h2 class="rh2">Leaderboard</h2><div class="lbsort">Sorted by ${snap.sort || 'target score'}</div><${Leaderboard} snap=${snap} cat=${cat} onBuild=${onBuild} /></section>
     <section class="rsec"><h2 class="rh2">${t ? 'Best ' + t.name + ' per eval' : 'Best score per eval'}</h2>${t && html`<${LineChart} curve=${snap.curve} bench=${t} total=${snap.budget.evals_total} />`}</section>
     <section class="rsec"><h2 class="rh2">Benchmarks</h2><${Targets} snap=${snap} /></section>
     <section class="rsec"><h2 class="rh2">Source models</h2><${Sources} snap=${snap} /></section>

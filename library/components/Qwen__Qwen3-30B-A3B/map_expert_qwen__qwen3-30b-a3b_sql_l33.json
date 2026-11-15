@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_sql_l33",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 33, 8 experts for sql (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "sql"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 33 of Qwen3-30B-A3B on 'sql' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.3707,
+      "control_value": 8e-05,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 33 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 7.65471,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 8.02722,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 33,
+  "layers": [
+    33
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_sql_l33.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "sql",
+    "data": "b-mc2/sql-create-context train: SQL query for a question and a table schema",
+    "n_units": 8,
+    "experts": [
+      30,
+      121,
+      93,
+      3,
+      126,
+      74,
+      36,
+      16
+    ],
+    "details": [
+      {
+        "expert": 30,
+        "skill_freq": 0.670649,
+        "general_freq": 0.0,
+        "log_ratio": 8.811,
+        "heldout_log_ratio": 8.8242
+      },
+      {
+        "expert": 121,
+        "skill_freq": 0.411187,
+        "general_freq": 0.0,
+        "log_ratio": 8.3219,
+        "heldout_log_ratio": 8.3293
+      },
+      {
+        "expert": 93,
+        "skill_freq": 0.305794,
+        "general_freq": 0.0,
+        "log_ratio": 8.0258,
+        "heldout_log_ratio": 8.0523
+      },
+      {
+        "expert": 3,
+        "skill_freq": 0.268952,
+        "general_freq": 0.0,
+        "log_ratio": 7.8975,
+        "heldout_log_ratio": 7.9518
+      },
+      {
+        "expert": 126,
+        "skill_freq": 0.844368,
+        "general_freq": 0.000308,
+        "log_ratio": 7.6352,
+        "heldout_log_ratio": 9.0464
+      },
+      {
+        "expert": 74,
+        "skill_freq": 0.16155,
+        "general_freq": 0.0,
+        "log_ratio": 7.388,
+        "heldout_log_ratio": 7.4003
+      },
+      {
+        "expert": 36,
+        "skill_freq": 0.108518,
+        "general_freq": 0.0,
+        "log_ratio": 6.9904,
+        "heldout_log_ratio": 7.0281
+      },
+      {
+        "expert": 16,
+        "skill_freq": 0.194596,
+        "general_freq": 0.000308,
+        "log_ratio": 6.1679,
+        "heldout_log_ratio": 7.5854
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "b-mc2/sql-create-context train: SQL query for a question and a table schema",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

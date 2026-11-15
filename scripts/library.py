@@ -886,9 +886,12 @@ def build_person_b(repo):
             copies = []
             units_file = None
             src = os.path.join(repo, record["units"])
+            missing = {}
             if os.path.exists(src):
                 units_file = folder + os.path.basename(record["units"])
                 copies.append((src, units_file))
+            else:
+                missing = {"units_missing": True, "units_expected": record["units"]}
             controls = []
             for control in record.get("controls") or []:
                 control_src = os.path.join(repo, control)
@@ -935,8 +938,8 @@ def build_person_b(repo):
                              "parts_extracted/" + os.path.basename(os.path.dirname(records_path)) + "/records.jsonl",
                              ["math", "gsm8k"], record["model"], [record["layer"]], units_file,
                              "/vol/eval/extracted/" + record["units"].split("/", 1)[1], signature, items,
-                             {"controls": controls, "catalog_id": record["id"], "family": record.get("family"),
-                              "status_reason": reason})
+                             dict({"controls": controls, "catalog_id": record["id"], "family": record.get("family"),
+                                   "status_reason": reason}, **missing))
             out.append((data, copies))
     return out
 
@@ -1005,9 +1008,12 @@ def build_person_a(repo):
         copies = []
         units_file = None
         src = os.path.join(repo, "person_a", record["units"])
+        missing = {}
         if os.path.exists(src):
             units_file = folder + os.path.basename(record["units"])
             copies.append((src, units_file))
+        else:
+            missing = {"units_missing": True, "units_expected": "person_a/" + record["units"]}
         layers = record.get("layers") or [record["layer"]]
         skill = (record.get("skill") or {}).get("name")
         skills = ["math"]
@@ -1039,9 +1045,9 @@ def build_person_a(repo):
         data = component(record["id"], kind, title, status, HANAV, record["_source"], skills, record["model"],
                          layers, units_file, "person_a/" + record["units"], signature,
                          person_a_items(record, rejected),
-                         {"tier": record.get("tier") or "provisional", "pipeline": record["_pipeline"],
-                          "skill": record.get("skill"), "catalog_id": record["id"], "exported_copy": exported,
-                          "status_reason": reason})
+                         dict({"tier": record.get("tier") or "provisional", "pipeline": record["_pipeline"],
+                               "skill": record.get("skill"), "catalog_id": record["id"],
+                               "exported_copy": exported, "status_reason": reason}, **missing))
         out.append((data, copies))
     return out
 
@@ -2541,6 +2547,13 @@ def merge_generated(old, new):
     for item in hand:
         evidence_list.append(item)
     merged["evidence"] = evidence_list
+    if new.get("units_missing"):
+        # The part file is absent in this checkout. Do not erase what an earlier build found.
+        if merged.get("units_file") is None and old.get("units_file"):
+            merged["units_file"] = old["units_file"]
+    else:
+        merged.pop("units_missing", None)
+        merged.pop("units_expected", None)
     if len(hand) > 0:
         merged["status"] = old.get("status", merged["status"])
         if "status_reason" in old:
@@ -2566,6 +2579,8 @@ def write_entry_file(library, data, report):
         merged["updated"] = today()
     if write_text(path, json_text(merged)):
         report["written"].append(rel)
+    if merged.get("units_missing"):
+        report["units_missing"].append(merged["id"] + " (expected " + str(merged.get("units_expected")) + ")")
     return merged
 
 
@@ -2663,7 +2678,7 @@ def load_entries(library):
 
 def build(repo=REPO, library=DEFAULT_LIBRARY, quiet=False):
     """Regenerate the generated entries. Return a report dict."""
-    report = {"written": [], "kept_hand": [], "stale": [], "copied": []}
+    report = {"written": [], "kept_hand": [], "stale": [], "copied": [], "units_missing": []}
     os.makedirs(library, exist_ok=True)
 
     produced = []
@@ -2715,6 +2730,11 @@ def build(repo=REPO, library=DEFAULT_LIBRARY, quiet=False):
               str(len(report["stale"])) + " stale generated entries")
         for rel in report["stale"]:
             print("  stale (not deleted): " + rel)
+        if report["units_missing"]:
+            print("part files missing: " + str(len(report["units_missing"])) +
+                  " entries keep their old units_file and are flagged units_missing")
+            for text in report["units_missing"]:
+                print("  part files missing: " + text)
     return report
 
 
@@ -2799,8 +2819,8 @@ def check_evidence_item(item, where, errors):
     return good
 
 
-def validate_entry(data, rel, library, errors):
-    """Append every problem with one entry to errors."""
+def validate_entry(data, rel, library, errors, warnings=None):
+    """Append every problem with one entry to errors. Soft problems go to warnings when it is given."""
     if "_error" in data:
         errors.append(rel + ": " + data["_error"])
         return
@@ -2854,6 +2874,9 @@ def validate_entry(data, rel, library, errors):
             errors.append(label + ": a file path must be relative to the library folder: " + str(name))
         elif not os.path.exists(os.path.join(library, name)):
             errors.append(label + ": file not found: " + str(name))
+    if group == "component" and data.get("units_missing") and warnings is not None:
+        warnings.append(label + ": part file missing at build time (expected " + str(data.get("units_expected")) +
+                        "); units_file is " + str(data.get("units_file")))
     if group == "component":
         layers = data.get("layers")
         if not isinstance(layers, list):
@@ -2908,13 +2931,15 @@ def validate_entry(data, rel, library, errors):
             errors.append(label + ": status 'rejected' needs a 'status_reason' or an evidence item")
 
 
-def validate(library=DEFAULT_LIBRARY, check_index=True):
-    """Return a list of error strings. An empty list means the library is valid."""
+def validate(library=DEFAULT_LIBRARY, check_index=True, warnings=None):
+    """Return a list of error strings. An empty list means the library is valid.
+
+    Pass a list as warnings to collect soft problems, such as entries flagged units_missing."""
     errors = []
     entries = load_entries(library)
     seen = {}
     for data, rel in entries:
-        validate_entry(data, rel, library, errors)
+        validate_entry(data, rel, library, errors, warnings)
         entry_id = data.get("id")
         if entry_id is None:
             continue
@@ -3147,13 +3172,17 @@ def main(argv=None):
         write_index(args.library)
         return 0
     if args.command == "validate":
-        errors = validate(args.library)
+        warnings = []
+        errors = validate(args.library, warnings=warnings)
+        for warning in warnings:
+            print("warning: " + warning)
         if errors:
             for error in errors:
                 print("error: " + error)
             print("validate: " + str(len(errors)) + " errors")
             return 1
-        print("validate: ok, " + str(len(load_entries(args.library))) + " entries")
+        print("validate: ok, " + str(len(load_entries(args.library))) + " entries, " + str(len(warnings)) +
+              " warnings")
         return 0
     if args.command == "add":
         add(args.library, args.file, append_evidence=args.append_evidence)

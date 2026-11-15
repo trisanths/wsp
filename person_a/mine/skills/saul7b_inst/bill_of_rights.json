@@ -1,0 +1,920 @@
+{
+ "name": "bill_of_rights",
+ "description": "Retrieve the numbered U.S. Bill of Rights amendment from a fixed table of protections; matched controls retrieve calendar-month ordinals using exactly the same answer vocabulary.",
+ "hash": "0bb323b0508aab04",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nordinals=['First','Second','Third','Fourth','Fifth','Sixth','Seventh','Eighth','Ninth','Tenth']\nrights=[['freedom of speech','free exercise of religion','freedom of the press'],['the right to keep and bear arms','the protection concerning a well regulated militia','the constitutional protection of bearing arms'],['the restriction on quartering soldiers in private homes','protection against compulsory quartering of soldiers in peacetime','the rule against peacetime quartering without the owner\\'s consent'],['protection against unreasonable searches and seizures','the warrant requirement of probable cause','constitutional limits on government searches'],['the privilege against compelled self-incrimination','protection against double jeopardy','just compensation for government takings of private property'],['the right to a speedy and public criminal trial','the right to confront adverse witnesses in a criminal case','the right to assistance of counsel in a criminal prosecution'],['the federal civil jury trial right in suits at common law','preservation of trial by jury in certain federal civil cases','the civil jury guarantee for common-law suits exceeding twenty dollars'],['the ban on cruel and unusual punishments','the ban on excessive bail','the ban on excessive fines'],['the protection of unenumerated rights retained by the people','the rule that enumerating some rights does not deny other retained rights','the Bill of Rights provision concerning unlisted rights'],['reservation of undelegated powers to the states or the people','the reservation of powers not delegated to the federal government','the constitutional rule on reserved powers']]\nmonths=['January','February','March','April','May','June','July','August','September','October']\nframes=['Which ordinal identifies {d}?\\nAnswer with one ordinal word:','Identify the ordinal for {d}.\\nAnswer:','The ordinal associated with {d} is']\nitems=[];control=[]\nfor i in range(10):\n for j in range(3):\n  for f in frames:\n   items.append({'prompt':f.format(d='the U.S. constitutional amendment guaranteeing '+rights[i][j]),'answer':' '+ordinals[i]})\n   descriptors=[months[i]+' in the calendar year','the month named '+months[i]+' in the annual calendar',months[i]+' among the twelve calendar months']\n   control.append({'prompt':f.format(d=descriptors[j]),'answer':' '+ordinals[i]})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing protection against double jeopardy is",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the rule that enumerating some rights does not deny other retained rights?\nAnswer with one ordinal word:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the federal civil jury trial right in suits at common law.\nAnswer:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the ban on excessive bail?\nAnswer with one ordinal word:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing just compensation for government takings of private property.\nAnswer:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the ban on excessive fines.\nAnswer:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the constitutional rule on reserved powers.\nAnswer:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the privilege against compelled self-incrimination?\nAnswer with one ordinal word:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the reservation of powers not delegated to the federal government.\nAnswer:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the protection concerning a well regulated militia.\nAnswer:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the constitutional rule on reserved powers?\nAnswer with one ordinal word:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the restriction on quartering soldiers in private homes?\nAnswer with one ordinal word:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the federal civil jury trial right in suits at common law is",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the civil jury guarantee for common-law suits exceeding twenty dollars is",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing freedom of the press.\nAnswer:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the protection concerning a well regulated militia is",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the rule against peacetime quartering without the owner's consent?\nAnswer with one ordinal word:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the rule against peacetime quartering without the owner's consent is",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing reservation of undelegated powers to the states or the people?\nAnswer with one ordinal word:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing preservation of trial by jury in certain federal civil cases is",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the Bill of Rights provision concerning unlisted rights.\nAnswer:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the right to a speedy and public criminal trial.\nAnswer:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the protection of unenumerated rights retained by the people?\nAnswer with one ordinal word:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the protection of unenumerated rights retained by the people is",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the warrant requirement of probable cause is",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the right to assistance of counsel in a criminal prosecution?\nAnswer with one ordinal word:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the right to assistance of counsel in a criminal prosecution is",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the constitutional protection of bearing arms.\nAnswer:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the right to confront adverse witnesses in a criminal case?\nAnswer with one ordinal word:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the warrant requirement of probable cause?\nAnswer with one ordinal word:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing protection against unreasonable searches and seizures is",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing protection against unreasonable searches and seizures.\nAnswer:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the right to keep and bear arms?\nAnswer with one ordinal word:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the privilege against compelled self-incrimination is",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing freedom of speech.\nAnswer:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the ban on cruel and unusual punishments.\nAnswer:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the restriction on quartering soldiers in private homes.\nAnswer:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the civil jury guarantee for common-law suits exceeding twenty dollars.\nAnswer:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing constitutional limits on government searches.\nAnswer:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the right to a speedy and public criminal trial is",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the federal civil jury trial right in suits at common law?\nAnswer with one ordinal word:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the ban on cruel and unusual punishments is",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the right to confront adverse witnesses in a criminal case.\nAnswer:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing protection against double jeopardy.\nAnswer:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing just compensation for government takings of private property?\nAnswer with one ordinal word:",
+    "continuation": " Fifth",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the Bill of Rights provision concerning unlisted rights is",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing reservation of undelegated powers to the states or the people is",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the rule against peacetime quartering without the owner's consent.\nAnswer:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing free exercise of religion is",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing freedom of the press is",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing constitutional limits on government searches is",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing just compensation for government takings of private property is",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing protection against compulsory quartering of soldiers in peacetime.\nAnswer:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing constitutional limits on government searches?\nAnswer with one ordinal word:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the right to keep and bear arms.\nAnswer:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing freedom of speech is",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the rule that enumerating some rights does not deny other retained rights is",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the reservation of powers not delegated to the federal government?\nAnswer with one ordinal word:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing preservation of trial by jury in certain federal civil cases.\nAnswer:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the warrant requirement of probable cause.\nAnswer:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing protection against double jeopardy?\nAnswer with one ordinal word:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing protection against compulsory quartering of soldiers in peacetime is",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing protection against unreasonable searches and seizures?\nAnswer with one ordinal word:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the right to a speedy and public criminal trial?\nAnswer with one ordinal word:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the ban on excessive bail is",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the ban on excessive fines?\nAnswer with one ordinal word:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the constitutional rule on reserved powers is",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing preservation of trial by jury in certain federal civil cases?\nAnswer with one ordinal word:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the protection concerning a well regulated militia?\nAnswer with one ordinal word:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing protection against compulsory quartering of soldiers in peacetime?\nAnswer with one ordinal word:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the privilege against compelled self-incrimination.\nAnswer:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the protection of unenumerated rights retained by the people.\nAnswer:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the ban on excessive bail.\nAnswer:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the right to confront adverse witnesses in a criminal case is",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the constitutional protection of bearing arms is",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing free exercise of religion.\nAnswer:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing freedom of the press?\nAnswer with one ordinal word:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the ban on excessive fines is",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the right to assistance of counsel in a criminal prosecution.\nAnswer:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing the rule that enumerating some rights does not deny other retained rights.\nAnswer:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the ban on cruel and unusual punishments?\nAnswer with one ordinal word:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the restriction on quartering soldiers in private homes is",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the constitutional protection of bearing arms?\nAnswer with one ordinal word:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing free exercise of religion?\nAnswer with one ordinal word:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the Bill of Rights provision concerning unlisted rights?\nAnswer with one ordinal word:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing the civil jury guarantee for common-law suits exceeding twenty dollars?\nAnswer with one ordinal word:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the U.S. constitutional amendment guaranteeing reservation of undelegated powers to the states or the people.\nAnswer:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the right to keep and bear arms is",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the U.S. constitutional amendment guaranteeing the reservation of powers not delegated to the federal government is",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the U.S. constitutional amendment guaranteeing freedom of speech?\nAnswer with one ordinal word:",
+    "continuation": " First",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The ordinal associated with January among the twelve calendar months is",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named May in the annual calendar.\nAnswer:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named April in the annual calendar is",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies April among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with June among the twelve calendar months is",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named March in the annual calendar is",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with July among the twelve calendar months is",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies February among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with May in the calendar year is",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with April in the calendar year is",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named January in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for April in the calendar year.\nAnswer:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with February in the calendar year is",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for June among the twelve calendar months.\nAnswer:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named July in the annual calendar.\nAnswer:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named February in the annual calendar is",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies July among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for October in the calendar year.\nAnswer:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with June in the calendar year is",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies June in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies June among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named February in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies September in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies May in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named October in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for August among the twelve calendar months.\nAnswer:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for October among the twelve calendar months.\nAnswer:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named April in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for February among the twelve calendar months.\nAnswer:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies April in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies October in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named July in the annual calendar is",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with October among the twelve calendar months is",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named August in the annual calendar.\nAnswer:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named May in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for June in the calendar year.\nAnswer:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named October in the annual calendar is",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with September in the calendar year is",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with March in the calendar year is",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for February in the calendar year.\nAnswer:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named August in the annual calendar is",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies October among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with October in the calendar year is",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named March in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named June in the annual calendar is",
+    "continuation": " Sixth",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Identify the ordinal for January among the twelve calendar months.\nAnswer:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named February in the annual calendar.\nAnswer:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies August in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies January among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for April among the twelve calendar months.\nAnswer:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named September in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named June in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies September among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for March among the twelve calendar months.\nAnswer:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for July among the twelve calendar months.\nAnswer:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for July in the calendar year.\nAnswer:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies March among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named September in the annual calendar.\nAnswer:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with July in the calendar year is",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies May among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with January in the calendar year is",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for March in the calendar year.\nAnswer:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with April among the twelve calendar months is",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for May among the twelve calendar months.\nAnswer:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies August among the twelve calendar months?\nAnswer with one ordinal word:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies March in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named May in the annual calendar is",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named October in the annual calendar.\nAnswer:",
+    "continuation": " Tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named August in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named September in the annual calendar is",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with March among the twelve calendar months is",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies January in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with the month named January in the annual calendar is",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named January in the annual calendar.\nAnswer:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with August in the calendar year is",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with September among the twelve calendar months is",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies February in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named June in the annual calendar.\nAnswer:",
+    "continuation": " Sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for January in the calendar year.\nAnswer:",
+    "continuation": " First",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies July in the calendar year?\nAnswer with one ordinal word:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named March in the annual calendar.\nAnswer:",
+    "continuation": " Third",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with May among the twelve calendar months is",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with February among the twelve calendar months is",
+    "continuation": " Second",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for September among the twelve calendar months.\nAnswer:",
+    "continuation": " Ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for the month named April in the annual calendar.\nAnswer:",
+    "continuation": " Fourth",
+    "digits_only": false
+   },
+   {
+    "context": "The ordinal associated with August among the twelve calendar months is",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for May in the calendar year.\nAnswer:",
+    "continuation": " Fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for August in the calendar year.\nAnswer:",
+    "continuation": " Eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Which ordinal identifies the month named July in the annual calendar?\nAnswer with one ordinal word:",
+    "continuation": " Seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the ordinal for September in the calendar year.\nAnswer:",
+    "continuation": " Ninth",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 1.042
+}

@@ -8,6 +8,7 @@ as run_swarm. config["method"] picks the arm:
     random_part  the same evolution with every graft's units made random      random_part.py
     greedy       greedy add-if-better over single grafts, then depth shifts   greedy.py
     lora         LoRA on the host: STUB runner, the real run is a plan         training.py
+    lora_grid    host LoRA programs over rank x lr x steps, any backend         lora_grid.py
     full_ft      full fine-tuning of the host: STUB runner, plan               training.py
 
 Fairness. run_baseline builds the env, search budget, held-out budget, log
@@ -56,7 +57,7 @@ from wsp.swarm.config import fidelity_cost, public_config
 from wsp.swarm.scoring import best_standings, standing
 from wsp.swarm.swarm import promotion_picks, short_row
 
-METHODS = ["evolve", "random", "random_part", "greedy", "lora", "full_ft"]
+METHODS = ["evolve", "random", "random_part", "greedy", "lora", "full_ft", "lora_grid"]
 TRAINING_METHODS = ["lora", "full_ft"]
 
 
@@ -95,6 +96,9 @@ def make_arm(config, env):
     if method == "greedy":
         from wsp.swarm.baselines.greedy import GreedyArm
         return GreedyArm(config, env)
+    if method == "lora_grid":
+        from wsp.swarm.baselines.lora_grid import LoRAGridArm
+        return LoRAGridArm(config, env)
     from wsp.swarm.baselines.training import TrainingArm, make_trainer
     return TrainingArm(config, env, make_trainer(config, method))
 

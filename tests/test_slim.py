@@ -857,3 +857,32 @@ def test_round19_dense_rules_and_size_check():
     behind = fake_row(100 / 164 * 0.5 + 100 / 257 * 0.5, 100)
     gap, low, high = r.paired_gap(ahead, behind)
     assert 0 < low < gap < high
+
+
+def make_stats(saliency_by_layer):
+    layers = {}
+    for layer, values in saliency_by_layer.items():
+        tensor = torch.tensor(values, dtype=torch.float64)
+        layers[layer] = {"count": tensor.clone(), "saliency": tensor, "tokens": 10}
+    return {"layers": layers, "top_k": 2, "num_experts": len(values)}
+
+
+def test_combine_stats_normalizes_each_skill_per_layer():
+    # Skill a has numbers 1000 times larger than skill b. Experts 0 and 1 are a's best, 4 and 5 are b's.
+    a = make_stats({0: [900.0, 800.0, 10.0, 10.0, 5.0, 5.0]})
+    b = make_stats({0: [0.01, 0.0, 0.01, 0.01, 0.5, 0.4]})
+    combined = slim.combine_stats([a, b])
+    entry = combined["layers"][0]
+    assert abs(float(entry["saliency"].sum()) - 2.0) < 1e-9
+    order = slim.rank_experts("saliency", combined)
+    assert sorted(order[0][:4]) == [0, 1, 4, 5]
+    # Without normalization a's raw numbers would take every top slot.
+    raw = [x + y for x, y in zip(a["layers"][0]["saliency"].tolist(), b["layers"][0]["saliency"].tolist())]
+    assert sorted(range(6), key=lambda e: -raw[e])[:4] == [0, 1, 2, 3]
+    kept = slim.choose_keep(order, combined, "saliency", keep=4)
+    assert kept[0] == [0, 1, 4, 5]
+    with pytest.raises(ValueError):
+        slim.combine_stats([])
+    with pytest.raises(ValueError):
+        slim.combine_stats([a, slim.stats_from_expert_map(
+            {"layers": {0: {"skill_freq": [0.1] * 6}}, "top_k": 2, "num_experts": 6})])

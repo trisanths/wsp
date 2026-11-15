@@ -1,0 +1,1220 @@
+{
+ "name": "en_to_es_noun",
+ "description": "Translate short English sentence into Spanish; answer is Spanish noun after the article. Control: reverse direction (Spanish->English), English noun.",
+ "hash": "3f16d8ebce496ee5",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nnouns=[(\"house\",\"casa\",\"la\"),(\"table\",\"mesa\",\"la\"),(\"car\",\"coche\",\"el\"),(\"door\",\"puerta\",\"la\"),(\"window\",\"ventana\",\"la\"),(\"book\",\"libro\",\"el\"),(\"garden\",\"jard\u00edn\",\"el\"),(\"kitchen\",\"cocina\",\"la\"),(\"city\",\"ciudad\",\"la\"),(\"street\",\"calle\",\"la\"),(\"school\",\"escuela\",\"la\"),(\"church\",\"iglesia\",\"la\"),(\"forest\",\"bosque\",\"el\"),(\"river\",\"r\u00edo\",\"el\"),(\"bed\",\"cama\",\"la\"),(\"box\",\"caja\",\"la\"),(\"bag\",\"bolsa\",\"la\"),(\"tree\",\"\u00e1rbol\",\"el\"),(\"room\",\"habitaci\u00f3n\",\"la\"),(\"market\",\"mercado\",\"el\"),(\"train\",\"tren\",\"el\"),(\"boat\",\"barco\",\"el\"),(\"park\",\"parque\",\"el\"),(\"office\",\"oficina\",\"la\"),(\"village\",\"pueblo\",\"el\"),(\"bottle\",\"botella\",\"la\"),(\"shop\",\"tienda\",\"la\"),(\"field\",\"campo\",\"el\"),(\"castle\",\"castillo\",\"el\"),(\"library\",\"biblioteca\",\"la\")]\nsubj=[(\"The dog\",\"El perro\"),(\"The cat\",\"El gato\"),(\"My brother\",\"Mi hermano\"),(\"The child\",\"El ni\u00f1o\"),(\"The teacher\",\"El profesor\"),(\"My mother\",\"Mi madre\")]\npreps=[(\"is in\",\"est\u00e1 en\"),(\"is near\",\"est\u00e1 cerca de\"),(\"is behind\",\"est\u00e1 detr\u00e1s de\"),(\"is under\",\"est\u00e1 debajo de\"),(\"sleeps in\",\"duerme en\"),(\"waits behind\",\"espera detr\u00e1s de\")]\nitems=[];ctrl=[];seen=set()\nwhile len(items)<120:\n    n=random.choice(nouns);s=random.choice(subj);p=random.choice(preps)\n    key=(n[0],s[0],p[0])\n    if key in seen: continue\n    seen.add(key)\n    art=n[2]\n    pp=p[1]\n    if art==\"el\" and pp.endswith(\" de\"):\n        pre=f\"{s[1]} {pp[:-3]} del\"\n    else:\n        pre=f\"{s[1]} {pp} {art}\"\n    en=f\"{s[0]} {p[0]} the {n[0]}.\"\n    items.append({\"prompt\":f\"English: {en}\\nSpanish: {pre}\",\"answer\":\" \"+n[1]})\n    ctrl.append({\"prompt\":f\"Spanish: {pre} {n[1]}.\\nEnglish: {s[0]} {p[0]} the\",\"answer\":\" \"+n[0]})\njson.dump({\"items\":items,\"control\":ctrl},open('/work/skill.json','w'),ensure_ascii=False)",
+ "items": {
+  "search": [
+   {
+    "context": "English: The teacher sleeps in the train.\nSpanish: El profesor duerme en el",
+    "continuation": " tren",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the castle.\nSpanish: El ni\u00f1o duerme en el",
+    "continuation": " castillo",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother sleeps in the forest.\nSpanish: Mi madre duerme en el",
+    "continuation": " bosque",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the box.\nSpanish: Mi hermano duerme en la",
+    "continuation": " caja",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the garden.\nSpanish: El perro espera detr\u00e1s del",
+    "continuation": " jard\u00edn",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the market.\nSpanish: El profesor est\u00e1 en el",
+    "continuation": " mercado",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is under the church.\nSpanish: Mi madre est\u00e1 debajo de la",
+    "continuation": " iglesia",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is near the field.\nSpanish: El perro est\u00e1 cerca del",
+    "continuation": " campo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher sleeps in the garden.\nSpanish: El profesor duerme en el",
+    "continuation": " jard\u00edn",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the bed.\nSpanish: El perro est\u00e1 en la",
+    "continuation": " cama",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is in the library.\nSpanish: Mi hermano est\u00e1 en la",
+    "continuation": " biblioteca",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is in the river.\nSpanish: El gato est\u00e1 en el",
+    "continuation": " r\u00edo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the library.\nSpanish: El profesor est\u00e1 cerca de la",
+    "continuation": " biblioteca",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is in the car.\nSpanish: El gato est\u00e1 en el",
+    "continuation": " coche",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the park.\nSpanish: Mi madre est\u00e1 cerca del",
+    "continuation": " parque",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the table.\nSpanish: El profesor est\u00e1 en la",
+    "continuation": " mesa",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the house.\nSpanish: El ni\u00f1o espera detr\u00e1s de la",
+    "continuation": " casa",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the tree.\nSpanish: Mi hermano duerme en el",
+    "continuation": " \u00e1rbol",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is behind the box.\nSpanish: El ni\u00f1o est\u00e1 detr\u00e1s de la",
+    "continuation": " caja",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the village.\nSpanish: El perro espera detr\u00e1s del",
+    "continuation": " pueblo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the park.\nSpanish: El profesor est\u00e1 cerca del",
+    "continuation": " parque",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is near the bottle.\nSpanish: El ni\u00f1o est\u00e1 cerca de la",
+    "continuation": " botella",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the bottle.\nSpanish: El gato est\u00e1 cerca de la",
+    "continuation": " botella",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher waits behind the window.\nSpanish: El profesor espera detr\u00e1s de la",
+    "continuation": " ventana",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the field.\nSpanish: El ni\u00f1o est\u00e1 en el",
+    "continuation": " campo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the shop.\nSpanish: El ni\u00f1o duerme en la",
+    "continuation": " tienda",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother waits behind the boat.\nSpanish: Mi madre espera detr\u00e1s del",
+    "continuation": " barco",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the city.\nSpanish: Mi madre est\u00e1 cerca de la",
+    "continuation": " ciudad",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is under the book.\nSpanish: El perro est\u00e1 debajo del",
+    "continuation": " libro",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the box.\nSpanish: El perro est\u00e1 en la",
+    "continuation": " caja",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the car.\nSpanish: Mi madre est\u00e1 detr\u00e1s del",
+    "continuation": " coche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat sleeps in the kitchen.\nSpanish: El gato duerme en la",
+    "continuation": " cocina",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the school.\nSpanish: El profesor est\u00e1 en la",
+    "continuation": " escuela",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the school.\nSpanish: El gato est\u00e1 cerca de la",
+    "continuation": " escuela",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the market.\nSpanish: El perro est\u00e1 en el",
+    "continuation": " mercado",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the shop.\nSpanish: Mi madre est\u00e1 en la",
+    "continuation": " tienda",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the market.\nSpanish: Mi madre est\u00e1 cerca del",
+    "continuation": " mercado",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the door.\nSpanish: Mi madre est\u00e1 cerca de la",
+    "continuation": " puerta",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother waits behind the office.\nSpanish: Mi hermano espera detr\u00e1s de la",
+    "continuation": " oficina",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the bag.\nSpanish: El profesor est\u00e1 en la",
+    "continuation": " bolsa",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the forest.\nSpanish: El gato est\u00e1 detr\u00e1s del",
+    "continuation": " bosque",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the window.\nSpanish: Mi madre est\u00e1 detr\u00e1s de la",
+    "continuation": " ventana",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is in the shop.\nSpanish: El gato est\u00e1 en la",
+    "continuation": " tienda",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is under the house.\nSpanish: El profesor est\u00e1 debajo de la",
+    "continuation": " casa",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog sleeps in the village.\nSpanish: El perro duerme en el",
+    "continuation": " pueblo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the book.\nSpanish: El ni\u00f1o duerme en el",
+    "continuation": " libro",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the park.\nSpanish: Mi hermano est\u00e1 cerca del",
+    "continuation": " parque",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the shop.\nSpanish: Mi hermano est\u00e1 cerca de la",
+    "continuation": " tienda",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the city.\nSpanish: El ni\u00f1o est\u00e1 en la",
+    "continuation": " ciudad",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the train.\nSpanish: El gato est\u00e1 detr\u00e1s del",
+    "continuation": " tren",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the street.\nSpanish: Mi madre est\u00e1 en la",
+    "continuation": " calle",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the street.\nSpanish: El gato est\u00e1 cerca de la",
+    "continuation": " calle",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the river.\nSpanish: El perro est\u00e1 en el",
+    "continuation": " r\u00edo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is under the window.\nSpanish: El gato est\u00e1 debajo de la",
+    "continuation": " ventana",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the house.\nSpanish: El profesor est\u00e1 cerca de la",
+    "continuation": " casa",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is behind the field.\nSpanish: El profesor est\u00e1 detr\u00e1s del",
+    "continuation": " campo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the tree.\nSpanish: El ni\u00f1o est\u00e1 debajo del",
+    "continuation": " \u00e1rbol",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is near the shop.\nSpanish: Mi madre est\u00e1 cerca de la",
+    "continuation": " tienda",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the boat.\nSpanish: El perro est\u00e1 en el",
+    "continuation": " barco",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the shop.\nSpanish: Mi madre est\u00e1 detr\u00e1s de la",
+    "continuation": " tienda",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: The cat sleeps in the castle.\nSpanish: El gato duerme en el",
+    "continuation": " castillo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child sleeps in the boat.\nSpanish: El ni\u00f1o duerme en el",
+    "continuation": " barco",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is under the train.\nSpanish: Mi hermano est\u00e1 debajo del",
+    "continuation": " tren",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the boat.\nSpanish: El ni\u00f1o espera detr\u00e1s del",
+    "continuation": " barco",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is under the room.\nSpanish: Mi hermano est\u00e1 debajo de la",
+    "continuation": " habitaci\u00f3n",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother waits behind the car.\nSpanish: Mi hermano espera detr\u00e1s del",
+    "continuation": " coche",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the book.\nSpanish: Mi madre est\u00e1 en el",
+    "continuation": " libro",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the field.\nSpanish: El ni\u00f1o est\u00e1 debajo del",
+    "continuation": " campo",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is in the river.\nSpanish: Mi hermano est\u00e1 en el",
+    "continuation": " r\u00edo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is in the box.\nSpanish: El profesor est\u00e1 en la",
+    "continuation": " caja",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the table.\nSpanish: Mi hermano duerme en la",
+    "continuation": " mesa",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is under the forest.\nSpanish: Mi madre est\u00e1 debajo del",
+    "continuation": " bosque",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the bottle.\nSpanish: Mi hermano duerme en la",
+    "continuation": " botella",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the door.\nSpanish: El ni\u00f1o est\u00e1 debajo de la",
+    "continuation": " puerta",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is behind the market.\nSpanish: El perro est\u00e1 detr\u00e1s del",
+    "continuation": " mercado",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog sleeps in the kitchen.\nSpanish: El perro duerme en la",
+    "continuation": " cocina",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the field.\nSpanish: Mi hermano est\u00e1 cerca del",
+    "continuation": " campo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the bag.\nSpanish: El ni\u00f1o est\u00e1 en la",
+    "continuation": " bolsa",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is under the school.\nSpanish: El profesor est\u00e1 debajo de la",
+    "continuation": " escuela",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is in the bag.\nSpanish: Mi hermano est\u00e1 en la",
+    "continuation": " bolsa",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother sleeps in the castle.\nSpanish: Mi madre duerme en el",
+    "continuation": " castillo",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat waits behind the bottle.\nSpanish: El gato espera detr\u00e1s de la",
+    "continuation": " botella",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is behind the box.\nSpanish: Mi hermano est\u00e1 detr\u00e1s de la",
+    "continuation": " caja",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is behind the church.\nSpanish: El profesor est\u00e1 detr\u00e1s de la",
+    "continuation": " iglesia",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the market.\nSpanish: El perro espera detr\u00e1s del",
+    "continuation": " mercado",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is behind the forest.\nSpanish: El perro est\u00e1 detr\u00e1s del",
+    "continuation": " bosque",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the bag.\nSpanish: Mi hermano duerme en la",
+    "continuation": " bolsa",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is behind the table.\nSpanish: El profesor est\u00e1 detr\u00e1s de la",
+    "continuation": " mesa",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the street.\nSpanish: El perro espera detr\u00e1s de la",
+    "continuation": " calle",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the train.\nSpanish: El perro est\u00e1 en el",
+    "continuation": " tren",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the library.\nSpanish: El perro est\u00e1 en la",
+    "continuation": " biblioteca",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother waits behind the park.\nSpanish: Mi madre espera detr\u00e1s del",
+    "continuation": " parque",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the book.\nSpanish: El gato est\u00e1 detr\u00e1s del",
+    "continuation": " libro",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the boat.\nSpanish: Mi hermano duerme en el",
+    "continuation": " barco",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is behind the train.\nSpanish: Mi hermano est\u00e1 detr\u00e1s del",
+    "continuation": " tren",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is under the car.\nSpanish: El profesor est\u00e1 debajo del",
+    "continuation": " coche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the market.\nSpanish: El ni\u00f1o espera detr\u00e1s del",
+    "continuation": " mercado",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is behind the church.\nSpanish: El ni\u00f1o est\u00e1 detr\u00e1s de la",
+    "continuation": " iglesia",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat waits behind the kitchen.\nSpanish: El gato espera detr\u00e1s de la",
+    "continuation": " cocina",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is under the table.\nSpanish: El gato est\u00e1 debajo de la",
+    "continuation": " mesa",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the market.\nSpanish: Mi madre est\u00e1 detr\u00e1s del",
+    "continuation": " mercado",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is under the car.\nSpanish: Mi madre est\u00e1 debajo del",
+    "continuation": " coche",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat waits behind the box.\nSpanish: El gato espera detr\u00e1s de la",
+    "continuation": " caja",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother sleeps in the door.\nSpanish: Mi hermano duerme en la",
+    "continuation": " puerta",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the shop.\nSpanish: El profesor est\u00e1 cerca de la",
+    "continuation": " tienda",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is under the city.\nSpanish: El ni\u00f1o est\u00e1 debajo de la",
+    "continuation": " ciudad",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is in the shop.\nSpanish: El perro est\u00e1 en la",
+    "continuation": " tienda",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is near the boat.\nSpanish: El gato est\u00e1 cerca del",
+    "continuation": " barco",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child is in the shop.\nSpanish: El ni\u00f1o est\u00e1 en la",
+    "continuation": " tienda",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother waits behind the river.\nSpanish: Mi madre espera detr\u00e1s del",
+    "continuation": " r\u00edo",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is behind the house.\nSpanish: Mi madre est\u00e1 detr\u00e1s de la",
+    "continuation": " casa",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog is near the market.\nSpanish: El perro est\u00e1 cerca del",
+    "continuation": " mercado",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog waits behind the bottle.\nSpanish: El perro espera detr\u00e1s de la",
+    "continuation": " botella",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher is near the school.\nSpanish: El profesor est\u00e1 cerca de la",
+    "continuation": " escuela",
+    "digits_only": false
+   },
+   {
+    "context": "English: My brother is near the window.\nSpanish: Mi hermano est\u00e1 cerca de la",
+    "continuation": " ventana",
+    "digits_only": false
+   },
+   {
+    "context": "English: The cat is behind the church.\nSpanish: El gato est\u00e1 detr\u00e1s de la",
+    "continuation": " iglesia",
+    "digits_only": false
+   },
+   {
+    "context": "English: The dog sleeps in the garden.\nSpanish: El perro duerme en el",
+    "continuation": " jard\u00edn",
+    "digits_only": false
+   },
+   {
+    "context": "English: The child waits behind the bed.\nSpanish: El ni\u00f1o espera detr\u00e1s de la",
+    "continuation": " cama",
+    "digits_only": false
+   },
+   {
+    "context": "English: The teacher waits behind the box.\nSpanish: El profesor espera detr\u00e1s de la",
+    "continuation": " caja",
+    "digits_only": false
+   },
+   {
+    "context": "English: My mother is in the tree.\nSpanish: Mi madre est\u00e1 en el",
+    "continuation": " \u00e1rbol",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Spanish: Mi hermano est\u00e1 cerca del campo.\nEnglish: My brother is near the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o duerme en el barco.\nEnglish: The child sleeps in the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 cerca de la tienda.\nEnglish: My brother is near the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano duerme en el barco.\nEnglish: My brother sleeps in the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 detr\u00e1s del tren.\nEnglish: My brother is behind the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o espera detr\u00e1s del barco.\nEnglish: The child waits behind the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato duerme en el castillo.\nEnglish: The cat sleeps in the",
+    "continuation": " castle",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o espera detr\u00e1s del mercado.\nEnglish: The child waits behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 cerca del barco.\nEnglish: The cat is near the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 detr\u00e1s del coche.\nEnglish: My mother is behind the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 debajo del \u00e1rbol.\nEnglish: The child is under the",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 cerca del parque.\nEnglish: My brother is near the",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 cerca del campo.\nEnglish: The dog is near the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 en la bolsa.\nEnglish: My brother is in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 detr\u00e1s del tren.\nEnglish: The cat is behind the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro espera detr\u00e1s del mercado.\nEnglish: The dog waits behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 debajo de la iglesia.\nEnglish: My mother is under the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 cerca de la puerta.\nEnglish: My mother is near the",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 cerca de la casa.\nEnglish: The teacher is near the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro espera detr\u00e1s de la calle.\nEnglish: The dog waits behind the",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 debajo del tren.\nEnglish: My brother is under the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 debajo de la puerta.\nEnglish: The child is under the",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato espera detr\u00e1s de la cocina.\nEnglish: The cat waits behind the",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 en la tienda.\nEnglish: My mother is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 en la biblioteca.\nEnglish: The dog is in the",
+    "continuation": " library",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 detr\u00e1s del mercado.\nEnglish: My mother is behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 detr\u00e1s de la caja.\nEnglish: My brother is behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 cerca de la escuela.\nEnglish: The cat is near the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 en la mesa.\nEnglish: The teacher is in the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 cerca de la escuela.\nEnglish: The teacher is near the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato duerme en la cocina.\nEnglish: The cat sleeps in the",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro duerme en el pueblo.\nEnglish: The dog sleeps in the",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor espera detr\u00e1s de la ventana.\nEnglish: The teacher waits behind the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 cerca de la ventana.\nEnglish: My brother is near the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 en la tienda.\nEnglish: The cat is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 cerca de la tienda.\nEnglish: The teacher is near the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 en la caja.\nEnglish: The teacher is in the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 en el mercado.\nEnglish: The dog is in the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 cerca de la botella.\nEnglish: The cat is near the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 en la bolsa.\nEnglish: The teacher is in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor duerme en el jard\u00edn.\nEnglish: The teacher sleeps in the",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 detr\u00e1s del mercado.\nEnglish: The dog is behind the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 en el tren.\nEnglish: The dog is in the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 en la cama.\nEnglish: The dog is in the",
+    "continuation": " bed",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 detr\u00e1s de la casa.\nEnglish: My mother is behind the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 debajo de la habitaci\u00f3n.\nEnglish: My brother is under the",
+    "continuation": " room",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 en el campo.\nEnglish: The child is in the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 en el mercado.\nEnglish: The teacher is in the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 debajo de la casa.\nEnglish: The teacher is under the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato espera detr\u00e1s de la caja.\nEnglish: The cat waits behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano duerme en la bolsa.\nEnglish: My brother sleeps in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro espera detr\u00e1s de la botella.\nEnglish: The dog waits behind the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 debajo del libro.\nEnglish: The dog is under the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro duerme en el jard\u00edn.\nEnglish: The dog sleeps in the",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 debajo de la ciudad.\nEnglish: The child is under the",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 en la tienda.\nEnglish: The dog is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano espera detr\u00e1s de la oficina.\nEnglish: My brother waits behind the",
+    "continuation": " office",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 en la biblioteca.\nEnglish: My brother is in the",
+    "continuation": " library",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano duerme en la botella.\nEnglish: My brother sleeps in the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre espera detr\u00e1s del parque.\nEnglish: My mother waits behind the",
+    "continuation": " park",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Spanish: Mi madre duerme en el bosque.\nEnglish: My mother sleeps in the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre espera detr\u00e1s del barco.\nEnglish: My mother waits behind the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 debajo de la ventana.\nEnglish: The cat is under the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 cerca de la biblioteca.\nEnglish: The teacher is near the",
+    "continuation": " library",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o duerme en el castillo.\nEnglish: The child sleeps in the",
+    "continuation": " castle",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 detr\u00e1s de la iglesia.\nEnglish: The cat is behind the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano espera detr\u00e1s del coche.\nEnglish: My brother waits behind the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 en la caja.\nEnglish: The dog is in the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 en el barco.\nEnglish: The dog is in the",
+    "continuation": " boat",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro espera detr\u00e1s del pueblo.\nEnglish: The dog waits behind the",
+    "continuation": " village",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 en la ciudad.\nEnglish: The child is in the",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o duerme en la tienda.\nEnglish: The child sleeps in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 detr\u00e1s de la ventana.\nEnglish: My mother is behind the",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 en la bolsa.\nEnglish: The child is in the",
+    "continuation": " bag",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro espera detr\u00e1s del jard\u00edn.\nEnglish: The dog waits behind the",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro duerme en la cocina.\nEnglish: The dog sleeps in the",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 en la calle.\nEnglish: My mother is in the",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 en el coche.\nEnglish: The cat is in the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o espera detr\u00e1s de la casa.\nEnglish: The child waits behind the",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 en el r\u00edo.\nEnglish: The dog is in the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano duerme en la puerta.\nEnglish: My brother sleeps in the",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 en la tienda.\nEnglish: The child is in the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano duerme en la mesa.\nEnglish: My brother sleeps in the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 en el r\u00edo.\nEnglish: The cat is in the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 cerca de la botella.\nEnglish: The child is near the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 detr\u00e1s de la mesa.\nEnglish: The teacher is behind the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 detr\u00e1s de la caja.\nEnglish: The child is behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 debajo de la mesa.\nEnglish: The cat is under the",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre duerme en el castillo.\nEnglish: My mother sleeps in the",
+    "continuation": " castle",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 cerca del mercado.\nEnglish: My mother is near the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 cerca del parque.\nEnglish: My mother is near the",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano duerme en el \u00e1rbol.\nEnglish: My brother sleeps in the",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 debajo del bosque.\nEnglish: My mother is under the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 cerca de la calle.\nEnglish: The cat is near the",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 cerca de la tienda.\nEnglish: My mother is near the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 detr\u00e1s de la iglesia.\nEnglish: The teacher is behind the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 debajo del campo.\nEnglish: The child is under the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano est\u00e1 en el r\u00edo.\nEnglish: My brother is in the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 detr\u00e1s del libro.\nEnglish: The cat is behind the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato espera detr\u00e1s de la botella.\nEnglish: The cat waits behind the",
+    "continuation": " bottle",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor espera detr\u00e1s de la caja.\nEnglish: The teacher waits behind the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi hermano duerme en la caja.\nEnglish: My brother sleeps in the",
+    "continuation": " box",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 cerca del mercado.\nEnglish: The dog is near the",
+    "continuation": " market",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o est\u00e1 detr\u00e1s de la iglesia.\nEnglish: The child is behind the",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 debajo de la escuela.\nEnglish: The teacher is under the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre espera detr\u00e1s del r\u00edo.\nEnglish: My mother waits behind the",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 en la escuela.\nEnglish: The teacher is in the",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 detr\u00e1s de la tienda.\nEnglish: My mother is behind the",
+    "continuation": " shop",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El perro est\u00e1 detr\u00e1s del bosque.\nEnglish: The dog is behind the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor duerme en el tren.\nEnglish: The teacher sleeps in the",
+    "continuation": " train",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 cerca de la ciudad.\nEnglish: My mother is near the",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 en el libro.\nEnglish: My mother is in the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 detr\u00e1s del campo.\nEnglish: The teacher is behind the",
+    "continuation": " field",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 debajo del coche.\nEnglish: The teacher is under the",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El profesor est\u00e1 cerca del parque.\nEnglish: The teacher is near the",
+    "continuation": " park",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o espera detr\u00e1s de la cama.\nEnglish: The child waits behind the",
+    "continuation": " bed",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El ni\u00f1o duerme en el libro.\nEnglish: The child sleeps in the",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 en el \u00e1rbol.\nEnglish: My mother is in the",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: El gato est\u00e1 detr\u00e1s del bosque.\nEnglish: The cat is behind the",
+    "continuation": " forest",
+    "digits_only": false
+   },
+   {
+    "context": "Spanish: Mi madre est\u00e1 debajo del coche.\nEnglish: My mother is under the",
+    "continuation": " car",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.5681
+}

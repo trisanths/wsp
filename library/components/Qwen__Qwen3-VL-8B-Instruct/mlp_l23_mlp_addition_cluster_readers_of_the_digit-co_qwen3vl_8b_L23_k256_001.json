@@ -1,0 +1,116 @@
+{
+  "id": "mlp_l23_mlp_addition_cluster_readers_of_the_digit-co_qwen3vl_8b_L23_k256_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen3-VL-8B-Instruct layer 23, L23 MLP addition cluster: readers of the digit-copy-head output subspace (256 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwen3vl_8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "two_digit_addition"
+  ],
+  "models": [
+    "Qwen/Qwen3-VL-8B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'two_digit_addition' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4136,
+      "control_value": 0.0007,
+      "split": "person_a held-out skill items (two_digit_addition)",
+      "seeds": null,
+      "source": "person_a/catalog/qwen3vl_8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0003"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen3-VL-8B-Instruct",
+  "layer": 23,
+  "layers": [
+    23
+  ],
+  "units_file": "components/Qwen__Qwen3-VL-8B-Instruct/mlp_l23_mlp_addition_cluster_readers_of_the_digit-co_qwen3vl_8b_L23_k256_001.pt",
+  "units_remote": "person_a/parts/qwen3vl_8b/mlp_l23_mlp_addition_cluster_readers_of_the_digit-co_qwen3vl_8b_L23_k256_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'two_digit_addition'",
+    "label": "L23 MLP addition cluster: readers of the digit-copy-head output subspace (256 units)",
+    "num_units": 256,
+    "d_model": 4096,
+    "effect": {
+      "math|search": 0.0306,
+      "math|heldout": 0.0012,
+      "code|search": 0.0017,
+      "code|heldout": 0.0009,
+      "facts|search": 0.0019,
+      "facts|heldout": -0.0032,
+      "multilingual|search": 0.0037,
+      "multilingual|heldout": 0.0028,
+      "general_text|search": 0.0023,
+      "general_text|heldout": 0.0001,
+      "en_fr_word_translation|search": 0.0019,
+      "en_fr_word_translation__control|search": 0.0,
+      "en_fr_word_translation|heldout": 0.0009,
+      "en_fr_word_translation__control|heldout": -0.0,
+      "two_digit_addition|search": 0.4332,
+      "two_digit_addition__control|search": -0.0002,
+      "two_digit_addition|heldout": 0.4136,
+      "two_digit_addition__control|heldout": -0.0003,
+      "python_list_index|search": 0.0202,
+      "python_list_index__control|search": 0.0008,
+      "python_list_index|heldout": 0.0345,
+      "python_list_index__control|heldout": 0.0006,
+      "recall_first_number|search": 0.0005,
+      "recall_first_number__control|search": -0.0056,
+      "recall_first_number|heldout": 0.0005,
+      "recall_first_number__control|heldout": -0.0072,
+      "month_successor|search": 0.0048,
+      "month_successor__control|search": -0.0982,
+      "month_successor|heldout": 0.0441,
+      "month_successor__control|heldout": -0.001,
+      "object_color|search": 0.0007,
+      "object_color__control|search": 0.0,
+      "object_color|heldout": 0.001,
+      "object_color__control|heldout": 0.0,
+      "two_digit_subtraction|search": 0.0725,
+      "two_digit_subtraction__control|search": 0.0001,
+      "two_digit_subtraction|heldout": 0.1035,
+      "two_digit_subtraction__control|heldout": 0.0002,
+      "times_table|search": 0.0073,
+      "times_table__control|search": -0.0,
+      "times_table|heldout": 0.0012,
+      "times_table__control|heldout": 0.0001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1444,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0107,
+      0.0089,
+      0.0068,
+      0.001,
+      -0.0027
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Built entirely from weights: took the OV outputs of the 8 L23 digit-copy heads on digit-token embeddings, extracted a 12-dim subspace by SVD, and ranked L23 MLP units by the fraction of their gate+up row norm (post-attn norm scaled) lying in it (256th unit .157 vs median .10, top .59)."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwen3vl_8b/two_digit_addition.json",
+    "hash": "b276d5d4a7212db5",
+    "description": "Add two 2-digit numbers (few-shot 'a + b = c'). Control: same format, answer is copying the first operand ('first of a and b is a').",
+    "name": "two_digit_addition"
+  },
+  "catalog_id": "mlp_l23_mlp_addition_cluster_readers_of_the_digit-co_qwen3vl_8b_L23_k256_001",
+  "exported_copy": "library/qwen3vl_8b/mlp_l23_mlp_addition_cluster_readers_of_the_digit-co_qwen3vl_8b_L23_k256_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

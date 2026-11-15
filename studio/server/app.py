@@ -20,6 +20,7 @@ from studio.server import programs
 from studio.server import runs as runs_mod
 from studio.server import settings
 from studio.server import shrink as shrink_mod
+from studio.server import routes_extra
 from studio.server import specs as specs_mod
 
 settings.load_env()
@@ -258,8 +259,16 @@ def sse_event(snapshot):
     return "event: snapshot\ndata: " + json.dumps(snapshot) + "\n\n"
 
 
+def error_event(message):
+    return "event: error\ndata: " + json.dumps({"error": message}) + "\n\n"
+
+
 async def snapshot_stream(run):
-    """Send a snapshot on every change (at most every 0.5 s) and a heartbeat every 5 s."""
+    """Send a snapshot on every change (at most every 0.5 s) and a heartbeat every 5 s.
+
+    The snapshot is built in a worker thread so it never blocks the event loop.
+    A failed snapshot sends an error event and the stream goes on.
+    """
     state = run.state
     last_version = -1
     last_sent = 0.0
@@ -268,7 +277,10 @@ async def snapshot_stream(run):
         version = state.version
         now = time.time()
         if version != last_version or now - last_sent >= STREAM_HEARTBEAT_S:
-            yield sse_event(state.snapshot())
+            try:
+                yield sse_event(await asyncio.to_thread(state.snapshot))
+            except Exception as error:
+                yield error_event("Could not build the run snapshot: " + str(error))
             last_version = version
             last_sent = now
         if state.status in ("done", "error"):
@@ -276,7 +288,10 @@ async def snapshot_stream(run):
                 finished_at = now
             if now - finished_at >= STREAM_LINGER_S:
                 if state.version != last_version:
-                    yield sse_event(state.snapshot())
+                    try:
+                        yield sse_event(await asyncio.to_thread(state.snapshot))
+                    except Exception as error:
+                        yield error_event("Could not build the run snapshot: " + str(error))
                 return
         await asyncio.sleep(STREAM_TICK_S)
 
@@ -295,6 +310,26 @@ async def stream_run(run_id: str):
 @app.get("/api/catalog")
 def get_catalog():
     return catalog_mod.build_palette(settings.backend())
+
+
+@app.get("/api/library/recipes")
+def get_recipes():
+    return {"recipes": catalog_mod.recipe_list(settings.backend())}
+
+
+@app.get("/api/library/findings")
+def get_findings():
+    return {"findings": catalog_mod.finding_list()}
+
+
+@app.get("/api/library/stitches")
+def get_stitches():
+    return {"stitches": catalog_mod.stitch_list()}
+
+
+@app.get("/api/library/models")
+def get_models():
+    return {"models": catalog_mod.model_list()}
 
 
 @app.post("/api/program/text")
@@ -328,6 +363,7 @@ async def program_validate(request: Request):
     if problem is not None:
         return problem
     config, catalog = catalog_mod.load_catalog(settings.backend())
+    specs_mod.add_task_types(config)
     try:
         clean = programs.normalize(body.get("program"))
     except programs.ProgramError as error:
@@ -477,6 +513,9 @@ async def shrink_run(shrink_id: str, request: Request):
     except (shrink_mod.ShrinkError, ValueError) as error:
         return fail(str(error))
     return {"job_id": job_id}
+
+
+routes_extra.register(app)
 
 
 # The web app.

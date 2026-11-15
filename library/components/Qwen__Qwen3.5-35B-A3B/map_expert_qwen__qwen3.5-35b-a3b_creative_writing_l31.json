@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3.5-35b-a3b_creative_writing_l31",
+  "kind": "expert",
+  "title": "Qwen3.5-35B-A3B layer 31, 8 experts for creative_writing (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "creative_writing"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-35B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 31 of Qwen3.5-35B-A3B on 'creative_writing' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.11313,
+      "control_value": 0.008,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 31 of Qwen3.5-35B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 2.93152,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 3.60475,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3.5-35B-A3B",
+  "layer": 31,
+  "layers": [
+    31
+  ],
+  "units_file": "components/Qwen__Qwen3.5-35B-A3B/map_expert_qwen__qwen3.5-35b-a3b_creative_writing_l31.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "creative_writing",
+    "data": "euclaise/writingprompts train: story continuation from a writing prompt",
+    "n_units": 8,
+    "experts": [
+      167,
+      164,
+      52,
+      155,
+      26,
+      39,
+      251,
+      201
+    ],
+    "details": [
+      {
+        "expert": 167,
+        "skill_freq": 0.046632,
+        "general_freq": 0.000155,
+        "log_ratio": 5.2109,
+        "heldout_log_ratio": 6.1779
+      },
+      {
+        "expert": 164,
+        "skill_freq": 0.126203,
+        "general_freq": 0.004484,
+        "log_ratio": 3.3161,
+        "heldout_log_ratio": 3.8005
+      },
+      {
+        "expert": 52,
+        "skill_freq": 0.005736,
+        "general_freq": 0.000309,
+        "log_ratio": 2.6581,
+        "heldout_log_ratio": 3.8668
+      },
+      {
+        "expert": 155,
+        "skill_freq": 0.298945,
+        "general_freq": 0.023349,
+        "log_ratio": 2.5458,
+        "heldout_log_ratio": 2.7699
+      },
+      {
+        "expert": 26,
+        "skill_freq": 0.012676,
+        "general_freq": 0.000928,
+        "log_ratio": 2.52,
+        "heldout_log_ratio": 2.4899
+      },
+      {
+        "expert": 39,
+        "skill_freq": 0.097335,
+        "general_freq": 0.008041,
+        "log_ratio": 2.4823,
+        "heldout_log_ratio": 3.6051
+      },
+      {
+        "expert": 251,
+        "skill_freq": 0.3094,
+        "general_freq": 0.025978,
+        "log_ratio": 2.4739,
+        "heldout_log_ratio": 3.1287
+      },
+      {
+        "expert": 201,
+        "skill_freq": 0.008142,
+        "general_freq": 0.000773,
+        "log_ratio": 2.2451,
+        "heldout_log_ratio": 2.9992
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "euclaise/writingprompts train: story continuation from a writing prompt",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 35.95,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "qwen3_5_moe",
+  "architecture": "Qwen3_5MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "59d61f3ce65a6d9863b86d2e96597125219dc754"
+}

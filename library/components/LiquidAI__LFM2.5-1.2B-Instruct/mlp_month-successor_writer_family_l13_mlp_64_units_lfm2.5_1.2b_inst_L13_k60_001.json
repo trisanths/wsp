@@ -1,0 +1,116 @@
+{
+  "id": "mlp_month-successor_writer_family_l13_mlp_64_units_lfm2.5_1.2b_inst_L13_k60_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-1.2B-Instruct layer 13, month-successor writer family (L13 MLP, 64 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4453,
+      "control_value": -0.0028,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0579"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 13,
+  "layers": [
+    13
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/mlp_month-successor_writer_family_l13_mlp_64_units_lfm2.5_1.2b_inst_L13_k60_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/mlp_month-successor_writer_family_l13_mlp_64_units_lfm2.5_1.2b_inst_L13_k60_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "month-successor writer family (L13 MLP, 64 units)",
+    "num_units": 60,
+    "d_model": 2048,
+    "effect": {
+      "math|search": -0.0017,
+      "math|heldout": 0.0037,
+      "code|search": -0.0004,
+      "code|heldout": 0.0007,
+      "facts|search": 0.0081,
+      "facts|heldout": 0.0087,
+      "multilingual|search": 0.0024,
+      "multilingual|heldout": 0.002,
+      "general_text|search": 0.0014,
+      "general_text|heldout": 0.0016,
+      "month_successor|search": 0.5325,
+      "month_successor__control|search": 0.049,
+      "month_successor|heldout": 0.4453,
+      "month_successor__control|heldout": 0.0579,
+      "weekday_successor|search": 0.0801,
+      "weekday_successor__control|search": 0.0569,
+      "weekday_successor|heldout": 0.0638,
+      "weekday_successor__control|heldout": 0.0587,
+      "object_color|search": 0.0042,
+      "object_color__control|search": -0.0598,
+      "object_color|heldout": 0.0062,
+      "object_color__control|heldout": 0.0027,
+      "feminine_pronoun|search": 0.0122,
+      "feminine_pronoun__control|search": 0.0175,
+      "feminine_pronoun|heldout": 0.0165,
+      "feminine_pronoun__control|heldout": 0.0005,
+      "month_list_next|search": 0.0092,
+      "month_list_next__control|search": -0.0059,
+      "month_list_next|heldout": 0.0278,
+      "month_list_next__control|heldout": -0.0028,
+      "weekday_list_next|search": -0.0013,
+      "weekday_list_next__control|search": 0.0164,
+      "weekday_list_next|heldout": 0.0018,
+      "weekday_list_next__control|heldout": 0.0047,
+      "roman_numeral|search": -0.052,
+      "roman_numeral__control|search": 0.0309,
+      "roman_numeral|heldout": -0.0974,
+      "roman_numeral__control|heldout": 0.0362,
+      "masculine_pronoun|search": -0.0242,
+      "masculine_pronoun__control|search": 0.0055,
+      "masculine_pronoun|heldout": -0.0128,
+      "masculine_pronoun__control|heldout": 0.0055
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1775,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0056,
+      -0.0089,
+      0.025,
+      -0.0232,
+      -0.0011
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "64 L13 units similar to month-successor attributed writers 7445/5143/3692/4238 (w2+w1 cosine), other seeds subtracted. Ablation month .532, others <.09."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_1.2b_inst/month_successor.json",
+    "hash": "5b264ce5f707cce6",
+    "description": "Name the month k (1-3) months after a given month. Control: same template with integer successor.",
+    "name": "month_successor"
+  },
+  "catalog_id": "mlp_month-successor_writer_family_l13_mlp_64_units_lfm2.5_1.2b_inst_L13_k60_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/mlp_month-successor_writer_family_l13_mlp_64_units_lfm2.5_1.2b_inst_L13_k60_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

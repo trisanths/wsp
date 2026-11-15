@@ -1,0 +1,116 @@
+{
+  "id": "heads_calendar_identity_and_name-form_transport_phi4_14b_L28_k2_001",
+  "kind": "attn_heads",
+  "title": "phi-4 layer 28, Calendar identity and name-form transport",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/phi4_14b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_offset"
+  ],
+  "models": [
+    "microsoft/phi-4"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_offset' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4516,
+      "control_value": 0.0175,
+      "split": "person_a held-out skill items (weekday_offset)",
+      "seeds": null,
+      "source": "person_a/catalog/phi4_14b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0312"
+    }
+  ],
+  "generated": true,
+  "model": "microsoft/phi-4",
+  "layer": 28,
+  "layers": [
+    28
+  ],
+  "units_file": "components/microsoft__phi-4/heads_calendar_identity_and_name-form_transport_phi4_14b_L28_k2_001.pt",
+  "units_remote": "person_a/parts\\phi4_14b\\heads_calendar_identity_and_name-form_transport_phi4_14b_L28_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_offset'",
+    "label": "Calendar identity and name-form transport",
+    "num_units": 2,
+    "d_model": 5120,
+    "effect": {
+      "math|search": 0.0021,
+      "math|heldout": 0.0015,
+      "code|search": 0.0001,
+      "code|heldout": 0.0,
+      "facts|search": 0.0013,
+      "facts|heldout": 0.0014,
+      "multilingual|search": 0.0016,
+      "multilingual|heldout": 0.0002,
+      "general_text|search": -0.0003,
+      "general_text|heldout": 0.001,
+      "ordinal_word|search": 0.0102,
+      "ordinal_word__control|search": -0.0026,
+      "ordinal_word|heldout": 0.0176,
+      "ordinal_word__control|heldout": 0.0049,
+      "product_sign|search": -0.0089,
+      "product_sign__control|search": 0.0118,
+      "product_sign|heldout": -0.0137,
+      "product_sign__control|heldout": -0.018,
+      "weekday_offset|search": 0.4766,
+      "weekday_offset__control|search": -0.0069,
+      "weekday_offset|heldout": 0.4516,
+      "weekday_offset__control|heldout": 0.0312,
+      "fraction_role|search": 0.0146,
+      "fraction_role__control|search": -0.0074,
+      "fraction_role|heldout": 0.0108,
+      "fraction_role__control|heldout": 0.0046,
+      "month_number|search": 0.0798,
+      "month_number__control|search": 0.0594,
+      "month_number|heldout": 0.1144,
+      "month_number__control|heldout": 0.0666,
+      "comparative_adjective|search": -0.0002,
+      "comparative_adjective__control|search": 0.0003,
+      "comparative_adjective|heldout": 0.0004,
+      "comparative_adjective__control|heldout": 0.0004,
+      "compass_opposite|search": 0.0683,
+      "compass_opposite__control|search": 0.0488,
+      "compass_opposite|heldout": 0.0882,
+      "compass_opposite__control|heldout": 0.0352,
+      "roman_numeral|search": 0.0051,
+      "roman_numeral__control|search": -0.0049,
+      "roman_numeral|heldout": 0.0028,
+      "roman_numeral__control|heldout": -0.0021
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1589,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.005,
+      0.1141,
+      -0.0284,
+      0.0,
+      -0.0033
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "H26 centered OV preserves weekday names(.0526), ablation .186 weekday drop. H10 output leading direction contrasts lower-case proper-name fragments james/london(.076) with canonical names Shakespeare/Napoleon(-.070 to -.076), consistent with name-form handling; weekday attribution .343."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine\\skills\\phi4_14b\\weekday_offset.json",
+    "hash": "fdf205362ef0a930",
+    "description": "Compute the weekday a given number of days after a named weekday; matched control verbalizes the offset number.",
+    "name": "weekday_offset"
+  },
+  "catalog_id": "heads_calendar_identity_and_name-form_transport_phi4_14b_L28_k2_001",
+  "exported_copy": null,
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

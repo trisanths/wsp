@@ -19,10 +19,9 @@ from studio.server import programs
 from studio.server import settings
 from studio.server import sizing
 from studio.server import specs as specs_mod
+from studio.server import synth_report
 from studio.server.runstate import number
 
-BUILDER_EVALS = 12
-BUILDER_COMPUTE_MIN = 45
 DEFAULT_HEAL_STEPS = 300
 DEFAULT_LORA_RANK = 16
 BEST_DEPTH_FRACTION = 6 / 16.0
@@ -56,8 +55,15 @@ class Session:
 
     def budget_dict(self):
         budget = self.env.budget
+        spec_budget = self.spec.get("budget") or {}
+        spec_min = spec_budget.get("compute_min")
+        raised = False
+        if spec_min is not None:
+            raised = budget.compute_budget_s > float(spec_min) * 60.0 + 1e-6
         return {"evals_used": number(budget.eval_used()), "evals_total": number(budget.eval_budget),
-                "compute_used_s": number(budget.compute_used()), "compute_total_s": number(budget.compute_budget_s)}
+                "compute_used_s": number(budget.compute_used()), "compute_total_s": number(budget.compute_budget_s),
+                "spec_compute_min": number(spec_min) if spec_min is not None else None,
+                "compute_raised": raised, "stub": self.env.is_stub()}
 
     def target_ids(self):
         ids = []
@@ -91,8 +97,6 @@ def create_session(spec):
     """Start a builder session for a spec. Returns the session."""
     builder_id = "b_" + uuid.uuid4().hex[:8]
     overrides = specs_mod.run_overrides(spec, settings.backend(), "none")
-    overrides["eval_budget"] = BUILDER_EVALS
-    overrides["compute_budget_s"] = specs_mod.compute_budget_s(BUILDER_EVALS, BUILDER_COMPUTE_MIN)
     overrides["method"] = "builder"
     config = config_mod.make_config(overrides)
     config["run_id"] = builder_id + "-" + str(int(time.time() * 1000))
@@ -157,9 +161,12 @@ def check_program(session, program, enforce_limits=True):
     forbidden = sizing.forbidden_problems(clean)
     if len(forbidden) > 0:
         raise BuilderError(" ".join(forbidden))
-    errors = space.validate(clean, session.catalog, session.config)
+    errors = programs.validate(clean, session.catalog, session.config)
     if len(errors) > 0:
         raise BuilderError("the program is not valid: " + "; ".join(errors))
+    unsupported = synth_report.refusal_problems(clean, session.catalog)
+    if len(unsupported) > 0:
+        raise BuilderError(" ".join(unsupported))
     if enforce_limits:
         check_limits(session, clean)
     return clean
@@ -174,13 +181,20 @@ def check_limits(session, program):
 
 
 def program_for_action(session, program, action):
-    """The program an action runs. Heal and train add a default heal (train adds a LoRA too).
+    """The program an action runs. Heal and train add a default heal.
 
-    The limits are checked on this program, so the default heal steps count against the heal limit.
+    Train on a program with parts is the synthesis heal (it trains its own
+    adapters), so it adds no LoRA: the swarm's rules allow a host LoRA only
+    on a program with no grafts, where it is the plain fine-tuning baseline.
+    Train on a program with no parts is that baseline: the host plus a LoRA.
+    The limits are checked on this program, so the default heal steps count
+    against the heal limit.
     """
     if action == "heal":
         return with_default_heal(session, program)
     if action == "train":
+        if len(ps.grafts(program)) > 0:
+            return with_default_heal(session, program)
         return with_default_heal(session, with_lora(program))
     return program
 
@@ -194,7 +208,8 @@ def size_report(session, program):
     estimate = sizing.estimate(clean, session.size_ctx)
     problems = sizing.forbidden_problems(clean)
     problems.extend(sizing.limit_problems(session.limits(), estimate))
-    return {"estimate": estimate, "limits": session.limits(), "problems": problems, "ok": len(problems) == 0}
+    return {"estimate": estimate, "limits": session.limits(), "problems": problems, "ok": len(problems) == 0,
+            "score_evals": score_eval_cost(clean)}
 
 
 def work_job(session, job, program):
@@ -237,10 +252,7 @@ def run_action(session, action, program):
     with session.lock:
         if action == "compile":
             return compile_result(session, program)
-        if action == "heal":
-            program = with_default_heal(session, program)
-        if action == "train":
-            program = with_default_heal(session, with_lora(program))
+        program = program_for_action(session, program, action)
         result = score_result(session, program)
         session.last_result = {"scores": result.get("scores"), "status": result.get("status"),
                                "control": result.get("control")}
@@ -277,6 +289,7 @@ def compile_result(session, program):
     result = {"fit": fit_dict(report), "scores": None, "combined": None, "control": None,
               "params_b": params_b_of(session, report), "compute_s": number(probe["compute_s"]), "status": "ok",
               "program": program, "comparison": None}
+    add_synth(session, result, None)
     add_size(session, result)
     return result
 
@@ -298,6 +311,11 @@ def score_result(session, program):
     result = {"fit": fit_dict(report), "scores": None, "combined": None, "control": None,
               "params_b": params_b_of(session, report), "compute_s": number(row_compute_s(row)),
               "status": status, "program": program, "comparison": None}
+    info = synth_info(session, program)
+    add_synth(session, result, info)
+    if info is not None and info.get("sizes") is not None:
+        result["params_b"] = number(info["sizes"]["total"] / 1e9)
+        result["run_params_b"] = number(info["sizes"]["per_token"] / 1e9)
     add_size(session, result)
     if row.get("scores"):
         result["scores"] = dict(row["scores"])
@@ -309,6 +327,38 @@ def score_result(session, program):
         result["control"] = control_result(session, program)
     result["comparison"] = comparison_for(session, result)
     return result
+
+
+def synth_info(session, program):
+    """The synth part of the last score of a program: from the backend, or made up on the stub. None for classic."""
+    finder = getattr(session.env.backend, "synth_for", None)
+    if finder is not None:
+        return finder(program)
+    if session.env.is_stub():
+        return synth_report.stub_public(program, session.catalog, session.target_ids())
+    return None
+
+
+def add_synth(session, result, info):
+    """Put pipeline, components, stages, drift, sizes and heal_note on a result.
+
+    The heal warning belongs to the classic pipeline only: the synth pipeline heals by distillation with a
+    guard and rollback, so its results carry heal_note null.
+    """
+    program = result["program"]
+    pipeline = synth_report.pipeline_for(program)
+    healed = ps.heal(program) is not None or program.get("lora") is not None
+    result["pipeline"] = pipeline
+    result["components"] = None
+    result["stages"] = None
+    result["drift"] = None
+    result["sizes"] = None
+    if info is not None:
+        result["components"] = info["components"]
+        result["stages"] = info["stages"]
+        result["drift"] = info["drift"]
+        result["sizes"] = info["sizes"]
+    result["heal_note"] = settings.heal_note_for(pipeline, healed)
 
 
 def add_size(session, result):
@@ -326,7 +376,7 @@ def comparison_for(session, result):
     if result.get("control") is not None:
         control = result["control"].get("scores")
     comparison = compare.build(session.spec, scores, result.get("params_b"), None, control, "search",
-                               session.env.is_stub())
+                               session.env.is_stub(), components=result.get("components"))
     if result["status"] != "ok":
         comparison["verdict"] = "failed"
         comparison["headline"] = "Failed attempt. The build ended with status " + str(result["status"]) + "."
@@ -345,6 +395,13 @@ def real_report(session, program, report):
     if measured is None:
         return report
     return measured
+
+
+def score_eval_cost(program):
+    """The evals one Score charges: the program itself, plus the random-part control when it has real grafts."""
+    if has_real_grafts(program):
+        return 2
+    return 1
 
 
 def has_real_grafts(program):
@@ -386,7 +443,7 @@ def suggest(session, program):
         suggestions.extend(llm_suggestions(session, program))
     out = []
     for item in suggestions:
-        if len(space.validate(item["program"], session.catalog, session.config)) != 0:
+        if len(programs.validate(item["program"], session.catalog, session.config)) != 0:
             continue
         item["size"] = size_report(session, item["program"])
         if not item["size"]["ok"]:

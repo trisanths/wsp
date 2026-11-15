@@ -31,11 +31,12 @@ def clean_env():
 
 
 def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, effort="medium",
-        person=None, focus=None):
-    return asyncio.run(_run(short, budget_usd, max_hours, max_screens, use_notes, effort, person, focus))
+        person=None, focus=None, open_domain=False):
+    # the same arguments as agent.run: mine/run.py calls either one with the same keywords
+    return asyncio.run(_run(short, budget_usd, max_hours, max_screens, use_notes, effort, person, focus, open_domain))
 
 
-async def _run(short, budget_usd, max_hours, max_screens, use_notes, effort, person, focus):
+async def _run(short, budget_usd, max_hours, max_screens, use_notes, effort, person, focus, open_domain=False):
     import claude_agent_sdk as sdk
 
     load_dotenv(os.path.join(common.ROOT, ".env"), override=True)
@@ -56,6 +57,11 @@ async def _run(short, budget_usd, max_hours, max_screens, use_notes, effort, per
     # agent.py words its limits in OpenAI dollars; here the limits are time and screens
     system_text = system_text + ("\nLimits for this run: " + str(round(max_hours, 2)) + " hours of wall clock and "
                                  + str(max_screens) + " screens. There is no dollar budget.\n")
+    if open_domain:
+        # the three effects of --open-domain in agent.run
+        system_text = system_text + base.OPEN_DOMAIN_TEXT
+        miner.state["max_agent_skills"] = 16
+        miner.state["open_domain"] = True
     if focus:
         system_text = system_text + ("\nYour focus in this run (other agents are covering the rest in parallel "
                                      "and sharing results through memory): " + focus + "\n")

@@ -100,6 +100,21 @@ def is_stub():
     return backend() == "stub"
 
 
+def pipeline():
+    """The compile pipeline for programs with parts: "synth" (wsp/synth.py, the default) or "classic".
+
+    WSP_STUDIO_PIPELINE sets it. A program with no grafts and no inserted layers always uses the classic compile.
+    """
+    value = os.environ.get("WSP_STUDIO_PIPELINE", "synth").strip().lower()
+    if value == "classic":
+        return "classic"
+    return "synth"
+
+
+# The note belongs to the classic pipeline only. Results from the synthesis pipeline (wsp/synth.py) carry
+# no heal warning: the heal there distills from the donor, keeps the host with a KL term, and is checked
+# against practice scores with rollback.
+#
 # The compiler session found on 2026-11-15 that healing on dataset gold text damages
 # the base (Qwen2.5-1.5B with only a LoRA heal: GSM8K 72.0 to about 61, MATH-500 55.4
 # to about 29). The fixed heal (distillation from the donor, a KL-to-base term and a
@@ -110,10 +125,17 @@ HEAL_NOTE = ("The heal recipe is being fixed. Healing on dataset text currently 
 
 
 def heal_note():
-    """The warning to show on healed results, or None on the stub backend (its numbers are made up anyway)."""
+    """The warning to show on healed classic results, or None on the stub backend (its numbers are made up anyway)."""
     if is_stub():
         return None
     return HEAL_NOTE
+
+
+def heal_note_for(pipeline_name, healed):
+    """The warning for one result: the heal note for a healed classic result on a real backend, else None."""
+    if pipeline_name != "classic" or not healed:
+        return None
+    return heal_note()
 
 
 def out_dir():

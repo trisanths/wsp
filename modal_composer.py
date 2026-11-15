@@ -57,6 +57,14 @@ image = (
     .add_local_dir("person_a/parts", "/root/parts_root/person_a/parts")
 )
 
+# wsp.auto.make reads mined rows from atlas/ and library/ next to the wsp package, as modal_sapien.py does.
+HERE = os.path.dirname(os.path.abspath(__file__))
+for _folder in ("atlas", "library"):
+    if os.path.isdir(os.path.join(HERE, _folder)):
+        image = image.add_local_dir(os.path.join(HERE, _folder), "/root/" + _folder)
+if os.path.exists(os.path.join(HERE, "catalog.jsonl")):
+    image = image.add_local_file(os.path.join(HERE, "catalog.jsonl"), "/root/catalog.jsonl")
+
 PARTS_ROOT = "/root/parts_root"
 OUT_ROOT = "/vol/composer"
 DONOR_ROOT = OUT_ROOT + "/donor_samples"
@@ -295,6 +303,36 @@ def compile_and_practice(program_dict, payload):
     return out
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=393216, timeout=6 * 3600)
+def make_plan(request, plan, atlas_entries=None):
+    """Build one plan variant with wsp.auto.make (the same call as modal_sapien.py) and return its report.
+
+    The plan was made and checked by the caller. The report holds the probe on pool text, sizes, and verdicts;
+    the composer's compile_plan tool reduces it before the agent sees it. No benchmark is scored here.
+    """
+    import torch
+
+    from composer.front_door import variant_hash
+    from wsp import auto
+
+    try:
+        volume.reload()
+    except Exception as error:
+        print("volume reload skipped:", repr(error)[:200])
+    try:
+        backend = auto.HubBackend(device="cuda", dtype=torch.bfloat16, cache_dir="/vol/hf/hub")
+        out_dir = f"{OUT_ROOT}_plans/{request['name']}/{variant_hash(request, plan.get('settings') or {})}"
+        result = auto.make(request, out_dir, backend, plan_=plan, atlas_entries=atlas_entries)
+        report = auto._json_safe(result.report)
+        try:
+            volume.commit()
+        except Exception as error:
+            report["commit_error"] = repr(error)[:300]
+        return {"ok": True, "report": report, "model_dir": out_dir}
+    except Exception as error:
+        return {"ok": False, "errors": [short_error(error)]}
+
+
 @app.function(image=image, volumes={"/vol": volume}, gpu="H200", memory=262144, timeout=4 * 3600)
 def compile_arm(arm_program, payload):
     """Compile one comparison arm (composer/arms.py): a LoRA or distillation program on the host, or the
@@ -365,12 +403,35 @@ def main(request: str, skip_heldout: bool = False):
     def probe_many(calls):
         return list(probe_model.starmap(calls, return_exceptions=True))
 
+    def plan_make_fn(plan_request, plan, settings):
+        from wsp import auto
+
+        return make_plan.remote(plan_request, plan, auto.load_atlas())
+
     spec = load_request(request)
-    summary = run_request(request, practice_fn)
+    summary = run_request(request, practice_fn, make_fn=plan_make_fn)
     final = summary["final"] or {}
     print(f"loop stopped: {summary['stop_reason']}; compiles {summary['compile_budget_used']} of "
           f"{summary['compile_budget']}; archive {summary['archive_dir']}")
     sources = Sources(REPO_ROOT)
+    if final.get("plan_variant"):
+        # A front-door choice is scored by modal_sapien.py (its arms and the one reported-benchmark call).
+        os.makedirs("results", exist_ok=True)
+        variant = dict(final["plan_variant"]["request"])
+        variant["name"] = spec["name"] + "_chosen"
+        path = f"results/composer_{spec['name']}_plan.json"
+        with open(path, "w") as f:
+            json.dump({"request": variant, "settings": final["plan_variant"]["settings"],
+                       "rationale": final.get("rationale"), "practice": final.get("practice")}, f, indent=2)
+        request_path = f"results/composer_{spec['name']}_chosen_request.json"
+        with open(request_path, "w") as f:
+            json.dump(variant, f, indent=2)
+        print(f"wrote {path} and {request_path}")
+        print(f"score it once with: modal run modal_sapien.py --request {request_path}")
+        if final["plan_variant"]["settings"]:
+            print("settings of the choice (pass them to auto.plan; modal_sapien.py uses the defaults):",
+                  json.dumps(final["plan_variant"]["settings"]))
+        return
     if final.get("no_model") or skip_heldout:
         out = build_results(spec, summary, [], None, sources.records_by_id())
     else:

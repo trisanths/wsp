@@ -67,6 +67,33 @@ Cells (one per family; the lineage notes come from the 2026-11-14 scout):
             no benchmark scorer here; it enters as a member with no target
             skill, and the probe scores it on the "law" pool).
 
+Small and new cells (2026-11-15 scout; evidence per member in docs/weave.md).
+Every member passed `python -m wsp.lineage relation HOST MEMBER` as fine_tune or
+fine_tune_of_ancestor with mean cosine 0.97 or more, the host's rope_theta, and
+relative L2 0.01 or more. A member marked "unscored" has a skill with no
+scorer and no probe pool of its own (it gets general text, a weak proxy); a
+cell marked exploratory never gets a go. A member with a "ref" is a true
+fine-tune of that reference, not of the host. A member marked "mlp_only" writes
+MLP tensors only and is read without attention tensors, so the gate measures
+the MLP alone.
+  gemma2_2b    Gemma-2-2B-it with MergeBench math and coding fine-tunes.
+  llama3b      Llama-3.2-3B-Instruct with MergeBench math and Hermes-3 (from
+               the Llama-3.2-3B base).
+  llama1b      Llama-3.2-1B-Instruct with a math and a Python coding fine-tune.
+  qwen3_4b     Qwen3-4B with Pythagoras-Prover-4B and a medical SFT.
+  qwen3_1p7b   Qwen3-1.7B with MedPsy-1.7B and hito-1.7b (reasoning).
+  qwen25_3b    Qwen2.5-3B-Instruct with SmallThinker-3B and a medical and math
+               fine-tune.
+  smollm3      SmolLM3-3B with a medical SFT and Open-MOPD math (parent: the
+               SmolLM3-3B base).
+  gemma3_4b    Gemma-3-4B-it with biomed, text-to-Cypher, and MamayLM.
+  gemma3_1b, qwen25_15b, qwen25_05b, lfm2_350m, lfm2_700m, lfm2_2b
+               Exploratory cells: language, tool, and extraction members with
+               no scorer here.
+  gemma27_mlp  The gemma27 cell with MedGemma forced to MLP only (its
+               attention fails the gate, its MLP passes).
+`--family all` runs every cell above. Name the cells you want.
+
 Benchmark targets are the members' skills: math (GSM8K, MATH-500), code (MBPP;
 HumanEval is scored on the final test only, as transfer), medicine
 (MedMCQA). The guard skill is MMLU. Final test sets match round 16b: GSM8K 300
@@ -130,9 +157,9 @@ image = (
     modal.Image.debian_slim(python_version="3.12")
     .pip_install(
         "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
-        "safetensors", "numpy", "datasets", "sentencepiece", "protobuf",
+        "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf", "tiktoken",
     )
-    .env({"HF_HOME": "/vol/hf"})
+    .env({"HF_HOME": "/vol/hf", "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"})
     .add_local_python_source("wsp")
 )
 
@@ -251,8 +278,147 @@ FAMILIES = {
         ],
         "memory_gib": 256, "gpu": "H200",
     },
+    "gemma2_2b": {
+        "host": "unsloth/gemma-2-2b-it", "params_b": 2.6, "targets": ["gsm8k", "mbpp"], "guards": ["mmlu"],
+        "transfer": ["humaneval"], "refs": {},
+        "members": [
+            {"name": "math", "id": "MergeBench/gemma-2-2b-it_math", "skill": "gsm8k", "ref": None},
+            {"name": "coding", "id": "MergeBench/gemma-2-2b-it_coding", "skill": "mbpp", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "llama3b": {
+        "host": "unsloth/Llama-3.2-3B-Instruct", "params_b": 3.2, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {"base3b": "unsloth/Llama-3.2-3B"},
+        "members": [
+            {"name": "math", "id": "MergeBench/Llama-3.2-3B-Instruct_math", "skill": "gsm8k", "ref": None},
+            {"name": "hermes3", "id": "NousResearch/Hermes-3-Llama-3.2-3B", "skill": "chat", "unscored": True, "ref": "base3b"},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "llama1b": {
+        "host": "unsloth/Llama-3.2-1B-Instruct", "params_b": 1.2, "targets": ["gsm8k", "mbpp"], "guards": ["mmlu"],
+        "transfer": ["humaneval"], "refs": {},
+        "members": [
+            {"name": "math", "id": "AryanK123/Llama-3.2-1B-Instruct_SFT_Math-220kv00.04", "skill": "gsm8k", "ref": None},
+            {"name": "coder", "id": "MDDDDR/Llama-3.2-1B-Instruct-FFT-coder-python", "skill": "mbpp", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen3_4b": {
+        "host": "Qwen/Qwen3-4B", "params_b": 4.0, "targets": ["medmcqa"], "guards": ["mmlu"],
+        "transfer": ["gsm8k"], "refs": {},
+        "members": [
+            {"name": "pythagoras", "id": "Pythagoras-LM/Pythagoras-Prover-4B", "skill": "math", "ref": None},
+            {"name": "popit_medical", "id": "Hoshino-Yumetsuki/PopiT-Qwen3-4B-Medical-SFT-1128", "skill": "medmcqa", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen3_1p7b": {
+        "host": "Qwen/Qwen3-1.7B", "params_b": 1.7, "targets": ["medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {},
+        "members": [
+            {"name": "medpsy", "id": "qvac/MedPsy-1.7B", "skill": "medmcqa", "ref": None},
+            {"name": "hito", "id": "hitonet/hito-1.7b", "skill": "reasoning", "reasoning": True, "unscored": True, "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen25_3b": {
+        "host": "Qwen/Qwen2.5-3B-Instruct", "params_b": 3.1, "targets": ["gsm8k", "medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {},
+        "members": [
+            {"name": "smallthinker", "id": "Tiiny/SmallThinker-3B-Preview", "skill": "gsm8k", "reasoning": True, "ref": None},
+            {"name": "medmath", "id": "calebking/qwen2.5-3b-instruct-medical-math-full", "skill": "medmcqa", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "smollm3": {
+        "host": "HuggingFaceTB/SmolLM3-3B", "params_b": 3.1, "targets": ["gsm8k", "medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {"base": "HuggingFaceTB/SmolLM3-3B-Base"},
+        "members": [
+            {"name": "medical", "id": "vinayp27/smollm3-medical", "skill": "medmcqa", "ref": None},
+            {"name": "mopd_math", "id": "BytedTsinghua-SIA/Open-MOPD-SmolLM3-3B-RL-Math", "skill": "gsm8k", "ref": "base"},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "gemma3_4b": {
+        "host": "unsloth/gemma-3-4b-it", "params_b": 4.3, "targets": ["medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {},
+        "members": [
+            {"name": "biomed", "id": "AdaptLLM/biomed-gemma-3-4b-it", "skill": "medmcqa", "ref": None},
+            {"name": "cypher", "id": "neo4j/text-to-cypher-Gemma-3-4B-Instruct-2025.04.0", "skill": "cypher", "unscored": True, "ref": None},
+            {"name": "mamaylm", "id": "INSAIT-Institute/MamayLM-Gemma-3-4B-IT-v1.0", "skill": "ukrainian", "unscored": True, "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "gemma3_1b": {
+        "host": "unsloth/gemma-3-1b-it", "params_b": 1.0, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "borealis", "id": "NbAiLab/borealis-1b", "skill": "norwegian", "ref": None},
+            {"name": "swahili", "id": "CraneAILabs/swahili-gemma-1b", "skill": "swahili", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen25_15b": {
+        "host": "Qwen/Qwen2.5-1.5B-Instruct", "params_b": 1.5, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "vikhr", "id": "Vikhrmodels/Vikhr-Qwen-2.5-1.5B-Instruct", "skill": "russian", "ref": None},
+            {"name": "tooltuned", "id": "asheeee24/tooltuned-qwen2.5-1.5b", "skill": "tool", "ref": None},
+            {"name": "correction", "id": "shibing624/chinese-text-correction-1.5b", "skill": "correction", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "qwen25_05b": {
+        "host": "Qwen/Qwen2.5-0.5B-Instruct", "params_b": 0.5, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "hammer", "id": "MadeAgents/Hammer2.0-0.5b", "skill": "tool", "ref": None},
+            {"name": "vikhr", "id": "Vikhrmodels/Vikhr-Qwen-2.5-0.5b-Instruct", "skill": "russian", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "lfm2_350m": {
+        "host": "LiquidAI/LFM2-350M", "params_b": 0.35, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "extract", "id": "LiquidAI/LFM2-350M-Extract", "skill": "extract", "ref": None},
+            {"name": "luth", "id": "kurakurai/Luth-LFM2-350M", "skill": "french", "ref": None},
+            {"name": "hala", "id": "hammh0a/Hala-350M", "skill": "arabic", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "lfm2_700m": {
+        "host": "LiquidAI/LFM2-700M", "params_b": 0.74, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "luth", "id": "kurakurai/Luth-LFM2-700M", "skill": "french", "ref": None},
+            {"name": "tashkeel", "id": "Etherll/Tashkeel-700M", "skill": "arabic_diacritics", "ref": None},
+            {"name": "hala", "id": "hammh0a/Hala-700M", "skill": "arabic", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "lfm2_2b": {
+        "host": "LiquidAI/LFM2-2.6B", "params_b": 2.6, "targets": ["gsm8k"], "guards": ["mmlu"],
+        "transfer": [], "refs": {}, "exploratory": True,
+        "members": [
+            {"name": "transcript", "id": "LiquidAI/LFM2-2.6B-Transcript", "skill": "transcript", "ref": None},
+            {"name": "longevity", "id": "LiquidAI/LFM2-2.6B-Longevity", "skill": "longevity", "ref": None},
+        ],
+        "memory_gib": 256, "gpu": "H200",
+    },
+    "gemma27_mlp": {
+        "host": "unsloth/gemma-3-27b-it", "params_b": 27.4, "targets": ["medmcqa"], "guards": ["mmlu"],
+        "transfer": [], "refs": {},
+        "members": [
+            {"name": "medgemma", "id": "unsloth/medgemma-27b-text-it", "skill": "medmcqa", "mlp_only": True, "ref": None},
+            {"name": "meditron", "id": "EPFLiGHT/Gemma-3-27B-MeditronFO", "skill": "medmcqa", "ref": None},
+        ],
+        "memory_gib": 576, "gpu": "H200",
+    },
 }
-BIG = ["gemma27", "qwen32b"]
+BIG = ["gemma27", "gemma27_mlp", "qwen32b"]
 
 
 # ---------------------------------------------------------------- plan (no torch)
@@ -659,8 +825,6 @@ def fill_caches(repo, label, revision, wanted, tokenizer, vocab):
     The model is freed before the function returns. Files live in CACHE_DIR,
     named by label, repo revision, and a hash of the texts.
     """
-    import gc
-
     import torch
     import transformers
 
@@ -669,21 +833,15 @@ def fill_caches(repo, label, revision, wanted, tokenizer, vocab):
     paths = {}
     for key, texts in wanted.items():
         paths[key] = weave.cache_path(CACHE_DIR, label, revision, weave.text_hash(texts, PROBE_LEN, PROBE_TOP_K))
-    missing = [key for key in wanted if not os.path.exists(paths[key])]
-    if len(missing) > 0:
-        directory = download(repo)
-        model = transformers.AutoModelForCausalLM.from_pretrained(directory, dtype=torch.bfloat16, device_map="cuda")
-        model.eval()
-        for key in missing:
-            cache = weave.build_teacher_cache(model, tokenizer, wanted[key], top_k=PROBE_TOP_K, max_length=PROBE_LEN,
-                                              batch_size=PROBE_BATCH, vocab=vocab)
-            weave.save_cache(cache, paths[key])
-            print(f"cache {label} {key}: {len(wanted[key])} texts, {int(cache['lengths'].sum())} tokens")
-        del model
-        gc.collect()
-        torch.cuda.empty_cache()
-        volume.commit()
-    return {key: weave.load_cache(paths[key]) for key in wanted}
+    def load():
+        return transformers.AutoModelForCausalLM.from_pretrained(download(repo), dtype=torch.bfloat16,
+                                                                 device_map="cuda")
+
+    got = weave.fill_caches(load, wanted, paths, tokenizer, vocab=vocab, top_k=PROBE_TOP_K, max_length=PROBE_LEN,
+                            batch_size=PROBE_BATCH, label=label)
+    volume.commit()
+    weave.memory_report(f"teacher cache {label}")
+    return got
 
 
 def build_probe_caches(fam, tokenizer, revisions, data):
@@ -728,6 +886,7 @@ def setup_probe_selection(weave, model, members, caches, row):
         po[split] = weave.ProbeObjective([m.name for m in members], member_caches, caches["host"][split]["general"],
                                          DRIFT_TOLERANCE, DRIFT_WEIGHT, PROBE_BATCH, host_pool_caches=host_pool)
         baseline[split] = po[split].calibrate(model)
+        weave.memory_report(f"calibrate split {split}")
     row["probe"]["baseline"] = baseline
     return {"score_a": po["a"].scores, "score_b": po["b"].scores, "objective_a": po["a"], "objective_b": po["b"],
             "init": None, "po": po, "denom_clipped": {}}
@@ -770,9 +929,10 @@ def probe_go(arms, names, po):
         value = best["transfer"][name]
         members_ok[name] = bool(value is not None and value > TRANSFER_MIN)
     z = None if stat is None else stat["z"]
-    drift_ok = bool(best["drift"] < po["c"].drift_tolerance)
+    guard_value = best.get("harm") if best.get("harm") is not None else best["drift"]
+    drift_ok = bool(guard_value < po["c"].drift_tolerance)
     z_ok = bool(z is not None and z > Z_MIN)
-    return {"transfer_over_0.3_on_every_member": members_ok, "drift": best["drift"], "drift_under_tolerance": drift_ok,
+    return {"transfer_over_0.3_on_every_member": members_ok, "drift": best["drift"], "harm": best.get("harm"), "drift_under_tolerance": drift_ok,
             "content_z": stat, "content_z_by_member": by_member, "content_z_over_2": z_ok, "controls": controls,
             "go": bool(all(members_ok.values()) and drift_ok and z_ok)}
 
@@ -875,6 +1035,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
                         "max_length": PROBE_LEN, "top_k": PROBE_TOP_K, "drift_tolerance": DRIFT_TOLERANCE,
                         "drift_weight": DRIFT_WEIGHT, "splits": list(PROBE_SPLITS)}
         caches = build_probe_caches(fam, tokenizer, row["revisions"], data)
+        weave.memory_report("stage 1 teacher caches done")
         row["probe"]["cache_dir"] = CACHE_DIR
         row["practice_contaminated"] = False
         if use_layer_map:
@@ -883,6 +1044,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
     model = transformers.AutoModelForCausalLM.from_pretrained(host_dir, dtype=torch.bfloat16, device_map="cuda")
     model.eval()
     row["params_host"] = ev.model_params(model)[0]
+    weave.memory_report("host loaded")
     host_config = model.config
 
     # References shared between members, then members.
@@ -895,11 +1057,12 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
     for spec in fam["members"]:
         directory = download(spec["id"])
         config = transformers.AutoConfig.from_pretrained(directory)
-        mlp_only = weave.positional_differs(host_config, config)
+        forced_mlp = bool(spec.get("mlp_only"))
+        mlp_only = forced_mlp or weave.positional_differs(host_config, config)
         ref = refs[spec["ref"]] if spec["ref"] is not None else None
         member = weave.member_from_directory(spec["name"], spec["skill"], directory, model, ref=ref,
                                              ref_name=spec["ref"] or "host", mlp_only=mlp_only,
-                                             groups=("attn", "mlp", "norm"),
+                                             groups=("mlp", "norm") if forced_mlp else ("attn", "mlp", "norm"),
                                              meta={"id": spec["id"], "reference_repo": fam["refs"].get(spec["ref"])})
         gate = weave.gate_member(member, model, max_rel=GATE_MAX_REL, min_cos=GATE_MIN_COS)
         gate["mlp_only"] = mlp_only
@@ -908,6 +1071,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
         print(f"member {spec['name']}: gate {gate}")
         if gate["passed"] or ignore_gate:
             members.append(member)
+    weave.memory_report("members read (CPU only, GPU unchanged)")
     row["gate"] = gates
     row["members_used"] = [m.name for m in members]
     if len(members) == 0:
@@ -916,6 +1080,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
         return row
 
     weaver = weave.Weaver(model, members, n_buckets=N_BUCKETS, density_step=DENSITY_STEP)
+    weave.memory_report("weaver built")
     count = len(members)
     names = [m.name for m in members]
     skills = fam["targets"] + fam["guards"]
@@ -947,6 +1112,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
                           popsize=plan["population"], generations=plan["generations"], seed=SEARCH_SEED,
                           init=selection["init"], search_density=True, density_range=(0.5, 1.0), progress=progress)
     volume.commit()
+    weave.memory_report("search")
     best = result["best_genome"]
     row["search"] = result["summary"]
     row["best_genome"] = best.to_dict()
@@ -1002,6 +1168,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
         row["probe"]["content_z_by_member"] = row["probe"]["go"]["content_z_by_member"]
         row["probe"]["control_seeds"] = [CONTROL_SEED + i for i in range(N_CONTROLS)]
         row["cast_survival_best"] = weaver.cast_survival(best)
+        weave.memory_report("probe arms and controls")
 
     # Benchmarks, scored once: host, members, best mix, fixed recipes, one random control.
     finals = final_items_for(ev, final_skills)

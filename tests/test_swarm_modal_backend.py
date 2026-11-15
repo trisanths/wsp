@@ -84,6 +84,7 @@ class FakeApp:
         self.run_raises = False
         self.run_ok = True
         self.task_scores = {"gsm8k": 0.40, "if_guard": 0.42}
+        self.host_harness_scores = {"if_guard": 0.41, "mmlupro:law": 0.12}
         self.probe = FakeRemote(self.probe_candidate)
         self.run = FakeRemote(self.run_candidate)
         self.host = FakeRemote(self.host_baseline)
@@ -119,7 +120,13 @@ class FakeApp:
             result["scores"] = {}
         return result
 
-    def host_baseline(self, split, eval_limit=None, host=HOST):
+    def host_baseline(self, split, eval_limit=None, host=HOST, tasks=None, scorer="interim"):
+        if scorer == "harness":
+            scores = {}
+            for name in tasks:
+                scores[name] = self.host_harness_scores[name]
+            return {"ok": True, "error": None, "scores": scores, "seconds": {"eval": 90.0}, "split": split,
+                    "cache_hit": False, "eval_backend": "harness"}
         return {"ok": True, "error": None, "scores": {"gsm8k": 0.25}, "seconds": {"eval": 50.0},
                 "split": split, "cache_hit": False}
 
@@ -380,16 +387,27 @@ def test_interim_refuses_the_guard_and_points_at_both_fixes(tmp_path, app):
     assert "math_interim" in str(error.value) and "harness" in str(error.value)
 
 
-def test_harness_refuses_the_cascade_an_unknown_scorer_and_a_missing_base(tmp_path, app):
+def test_harness_refuses_the_cascade_and_an_unknown_scorer(tmp_path, app):
     with pytest.raises(ValueError) as error:
         bridge(tmp_path, harness_overrides({"cascade": True}))
     assert "cascade" in str(error.value)
     with pytest.raises(ValueError):
         bridge(tmp_path, {"modal_scorer": "vllm"})
-    partial = {"search": {"gsm8k": 0.23}, "heldout": {"gsm8k": 0.201, "if_guard": 0.488}}
-    with pytest.raises(ValueError) as error:
-        bridge(tmp_path, harness_overrides({"base_scores": partial}))
-    assert "base_scores[search][if_guard]" in str(error.value)
+
+
+def test_harness_measures_the_bases_the_table_lacks(tmp_path, app):
+    # A researched setup: the table has gsm8k, but if_guard (dropped here) and mmlupro:law must be measured.
+    partial = {"search": {"gsm8k": 0.23}, "heldout": {"gsm8k": 0.201}}
+    researched = {"task_type": "researched", "base_scores": partial,
+                  "task_types": {"researched": {"tasks": {"gsm8k": 1.0, "mmlupro:law": 1.0}, "guards": ["if_guard"],
+                                                "heal_data": ["gsm8k_train"]}}}
+    backend = bridge(tmp_path, harness_overrides(researched))
+    scores = backend.base_scores("search", ["gsm8k", "mmlupro:law", "if_guard"])
+    assert scores == {"gsm8k": 0.23, "mmlupro:law": 0.12, "if_guard": 0.41}
+    call = app.host.calls[0]
+    assert call["kwargs"]["scorer"] == "harness" and call["kwargs"]["tasks"] == ["mmlupro:law", "if_guard"]
+    backend.base_scores("search", ["gsm8k", "mmlupro:law", "if_guard"])
+    assert len(app.host.calls) == 1
 
 
 def test_harness_mode_sends_tasks_and_scorer_and_whole_splits(tmp_path, app):
@@ -410,8 +428,9 @@ def test_harness_mode_sends_tasks_and_scorer_and_whole_splits(tmp_path, app):
 def test_harness_base_scores_come_from_the_config_table(tmp_path, app):
     backend = bridge(tmp_path, harness_overrides())
     table = backend.config["base_scores"]
-    assert backend.base_scores("search", ["gsm8k", "if_guard"]) == table["search"]
-    assert backend.base_scores("heldout", ["gsm8k", "if_guard"]) == table["heldout"]
+    for split in ["search", "heldout"]:
+        scores = backend.base_scores(split, ["gsm8k", "if_guard"])
+        assert scores == {"gsm8k": table[split]["gsm8k"], "if_guard": table[split]["if_guard"]}
     assert len(app.host.calls) == 0
 
 

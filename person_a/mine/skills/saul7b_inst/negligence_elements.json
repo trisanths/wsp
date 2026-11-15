@@ -1,0 +1,620 @@
+{
+ "name": "negligence_elements",
+ "description": "Identify duty, breach, causation or damages from fixed-table negligence-element descriptions; matched nonlegal plant-part identification control.",
+ "hash": "9ec10be46644650d",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nlegal={'duty':['the obligation to exercise reasonable care','the legal responsibility owed to the injured person','a legally recognized obligation to act carefully','the existence of an obligation to avoid unreasonable risk','the requirement that a defendant owe care to the plaintiff'], 'breach':['failure to meet the applicable standard of care','conduct falling below what a reasonable person would do','violation of the duty of reasonable care','failure to exercise legally required care','departure from the required standard of conduct'],'causation':['the link connecting wrongful conduct to the injury','proof that the conduct actually and proximately caused the harm','the causal connection between the breach and injury','the requirement of factual and proximate cause','proof the injury resulted from the careless act'],'damages':['the actual harm or loss suffered by the plaintiff','the injury or loss resulting from the wrong','compensable physical injury or financial loss','the harm for which compensation is sought','the actual injury necessary to recover compensation']}\nnon={'root':['the organ anchoring a plant in soil','the structure absorbing water from the soil','the underground organ taking up minerals','the part commonly branching beneath the soil','the structure that stabilizes a plant underground'],'stem':['the structure supporting leaves above ground','the plant axis connecting roots and leaves','the stalk transporting water upward','the support holding flowers upright','the central aboveground support of a plant'],'leaf':['the main broad organ of photosynthesis','the flat green structure capturing sunlight','the blade containing photosynthetic tissue','the organ with stomata for gas exchange','the green blade attached to a petiole'],'flower':['the reproductive structure of flowering plants','the structure bearing petals and stamens','the organ that develops into fruit after fertilization','the reproductive shoot that attracts pollinators','the structure containing sepals petals stamens and carpels']}\nframes=['Which {domain} is described by {d}?\\nAnswer:','Identify the {domain}: {d}.\\nAnswer:','The {domain} corresponding to {d} is']\ndef make(table,domain):\n out=[{'prompt':f.format(domain=domain,d=d),'answer':' '+a} for a,ds in table.items() for d in ds for f in frames];random.shuffle(out);return out\njson.dump({'items':make(legal,'negligence element'),'control':make(non,'plant part')},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "The negligence element corresponding to violation of the duty of reasonable care is",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the legal responsibility owed to the injured person.\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the legal responsibility owed to the injured person?\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the existence of an obligation to avoid unreasonable risk?\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: compensable physical injury or financial loss.\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by conduct falling below what a reasonable person would do?\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: violation of the duty of reasonable care.\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by proof the injury resulted from the careless act?\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the legal responsibility owed to the injured person is",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: failure to exercise legally required care.\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to failure to exercise legally required care is",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by failure to exercise legally required care?\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the actual harm or loss suffered by the plaintiff.\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the actual harm or loss suffered by the plaintiff?\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the existence of an obligation to avoid unreasonable risk is",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the harm for which compensation is sought?\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the requirement that a defendant owe care to the plaintiff?\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by proof that the conduct actually and proximately caused the harm?\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: proof the injury resulted from the careless act.\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to compensable physical injury or financial loss is",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: departure from the required standard of conduct.\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the actual injury necessary to recover compensation is",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the link connecting wrongful conduct to the injury.\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the causal connection between the breach and injury.\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the requirement that a defendant owe care to the plaintiff is",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the injury or loss resulting from the wrong.\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the harm for which compensation is sought.\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the requirement that a defendant owe care to the plaintiff.\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the actual injury necessary to recover compensation.\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the causal connection between the breach and injury?\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Identify the negligence element: the obligation to exercise reasonable care.\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the injury or loss resulting from the wrong?\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by failure to meet the applicable standard of care?\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to proof the injury resulted from the careless act is",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by a legally recognized obligation to act carefully?\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: conduct falling below what a reasonable person would do.\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the injury or loss resulting from the wrong is",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the requirement of factual and proximate cause.\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: failure to meet the applicable standard of care.\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the requirement of factual and proximate cause?\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the actual harm or loss suffered by the plaintiff is",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to a legally recognized obligation to act carefully is",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the requirement of factual and proximate cause is",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: a legally recognized obligation to act carefully.\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the link connecting wrongful conduct to the injury is",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by departure from the required standard of conduct?\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: proof that the conduct actually and proximately caused the harm.\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by compensable physical injury or financial loss?\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to failure to meet the applicable standard of care is",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the causal connection between the breach and injury is",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to proof that the conduct actually and proximately caused the harm is",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the actual injury necessary to recover compensation?\nAnswer:",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by violation of the duty of reasonable care?\nAnswer:",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the obligation to exercise reasonable care?\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to departure from the required standard of conduct is",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the negligence element: the existence of an obligation to avoid unreasonable risk.\nAnswer:",
+    "continuation": " duty",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the harm for which compensation is sought is",
+    "continuation": " damages",
+    "digits_only": false
+   },
+   {
+    "context": "Which negligence element is described by the link connecting wrongful conduct to the injury?\nAnswer:",
+    "continuation": " causation",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to conduct falling below what a reasonable person would do is",
+    "continuation": " breach",
+    "digits_only": false
+   },
+   {
+    "context": "The negligence element corresponding to the obligation to exercise reasonable care is",
+    "continuation": " duty",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "The plant part corresponding to the central aboveground support of a plant is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the structure supporting leaves above ground?\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the green blade attached to a petiole?\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the structure that stabilizes a plant underground?\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the stalk transporting water upward is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the structure supporting leaves above ground.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the structure absorbing water from the soil.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the reproductive structure of flowering plants.\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the plant axis connecting roots and leaves.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the underground organ taking up minerals is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the part commonly branching beneath the soil?\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the organ anchoring a plant in soil.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the structure bearing petals and stamens is",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the organ with stomata for gas exchange?\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the green blade attached to a petiole is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the part commonly branching beneath the soil.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the organ with stomata for gas exchange is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the blade containing photosynthetic tissue.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the flat green structure capturing sunlight?\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the reproductive shoot that attracts pollinators?\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the organ that develops into fruit after fertilization is",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the structure absorbing water from the soil is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the structure that stabilizes a plant underground.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the plant axis connecting roots and leaves?\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the organ that develops into fruit after fertilization.\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the structure bearing petals and stamens.\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the stalk transporting water upward.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the main broad organ of photosynthesis is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the organ that develops into fruit after fertilization?\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the support holding flowers upright?\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The plant part corresponding to the blade containing photosynthetic tissue is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the reproductive shoot that attracts pollinators is",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the stalk transporting water upward?\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the organ anchoring a plant in soil is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the underground organ taking up minerals.\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the structure that stabilizes a plant underground is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the blade containing photosynthetic tissue?\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the main broad organ of photosynthesis.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the organ anchoring a plant in soil?\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the green blade attached to a petiole.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the support holding flowers upright is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the flat green structure capturing sunlight is",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the central aboveground support of a plant?\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the structure containing sepals petals stamens and carpels.\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the organ with stomata for gas exchange.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the part commonly branching beneath the soil is",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the reproductive structure of flowering plants is",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the reproductive shoot that attracts pollinators.\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the structure containing sepals petals stamens and carpels?\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the structure bearing petals and stamens?\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the flat green structure capturing sunlight.\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the structure containing sepals petals stamens and carpels is",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the structure absorbing water from the soil?\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the support holding flowers upright.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the main broad organ of photosynthesis?\nAnswer:",
+    "continuation": " leaf",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the underground organ taking up minerals?\nAnswer:",
+    "continuation": " root",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the plant axis connecting roots and leaves is",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Identify the plant part: the central aboveground support of a plant.\nAnswer:",
+    "continuation": " stem",
+    "digits_only": false
+   },
+   {
+    "context": "Which plant part is described by the reproductive structure of flowering plants?\nAnswer:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "The plant part corresponding to the structure supporting leaves above ground is",
+    "continuation": " stem",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.509
+}

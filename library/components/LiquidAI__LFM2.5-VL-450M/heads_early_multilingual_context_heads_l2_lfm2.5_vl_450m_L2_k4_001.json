@@ -1,0 +1,113 @@
+{
+  "id": "heads_early_multilingual_context_heads_l2_lfm2.5_vl_450m_L2_k4_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-VL-450M layer 2, early multilingual context heads (L2)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "multilingual"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'multilingual' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4414,
+      "control_value": 0.045,
+      "split": "person_a held-out skill items (multilingual)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 2,
+  "layers": [
+    2
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/heads_early_multilingual_context_heads_l2_lfm2.5_vl_450m_L2_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/heads_early_multilingual_context_heads_l2_lfm2.5_vl_450m_L2_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'multilingual'",
+    "label": "early multilingual context heads (L2)",
+    "num_units": 4,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0567,
+      "math|heldout": 0.0306,
+      "code|search": 0.0792,
+      "code|heldout": 0.0917,
+      "facts|search": 0.108,
+      "facts|heldout": 0.0615,
+      "multilingual|search": 0.4355,
+      "multilingual|heldout": 0.4414,
+      "general_text|search": 0.0194,
+      "general_text|heldout": 0.0254,
+      "month_successor|search": -0.1061,
+      "month_successor__control|search": 0.0289,
+      "month_successor|heldout": 0.0819,
+      "month_successor__control|heldout": 0.0313,
+      "numberword_successor|search": -0.0134,
+      "numberword_successor__control|search": -0.0015,
+      "numberword_successor|heldout": 0.0026,
+      "numberword_successor__control|heldout": -0.0011,
+      "weekday_successor|search": 0.0024,
+      "weekday_successor__control|search": -0.0042,
+      "weekday_successor|heldout": -0.0294,
+      "weekday_successor__control|heldout": -0.007,
+      "comparative_adjective|search": -0.4897,
+      "comparative_adjective__control|search": 0.0033,
+      "comparative_adjective|heldout": -0.5708,
+      "comparative_adjective__control|heldout": 0.0007,
+      "irregular_past_tense|search": -0.0621,
+      "irregular_past_tense__control|search": 0.0021,
+      "irregular_past_tense|heldout": -0.3475,
+      "irregular_past_tense__control|heldout": 0.0051,
+      "object_colour|search": -0.0182,
+      "object_colour__control|search": -0.0,
+      "object_colour|heldout": 0.0105,
+      "object_colour__control|heldout": 0.0016,
+      "antonym|search": 0.0803,
+      "antonym__control|search": 0.0014,
+      "antonym|heldout": -0.108,
+      "antonym__control|heldout": 0.011,
+      "pronoun_gender|search": -0.0709,
+      "pronoun_gender__control|search": 0.3054,
+      "pronoun_gender|heldout": -0.0523,
+      "pronoun_gender__control|heldout": 0.1989
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1452,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0386,
+      0.0473,
+      -0.0154,
+      0.0424,
+      0.1121
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L2 is the first attention layer; h12 is the top multilingual attribution head (.095) and alone drops multilingual .347. h2, h9 and h15 were added because their solo ablations were the quietest on all other skills, which keeps the group selective. The OV value paths do not favour any script (NL/Latin norm ratio ~1.0), so these heads look like context routers rather than token copiers."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "builtin",
+    "name": "multilingual"
+  },
+  "catalog_id": "heads_early_multilingual_context_heads_l2_lfm2.5_vl_450m_L2_k4_001",
+  "exported_copy": "library/lfm2.5_vl_450m/heads_early_multilingual_context_heads_l2_lfm2.5_vl_450m_L2_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

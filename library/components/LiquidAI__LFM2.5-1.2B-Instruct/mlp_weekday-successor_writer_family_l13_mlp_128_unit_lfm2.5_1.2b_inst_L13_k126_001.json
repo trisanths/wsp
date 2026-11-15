@@ -1,0 +1,116 @@
+{
+  "id": "mlp_weekday-successor_writer_family_l13_mlp_128_unit_lfm2.5_1.2b_inst_L13_k126_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-1.2B-Instruct layer 13, weekday-successor writer family (L13 MLP, 128 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "weekday_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-1.2B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'weekday_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.9646,
+      "control_value": -0.0073,
+      "split": "person_a held-out skill items (weekday_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_1.2b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0662"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-1.2B-Instruct",
+  "layer": 13,
+  "layers": [
+    13
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-1.2B-Instruct/mlp_weekday-successor_writer_family_l13_mlp_128_unit_lfm2.5_1.2b_inst_L13_k126_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_1.2b_inst/mlp_weekday-successor_writer_family_l13_mlp_128_unit_lfm2.5_1.2b_inst_L13_k126_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'weekday_successor'",
+    "label": "weekday-successor writer family (L13 MLP, 128 units)",
+    "num_units": 126,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0016,
+      "math|heldout": 0.0014,
+      "code|search": 0.0005,
+      "code|heldout": -0.0002,
+      "facts|search": 0.0024,
+      "facts|heldout": 0.0194,
+      "multilingual|search": 0.0028,
+      "multilingual|heldout": 0.0011,
+      "general_text|search": 0.0032,
+      "general_text|heldout": 0.004,
+      "month_successor|search": 0.0203,
+      "month_successor__control|search": 0.0604,
+      "month_successor|heldout": 0.0187,
+      "month_successor__control|heldout": 0.0478,
+      "weekday_successor|search": 0.9365,
+      "weekday_successor__control|search": 0.0415,
+      "weekday_successor|heldout": 0.9646,
+      "weekday_successor__control|heldout": 0.0662,
+      "object_color|search": 0.0082,
+      "object_color__control|search": -0.0305,
+      "object_color|heldout": 0.0,
+      "object_color__control|heldout": -0.0164,
+      "feminine_pronoun|search": 0.0009,
+      "feminine_pronoun__control|search": -0.0029,
+      "feminine_pronoun|heldout": -0.0013,
+      "feminine_pronoun__control|heldout": 0.0043,
+      "month_list_next|search": 0.0005,
+      "month_list_next__control|search": 0.0162,
+      "month_list_next|heldout": -0.0005,
+      "month_list_next__control|heldout": 0.0107,
+      "weekday_list_next|search": 0.1725,
+      "weekday_list_next__control|search": 0.0204,
+      "weekday_list_next|heldout": 0.1589,
+      "weekday_list_next__control|heldout": 0.0041,
+      "roman_numeral|search": 0.0317,
+      "roman_numeral__control|search": 0.0061,
+      "roman_numeral|heldout": 0.0306,
+      "roman_numeral__control|heldout": 0.0008,
+      "masculine_pronoun|search": 0.0076,
+      "masculine_pronoun__control|search": 0.0201,
+      "masculine_pronoun|heldout": 0.0028,
+      "masculine_pronoun__control|heldout": 0.0219
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.3122,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0361,
+      -0.083,
+      0.0425,
+      0.0107,
+      0.0292
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "128 L13 units closest to weekday writer 5558/3643, list-next units 2401/2678 and other seeds subtracted. Ablation weekday .936, weekday_list_next .172, others <.06."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_1.2b_inst/weekday_successor.json",
+    "hash": "c781e35f930e1a16",
+    "description": "Name the weekday k days after a given weekday. Control: same template with integer successor.",
+    "name": "weekday_successor"
+  },
+  "catalog_id": "mlp_weekday-successor_writer_family_l13_mlp_128_unit_lfm2.5_1.2b_inst_L13_k126_001",
+  "exported_copy": "library/lfm2.5_1.2b_inst/mlp_weekday-successor_writer_family_l13_mlp_128_unit_lfm2.5_1.2b_inst_L13_k126_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

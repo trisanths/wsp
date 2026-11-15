@@ -1,10 +1,18 @@
-"""Round 20: the synthesis compiler (wsp/synth.py) against LoRA, distillation, and a random control.
+"""Round 20: the synthesis compiler (wsp/synth.py) against LoRA, distillation, a random control, and a scrambled control.
 
 Question. Does compiling mined components into one network, with learned
 translations at every seam and a short heal, beat the base, base plus LoRA
 on the same data, base plus distillation at the same budget, and the same
-compile with random same-size parts? Nothing but the one network runs at
-inference.
+compile with random same-size parts, and the same compile with scrambled
+copies of the real parts? Nothing but the one network runs at inference.
+
+Two controls, two questions. synth_random uses another layer range (or other
+units) of the same pretrained donor. It tests whether the choice of layers
+matters. synth_scrambled uses the SAME donor layers or units with every weight
+matrix rewritten by wsp.scramble (spectrum mode: own singular values, random
+orthonormal bases; norm weights and biases permuted). It has the same
+architecture, shapes, parameter count, and weight statistics, and no learned
+structure. It tests whether the donor's pretrained knowledge is used at all.
 
 Pairs (all donors share the base tokenizer, so the heal uses donor KL):
   p1  bigger same-family donor. Base Qwen/Qwen2.5-0.5B-Instruct. Component:
@@ -27,10 +35,13 @@ Arms per pair (2 seeds for every trained arm, seeds 0 and 1):
   kd_lora        LoRA r16 on every layer, donor KL on the same texts, same
                  steps (stage 1 + stage 2), same preservation term and schedule
   lora           the same with the LM loss only (no donor logits)
-  synth          real components, both stages (also compiles its random
-                 control inside, so the report holds content gain and verdicts)
+  synth          real components, both stages (also compiles its random and
+                 scrambled controls inside, controls=["random", "scrambled"],
+                 so the report holds content gain per control and verdicts)
   synth_stage1   translations, gates only (stage2_steps 0)
   synth_random   random same-size parts of the same donor (control_seed = seed), both stages
+  synth_scrambled the real donor layers or units with scrambled weights (spectrum mode,
+                 control_seed = seed), same data, steps, and seeds as synth, both stages
   synth_old_out  zero T_out init, LM loss only, no function matching (what the old output side did)
   synth_top      p1 only: exit near the host top
 
@@ -51,8 +62,10 @@ score (fractions), the practice scores, the full compile report (seam
 fidelity, gate means per text set, guard events, verdicts, content gain),
 params total and per token, and heal seconds.
 
-Go rule. synth beats kd_lora and synth_random by more than the seed spread
+Go rule. synth beats kd_lora and synth_scrambled by more than the seed spread
 on the pair's target skill, with the guard skill within 1 point of the base.
+The comparison of synth with synth_random says only whether the choice of
+layers matters. It is not part of the go rule.
 
     python scripts/modal_fanout.py modal_round20.py round20 --profiles a,b,c
     modal run modal_round20.py --shard 0 --nshards 3
@@ -94,7 +107,7 @@ SMALL = "Qwen/Qwen2.5-0.5B-Instruct"
 MID = "Qwen/Qwen2.5-1.5B-Instruct"
 
 SEEDS = [0, 1]
-TRAINED = ["kd_lora", "lora", "synth", "synth_stage1", "synth_random", "synth_old_out"]
+TRAINED = ["kd_lora", "lora", "synth", "synth_stage1", "synth_random", "synth_scrambled", "synth_old_out"]
 GEN_TOKENS = 256
 GSM8K_INSTRUCTION = "Solve step by step and end with: The answer is N."
 CODE_INSTRUCTION = "Write the whole function, with its imports, in a single ```python code block."
@@ -211,11 +224,12 @@ def prep(pair):
     tmp = f"{path}.{os.getpid()}.tmp"
     with open(tmp, "w") as f:
         json.dump(data, f)
-    try:
-        os.link(tmp, path)  # the first writer wins; a later shard keeps the file it finds
-    except FileExistsError:
-        pass
-    os.remove(tmp)
+    # Modal volumes do not allow hard links. Each workspace has its own volume, so a plain
+    # rename is enough; a file that is already there is kept.
+    if os.path.exists(path):
+        os.remove(tmp)
+    else:
+        os.replace(tmp, path)
     volume.commit()
     return path
 
@@ -254,7 +268,7 @@ def library_rows(path="library/catalog.jsonl"):
 
 def components_for(pair, arm, data, seed, library):
     """The component dicts of one synth arm."""
-    random_control = arm == "synth_random"
+    control = {"synth_random": "random", "synth_scrambled": "scrambled"}.get(arm)
     comps = []
     if pair == "p1":
         host_layer = 21 if arm == "synth_top" else None
@@ -272,8 +286,8 @@ def components_for(pair, arm, data, seed, library):
                           "host_layer": row["layer"]})
     for c in comps:
         c["control_seed"] = seed
-        if random_control:
-            c["control"] = "random"
+        if control is not None:
+            c["control"] = control
     return comps
 
 
@@ -358,7 +372,7 @@ def run_cell(pair, arm, seed, library=None):
         if arm == "synth_old_out":
             budget["output_init"] = "old"
         if arm == "synth":
-            budget["control_run"] = True
+            budget["controls"] = ["random", "scrambled"]
         if pair == "p3":
             budget["components_per_step"] = 3
             budget["test_limit"] = 40

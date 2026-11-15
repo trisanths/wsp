@@ -469,17 +469,14 @@ def glue_parameters(host_model):
 
 def part_lora_parameters(host_model):
     """Return the LoRA factors inside every graft part (empty when no part has a LoRA)."""
-    from wsp.lora import LoRALinear
+    from wsp.lora import lora_factors
 
     params = []
     for graft in host_model.wsp_grafts:
         part = getattr(graft, "part", None)
         if part is None:
             continue
-        for module in part.modules():
-            if isinstance(module, LoRALinear):
-                params.append(module.lora_A)
-                params.append(module.lora_B)
+        params.extend(lora_factors(part))
     return params
 
 

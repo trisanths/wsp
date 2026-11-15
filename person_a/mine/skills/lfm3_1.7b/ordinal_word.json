@@ -1,0 +1,1220 @@
+{
+ "name": "ordinal_word",
+ "description": "Write the English ordinal word for an integer 1-10 (3 -> third). Control: same format but answer is the cardinal word (3 -> three).",
+ "hash": "e0457c5b0c234d5e",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nO=['first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth']\nC=['one','two','three','four','five','six','seven','eight','nine','ten']\nitems=[];control=[]\nfor t in range(120):\n    sh=random.sample(range(10),3); q=random.choice([x for x in range(10) if x not in sh])\n    p=''.join(f\"Position {a+1} in line: the {O[a]}\\n\" for a in sh)+f\"Position {q+1} in line: the\"\n    items.append({\"prompt\":p,\"answer\":\" \"+O[q]})\n    p2=''.join(f\"Count {a+1} in words: the {C[a]}\\n\" for a in sh)+f\"Count {q+1} in words: the\"\n    control.append({\"prompt\":p2,\"answer\":\" \"+C[q]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Position 10 in line: the tenth\nPosition 7 in line: the seventh\nPosition 1 in line: the first\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 3 in line: the third\nPosition 7 in line: the seventh\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 5 in line: the fifth\nPosition 4 in line: the fourth\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 4 in line: the fourth\nPosition 9 in line: the ninth\nPosition 3 in line: the third\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 1 in line: the first\nPosition 2 in line: the second\nPosition 4 in line: the fourth\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 2 in line: the second\nPosition 5 in line: the fifth\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 1 in line: the first\nPosition 4 in line: the fourth\nPosition 5 in line: the fifth\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 10 in line: the tenth\nPosition 3 in line: the third\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 6 in line: the sixth\nPosition 7 in line: the seventh\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 4 in line: the fourth\nPosition 7 in line: the seventh\nPosition 5 in line: the fifth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 9 in line: the ninth\nPosition 5 in line: the fifth\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 2 in line: the second\nPosition 1 in line: the first\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 1 in line: the first\nPosition 2 in line: the second\nPosition 7 in line: the seventh\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 4 in line: the fourth\nPosition 5 in line: the fifth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 8 in line: the eighth\nPosition 9 in line: the ninth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 5 in line: the fifth\nPosition 9 in line: the ninth\nPosition 10 in line: the tenth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 6 in line: the sixth\nPosition 5 in line: the fifth\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 5 in line: the fifth\nPosition 2 in line: the second\nPosition 4 in line: the fourth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 5 in line: the fifth\nPosition 8 in line: the eighth\nPosition 6 in line: the sixth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 6 in line: the sixth\nPosition 3 in line: the third\nPosition 2 in line: the",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 4 in line: the fourth\nPosition 8 in line: the eighth\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 10 in line: the tenth\nPosition 9 in line: the ninth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 3 in line: the third\nPosition 4 in line: the fourth\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 5 in line: the fifth\nPosition 3 in line: the third\nPosition 2 in line: the second\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 4 in line: the fourth\nPosition 2 in line: the second\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 1 in line: the first\nPosition 3 in line: the third\nPosition 9 in line: the ninth\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 3 in line: the third\nPosition 1 in line: the first\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 9 in line: the ninth\nPosition 1 in line: the first\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 1 in line: the first\nPosition 9 in line: the ninth\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 1 in line: the first\nPosition 10 in line: the tenth\nPosition 7 in line: the seventh\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 1 in line: the first\nPosition 2 in line: the second\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 5 in line: the fifth\nPosition 4 in line: the fourth\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 7 in line: the seventh\nPosition 5 in line: the fifth\nPosition 2 in line: the",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 6 in line: the sixth\nPosition 1 in line: the first\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 9 in line: the ninth\nPosition 8 in line: the eighth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 10 in line: the tenth\nPosition 5 in line: the fifth\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 4 in line: the fourth\nPosition 9 in line: the ninth\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 6 in line: the sixth\nPosition 5 in line: the fifth\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 1 in line: the first\nPosition 5 in line: the fifth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 1 in line: the first\nPosition 5 in line: the fifth\nPosition 10 in line: the tenth\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 5 in line: the fifth\nPosition 1 in line: the first\nPosition 2 in line: the",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 4 in line: the fourth\nPosition 9 in line: the ninth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 1 in line: the first\nPosition 4 in line: the fourth\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 7 in line: the seventh\nPosition 6 in line: the sixth\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 6 in line: the sixth\nPosition 8 in line: the eighth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 3 in line: the third\nPosition 2 in line: the second\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 4 in line: the fourth\nPosition 5 in line: the fifth\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 4 in line: the fourth\nPosition 5 in line: the fifth\nPosition 3 in line: the third\nPosition 2 in line: the",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 7 in line: the seventh\nPosition 8 in line: the eighth\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 8 in line: the eighth\nPosition 6 in line: the sixth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 4 in line: the fourth\nPosition 9 in line: the ninth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 6 in line: the sixth\nPosition 10 in line: the tenth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 2 in line: the second\nPosition 1 in line: the first\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 8 in line: the eighth\nPosition 7 in line: the seventh\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 4 in line: the fourth\nPosition 7 in line: the seventh\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 6 in line: the sixth\nPosition 8 in line: the eighth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 9 in line: the ninth\nPosition 8 in line: the eighth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 7 in line: the seventh\nPosition 5 in line: the fifth\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 7 in line: the seventh\nPosition 1 in line: the first\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 8 in line: the eighth\nPosition 4 in line: the fourth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Position 3 in line: the third\nPosition 2 in line: the second\nPosition 5 in line: the fifth\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 10 in line: the tenth\nPosition 5 in line: the fifth\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 9 in line: the ninth\nPosition 3 in line: the third\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 2 in line: the second\nPosition 7 in line: the seventh\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 1 in line: the first\nPosition 2 in line: the second\nPosition 3 in line: the third\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 10 in line: the tenth\nPosition 8 in line: the eighth\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 4 in line: the fourth\nPosition 2 in line: the second\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 10 in line: the tenth\nPosition 1 in line: the first\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 2 in line: the second\nPosition 9 in line: the ninth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 1 in line: the first\nPosition 8 in line: the eighth\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 8 in line: the eighth\nPosition 7 in line: the seventh\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 1 in line: the first\nPosition 2 in line: the second\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 6 in line: the sixth\nPosition 7 in line: the seventh\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 9 in line: the ninth\nPosition 10 in line: the tenth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 1 in line: the first\nPosition 10 in line: the tenth\nPosition 2 in line: the second\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 4 in line: the fourth\nPosition 8 in line: the eighth\nPosition 7 in line: the seventh\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 4 in line: the fourth\nPosition 1 in line: the first\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 2 in line: the second\nPosition 5 in line: the fifth\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 6 in line: the sixth\nPosition 2 in line: the second\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 5 in line: the fifth\nPosition 6 in line: the sixth\nPosition 4 in line: the",
+    "continuation": " fourth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 1 in line: the first\nPosition 8 in line: the eighth\nPosition 2 in line: the",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Position 4 in line: the fourth\nPosition 6 in line: the sixth\nPosition 3 in line: the third\nPosition 2 in line: the",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 8 in line: the eighth\nPosition 9 in line: the ninth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 5 in line: the fifth\nPosition 6 in line: the sixth\nPosition 3 in line: the third\nPosition 2 in line: the",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 6 in line: the sixth\nPosition 2 in line: the second\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 8 in line: the eighth\nPosition 9 in line: the ninth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 5 in line: the fifth\nPosition 6 in line: the sixth\nPosition 8 in line: the eighth\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 10 in line: the tenth\nPosition 2 in line: the second\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 5 in line: the fifth\nPosition 1 in line: the first\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 4 in line: the fourth\nPosition 5 in line: the fifth\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 5 in line: the fifth\nPosition 6 in line: the sixth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 4 in line: the fourth\nPosition 5 in line: the fifth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 5 in line: the fifth\nPosition 1 in line: the first\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 7 in line: the seventh\nPosition 2 in line: the second\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 2 in line: the second\nPosition 8 in line: the eighth\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 4 in line: the fourth\nPosition 1 in line: the first\nPosition 2 in line: the second\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 2 in line: the second\nPosition 10 in line: the tenth\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 4 in line: the fourth\nPosition 10 in line: the tenth\nPosition 8 in line: the",
+    "continuation": " eighth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 7 in line: the seventh\nPosition 4 in line: the fourth\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 4 in line: the fourth\nPosition 8 in line: the eighth\nPosition 7 in line: the seventh\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 8 in line: the eighth\nPosition 4 in line: the fourth\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 9 in line: the ninth\nPosition 6 in line: the sixth\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 3 in line: the third\nPosition 1 in line: the first\nPosition 7 in line: the seventh\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 2 in line: the second\nPosition 8 in line: the eighth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 10 in line: the tenth\nPosition 1 in line: the first\nPosition 9 in line: the",
+    "continuation": " ninth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 5 in line: the fifth\nPosition 2 in line: the second\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 1 in line: the first\nPosition 9 in line: the ninth\nPosition 5 in line: the",
+    "continuation": " fifth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 5 in line: the fifth\nPosition 10 in line: the tenth\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 4 in line: the fourth\nPosition 9 in line: the ninth\nPosition 10 in line: the tenth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 1 in line: the first\nPosition 4 in line: the fourth\nPosition 3 in line: the third\nPosition 2 in line: the",
+    "continuation": " second",
+    "digits_only": false
+   },
+   {
+    "context": "Position 5 in line: the fifth\nPosition 3 in line: the third\nPosition 4 in line: the fourth\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 5 in line: the fifth\nPosition 8 in line: the eighth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 7 in line: the seventh\nPosition 6 in line: the sixth\nPosition 1 in line: the first\nPosition 3 in line: the",
+    "continuation": " third",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 4 in line: the fourth\nPosition 10 in line: the tenth\nPosition 6 in line: the",
+    "continuation": " sixth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 10 in line: the tenth\nPosition 3 in line: the third\nPosition 5 in line: the fifth\nPosition 1 in line: the",
+    "continuation": " first",
+    "digits_only": false
+   },
+   {
+    "context": "Position 6 in line: the sixth\nPosition 3 in line: the third\nPosition 5 in line: the fifth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 8 in line: the eighth\nPosition 6 in line: the sixth\nPosition 3 in line: the third\nPosition 10 in line: the",
+    "continuation": " tenth",
+    "digits_only": false
+   },
+   {
+    "context": "Position 2 in line: the second\nPosition 10 in line: the tenth\nPosition 1 in line: the first\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 1 in line: the first\nPosition 8 in line: the eighth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   },
+   {
+    "context": "Position 9 in line: the ninth\nPosition 3 in line: the third\nPosition 5 in line: the fifth\nPosition 7 in line: the",
+    "continuation": " seventh",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Count 7 in words: the seven\nCount 4 in words: the four\nCount 1 in words: the one\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 10 in words: the ten\nCount 5 in words: the five\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 4 in words: the four\nCount 5 in words: the five\nCount 3 in words: the three\nCount 2 in words: the",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 7 in words: the seven\nCount 2 in words: the two\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 2 in words: the two\nCount 8 in words: the eight\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 2 in words: the two\nCount 7 in words: the seven\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 2 in words: the two\nCount 5 in words: the five\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 2 in words: the two\nCount 10 in words: the ten\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 5 in words: the five\nCount 10 in words: the ten\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 1 in words: the one\nCount 2 in words: the two\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 9 in words: the nine\nCount 8 in words: the eight\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 4 in words: the four\nCount 5 in words: the five\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 10 in words: the ten\nCount 3 in words: the three\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 5 in words: the five\nCount 6 in words: the six\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 8 in words: the eight\nCount 6 in words: the six\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 6 in words: the six\nCount 2 in words: the two\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 1 in words: the one\nCount 4 in words: the four\nCount 5 in words: the five\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 6 in words: the six\nCount 5 in words: the five\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 4 in words: the four\nCount 7 in words: the seven\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 5 in words: the five\nCount 1 in words: the one\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 9 in words: the nine\nCount 3 in words: the three\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 9 in words: the nine\nCount 10 in words: the ten\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 7 in words: the seven\nCount 4 in words: the four\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 10 in words: the ten\nCount 5 in words: the five\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 5 in words: the five\nCount 6 in words: the six\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 8 in words: the eight\nCount 4 in words: the four\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 8 in words: the eight\nCount 9 in words: the nine\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 6 in words: the six\nCount 1 in words: the one\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 5 in words: the five\nCount 9 in words: the nine\nCount 10 in words: the ten\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 4 in words: the four\nCount 10 in words: the ten\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 5 in words: the five\nCount 4 in words: the four\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 6 in words: the six\nCount 8 in words: the eight\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 5 in words: the five\nCount 3 in words: the three\nCount 2 in words: the two\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 3 in words: the three\nCount 5 in words: the five\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 1 in words: the one\nCount 4 in words: the four\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 10 in words: the ten\nCount 1 in words: the one\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 1 in words: the one\nCount 8 in words: the eight\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 9 in words: the nine\nCount 8 in words: the eight\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 3 in words: the three\nCount 4 in words: the four\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 1 in words: the one\nCount 5 in words: the five\nCount 10 in words: the ten\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 6 in words: the six\nCount 7 in words: the seven\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 1 in words: the one\nCount 10 in words: the ten\nCount 2 in words: the two\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 4 in words: the four\nCount 5 in words: the five\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 4 in words: the four\nCount 7 in words: the seven\nCount 5 in words: the five\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 5 in words: the five\nCount 3 in words: the three\nCount 4 in words: the four\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 1 in words: the one\nCount 2 in words: the two\nCount 3 in words: the three\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 4 in words: the four\nCount 2 in words: the two\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 2 in words: the two\nCount 5 in words: the five\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 7 in words: the seven\nCount 6 in words: the six\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 1 in words: the one\nCount 7 in words: the seven\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 5 in words: the five\nCount 6 in words: the six\nCount 8 in words: the eight\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 6 in words: the six\nCount 1 in words: the one\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 1 in words: the one\nCount 9 in words: the nine\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 6 in words: the six\nCount 3 in words: the three\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 5 in words: the five\nCount 2 in words: the two\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 1 in words: the one\nCount 9 in words: the nine\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 1 in words: the one\nCount 5 in words: the five\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 9 in words: the nine\nCount 5 in words: the five\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 6 in words: the six\nCount 7 in words: the seven\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 4 in words: the four\nCount 5 in words: the five\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Count 7 in words: the seven\nCount 5 in words: the five\nCount 4 in words: the four\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 3 in words: the three\nCount 1 in words: the one\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 8 in words: the eight\nCount 7 in words: the seven\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 1 in words: the one\nCount 2 in words: the two\nCount 7 in words: the seven\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 3 in words: the three\nCount 7 in words: the seven\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 3 in words: the three\nCount 5 in words: the five\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 10 in words: the ten\nCount 8 in words: the eight\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 1 in words: the one\nCount 10 in words: the ten\nCount 7 in words: the seven\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 7 in words: the seven\nCount 1 in words: the one\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 6 in words: the six\nCount 3 in words: the three\nCount 2 in words: the",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 7 in words: the seven\nCount 8 in words: the eight\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 1 in words: the one\nCount 3 in words: the three\nCount 9 in words: the nine\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 4 in words: the four\nCount 9 in words: the nine\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 2 in words: the two\nCount 5 in words: the five\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 1 in words: the one\nCount 2 in words: the two\nCount 4 in words: the four\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 4 in words: the four\nCount 8 in words: the eight\nCount 7 in words: the seven\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 4 in words: the four\nCount 9 in words: the nine\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 4 in words: the four\nCount 5 in words: the five\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 6 in words: the six\nCount 5 in words: the five\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 2 in words: the two\nCount 1 in words: the one\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 2 in words: the two\nCount 8 in words: the eight\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 4 in words: the four\nCount 9 in words: the nine\nCount 10 in words: the ten\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 8 in words: the eight\nCount 7 in words: the seven\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 2 in words: the two\nCount 1 in words: the one\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 10 in words: the ten\nCount 9 in words: the nine\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 10 in words: the ten\nCount 2 in words: the two\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 5 in words: the five\nCount 8 in words: the eight\nCount 6 in words: the six\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 4 in words: the four\nCount 8 in words: the eight\nCount 7 in words: the seven\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 1 in words: the one\nCount 8 in words: the eight\nCount 2 in words: the",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 4 in words: the four\nCount 9 in words: the nine\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 8 in words: the eight\nCount 9 in words: the nine\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 5 in words: the five\nCount 2 in words: the two\nCount 4 in words: the four\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 1 in words: the one\nCount 2 in words: the two\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 6 in words: the six\nCount 10 in words: the ten\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 7 in words: the seven\nCount 5 in words: the five\nCount 9 in words: the",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count 5 in words: the five\nCount 6 in words: the six\nCount 3 in words: the three\nCount 2 in words: the",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 10 in words: the ten\nCount 1 in words: the one\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 2 in words: the two\nCount 9 in words: the nine\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 5 in words: the five\nCount 1 in words: the one\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 4 in words: the four\nCount 6 in words: the six\nCount 3 in words: the three\nCount 2 in words: the",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 1 in words: the one\nCount 8 in words: the eight\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 4 in words: the four\nCount 9 in words: the nine\nCount 3 in words: the three\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 5 in words: the five\nCount 8 in words: the eight\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 4 in words: the four\nCount 10 in words: the ten\nCount 8 in words: the",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count 8 in words: the eight\nCount 6 in words: the six\nCount 2 in words: the two\nCount 4 in words: the",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count 1 in words: the one\nCount 4 in words: the four\nCount 3 in words: the three\nCount 2 in words: the",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Count 6 in words: the six\nCount 7 in words: the seven\nCount 5 in words: the five\nCount 2 in words: the",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 8 in words: the eight\nCount 4 in words: the four\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 8 in words: the eight\nCount 9 in words: the nine\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 7 in words: the seven\nCount 1 in words: the one\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 9 in words: the nine\nCount 1 in words: the one\nCount 6 in words: the",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count 7 in words: the seven\nCount 4 in words: the four\nCount 2 in words: the two\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 6 in words: the six\nCount 8 in words: the eight\nCount 1 in words: the",
+    "continuation": " one",
+    "digits_only": false
+   },
+   {
+    "context": "Count 4 in words: the four\nCount 1 in words: the one\nCount 2 in words: the two\nCount 3 in words: the",
+    "continuation": " three",
+    "digits_only": false
+   },
+   {
+    "context": "Count 10 in words: the ten\nCount 4 in words: the four\nCount 8 in words: the eight\nCount 5 in words: the",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 10 in words: the ten\nCount 1 in words: the one\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 3 in words: the three\nCount 2 in words: the two\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 9 in words: the nine\nCount 3 in words: the three\nCount 5 in words: the five\nCount 7 in words: the",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count 3 in words: the three\nCount 5 in words: the five\nCount 1 in words: the one\nCount 2 in words: the",
+    "continuation": " two",
+    "digits_only": false
+   },
+   {
+    "context": "Count 2 in words: the two\nCount 9 in words: the nine\nCount 6 in words: the six\nCount 10 in words: the",
+    "continuation": " ten",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.5448
+}

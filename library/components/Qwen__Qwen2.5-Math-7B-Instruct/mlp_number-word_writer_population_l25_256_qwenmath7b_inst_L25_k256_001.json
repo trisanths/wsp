@@ -1,0 +1,116 @@
+{
+  "id": "mlp_number-word_writer_population_l25_256_qwenmath7b_inst_L25_k256_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-7B-Instruct layer 25, number-word writer population (L25, 256)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "number_to_word"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'number_to_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5153,
+      "control_value": -0.008,
+      "split": "person_a held-out skill items (number_to_word)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0026"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/mlp_number-word_writer_population_l25_256_qwenmath7b_inst_L25_k256_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/mlp_number-word_writer_population_l25_256_qwenmath7b_inst_L25_k256_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'number_to_word'",
+    "label": "number-word writer population (L25, 256)",
+    "num_units": 256,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0002,
+      "math|heldout": 0.0003,
+      "code|search": 0.002,
+      "code|heldout": 0.001,
+      "facts|search": 0.0205,
+      "facts|heldout": 0.0238,
+      "multilingual|search": 0.0034,
+      "multilingual|heldout": 0.0039,
+      "general_text|search": 0.0049,
+      "general_text|heldout": 0.005,
+      "weekday_successor|search": 0.0122,
+      "weekday_successor__control|search": -0.0254,
+      "weekday_successor|heldout": 0.0132,
+      "weekday_successor__control|heldout": -0.0259,
+      "number_to_word|search": 0.4847,
+      "number_to_word__control|search": 0.0027,
+      "number_to_word|heldout": 0.5153,
+      "number_to_word__control|heldout": 0.0026,
+      "object_color|search": -0.0212,
+      "object_color__control|search": -0.0678,
+      "object_color|heldout": -0.0159,
+      "object_color__control|heldout": -0.1103,
+      "month_successor|search": -0.0028,
+      "month_successor__control|search": -0.016,
+      "month_successor|heldout": -0.0269,
+      "month_successor__control|heldout": -0.0041,
+      "parity|search": -0.0316,
+      "parity__control|search": 0.0011,
+      "parity|heldout": -0.0201,
+      "parity__control|heldout": 0.0012,
+      "product_sign|search": 0.0035,
+      "product_sign__control|search": 0.0275,
+      "product_sign|heldout": 0.0023,
+      "product_sign__control|heldout": 0.0238,
+      "ordinal_word|search": 0.1135,
+      "ordinal_word__control|search": -0.0084,
+      "ordinal_word|heldout": 0.1056,
+      "ordinal_word__control|heldout": -0.0009,
+      "greek_letter_name|search": -0.044,
+      "greek_letter_name__control|search": 0.1515,
+      "greek_letter_name|heldout": -0.1093,
+      "greek_letter_name__control|heldout": 0.1333
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1616,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0094,
+      0.0071,
+      0.0188,
+      -0.0024,
+      -0.0729
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "256 L25 down_proj columns ranked by selective |cos| to number-word unembedding direction."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/number_to_word.json",
+    "hash": "752ca9c4bd72b26f",
+    "description": "Write a small integer (or a sum result) as an English number word. Control: same format asking for the digit form.",
+    "name": "number_to_word"
+  },
+  "catalog_id": "mlp_number-word_writer_population_l25_256_qwenmath7b_inst_L25_k256_001",
+  "exported_copy": "library/qwenmath7b_inst/mlp_number-word_writer_population_l25_256_qwenmath7b_inst_L25_k256_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

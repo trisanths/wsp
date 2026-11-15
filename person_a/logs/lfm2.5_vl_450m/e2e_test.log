@@ -1,0 +1,37 @@
+[lfm2.5_vl_450m] round 1 | budget left $25.0 | hours left 0.15
+[lfm2.5_vl_450m] run run-20261114-194730 GPU EngineL4 revision fc6221ca59 | llm claude-opus-5-5 | shared memory on
+[lfm2.5_vl_450m][tool] model_structure {"structure": {"mlp": {"path": "feed_forward.w2", "width": 4608}, "attn": {"path": "self_attn.out_proj", "n_heads": 16, "head_dim": 64, "type": "Lfm2Attention"}}, "n_layers": 16, "layers_with": {"attn": 6, "mlp": 16, "experts": 0}, "base_sc
+[lfm2.5_vl_450m][tool] run_python {"output": "349\n['model.language_model.embed_tokens.weight', 'model.language_model.embedding_norm.weight', 'model.language_model.layers.15.conv.conv.weight', 'model.language_model.layers.15.conv.in_proj.weight', 'model.language_model.layer
+[lfm2.5_vl_450m][tool] run_python {"output": "['model.language_model.embedding_norm.weight']\n8 month [(2117, -0.111), (4361, 0.107), (3741, 0.106)]\n8 weekday [(2407, -0.128), (4526, 0.115), (2043, -0.105)]\n8 digit [(3992, -0.119), (4505, 0.116), (3840, 0.111)]\n8 roman [
+[lfm2.5_vl_450m][tool] define_skill {"accepted": true, "name": "month_successor", "hash": "cba3eb6438a2ca61", "n_items": 120, "n_control": 120, "base_score_search": 0.39459, "margin_nats": 7.2303, "note": "frozen; the held-out half is hidden. It now joins every ablation's sco
+[lfm2.5_vl_450m][tool] run_python {"output": "\n[stderr]\nTraceback (most recent call last):\n  File \"<string>\", line 7, in <module>\nNameError: name 'P' is not defined\n\n[exit code 1]"}
+[lfm2.5_vl_450m][tool] run_python {"output": "13 [(4374, 0.499), (2628, 0.257), (2003, 0.194), (1639, 0.149), (3114, 0.144), (2884, 0.136), (3983, 0.13), (556, 0.106)]\n + [['level'], ['-level'], ['\u0120Sohn'], ['\u0120level'], ['\u0120equal'], ['\u0120scales'], ['phas'], 
+[lfm2.5_vl_450m][agent] Found month-name output units (L13 u4374, L15 u3041, whose negative directions promote exactly the 12 months). Ablating now.
+[lfm2.5_vl_450m][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 15, "n": 4, "first": [1561, 3041, 3556, 3967]}, "drops": {"math": -0.001, "code": -0.001, "facts": 0.024, "multilingual": 0.007, "general_text": -0.001, "month_successor": -0.011, "month_successor__
+[lfm2.5_vl_450m][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 13, "n": 4, "first": [1639, 2003, 2628, 4374]}, "drops": {"math": -0.001, "code": 0.0, "facts": -0.001, "multilingual": -0.0, "general_text": 0.003, "month_successor": 0.064, "month_successor__contr
+[lfm2.5_vl_450m][tool] run_python {"output": "\n[stderr]\nTraceback (most recent call last):\n  File \"<string>\", line 6, in <module>\nNameError: name 'P' is not defined\n\n[exit code 1]"}
+[lfm2.5_vl_450m][tool] attribution_scan {"scan_id": "scan1", "top_units_[layer,unit,score]": {"month_successor": [[12, 1322, 0.33], [11, 3339, 0.324], [12, 1189, 0.297], [12, 1069, 0.285], [13, 2595, 0.183], [13, 4374, 0.134], [12, 568, 0.122], [11, 3967, 0.11]]}, "use": "part={'
+[lfm2.5_vl_450m][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 7, "first": [568, 1069, 1189, 1322, 1644, 1841, 4141]}, "drops": {"math": 0.018, "code": 0.023, "facts": 0.041, "multilingual": 0.012, "general_text": -0.003, "month_successor": 0.791, "mon
+[lfm2.5_vl_450m][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 13, "n": 5, "first": [1639, 2003, 2595, 2628, 4374]}, "drops": {"math": -0.001, "code": -0.001, "facts": 0.001, "multilingual": 0.001, "general_text": 0.002, "month_successor": 0.199, "month_success
+[lfm2.5_vl_450m][tool] screen {"passed": false, "reasons": ["held-out check failed"], "drops": {"math": -0.001, "code": -0.001, "facts": 0.001, "multilingual": 0.001, "general_text": 0.002, "month_successor": 0.199, "month_successor__control": 0.007}, "random_drops_targ
+[lfm2.5_vl_450m][tool] run_python {"output": "[4374, 2628, 2003, 1639, 3114, 2884, 3983, 556, 4197, 3601, 1182, 1834, 2595]\n"}
+[lfm2.5_vl_450m][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 13, "n": 13, "first": [556, 1182, 1639, 1834, 2003, 2595, 2628, 2884]}, "drops": {"math": 0.0, "code": -0.001, "facts": 0.007, "multilingual": 0.002, "general_text": 0.002, "month_successor": 0.183,
+[lfm2.5_vl_450m][agent] Checking a smaller L12 subset before using my last screen.
+[lfm2.5_vl_450m][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 12, "n": 3, "first": [1069, 1189, 1322]}, "drops": {"math": 0.001, "code": 0.027, "facts": 0.042, "multilingual": 0.013, "general_text": -0.004, "month_successor": 0.658, "month_successor__control":
+[lfm2.5_vl_450m][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.001, "code": 0.027, "facts": 0.042, "multilingual": 0.013, "general_text": -0.004, "month_successor": 0.658, "month_successor__control": 0.027}, "random_drops_target": [-0.019, -0.025, 0.0
+[lfm2.5_vl_450m][tool] finish {"ok": true, "note": "Run finished. Reply with one short line and stop."}
+[lfm2.5_vl_450m][agent] I found one part that passed the screen: three MLP units in layer 12 (1322, 1189, 1069), labelled "month-sequence successor computation". Zeroing them cut the new month_successor test by 0.658, while the matched number-successor control moved only 0.027 and the built-in skills at most 0.042.
+
+- **Wh
+[lfm2.5_vl_450m][agent] {"lessons": ["[lfm2.5_vl_450m] Weight reading found clean month-name output units, but they were not the causal bottleneck. L13 unit 4374 (cosine .50 to the mean month direction) and L15 unit 3041 (.48) had negative logit-lens top-10s made up entirely of month names. Yet ablating 4 L15 units moved m
+/Users/pyro/Research/wsp-mine/person_a/mine/weight_sandbox.py:84: AsyncUsageWarning: A blocking Modal interface is being used in an async context.
+
+This may cause performance issues or bugs. Consider rewriting to use Modal's async interfaces:
+https://modal.com/docs/guide/async
+
+Suggested rewrite:
+  await self.sb.terminate.aio()
+
+Original line:
+  self.sb.terminate()
+[lfm2.5_vl_450m] DONE {"run_id": "run-20261114-194730", "person": "Trisanth", "llm": "claude-opus-5-5", "openai_usd_est": 0.0, "claude_equiv_usd": 1.92, "modal_gpu_usd_est": 0.01, "modal_busy_seconds": 45, "gpu": "EngineL4", "note": "claude_equiv_usd is the API-price equivalent the CLI reports; the run uses the Claude plan. Modal estimate counts busy call time only (not idle keep-warm or first load)", "usage": {"turns": 20, "claude_equiv_usd": 1.9155782, "input_tokens": 34, "output_tokens": 7091, "cache_read_input_tokens": 1029866}, "turns": 20, "python_runs": 6, "screens": 2, "stop_reason": "finished", "summary": "LFM2.5-VL-450M: Weight logit-lens found month-name writer columns (L13 w2 col 4374, cos .50; L15 col 3041, cos .48; negative lens = all 12 months). Defined month_successor skill (number-successor control). L13 5-unit month writer: search drop .199, control .007, but failed held-out. PASSED screen: L12 MLP units [1322,1189,1069] 'month-sequence successor computation' \u2014 month_successor -.658, control -.027, built-ins \u2264.042, random parts \u2264.013. Catalog id mlp_month-sequence_successor_computation_feeds_l13_m_lfm2.5_vl_450m_L12_k3_001. Also noted for future: color writers L13 col 515 (.46), L15 col 3863 (.50); digit writers L15 2699/2946, L14 2734.", "parts_in_catalog": 1, "shared_memory": {"enabled": true, "records": 14}}

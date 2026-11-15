@@ -1,0 +1,116 @@
+{
+  "id": "expert_italian_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001",
+  "kind": "expert",
+  "title": "gemma-4-26B-A4B-it layer 25, Italian expert set (layer 25, 7 experts)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_italian_words"
+  ],
+  "models": [
+    "google/gemma-4-26B-A4B-it"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_italian_words' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.7925,
+      "control_value": -0.0713,
+      "split": "person_a held-out skill items (en_to_italian_words)",
+      "seeds": null,
+      "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0193"
+    }
+  ],
+  "generated": true,
+  "model": "google/gemma-4-26B-A4B-it",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/google__gemma-4-26B-A4B-it/expert_italian_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001.pt",
+  "units_remote": "person_a/parts/gemma4_26b_a4b/expert_italian_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_italian_words'",
+    "label": "Italian expert set (layer 25, 7 experts)",
+    "num_units": 7,
+    "d_model": 2816,
+    "effect": {
+      "math|search": -0.0009,
+      "math|heldout": 0.0022,
+      "code|search": 0.0004,
+      "code|heldout": 0.0038,
+      "facts|search": 0.0909,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.043,
+      "multilingual|heldout": 0.0571,
+      "general_text|search": -0.0097,
+      "general_text|heldout": 0.0,
+      "en_to_french_words|search": -0.0188,
+      "en_to_french_words__control|search": -0.008,
+      "en_to_french_words|heldout": -0.0199,
+      "en_to_french_words__control|heldout": 0.0193,
+      "en_to_german_words|search": -0.0392,
+      "en_to_german_words__control|search": -0.008,
+      "en_to_german_words|heldout": 0.0029,
+      "en_to_german_words__control|heldout": 0.0193,
+      "en_to_spanish_words|search": -0.0319,
+      "en_to_spanish_words__control|search": -0.008,
+      "en_to_spanish_words|heldout": 0.0433,
+      "en_to_spanish_words__control|heldout": 0.0193,
+      "month_sequence|search": 0.0,
+      "month_sequence__control|search": 0.003,
+      "month_sequence|heldout": 0.0667,
+      "month_sequence__control|heldout": 0.0083,
+      "en_to_russian_words|search": 0.03,
+      "en_to_russian_words__control|search": -0.0049,
+      "en_to_russian_words|heldout": -0.0236,
+      "en_to_russian_words__control|heldout": 0.0193,
+      "en_to_chinese_words|search": -0.009,
+      "en_to_chinese_words__control|search": 0.0102,
+      "en_to_chinese_words|heldout": -0.0105,
+      "en_to_chinese_words__control|heldout": 0.0005,
+      "en_to_japanese_words|search": 0.005,
+      "en_to_japanese_words__control|search": 0.0065,
+      "en_to_japanese_words|heldout": -0.051,
+      "en_to_japanese_words__control|heldout": 0.0079,
+      "en_to_italian_words|search": 0.8187,
+      "en_to_italian_words__control|search": -0.008,
+      "en_to_italian_words|heldout": 0.7925,
+      "en_to_italian_words__control|heldout": 0.0193
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2729,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.1819,
+      -0.0037,
+      -0.0421,
+      -0.0297,
+      -0.099
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L25 e94 has Italian router z=5.3 (sel 5.7) and Italian down-proj unembedding energy z=6.1; 99 and 76 carry Italian output energy (1.9/1.8); 60 is the next Italian router aligner; 36, 91 and 83 are L25 Italian attribution experts. Ablation: Italian .819, facts .091, others <= .043."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/gemma4_26b_a4b/en_to_italian_words.json",
+    "hash": "cfe23e315bc648ab",
+    "description": "Few-shot English->Italian single-word translation. Control: same format, English->English copy.",
+    "name": "en_to_italian_words"
+  },
+  "catalog_id": "expert_italian_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001",
+  "exported_copy": "library/gemma4_26b_a4b/expert_italian_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

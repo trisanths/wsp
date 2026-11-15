@@ -1,0 +1,820 @@
+{
+ "name": "biological_terms",
+ "description": "Retrieve cell and molecular biology concepts from qualitative definitions, with matched term-copy controls.",
+ "hash": "6fd9ff8b7e35ecfe",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\npairs=[('the basic structural and functional unit of living organisms','cell'),('a segment of DNA that encodes a functional product','gene'),('the molecule that stores hereditary information','DNA'),('the nucleic acid containing ribose and uracil','RNA'),('a polymer made of amino acids','protein'),('a biological catalyst','enzyme'),('the organelle where proteins are synthesized','ribosome'),('the organelle that contains most of a eukaryotic cell DNA','nucleus'),('the organelle responsible for photosynthesis','chloroplast'),('the process by which plants convert light into chemical energy','photosynthesis'),('the division that produces genetically identical daughter cells','mitosis'),('the division that produces reproductive cells with reduced chromosome sets','meiosis'),('a change in the DNA sequence','mutation'),('a structure made of DNA and proteins that carries genes','chromosome'),('the synthesis of RNA using a DNA template','transcription'),('the synthesis of protein using an RNA template','translation'),('the diffusion of water through a selectively permeable membrane','osmosis'),('a protein that specifically binds an antigen','antibody'),('a pathogen that requires a host cell to replicate','virus'),('the complete set of genetic material in an organism','genome')]\nitems=[];control=[]\nfor r in range(4):\n for desc,term in pairs:\n  p=[f'Biology glossary. Definition: {desc}. Term:',f'The biological term for {desc} is',f'Name the biology concept: {desc}. Answer:',f'In biology, {desc} is called'][r]\n  items.append({'prompt':p,'answer':' '+term});control.append({'prompt':f'Copy the biology term. Definition: {desc}. Term: {term}. Copied term:','answer':' '+term})\nrandom.shuffle(items);random.shuffle(control)\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Biology glossary. Definition: the process by which plants convert light into chemical energy. Term:",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the basic structural and functional unit of living organisms is",
+    "continuation": " cell",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the basic structural and functional unit of living organisms. Answer:",
+    "continuation": " cell",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for a segment of DNA that encodes a functional product is",
+    "continuation": " gene",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the nucleic acid containing ribose and uracil is",
+    "continuation": " RNA",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the division that produces reproductive cells with reduced chromosome sets is called",
+    "continuation": " meiosis",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, a polymer made of amino acids is called",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the organelle responsible for photosynthesis. Term:",
+    "continuation": " chloroplast",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the diffusion of water through a selectively permeable membrane is",
+    "continuation": " osmosis",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: a structure made of DNA and proteins that carries genes. Term:",
+    "continuation": " chromosome",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, a biological catalyst is called",
+    "continuation": " enzyme",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the organelle where proteins are synthesized is called",
+    "continuation": " ribosome",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the diffusion of water through a selectively permeable membrane is called",
+    "continuation": " osmosis",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the synthesis of protein using an RNA template. Term:",
+    "continuation": " translation",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: a polymer made of amino acids. Answer:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: a segment of DNA that encodes a functional product. Term:",
+    "continuation": " gene",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: a polymer made of amino acids. Term:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, a structure made of DNA and proteins that carries genes is called",
+    "continuation": " chromosome",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for a change in the DNA sequence is",
+    "continuation": " mutation",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the nucleic acid containing ribose and uracil is called",
+    "continuation": " RNA",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the synthesis of RNA using a DNA template. Answer:",
+    "continuation": " transcription",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the molecule that stores hereditary information. Answer:",
+    "continuation": " DNA",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: a structure made of DNA and proteins that carries genes. Answer:",
+    "continuation": " chromosome",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the molecule that stores hereditary information is called",
+    "continuation": " DNA",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the synthesis of RNA using a DNA template is called",
+    "continuation": " transcription",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the division that produces reproductive cells with reduced chromosome sets. Term:",
+    "continuation": " meiosis",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the synthesis of protein using an RNA template is called",
+    "continuation": " translation",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the division that produces genetically identical daughter cells is called",
+    "continuation": " mitosis",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the division that produces genetically identical daughter cells. Term:",
+    "continuation": " mitosis",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the synthesis of RNA using a DNA template. Term:",
+    "continuation": " transcription",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the complete set of genetic material in an organism. Term:",
+    "continuation": " genome",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, a segment of DNA that encodes a functional product is called",
+    "continuation": " gene",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the organelle that contains most of a eukaryotic cell DNA. Term:",
+    "continuation": " nucleus",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: a biological catalyst. Term:",
+    "continuation": " enzyme",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the diffusion of water through a selectively permeable membrane. Answer:",
+    "continuation": " osmosis",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the division that produces genetically identical daughter cells. Answer:",
+    "continuation": " mitosis",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: a change in the DNA sequence. Answer:",
+    "continuation": " mutation",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for a structure made of DNA and proteins that carries genes is",
+    "continuation": " chromosome",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the organelle where proteins are synthesized is",
+    "continuation": " ribosome",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the process by which plants convert light into chemical energy. Answer:",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The biological term for the synthesis of protein using an RNA template is",
+    "continuation": " translation",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the process by which plants convert light into chemical energy is",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the organelle responsible for photosynthesis. Answer:",
+    "continuation": " chloroplast",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the complete set of genetic material in an organism is called",
+    "continuation": " genome",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the organelle that contains most of a eukaryotic cell DNA. Answer:",
+    "continuation": " nucleus",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the organelle that contains most of a eukaryotic cell DNA is",
+    "continuation": " nucleus",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, a pathogen that requires a host cell to replicate is called",
+    "continuation": " virus",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the organelle where proteins are synthesized. Term:",
+    "continuation": " ribosome",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the nucleic acid containing ribose and uracil. Term:",
+    "continuation": " RNA",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the synthesis of protein using an RNA template. Answer:",
+    "continuation": " translation",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the molecule that stores hereditary information. Term:",
+    "continuation": " DNA",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the complete set of genetic material in an organism is",
+    "continuation": " genome",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for a polymer made of amino acids is",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the molecule that stores hereditary information is",
+    "continuation": " DNA",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the organelle responsible for photosynthesis is called",
+    "continuation": " chloroplast",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: a pathogen that requires a host cell to replicate. Term:",
+    "continuation": " virus",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: a segment of DNA that encodes a functional product. Answer:",
+    "continuation": " gene",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: a protein that specifically binds an antigen. Answer:",
+    "continuation": " antibody",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for a pathogen that requires a host cell to replicate is",
+    "continuation": " virus",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the division that produces reproductive cells with reduced chromosome sets. Answer:",
+    "continuation": " meiosis",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: a biological catalyst. Answer:",
+    "continuation": " enzyme",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the basic structural and functional unit of living organisms. Term:",
+    "continuation": " cell",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, a change in the DNA sequence is called",
+    "continuation": " mutation",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for a biological catalyst is",
+    "continuation": " enzyme",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for a protein that specifically binds an antigen is",
+    "continuation": " antibody",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: a protein that specifically binds an antigen. Term:",
+    "continuation": " antibody",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: the diffusion of water through a selectively permeable membrane. Term:",
+    "continuation": " osmosis",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the complete set of genetic material in an organism. Answer:",
+    "continuation": " genome",
+    "digits_only": false
+   },
+   {
+    "context": "Biology glossary. Definition: a change in the DNA sequence. Term:",
+    "continuation": " mutation",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the basic structural and functional unit of living organisms is called",
+    "continuation": " cell",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the process by which plants convert light into chemical energy is called",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the synthesis of RNA using a DNA template is",
+    "continuation": " transcription",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the organelle responsible for photosynthesis is",
+    "continuation": " chloroplast",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the nucleic acid containing ribose and uracil. Answer:",
+    "continuation": " RNA",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: a pathogen that requires a host cell to replicate. Answer:",
+    "continuation": " virus",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, the organelle that contains most of a eukaryotic cell DNA is called",
+    "continuation": " nucleus",
+    "digits_only": false
+   },
+   {
+    "context": "In biology, a protein that specifically binds an antigen is called",
+    "continuation": " antibody",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the division that produces reproductive cells with reduced chromosome sets is",
+    "continuation": " meiosis",
+    "digits_only": false
+   },
+   {
+    "context": "Name the biology concept: the organelle where proteins are synthesized. Answer:",
+    "continuation": " ribosome",
+    "digits_only": false
+   },
+   {
+    "context": "The biological term for the division that produces genetically identical daughter cells is",
+    "continuation": " mitosis",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Copy the biology term. Definition: a polymer made of amino acids. Term: protein. Copied term:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the complete set of genetic material in an organism. Term: genome. Copied term:",
+    "continuation": " genome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the division that produces reproductive cells with reduced chromosome sets. Term: meiosis. Copied term:",
+    "continuation": " meiosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a structure made of DNA and proteins that carries genes. Term: chromosome. Copied term:",
+    "continuation": " chromosome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a structure made of DNA and proteins that carries genes. Term: chromosome. Copied term:",
+    "continuation": " chromosome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle that contains most of a eukaryotic cell DNA. Term: nucleus. Copied term:",
+    "continuation": " nucleus",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the molecule that stores hereditary information. Term: DNA. Copied term:",
+    "continuation": " DNA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the nucleic acid containing ribose and uracil. Term: RNA. Copied term:",
+    "continuation": " RNA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the complete set of genetic material in an organism. Term: genome. Copied term:",
+    "continuation": " genome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the synthesis of RNA using a DNA template. Term: transcription. Copied term:",
+    "continuation": " transcription",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a biological catalyst. Term: enzyme. Copied term:",
+    "continuation": " enzyme",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the division that produces genetically identical daughter cells. Term: mitosis. Copied term:",
+    "continuation": " mitosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the division that produces genetically identical daughter cells. Term: mitosis. Copied term:",
+    "continuation": " mitosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the synthesis of protein using an RNA template. Term: translation. Copied term:",
+    "continuation": " translation",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the molecule that stores hereditary information. Term: DNA. Copied term:",
+    "continuation": " DNA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the diffusion of water through a selectively permeable membrane. Term: osmosis. Copied term:",
+    "continuation": " osmosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a polymer made of amino acids. Term: protein. Copied term:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the diffusion of water through a selectively permeable membrane. Term: osmosis. Copied term:",
+    "continuation": " osmosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the synthesis of RNA using a DNA template. Term: transcription. Copied term:",
+    "continuation": " transcription",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the synthesis of RNA using a DNA template. Term: transcription. Copied term:",
+    "continuation": " transcription",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a protein that specifically binds an antigen. Term: antibody. Copied term:",
+    "continuation": " antibody",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle responsible for photosynthesis. Term: chloroplast. Copied term:",
+    "continuation": " chloroplast",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle responsible for photosynthesis. Term: chloroplast. Copied term:",
+    "continuation": " chloroplast",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a protein that specifically binds an antigen. Term: antibody. Copied term:",
+    "continuation": " antibody",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a pathogen that requires a host cell to replicate. Term: virus. Copied term:",
+    "continuation": " virus",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the process by which plants convert light into chemical energy. Term: photosynthesis. Copied term:",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the division that produces genetically identical daughter cells. Term: mitosis. Copied term:",
+    "continuation": " mitosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the nucleic acid containing ribose and uracil. Term: RNA. Copied term:",
+    "continuation": " RNA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the diffusion of water through a selectively permeable membrane. Term: osmosis. Copied term:",
+    "continuation": " osmosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the molecule that stores hereditary information. Term: DNA. Copied term:",
+    "continuation": " DNA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a change in the DNA sequence. Term: mutation. Copied term:",
+    "continuation": " mutation",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the division that produces reproductive cells with reduced chromosome sets. Term: meiosis. Copied term:",
+    "continuation": " meiosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a protein that specifically binds an antigen. Term: antibody. Copied term:",
+    "continuation": " antibody",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the synthesis of protein using an RNA template. Term: translation. Copied term:",
+    "continuation": " translation",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the synthesis of protein using an RNA template. Term: translation. Copied term:",
+    "continuation": " translation",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle where proteins are synthesized. Term: ribosome. Copied term:",
+    "continuation": " ribosome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the complete set of genetic material in an organism. Term: genome. Copied term:",
+    "continuation": " genome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle that contains most of a eukaryotic cell DNA. Term: nucleus. Copied term:",
+    "continuation": " nucleus",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a pathogen that requires a host cell to replicate. Term: virus. Copied term:",
+    "continuation": " virus",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the division that produces genetically identical daughter cells. Term: mitosis. Copied term:",
+    "continuation": " mitosis",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Copy the biology term. Definition: the synthesis of RNA using a DNA template. Term: transcription. Copied term:",
+    "continuation": " transcription",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a segment of DNA that encodes a functional product. Term: gene. Copied term:",
+    "continuation": " gene",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle where proteins are synthesized. Term: ribosome. Copied term:",
+    "continuation": " ribosome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the nucleic acid containing ribose and uracil. Term: RNA. Copied term:",
+    "continuation": " RNA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle that contains most of a eukaryotic cell DNA. Term: nucleus. Copied term:",
+    "continuation": " nucleus",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a polymer made of amino acids. Term: protein. Copied term:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the basic structural and functional unit of living organisms. Term: cell. Copied term:",
+    "continuation": " cell",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a change in the DNA sequence. Term: mutation. Copied term:",
+    "continuation": " mutation",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the division that produces reproductive cells with reduced chromosome sets. Term: meiosis. Copied term:",
+    "continuation": " meiosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the nucleic acid containing ribose and uracil. Term: RNA. Copied term:",
+    "continuation": " RNA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the basic structural and functional unit of living organisms. Term: cell. Copied term:",
+    "continuation": " cell",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the basic structural and functional unit of living organisms. Term: cell. Copied term:",
+    "continuation": " cell",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle where proteins are synthesized. Term: ribosome. Copied term:",
+    "continuation": " ribosome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the molecule that stores hereditary information. Term: DNA. Copied term:",
+    "continuation": " DNA",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a structure made of DNA and proteins that carries genes. Term: chromosome. Copied term:",
+    "continuation": " chromosome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a change in the DNA sequence. Term: mutation. Copied term:",
+    "continuation": " mutation",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the synthesis of protein using an RNA template. Term: translation. Copied term:",
+    "continuation": " translation",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a segment of DNA that encodes a functional product. Term: gene. Copied term:",
+    "continuation": " gene",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the division that produces reproductive cells with reduced chromosome sets. Term: meiosis. Copied term:",
+    "continuation": " meiosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a pathogen that requires a host cell to replicate. Term: virus. Copied term:",
+    "continuation": " virus",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a segment of DNA that encodes a functional product. Term: gene. Copied term:",
+    "continuation": " gene",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a polymer made of amino acids. Term: protein. Copied term:",
+    "continuation": " protein",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a protein that specifically binds an antigen. Term: antibody. Copied term:",
+    "continuation": " antibody",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the process by which plants convert light into chemical energy. Term: photosynthesis. Copied term:",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a pathogen that requires a host cell to replicate. Term: virus. Copied term:",
+    "continuation": " virus",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a structure made of DNA and proteins that carries genes. Term: chromosome. Copied term:",
+    "continuation": " chromosome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a biological catalyst. Term: enzyme. Copied term:",
+    "continuation": " enzyme",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the process by which plants convert light into chemical energy. Term: photosynthesis. Copied term:",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a biological catalyst. Term: enzyme. Copied term:",
+    "continuation": " enzyme",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the diffusion of water through a selectively permeable membrane. Term: osmosis. Copied term:",
+    "continuation": " osmosis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle that contains most of a eukaryotic cell DNA. Term: nucleus. Copied term:",
+    "continuation": " nucleus",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a biological catalyst. Term: enzyme. Copied term:",
+    "continuation": " enzyme",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle responsible for photosynthesis. Term: chloroplast. Copied term:",
+    "continuation": " chloroplast",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the process by which plants convert light into chemical energy. Term: photosynthesis. Copied term:",
+    "continuation": " photosynthesis",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle responsible for photosynthesis. Term: chloroplast. Copied term:",
+    "continuation": " chloroplast",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the organelle where proteins are synthesized. Term: ribosome. Copied term:",
+    "continuation": " ribosome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a change in the DNA sequence. Term: mutation. Copied term:",
+    "continuation": " mutation",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the complete set of genetic material in an organism. Term: genome. Copied term:",
+    "continuation": " genome",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: the basic structural and functional unit of living organisms. Term: cell. Copied term:",
+    "continuation": " cell",
+    "digits_only": false
+   },
+   {
+    "context": "Copy the biology term. Definition: a segment of DNA that encodes a functional product. Term: gene. Copied term:",
+    "continuation": " gene",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.2047
+}

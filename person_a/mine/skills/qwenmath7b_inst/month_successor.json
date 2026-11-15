@@ -1,0 +1,500 @@
+{
+ "name": "month_successor",
+ "description": "Name the month that is k months after a given month. Control: same format with integer addition.",
+ "hash": "d66ebce4b2555544",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nM=['January','February','March','April','May','June','July','August','September','October','November','December']\nitems=[];control=[]\nfor m in range(12):\n    for k in [1,2,3,4]:\n        items.append({\"prompt\":f\"Q: Which month comes {k} month{'s' if k>1 else ''} after {M[m]}?\\nA: It is\",\"answer\":\" \"+M[(m+k)%12]})\nrandom.shuffle(items)\nfor i in range(48):\n    n=random.randint(2,40);k=random.choice([1,2,3,4])\n    control.append({\"prompt\":f\"Q: Which number comes {k} after {n}?\\nA: It is\",\"answer\":\" \"+str(n+k)})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Q: Which month comes 2 months after September?\nA: It is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after May?\nA: It is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after April?\nA: It is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after January?\nA: It is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after December?\nA: It is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after February?\nA: It is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after November?\nA: It is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after December?\nA: It is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after April?\nA: It is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after September?\nA: It is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after May?\nA: It is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after July?\nA: It is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after July?\nA: It is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after June?\nA: It is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after August?\nA: It is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after December?\nA: It is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after January?\nA: It is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after May?\nA: It is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after March?\nA: It is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after December?\nA: It is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after January?\nA: It is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after January?\nA: It is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after August?\nA: It is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after June?\nA: It is",
+    "continuation": " July",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: Which month comes 3 months after August?\nA: It is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after November?\nA: It is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after June?\nA: It is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after July?\nA: It is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after November?\nA: It is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after July?\nA: It is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after May?\nA: It is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after April?\nA: It is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after March?\nA: It is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after April?\nA: It is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after February?\nA: It is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after September?\nA: It is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after February?\nA: It is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after October?\nA: It is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after March?\nA: It is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after November?\nA: It is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after March?\nA: It is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after August?\nA: It is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after February?\nA: It is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after September?\nA: It is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 2 months after June?\nA: It is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 1 month after October?\nA: It is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 3 months after October?\nA: It is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which month comes 4 months after October?\nA: It is",
+    "continuation": " February",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Q: Which number comes 1 after 4?\nA: It is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 40?\nA: It is",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 14?\nA: It is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 3 after 8?\nA: It is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 17?\nA: It is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 25?\nA: It is",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 23?\nA: It is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 30?\nA: It is",
+    "continuation": " 31",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 3 after 4?\nA: It is",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 9?\nA: It is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 3 after 3?\nA: It is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 9?\nA: It is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 3?\nA: It is",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 15?\nA: It is",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 3 after 9?\nA: It is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 11?\nA: It is",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 5?\nA: It is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 36?\nA: It is",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 7?\nA: It is",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 20?\nA: It is",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 32?\nA: It is",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 11?\nA: It is",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 24?\nA: It is",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 14?\nA: It is",
+    "continuation": " 16",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: Which number comes 3 after 37?\nA: It is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 22?\nA: It is",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 14?\nA: It is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 25?\nA: It is",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 35?\nA: It is",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 7?\nA: It is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 15?\nA: It is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 14?\nA: It is",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 7?\nA: It is",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 3 after 39?\nA: It is",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 4?\nA: It is",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 2?\nA: It is",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 27?\nA: It is",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 36?\nA: It is",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 3 after 40?\nA: It is",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 3 after 35?\nA: It is",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 22?\nA: It is",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 30?\nA: It is",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 3 after 33?\nA: It is",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 1 after 7?\nA: It is",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 22?\nA: It is",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 2 after 14?\nA: It is",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 23?\nA: It is",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Q: Which number comes 4 after 22?\nA: It is",
+    "continuation": " 26",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.3083
+}

@@ -3,6 +3,7 @@
 import csv
 import io
 import json
+import math
 import os
 import re
 import threading
@@ -20,15 +21,37 @@ from studio.server import shrink_spec
 from studio.server import sizing
 
 # Fine-tuning bars measured on the Llama-1B host (results/README.md), by task.
-# Fine-tuning bars on the Llama-1B host. gsm8k: LoRA r64 on the search split.
-# mmlu: LoRA r16 on the round 6 dev items (log-prob scoring), so it is a
-# guide, not an exact bar for the harness's MMLU path.
-LORA_BARS = {"gsm8k": 0.467, "mmlu": 0.503}
+# mmlu: LoRA r16 on the round 6 dev items, log-prob scoring, the same scorer the studio uses.
+# gsm8k has no bar: the 0.467 in results/README.md (LoRA r64) was measured with the old
+# harness scorer, which cut answers at 256 tokens and read the Llama-1B host at 0.23. The
+# studio now scores GSM8K with the team's skills_eval protocol (host 0.58), and no LoRA has
+# been measured under it. A bar goes back here when one is.
+LORA_BARS = {"mmlu": 0.503}
 
 # Task types the studio adds to the swarm config.
 EXTRA_TASK_TYPES = {
-    "knowledge": {"tasks": {"mmlu": 1.0}, "guards": ["if_guard"], "heal_data": ["gsm8k_train"]},
+    "knowledge": {"tasks": {"mmlu": 1.0}, "guards": ["if_guard"], "heal_data": ["general"]},
 }
+
+# The heal data pool for each task type. Heal, fit and selection text always comes from a pool,
+# never from a benchmark the request is scored on.
+HEAL_POOLS = {"math": "math", "knowledge": "general", "code": "code", "medicine": "medicine"}
+EXTRA_HEAL_POOLS = ["general", "math", "code", "medicine", "prose", "mix"]
+
+
+def heal_pool_for(task_type):
+    """The pool name for the default heal of a task type: math, general, code or medicine."""
+    return HEAL_POOLS.get(task_type, "general")
+
+
+def heal_data_for(task_type):
+    """The heal data names a task type allows: its own pool first, then the other approved pools."""
+    first = heal_pool_for(task_type)
+    names = [first]
+    for name in EXTRA_HEAL_POOLS:
+        if name != first:
+            names.append(name)
+    return names
 KNOWLEDGE_WORDS = ["knowledge", "facts", "fact", "trivia", "mmlu", "exam", "quiz", "medical", "medicine", "law",
                    "legal", "history", "science", "biology", "chemistry", "physics", "economics", "know more",
                    "smarter", "knows"]
@@ -36,7 +59,14 @@ MATH_WORDS = ["math", "arithmetic", "gsm8k", "word problem", "algebra", "calcula
 
 # Measured host scores the swarm config does not have. mmlu: Llama-3.2-1B-Instruct,
 # log-prob scoring, round 6 dev items (search) and round 7 held-out items.
-MEASURED_BASES = {"search": {"mmlu": 0.475}, "heldout": {"mmlu": 0.447}}
+# gsm8k: 200 search items, skills_eval protocol (chat template, 512 new tokens), L40S,
+# 2026-11-15. It replaces the 0.23 in wsp/swarm/config.py, which came from the old scorer.
+MEASURED_BASES = {"search": {"mmlu": 0.475, "gsm8k": 0.58}, "heldout": {"mmlu": 0.447}}
+# Tasks whose value in the swarm defaults is stale and must be replaced, not just filled in.
+REPLACE_BASES = {"search": ["gsm8k"]}
+# Held-out bases from the old scorer that have not been measured again: drop them so a
+# backend measures the host on the same scorer as the candidates.
+DROP_BASES = {"heldout": ["gsm8k"]}
 
 
 def add_measured_bases():
@@ -46,8 +76,12 @@ def add_measured_bases():
         if split not in table:
             table[split] = {}
         for task in MEASURED_BASES[split]:
-            if task not in table[split]:
+            if task not in table[split] or task in REPLACE_BASES.get(split, []):
                 table[split][task] = MEASURED_BASES[split][task]
+    for split in DROP_BASES:
+        for task in DROP_BASES[split]:
+            if split in table and task in table[split]:
+                del table[split][task]
 
 
 add_measured_bases()
@@ -60,6 +94,8 @@ MAX_COMPUTE_MIN = 600
 SIZE_MIN_B = 0.5
 SIZE_MAX_B = 32.0
 DEFAULT_SIZE_B = 1.5
+DEFAULT_ROOM_FACTOR = 1.5
+BUILD_ROOM_B = 0.2
 DEFAULT_HEAL_MIN = 20
 MIN_HEAL_MIN = 1
 MAX_HEAL_MIN = 600
@@ -94,6 +130,9 @@ def new_spec_id():
 
 
 def clamp(value, low, high):
+    """Keep value between low and high. A value that is not a finite number becomes low."""
+    if not math.isfinite(value):
+        return low
     if value < low:
         return low
     if value > high:
@@ -107,10 +146,14 @@ def round_step(value, step):
 
 
 def to_float(value, default):
+    """A finite float, or the default for anything else (text, nan, inf)."""
     try:
-        return float(value)
+        number = float(value)
     except (TypeError, ValueError):
         return default
+    if not math.isfinite(number):
+        return default
+    return number
 
 
 def to_int(value, default):
@@ -343,7 +386,7 @@ def library_ingredients(task_id):
     out = []
     seen = []
     for entry in library.get()["parts"]:
-        if entry["status"] == "rejected" or entry["tap_only"]:
+        if entry["status"] == "rejected" or entry.get("tap_only"):
             continue
         hit = False
         for skill in entry["skills"]:
@@ -372,17 +415,61 @@ def clean_prompt(prompt):
 NOT_PER_TOKEN = r"(?!\s*(?:params\s+|parameters\s+)?(?:per[ -]token|active))"
 
 
+_smallest_part_cache = {}
+
+
+def smallest_part_b(backend=None):
+    """Billions of parameters in the smallest usable part of the catalog, or None when no part has a size.
+
+    This is the same number the spec page uses for its "no part fits" warning. It is read once per backend.
+    """
+    if backend is None:
+        backend = settings.backend()
+    if backend not in _smallest_part_cache:
+        found = None
+        try:
+            for part in catalog_mod.build_palette(backend)["parts"]:
+                size = part.get("params_m")
+                if part.get("usable") and size is not None and size > 0:
+                    if found is None or size / 1000.0 < found:
+                        found = size / 1000.0
+        except Exception:
+            found = None
+        _smallest_part_cache[backend] = found
+    return _smallest_part_cache[backend]
+
+
+def run_headroom_b():
+    """The per-token room above the host that a draft keeps: the smallest part, rounded up to 0.01B.
+
+    When the catalog gives no part size, BUILD_ROOM_B stands in.
+    """
+    smallest = smallest_part_b()
+    if smallest is None:
+        return BUILD_ROOM_B
+    return math.ceil(smallest * 100 - 1e-9) / 100.0
+
+
+def build_floor(host_params):
+    """The smallest total limit a build spec gets by default: the host size plus 0.2B."""
+    return round(host_params + BUILD_ROOM_B, 2)
+
+
 def size_from_prompt(prompt, host_params):
-    """The size limit in billions of parameters from words like laptop, phone or 'under 2B'."""
+    """The size limit in billions of parameters for a build.
+
+    A size in the words ("under 2B", "phone") is used, but never below the host size plus 0.2B.
+    With no size in the words the limit is the host size times 1.5, rounded to 0.1B.
+    """
     text = clean_prompt(prompt).lower()
     match = re.search(r"(?:under|below|less than|at most|max(?:imum)?|up to|<=?)\s*(\d+(?:\.\d+)?)\s*b\b" + NOT_PER_TOKEN,
                       text)
     if match is not None:
-        return clamp_size(float(match.group(1)), host_params)
+        return clamp_size(max(float(match.group(1)), build_floor(host_params)), host_params)
     for word, value in SIZE_WORDS:
         if re.search(r"\b" + word + r"\b", text):
-            return clamp_size(value, host_params)
-    return clamp_size(DEFAULT_SIZE_B, host_params)
+            return clamp_size(max(value, build_floor(host_params)), host_params)
+    return clamp_size(max(round(host_params * DEFAULT_ROOM_FACTOR, 1), build_floor(host_params)), host_params)
 
 
 RUN_PATTERNS = [
@@ -550,13 +637,17 @@ def apply_llm_draft(spec, config, draft, host_params):
         spec["summary"] = clip(summary, 400)
     size = draft.get("max_params_b")
     if isinstance(size, (int, float)) and not isinstance(size, bool):
-        spec["size"]["max_params_b"] = clamp_size(size, host_params)
+        spec["size"]["max_params_b"] = clamp_size(max(size, build_floor(host_params)), host_params)
         spec["limits"]["max_total_params_b"] = spec["size"]["max_params_b"]
-        spec["limits"]["max_run_params_b"] = clamp_run(spec["limits"]["max_run_params_b"],
+        spec["limits"]["max_run_params_b"] = clamp_run(spec["limits"]["max_total_params_b"],
                                                        spec["limits"]["max_total_params_b"], host_params)
     run = draft.get("max_run_params_b")
     if isinstance(run, (int, float)) and not isinstance(run, bool):
         spec["limits"]["max_run_params_b"] = clamp_run(run, spec["limits"]["max_total_params_b"], host_params)
+        # A run limit at the host size leaves no room for any part, so a draft keeps the build room.
+        room = min(spec["limits"]["max_total_params_b"], round(host_params + run_headroom_b(), 2))
+        if spec["limits"]["max_run_params_b"] < room:
+            spec["limits"]["max_run_params_b"] = round(room, 2)
     heal = draft.get("max_heal_min")
     if isinstance(heal, (int, float)) and not isinstance(heal, bool):
         spec["limits"]["max_heal_min"] = clamp_heal(heal)
@@ -605,6 +696,11 @@ def add_task_types(config):
     for name in EXTRA_TASK_TYPES:
         if name not in config["task_types"]:
             config["task_types"][name] = dict(EXTRA_TASK_TYPES[name])
+            config["task_types"][name]["heal_data"] = heal_data_for(name)
+    # The swarm defaults still name a benchmark train set for math. The studio lists pools instead.
+    for name in config["task_types"]:
+        config["task_types"][name] = dict(config["task_types"][name])
+        config["task_types"][name]["heal_data"] = heal_data_for(name)
 
 
 def task_type_for(prompt):
@@ -861,6 +957,12 @@ def normalize_spec(body, old):
     if is_shrink:
         size = shrink_size(limits, spec["shrink"])
     else:
+        sent = body["limits"].get("max_run_params_b") if isinstance(body.get("limits"), dict) else None
+        run_edited = sent is not None
+        if limits["max_total_params_b"] != previous_total and not run_edited:
+            # Grafted parts add to the total and the run size alike, so the run limit moves with the total.
+            limits["max_run_params_b"] = (min(limits["max_run_params_b"], previous_total) +
+                                          limits["max_total_params_b"] - previous_total)
         limits["max_run_params_b"] = clamp_run(limits["max_run_params_b"], limits["max_total_params_b"],
                                                host_params)
         size["max_params_b"] = limits["max_total_params_b"]
@@ -969,7 +1071,8 @@ def run_overrides(spec, backend, llm_name):
             targets[item["id"]] = 1.0
         else:
             guards.append(item["id"])
-    setup = {"tasks": targets, "guards": guards, "heal_data": ["gsm8k_train"]}
+    setup = {"tasks": targets, "guards": guards,
+             "heal_data": heal_data_for(spec["task_type"])}
     return {
         "backend": backend,
         "llm": llm_name,
@@ -981,6 +1084,8 @@ def run_overrides(spec, backend, llm_name):
         "host": spec["host"],
         "outputs_dir": settings.out_dir(),
         "catalog_path": catalog_mod.catalog_path_for(backend),
+        "max_heal_min": (spec.get("limits") or {}).get("max_heal_min"),
+        "studio_limits": dict(spec.get("limits") or {}),
     }
 
 

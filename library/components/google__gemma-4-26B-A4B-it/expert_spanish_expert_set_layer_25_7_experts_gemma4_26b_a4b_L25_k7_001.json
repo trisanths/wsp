@@ -1,0 +1,116 @@
+{
+  "id": "expert_spanish_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001",
+  "kind": "expert",
+  "title": "gemma-4-26B-A4B-it layer 25, Spanish expert set (layer 25, 7 experts)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_spanish_words"
+  ],
+  "models": [
+    "google/gemma-4-26B-A4B-it"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_spanish_words' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2938,
+      "control_value": 0.0319,
+      "split": "person_a held-out skill items (en_to_spanish_words)",
+      "seeds": null,
+      "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0277"
+    }
+  ],
+  "generated": true,
+  "model": "google/gemma-4-26B-A4B-it",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/google__gemma-4-26B-A4B-it/expert_spanish_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001.pt",
+  "units_remote": "person_a/parts/gemma4_26b_a4b/expert_spanish_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_spanish_words'",
+    "label": "Spanish expert set (layer 25, 7 experts)",
+    "num_units": 7,
+    "d_model": 2816,
+    "effect": {
+      "math|search": -0.001,
+      "math|heldout": 0.0017,
+      "code|search": 0.0135,
+      "code|heldout": 0.0101,
+      "facts|search": 0.013,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0138,
+      "multilingual|heldout": 0.0089,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0085,
+      "en_to_french_words|search": 0.0382,
+      "en_to_french_words__control|search": 0.0001,
+      "en_to_french_words|heldout": -0.0082,
+      "en_to_french_words__control|heldout": -0.0277,
+      "en_to_german_words|search": -0.0179,
+      "en_to_german_words__control|search": 0.0001,
+      "en_to_german_words|heldout": -0.0489,
+      "en_to_german_words__control|heldout": -0.0277,
+      "en_to_spanish_words|search": 0.266,
+      "en_to_spanish_words__control|search": 0.0001,
+      "en_to_spanish_words|heldout": 0.2938,
+      "en_to_spanish_words__control|heldout": -0.0277,
+      "month_sequence|search": 0.0,
+      "month_sequence__control|search": -0.0035,
+      "month_sequence|heldout": 0.0,
+      "month_sequence__control|heldout": 0.0289,
+      "en_to_russian_words|search": 0.0506,
+      "en_to_russian_words__control|search": 0.0005,
+      "en_to_russian_words|heldout": -0.0468,
+      "en_to_russian_words__control|heldout": -0.0278,
+      "en_to_chinese_words|search": 0.0346,
+      "en_to_chinese_words__control|search": -0.0119,
+      "en_to_chinese_words|heldout": -0.0072,
+      "en_to_chinese_words__control|heldout": 0.0252,
+      "en_to_japanese_words|search": -0.005,
+      "en_to_japanese_words__control|search": 0.0389,
+      "en_to_japanese_words|heldout": 0.0433,
+      "en_to_japanese_words__control|heldout": -0.0069,
+      "en_to_italian_words|search": 0.021,
+      "en_to_italian_words__control|search": 0.0001,
+      "en_to_italian_words|heldout": 0.0438,
+      "en_to_italian_words__control|heldout": -0.0277
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0887,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0106,
+      0.0532,
+      0.0426,
+      -0.0213,
+      0.0745
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L25 e23 has Spanish router z=6.3 and Spanish down-proj energy z=3.4; 56, 126, 42, 61, 75, 118 are the L25 Spanish attribution experts. The set leaves out 124, which is shared with German/Japanese. Ablation: Spanish .266, Russian .051, others <= .038, month_sequence 0."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/gemma4_26b_a4b/en_to_spanish_words.json",
+    "hash": "e8706b1e77b3a600",
+    "description": "Few-shot English->Spanish single-word translation. Control: same format, English->English copy.",
+    "name": "en_to_spanish_words"
+  },
+  "catalog_id": "expert_spanish_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001",
+  "exported_copy": "library/gemma4_26b_a4b/expert_spanish_expert_set_layer_25_7_experts_gemma4_26b_a4b_L25_k7_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

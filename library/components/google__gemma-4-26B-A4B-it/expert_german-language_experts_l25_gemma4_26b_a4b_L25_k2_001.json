@@ -1,0 +1,116 @@
+{
+  "id": "expert_german-language_experts_l25_gemma4_26b_a4b_L25_k2_001",
+  "kind": "expert",
+  "title": "gemma-4-26B-A4B-it layer 25, German-language experts (L25)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "en_to_german_words"
+  ],
+  "models": [
+    "google/gemma-4-26B-A4B-it"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'en_to_german_words' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5057,
+      "control_value": -0.0049,
+      "split": "person_a held-out skill items (en_to_german_words)",
+      "seeds": null,
+      "source": "person_a/catalog/gemma4_26b_a4b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.001"
+    }
+  ],
+  "generated": true,
+  "model": "google/gemma-4-26B-A4B-it",
+  "layer": 25,
+  "layers": [
+    25
+  ],
+  "units_file": "components/google__gemma-4-26B-A4B-it/expert_german-language_experts_l25_gemma4_26b_a4b_L25_k2_001.pt",
+  "units_remote": "person_a/parts/gemma4_26b_a4b/expert_german-language_experts_l25_gemma4_26b_a4b_L25_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'en_to_german_words'",
+    "label": "German-language experts (L25)",
+    "num_units": 2,
+    "d_model": 2816,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": 0.0025,
+      "code|search": -0.0002,
+      "code|heldout": -0.0,
+      "facts|search": 0.0,
+      "facts|heldout": 0.0,
+      "multilingual|search": 0.0112,
+      "multilingual|heldout": 0.0539,
+      "general_text|search": -0.0097,
+      "general_text|heldout": 0.0,
+      "en_to_french_words|search": -0.1073,
+      "en_to_french_words__control|search": 0.0,
+      "en_to_french_words|heldout": -0.0981,
+      "en_to_french_words__control|heldout": -0.001,
+      "en_to_german_words|search": 0.3067,
+      "en_to_german_words__control|search": 0.0,
+      "en_to_german_words|heldout": 0.5057,
+      "en_to_german_words__control|heldout": -0.001,
+      "en_to_spanish_words|search": 0.0,
+      "en_to_spanish_words__control|search": 0.0,
+      "en_to_spanish_words|heldout": -0.0169,
+      "en_to_spanish_words__control|heldout": -0.001,
+      "month_sequence|search": 0.0,
+      "month_sequence__control|search": 0.0047,
+      "month_sequence|heldout": 0.0,
+      "month_sequence__control|heldout": 0.0024,
+      "en_to_russian_words|search": 0.0104,
+      "en_to_russian_words__control|search": 0.0,
+      "en_to_russian_words|heldout": -0.0103,
+      "en_to_russian_words__control|heldout": -0.001,
+      "en_to_chinese_words|search": 0.011,
+      "en_to_chinese_words__control|search": 0.0,
+      "en_to_chinese_words|heldout": -0.0092,
+      "en_to_chinese_words__control|heldout": -0.0001,
+      "en_to_japanese_words|search": -0.0137,
+      "en_to_japanese_words__control|search": 0.0,
+      "en_to_japanese_words|heldout": 0.0012,
+      "en_to_japanese_words__control|heldout": 0.0,
+      "en_to_italian_words|search": -0.0464,
+      "en_to_italian_words__control|search": 0.0,
+      "en_to_italian_words|heldout": -0.085,
+      "en_to_italian_words__control|heldout": -0.001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1022,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0082,
+      0.0,
+      0.0114,
+      -0.0131,
+      -0.0147
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L25 router rows of experts 70 (German z=+6.5) and 114 (+4.3) are the top German aligners in L25. Ablating both dropped en->de by .307 with other skills at most .011; French went up."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/gemma4_26b_a4b/en_to_german_words.json",
+    "hash": "aa81030c86923649",
+    "description": "Few-shot English->German single-word translation. Control: same format, English->English copy.",
+    "name": "en_to_german_words"
+  },
+  "catalog_id": "expert_german-language_experts_l25_gemma4_26b_a4b_L25_k2_001",
+  "exported_copy": "library/gemma4_26b_a4b/expert_german-language_experts_l25_gemma4_26b_a4b_L25_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

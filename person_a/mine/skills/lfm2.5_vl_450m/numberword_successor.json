@@ -1,0 +1,1520 @@
+{
+ "name": "numberword_successor",
+ "description": "Continue a spelled-out English number-word count sequence (e.g. 'seven, eight, nine,' -> ' ten'). Control: identical sequences written with digits.",
+ "hash": "3b84bc300abc526d",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nW=['one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty']\nprefixes=['','Counting: ','Count up: ','Next number: ','Sequence: ']\nitems=[];ctrl=[]\nfor p in prefixes:\n    for L in [3,4]:\n        for s in range(0,len(W)-L):\n            seq=W[s:s+L]; ans=W[s+L]\n            dseq=[str(s+1+k) for k in range(L)]; dans=str(s+L+1)\n            items.append((p+', '.join(seq)+',', ' '+ans)); ctrl.append((p+', '.join(dseq)+',', ' '+dans))\nidx=list(range(len(items))); random.shuffle(idx); idx=idx[:150]\njson.dump({'items':[{'prompt':items[i][0],'answer':items[i][1]} for i in idx],'control':[{'prompt':ctrl[i][0],'answer':ctrl[i][1]} for i in idx]},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Counting: nine, ten, eleven, twelve,",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "eight, nine, ten,",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: one, two, three,",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: ten, eleven, twelve, thirteen,",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: eleven, twelve, thirteen, fourteen,",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: three, four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: nine, ten, eleven,",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: twelve, thirteen, fourteen,",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: one, two, three, four,",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: nine, ten, eleven,",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: three, four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: twelve, thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: five, six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: thirteen, fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: six, seven, eight, nine,",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: fifteen, sixteen, seventeen,",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "twelve, thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: two, three, four, five,",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: thirteen, fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "sixteen, seventeen, eighteen, nineteen,",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "six, seven, eight, nine,",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: two, three, four,",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: seven, eight, nine, ten,",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: five, six, seven,",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: ten, eleven, twelve, thirteen,",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "five, six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: one, two, three,",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: sixteen, seventeen, eighteen, nineteen,",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: ten, eleven, twelve,",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "one, two, three,",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "sixteen, seventeen, eighteen,",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: one, two, three,",
+    "continuation": " four",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: three, four, five,",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: five, six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "fourteen, fifteen, sixteen, seventeen,",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: five, six, seven,",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: fourteen, fifteen, sixteen, seventeen,",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "seven, eight, nine,",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: fourteen, fifteen, sixteen, seventeen,",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: two, three, four,",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: twelve, thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: sixteen, seventeen, eighteen,",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "twelve, thirteen, fourteen,",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: eleven, twelve, thirteen,",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "two, three, four,",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: two, three, four,",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: seventeen, eighteen, nineteen,",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: fifteen, sixteen, seventeen,",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: one, two, three, four,",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: seven, eight, nine, ten,",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: fifteen, sixteen, seventeen, eighteen,",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "four, five, six, seven,",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: fourteen, fifteen, sixteen, seventeen,",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: one, two, three, four,",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "five, six, seven,",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: eight, nine, ten,",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: ten, eleven, twelve, thirteen,",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: seventeen, eighteen, nineteen,",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: sixteen, seventeen, eighteen,",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: eleven, twelve, thirteen, fourteen,",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: seven, eight, nine,",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: eight, nine, ten,",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: three, four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "two, three, four, five,",
+    "continuation": " six",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Next number: eleven, twelve, thirteen, fourteen,",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: thirteen, fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: two, three, four, five,",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: three, four, five,",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: three, four, five,",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: fifteen, sixteen, seventeen,",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: sixteen, seventeen, eighteen,",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: two, three, four, five,",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: fifteen, sixteen, seventeen, eighteen,",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "eight, nine, ten, eleven,",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: four, five, six, seven,",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: three, four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: eight, nine, ten, eleven,",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: ten, eleven, twelve, thirteen,",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: fifteen, sixteen, seventeen,",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: eight, nine, ten, eleven,",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: six, seven, eight, nine,",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: eight, nine, ten,",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: five, six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: ten, eleven, twelve,",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "three, four, five,",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: twelve, thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: four, five, six, seven,",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "fifteen, sixteen, seventeen, eighteen,",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: nine, ten, eleven,",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: sixteen, seventeen, eighteen, nineteen,",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: eleven, twelve, thirteen,",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: thirteen, fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: seven, eight, nine,",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "ten, eleven, twelve, thirteen,",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: two, three, four, five,",
+    "continuation": " six",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: eight, nine, ten,",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: eight, nine, ten, eleven,",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "nine, ten, eleven, twelve,",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: five, six, seven, eight,",
+    "continuation": " nine",
+    "digits_only": false
+   },
+   {
+    "context": "ten, eleven, twelve,",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: five, six, seven,",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: eleven, twelve, thirteen,",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: twelve, thirteen, fourteen,",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "one, two, three, four,",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "three, four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: fifteen, sixteen, seventeen, eighteen,",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "nine, ten, eleven,",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: seventeen, eighteen, nineteen,",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "fifteen, sixteen, seventeen,",
+    "continuation": " eighteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: twelve, thirteen, fourteen,",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: eleven, twelve, thirteen,",
+    "continuation": " fourteen",
+    "digits_only": false
+   },
+   {
+    "context": "seventeen, eighteen, nineteen,",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: eleven, twelve, thirteen, fourteen,",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: seventeen, eighteen, nineteen,",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "thirteen, fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: sixteen, seventeen, eighteen,",
+    "continuation": " nineteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: four, five, six, seven,",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   },
+   {
+    "context": "eleven, twelve, thirteen, fourteen,",
+    "continuation": " fifteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: ten, eleven, twelve,",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: four, five, six, seven,",
+    "continuation": " eight",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: twelve, thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "seven, eight, nine, ten,",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: two, three, four,",
+    "continuation": " five",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: nine, ten, eleven, twelve,",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: ten, eleven, twelve,",
+    "continuation": " thirteen",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: thirteen, fourteen, fifteen,",
+    "continuation": " sixteen",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: sixteen, seventeen, eighteen, nineteen,",
+    "continuation": " twenty",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: seven, eight, nine,",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "four, five, six,",
+    "continuation": " seven",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: six, seven, eight, nine,",
+    "continuation": " ten",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: seven, eight, nine, ten,",
+    "continuation": " eleven",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: eight, nine, ten, eleven,",
+    "continuation": " twelve",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: fourteen, fifteen, sixteen,",
+    "continuation": " seventeen",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Counting: 10, 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 4, 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "9, 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 8, 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 6, 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 13, 14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "1, 2, 3,",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "13, 14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 13, 14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 9, 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 6, 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 6, 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "16, 17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 13, 14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 15, 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 1, 2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 14, 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 8, 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 5, 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 11, 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 14, 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 4, 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "7, 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 12, 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 3, 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 16, 17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 8, 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 10, 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 7, 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 5, 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "4, 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 7, 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 10, 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "8, 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 1, 2, 3,",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 4, 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 13, 14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 2, 3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 1, 2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 2, 3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "5, 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 1, 2, 3,",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "1, 2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 16, 17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 3, 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 1, 2, 3,",
+    "continuation": " 4",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 8, 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "11, 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 12, 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 11, 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 16, 17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 12, 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 5, 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 15, 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "15, 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "12, 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 14, 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "3, 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 4, 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 2, 3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 1, 2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "10, 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "6, 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 9, 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 7, 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "14, 15, 16, 17,",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "2, 3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 8, 9, 10,",
+    "continuation": " 11",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 3, 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 2, 3, 4,",
+    "continuation": " 5",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 14, 15, 16,",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 15, 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 12, 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 11, 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 2, 3, 4, 5,",
+    "continuation": " 6",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 9, 10, 11,",
+    "continuation": " 12",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 5, 6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 10, 11, 12,",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "6, 7, 8,",
+    "continuation": " 9",
+    "digits_only": false
+   },
+   {
+    "context": "Next number: 3, 4, 5, 6,",
+    "continuation": " 7",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 11, 12, 13, 14,",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Sequence: 17, 18, 19,",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 10, 11, 12, 13,",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Count up: 16, 17, 18,",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 13, 14, 15,",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Counting: 5, 6, 7,",
+    "continuation": " 8",
+    "digits_only": false
+   },
+   {
+    "context": "7, 8, 9,",
+    "continuation": " 10",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 8.4208
+}

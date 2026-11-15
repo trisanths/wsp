@@ -1,0 +1,100 @@
+{
+  "id": "mlp_sql_connective_and_clause_keyword_spelling_granite8b_L39_k2_001",
+  "kind": "mlp_cluster",
+  "title": "granite-3.3-8b-instruct layer 39, SQL connective and clause keyword spelling",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/granite8b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "sql_keywords"
+  ],
+  "models": [
+    "ibm-granite/granite-3.3-8b-instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'sql_keywords' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.3085,
+      "control_value": 0.0016,
+      "split": "person_a held-out skill items (sql_keywords)",
+      "seeds": null,
+      "source": "person_a/catalog/granite8b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0004"
+    }
+  ],
+  "generated": true,
+  "model": "ibm-granite/granite-3.3-8b-instruct",
+  "layer": 39,
+  "layers": [
+    39
+  ],
+  "units_file": "components/ibm-granite__granite-3.3-8b-instruct/mlp_sql_connective_and_clause_keyword_spelling_granite8b_L39_k2_001.pt",
+  "units_remote": "person_a/parts/granite8b/mlp_sql_connective_and_clause_keyword_spelling_granite8b_L39_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'sql_keywords'",
+    "label": "SQL connective and clause keyword spelling",
+    "num_units": 2,
+    "d_model": 4096,
+    "effect": {
+      "math|search": -0.0,
+      "math|heldout": -0.0,
+      "code|search": 0.0002,
+      "code|heldout": 0.0001,
+      "facts|search": 0.0004,
+      "facts|heldout": -0.0001,
+      "multilingual|search": -0.0003,
+      "multilingual|heldout": -0.0001,
+      "general_text|search": 0.0013,
+      "general_text|heldout": -0.0001,
+      "json_literals|search": 0.0,
+      "json_literals__control|search": 0.0008,
+      "json_literals|heldout": 0.0,
+      "json_literals__control|heldout": 0.0009,
+      "url_scheme|search": 0.0013,
+      "url_scheme__control|search": -0.0002,
+      "url_scheme|heldout": -0.0001,
+      "url_scheme__control|heldout": -0.0002,
+      "sql_keywords|search": 0.2678,
+      "sql_keywords__control|search": 0.0008,
+      "sql_keywords|heldout": 0.3085,
+      "sql_keywords__control|heldout": 0.0004,
+      "si_unit_symbols|search": 0.0016,
+      "si_unit_symbols__control|search": 0.0,
+      "si_unit_symbols|heldout": -0.0001,
+      "si_unit_symbols__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0893,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0011,
+      0.0003,
+      0.0011,
+      0.0005,
+      0.005
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L39 10453 reads uppercase OR/AND/OF/ON (.463/.440/.366/.339) and has strongly negative down alignments with OR/AND/ON; 10113 reads by .745 and suppresses by/By/BY. These sign-inverted lexical channels are independently the strongest SQL attributions."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/granite8b/sql_keywords.json",
+    "hash": "6cd52a71d87ab658",
+    "description": "Recover a missing SQL structural keyword in SELECT queries; matched controls recover an explicitly supplied table identifier.",
+    "name": "sql_keywords"
+  },
+  "catalog_id": "mlp_sql_connective_and_clause_keyword_spelling_granite8b_L39_k2_001",
+  "exported_copy": "library/granite8b/mlp_sql_connective_and_clause_keyword_spelling_granite8b_L39_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

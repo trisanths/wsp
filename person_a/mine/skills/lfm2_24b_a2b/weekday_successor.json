@@ -1,0 +1,1220 @@
+{
+ "name": "weekday_successor",
+ "description": "Day-of-week arithmetic: which weekday is k days after a given weekday. Control: letter-of-alphabet successor in the same frame.",
+ "hash": "bd685730b9f9742c",
+ "agent_items": false,
+ "generator_code": "import random, json, string\nrandom.seed(0)\nD=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']\nitems=[];control=[]\nfor i in range(120):\n    j=random.randrange(7);k=random.choice([1,1,2,3])\n    ks={1:'one day',2:'two days',3:'three days'}[k]\n    t=random.choice([\"Q: What day comes {k} after {m}?\\nA: The answer is\",\"If today is {m}, then {k} from now it will be\"])\n    items.append({\"prompt\":t.format(k=ks,m=D[j]),\"answer\":\" \"+D[(j+k)%7]})\nL=string.ascii_uppercase\nfor i in range(120):\n    j=random.randrange(20);k=random.choice([1,1,2,3])\n    ks={1:'one letter',2:'two letters',3:'three letters'}[k]\n    t=random.choice([\"Q: What letter comes {k} after {m}?\\nA: The answer is\",\"If the sign shows the letter {m}, then {k} later in the alphabet it will show\"])\n    control.append({\"prompt\":t.format(k=ks,m=L[j]),\"answer\":\" \"+L[j+k]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Q: What day comes two days after Wednesday?\nA: The answer is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Wednesday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then one day from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Wednesday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then three days from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then three days from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Thursday?\nA: The answer is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then two days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Friday?\nA: The answer is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Tuesday?\nA: The answer is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Friday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then one day from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then three days from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then one day from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Wednesday, then one day from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Tuesday?\nA: The answer is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then two days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then three days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then two days from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Friday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then one day from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Monday?\nA: The answer is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Sunday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Tuesday?\nA: The answer is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Thursday?\nA: The answer is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Friday?\nA: The answer is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Tuesday?\nA: The answer is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Wednesday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Friday?\nA: The answer is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then one day from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then three days from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then one day from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Sunday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Wednesday?\nA: The answer is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then two days from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then one day from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Saturday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then one day from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Friday?\nA: The answer is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Wednesday?\nA: The answer is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Saturday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then one day from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then one day from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Friday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Wednesday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Sunday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then one day from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Wednesday?\nA: The answer is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Saturday?\nA: The answer is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then one day from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Tuesday?\nA: The answer is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Thursday?\nA: The answer is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Saturday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then two days from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then two days from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Tuesday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then three days from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then two days from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Friday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Monday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What day comes one day after Wednesday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then three days from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Wednesday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Monday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then three days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Saturday?\nA: The answer is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then one day from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then three days from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Thursday?\nA: The answer is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Sunday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then two days from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Sunday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then two days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Saturday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Wednesday, then two days from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Sunday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Thursday?\nA: The answer is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Tuesday?\nA: The answer is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then two days from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Wednesday?\nA: The answer is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Monday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Saturday?\nA: The answer is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then one day from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then one day from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then three days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then two days from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then one day from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Thursday?\nA: The answer is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Thursday?\nA: The answer is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Monday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Sunday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then one day from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then three days from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Tuesday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Thursday?\nA: The answer is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then three days from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Sunday?\nA: The answer is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Sunday?\nA: The answer is",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then three days from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then one day from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Monday, then one day from now it will be",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then one day from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Saturday, then one day from now it will be",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Monday?\nA: The answer is",
+    "continuation": " Tuesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Tuesday?\nA: The answer is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then one day from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Thursday?\nA: The answer is",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Thursday?\nA: The answer is",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Monday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Wednesday, then two days from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes three days after Monday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Friday, then one day from now it will be",
+    "continuation": " Saturday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then one day from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Monday?\nA: The answer is",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes two days after Friday?\nA: The answer is",
+    "continuation": " Sunday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then two days from now it will be",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Thursday, then one day from now it will be",
+    "continuation": " Friday",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What day comes one day after Wednesday?\nA: The answer is",
+    "continuation": " Thursday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Tuesday, then one day from now it will be",
+    "continuation": " Wednesday",
+    "digits_only": false
+   },
+   {
+    "context": "If today is Sunday, then one day from now it will be",
+    "continuation": " Monday",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "If the sign shows the letter D, then one letter later in the alphabet it will show",
+    "continuation": " E",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after L?\nA: The answer is",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after C?\nA: The answer is",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter G, then two letters later in the alphabet it will show",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after A?\nA: The answer is",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after O?\nA: The answer is",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after G?\nA: The answer is",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after H?\nA: The answer is",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after P?\nA: The answer is",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after M?\nA: The answer is",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after P?\nA: The answer is",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after N?\nA: The answer is",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after B?\nA: The answer is",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after M?\nA: The answer is",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after J?\nA: The answer is",
+    "continuation": " K",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after F?\nA: The answer is",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after E?\nA: The answer is",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after C?\nA: The answer is",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter M, then one letter later in the alphabet it will show",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter D, then one letter later in the alphabet it will show",
+    "continuation": " E",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter E, then one letter later in the alphabet it will show",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter R, then three letters later in the alphabet it will show",
+    "continuation": " U",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after O?\nA: The answer is",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter R, then one letter later in the alphabet it will show",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after L?\nA: The answer is",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after K?\nA: The answer is",
+    "continuation": " L",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after I?\nA: The answer is",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter M, then three letters later in the alphabet it will show",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter K, then two letters later in the alphabet it will show",
+    "continuation": " M",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter J, then three letters later in the alphabet it will show",
+    "continuation": " M",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter E, then three letters later in the alphabet it will show",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter G, then one letter later in the alphabet it will show",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter N, then two letters later in the alphabet it will show",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter C, then one letter later in the alphabet it will show",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter E, then one letter later in the alphabet it will show",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter L, then two letters later in the alphabet it will show",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after D?\nA: The answer is",
+    "continuation": " G",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after I?\nA: The answer is",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter B, then one letter later in the alphabet it will show",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after Q?\nA: The answer is",
+    "continuation": " R",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter A, then one letter later in the alphabet it will show",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after H?\nA: The answer is",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter J, then three letters later in the alphabet it will show",
+    "continuation": " M",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after Q?\nA: The answer is",
+    "continuation": " T",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter G, then three letters later in the alphabet it will show",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter Q, then two letters later in the alphabet it will show",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter P, then one letter later in the alphabet it will show",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after D?\nA: The answer is",
+    "continuation": " G",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter S, then two letters later in the alphabet it will show",
+    "continuation": " U",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter L, then one letter later in the alphabet it will show",
+    "continuation": " M",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after P?\nA: The answer is",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after L?\nA: The answer is",
+    "continuation": " M",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter H, then one letter later in the alphabet it will show",
+    "continuation": " I",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter C, then three letters later in the alphabet it will show",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after M?\nA: The answer is",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter N, then one letter later in the alphabet it will show",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after C?\nA: The answer is",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after D?\nA: The answer is",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after M?\nA: The answer is",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter T, then one letter later in the alphabet it will show",
+    "continuation": " U",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "If the sign shows the letter A, then three letters later in the alphabet it will show",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter B, then three letters later in the alphabet it will show",
+    "continuation": " E",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after M?\nA: The answer is",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after O?\nA: The answer is",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter P, then one letter later in the alphabet it will show",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after P?\nA: The answer is",
+    "continuation": " R",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after L?\nA: The answer is",
+    "continuation": " M",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after P?\nA: The answer is",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after D?\nA: The answer is",
+    "continuation": " G",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after F?\nA: The answer is",
+    "continuation": " G",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after S?\nA: The answer is",
+    "continuation": " T",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after D?\nA: The answer is",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after P?\nA: The answer is",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after A?\nA: The answer is",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after R?\nA: The answer is",
+    "continuation": " T",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter D, then one letter later in the alphabet it will show",
+    "continuation": " E",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter R, then three letters later in the alphabet it will show",
+    "continuation": " U",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after T?\nA: The answer is",
+    "continuation": " U",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter E, then three letters later in the alphabet it will show",
+    "continuation": " H",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after Q?\nA: The answer is",
+    "continuation": " R",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter N, then one letter later in the alphabet it will show",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter I, then three letters later in the alphabet it will show",
+    "continuation": " L",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter P, then one letter later in the alphabet it will show",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter A, then two letters later in the alphabet it will show",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter O, then one letter later in the alphabet it will show",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after O?\nA: The answer is",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after C?\nA: The answer is",
+    "continuation": " E",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after D?\nA: The answer is",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter T, then three letters later in the alphabet it will show",
+    "continuation": " W",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter Q, then three letters later in the alphabet it will show",
+    "continuation": " T",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter J, then two letters later in the alphabet it will show",
+    "continuation": " L",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after M?\nA: The answer is",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after D?\nA: The answer is",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after M?\nA: The answer is",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after T?\nA: The answer is",
+    "continuation": " U",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter N, then two letters later in the alphabet it will show",
+    "continuation": " P",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter M, then two letters later in the alphabet it will show",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter C, then two letters later in the alphabet it will show",
+    "continuation": " E",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after R?\nA: The answer is",
+    "continuation": " T",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter C, then three letters later in the alphabet it will show",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after Q?\nA: The answer is",
+    "continuation": " R",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter I, then one letter later in the alphabet it will show",
+    "continuation": " J",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after K?\nA: The answer is",
+    "continuation": " M",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter S, then three letters later in the alphabet it will show",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after S?\nA: The answer is",
+    "continuation": " T",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter A, then one letter later in the alphabet it will show",
+    "continuation": " B",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after M?\nA: The answer is",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after C?\nA: The answer is",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter A, then three letters later in the alphabet it will show",
+    "continuation": " D",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after S?\nA: The answer is",
+    "continuation": " V",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter R, then one letter later in the alphabet it will show",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after L?\nA: The answer is",
+    "continuation": " M",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after R?\nA: The answer is",
+    "continuation": " S",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter C, then three letters later in the alphabet it will show",
+    "continuation": " F",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes one letter after B?\nA: The answer is",
+    "continuation": " C",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after L?\nA: The answer is",
+    "continuation": " O",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes three letters after N?\nA: The answer is",
+    "continuation": " Q",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What letter comes two letters after L?\nA: The answer is",
+    "continuation": " N",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter P, then two letters later in the alphabet it will show",
+    "continuation": " R",
+    "digits_only": false
+   },
+   {
+    "context": "If the sign shows the letter B, then one letter later in the alphabet it will show",
+    "continuation": " C",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 4.626
+}

@@ -1,0 +1,116 @@
+{
+  "id": "mlp_comparative-adjective_writer_family_l13_128_unit_lfm2.5_vl_450m_L13_k128_001",
+  "kind": "mlp_cluster",
+  "title": "LFM2.5-VL-450M layer 13, comparative-adjective writer family (L13, 128 units)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "comparative_adjective"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'comparative_adjective' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.2695,
+      "control_value": 0.018,
+      "split": "person_a held-out skill items (comparative_adjective)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0099"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 13,
+  "layers": [
+    13
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/mlp_comparative-adjective_writer_family_l13_128_unit_lfm2.5_vl_450m_L13_k128_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/mlp_comparative-adjective_writer_family_l13_128_unit_lfm2.5_vl_450m_L13_k128_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'comparative_adjective'",
+    "label": "comparative-adjective writer family (L13, 128 units)",
+    "num_units": 128,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0021,
+      "math|heldout": 0.0015,
+      "code|search": -0.0021,
+      "code|heldout": -0.0001,
+      "facts|search": 0.0215,
+      "facts|heldout": -0.0045,
+      "multilingual|search": 0.0071,
+      "multilingual|heldout": 0.0031,
+      "general_text|search": 0.0252,
+      "general_text|heldout": 0.0254,
+      "month_successor|search": -0.0237,
+      "month_successor__control|search": 0.0047,
+      "month_successor|heldout": -0.0252,
+      "month_successor__control|heldout": 0.0015,
+      "numberword_successor|search": -0.0027,
+      "numberword_successor__control|search": -0.0013,
+      "numberword_successor|heldout": -0.0041,
+      "numberword_successor__control|heldout": -0.0011,
+      "weekday_successor|search": -0.0163,
+      "weekday_successor__control|search": -0.0057,
+      "weekday_successor|heldout": -0.0378,
+      "weekday_successor__control|heldout": -0.0079,
+      "comparative_adjective|search": 0.2192,
+      "comparative_adjective__control|search": -0.0014,
+      "comparative_adjective|heldout": 0.2695,
+      "comparative_adjective__control|heldout": -0.0099,
+      "irregular_past_tense|search": -0.0198,
+      "irregular_past_tense__control|search": -0.0022,
+      "irregular_past_tense|heldout": -0.0337,
+      "irregular_past_tense__control|heldout": -0.0013,
+      "object_colour|search": -0.0004,
+      "object_colour__control|search": -0.0004,
+      "object_colour|heldout": 0.0053,
+      "object_colour__control|heldout": -0.0001,
+      "antonym|search": -0.0442,
+      "antonym__control|search": -0.0084,
+      "antonym|heldout": -0.0129,
+      "antonym__control|heldout": -0.0088,
+      "pronoun_gender|search": 0.0119,
+      "pronoun_gender__control|search": -0.0303,
+      "pronoun_gender|heldout": 0.0066,
+      "pronoun_gender__control|heldout": -0.014
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0731,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0846,
+      0.0318,
+      0.0074,
+      0.0493,
+      0.0861
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "The L13 comparative writer seeds (1649, 2340 with -.36 cosine to the comparative unembedding) grown to 128 units by w1/w2 cosine neighbourhood."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/comparative_adjective.json",
+    "hash": "843c4bb5f5dc8973",
+    "description": "Form the English comparative of an adjective in a few-shot mapping (e.g. 'tall -> taller, cold -> colder, fast ->' -> ' faster'). Control: same few-shot format but identity mapping (word copied unchanged).",
+    "name": "comparative_adjective"
+  },
+  "catalog_id": "mlp_comparative-adjective_writer_family_l13_128_unit_lfm2.5_vl_450m_L13_k128_001",
+  "exported_copy": "library/lfm2.5_vl_450m/mlp_comparative-adjective_writer_family_l13_128_unit_lfm2.5_vl_450m_L13_k128_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

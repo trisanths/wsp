@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3.5-35b-a3b_biology_l21",
+  "kind": "expert",
+  "title": "Qwen3.5-35B-A3B layer 21, 8 experts for biology (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "biology"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-35B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 21 of Qwen3.5-35B-A3B on 'biology' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.16347,
+      "control_value": 0.00174,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 21 of Qwen3.5-35B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.57259,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 5.11729,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3.5-35B-A3B",
+  "layer": 21,
+  "layers": [
+    21
+  ],
+  "units_file": "components/Qwen__Qwen3.5-35B-A3B/map_expert_qwen__qwen3.5-35b-a3b_biology_l21.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "biology",
+    "data": "cais/mmlu all test (subjects: high_school_biology, college_biology, anatomy, virology, medical_genetics): biology questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      191,
+      147,
+      174,
+      203,
+      152,
+      134,
+      116,
+      40
+    ],
+    "details": [
+      {
+        "expert": 191,
+        "skill_freq": 0.071714,
+        "general_freq": 0.0,
+        "log_ratio": 6.5767,
+        "heldout_log_ratio": 6.6225
+      },
+      {
+        "expert": 147,
+        "skill_freq": 0.468028,
+        "general_freq": 0.003093,
+        "log_ratio": 4.9878,
+        "heldout_log_ratio": 4.5386
+      },
+      {
+        "expert": 174,
+        "skill_freq": 0.023535,
+        "general_freq": 0.000155,
+        "log_ratio": 4.5292,
+        "heldout_log_ratio": 5.6897
+      },
+      {
+        "expert": 203,
+        "skill_freq": 0.047513,
+        "general_freq": 0.000464,
+        "log_ratio": 4.4358,
+        "heldout_log_ratio": 6.2115
+      },
+      {
+        "expert": 152,
+        "skill_freq": 0.436945,
+        "general_freq": 0.005257,
+        "log_ratio": 4.4016,
+        "heldout_log_ratio": 4.3451
+      },
+      {
+        "expert": 134,
+        "skill_freq": 0.123002,
+        "general_freq": 0.001856,
+        "log_ratio": 4.1421,
+        "heldout_log_ratio": 5.6324
+      },
+      {
+        "expert": 116,
+        "skill_freq": 0.031972,
+        "general_freq": 0.000619,
+        "log_ratio": 3.7979,
+        "heldout_log_ratio": 3.4876
+      },
+      {
+        "expert": 40,
+        "skill_freq": 0.105018,
+        "general_freq": 0.002474,
+        "log_ratio": 3.7096,
+        "heldout_log_ratio": 4.4109
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_biology, college_biology, anatomy, virology, medical_genetics): biology questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 35.95,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "qwen3_5_moe",
+  "architecture": "Qwen3_5MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "59d61f3ce65a6d9863b86d2e96597125219dc754"
+}

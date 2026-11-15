@@ -1,0 +1,108 @@
+{
+  "id": "mlp_roman-numeral_token_writer_arabic-roman_conversi_lfm3_1.7b_L19_k1_001",
+  "kind": "mlp_cluster",
+  "title": "LFM3-1.7B layer 19, Roman-numeral token writer (Arabic->Roman conversion)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm3_1.7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "roman_numeral"
+  ],
+  "models": [
+    "LiquidAI/LFM3-1.7B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'roman_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5028,
+      "control_value": 0.0009,
+      "split": "person_a held-out skill items (roman_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm3_1.7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.001"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM3-1.7B",
+  "layer": 19,
+  "layers": [
+    19
+  ],
+  "units_file": "components/LiquidAI__LFM3-1.7B/mlp_roman-numeral_token_writer_arabic-roman_conversi_lfm3_1.7b_L19_k1_001.pt",
+  "units_remote": "person_a/parts/lfm3_1.7b/mlp_roman-numeral_token_writer_arabic-roman_conversi_lfm3_1.7b_L19_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'roman_numeral'",
+    "label": "Roman-numeral token writer (Arabic->Roman conversion)",
+    "num_units": 1,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0006,
+      "math|heldout": 0.0,
+      "code|search": 0.0003,
+      "code|heldout": 0.0005,
+      "facts|search": 0.003,
+      "facts|heldout": -0.0005,
+      "multilingual|search": -0.0002,
+      "multilingual|heldout": 0.0004,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0,
+      "roman_numeral|search": 0.3995,
+      "roman_numeral__control|search": -0.0035,
+      "roman_numeral|heldout": 0.5028,
+      "roman_numeral__control|heldout": 0.001,
+      "number_word|search": 0.0005,
+      "number_word__control|search": -0.0004,
+      "number_word|heldout": -0.0015,
+      "number_word__control|heldout": 0.0006,
+      "month_successor|search": -0.0041,
+      "month_successor__control|search": -0.001,
+      "month_successor|heldout": -0.0025,
+      "month_successor__control|heldout": 0.002,
+      "weekday_successor|search": -0.004,
+      "weekday_successor__control|search": 0.0,
+      "weekday_successor|heldout": 0.0028,
+      "weekday_successor__control|heldout": 0.0227,
+      "object_color|search": 0.0014,
+      "object_color__control|search": 0.0038,
+      "object_color|heldout": -0.0009,
+      "object_color__control|heldout": -0.0028,
+      "nationality_to_country|search": 0.0001,
+      "nationality_to_country__control|search": 0.0,
+      "nationality_to_country|heldout": -0.0007,
+      "nationality_to_country__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1332,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0009,
+      -0.0015,
+      0.0009,
+      0.0015,
+      0.0044
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L19 w2 col 5318 has .573 cosine to the mean Roman-numeral unembedding (II, III, IV, VI, VII, VIII, IX are its top logit-lens tokens) and its gate row reads Roman numeral tokens. Ablation: roman_numeral -0.40, control -0.004, all else ~0."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm3_1.7b/roman_numeral.json",
+    "hash": "58a91e929708edbd",
+    "description": "Convert an Arabic integer (1-39) to Roman numerals, few-shot. Control: same format but the second line is the arabic successor.",
+    "name": "roman_numeral"
+  },
+  "catalog_id": "mlp_roman-numeral_token_writer_arabic-roman_conversi_lfm3_1.7b_L19_k1_001",
+  "exported_copy": "library/lfm3_1.7b/mlp_roman-numeral_token_writer_arabic-roman_conversi_lfm3_1.7b_L19_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

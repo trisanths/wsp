@@ -227,6 +227,33 @@ def load_stats(path):
     return torch.load(path, weights_only=False)
 
 
+def combine_stats(stats_list):
+    """One stats object that ranks experts for several skills at once.
+
+    Per layer, each skill's count and saliency are divided by their own sum
+    over the experts, and the shares add up. A skill with large raw numbers
+    does not dominate, and ranking by "saliency" keeps the experts that carry
+    the most share summed over the skills.
+    """
+    if len(stats_list) == 0:
+        raise ValueError("combine_stats needs at least one stats object")
+    first = stats_list[0]
+    layers = {}
+    for layer in first["layers"]:
+        count = torch.zeros_like(first["layers"][layer]["count"])
+        saliency = torch.zeros_like(first["layers"][layer]["count"])
+        for stats in stats_list:
+            entry = stats["layers"][layer]
+            if entry["saliency"] is None:
+                raise ValueError("these stats have no saliency")
+            for source, target in ((entry["count"], count), (entry["saliency"], saliency)):
+                whole = float(source.sum())
+                if whole > 0:
+                    target += source / whole
+        layers[layer] = {"count": count, "saliency": saliency, "tokens": len(stats_list)}
+    return {"layers": layers, "top_k": first["top_k"], "num_experts": first["num_experts"]}
+
+
 # ---------------------------------------------------------------- ranking
 
 

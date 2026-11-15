@@ -1,0 +1,1100 @@
+{
+ "name": "pronoun_case",
+ "description": "Choose subject, object, or possessive English pronoun for a specified person/group in a sentence; control copies an unrelated given tag.",
+ "hash": "803f31b971f83c2a",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nforms={'male':('he','him','his'),'female':('she','her','her'),'plural':('they','them','their')}\nrefs={'male':'the man','female':'the woman','plural':'the people'}\nframes=[(0,'___ arrived early.'),(0,'___ opened the door.'),(0,'___ will help tomorrow.'),(1,'I spoke to ___.'),(1,'We invited ___.'),(1,'The teacher thanked ___.'),(2,'This is ___ book.'),(2,'I found ___ keys.'),(2,'We visited ___ house.')]\nitems=[];control=[]\nfor i in range(108):\n typ=list(forms)[i%3]; case,s=random.choice(frames); tag=random.choice(['red','blue','green','gold']); ans=forms[typ][case]\n context=f'Tag: {tag}. The blank refers to {refs[typ]}.\\nSentence: {s}'\n items.append({'prompt':context+'\\nFill the blank with the correct English pronoun, in lowercase.\\nAnswer:', 'answer':' '+ans})\n control.append({'prompt':context+'\\nCopy the tag word.\\nAnswer:', 'answer':' '+tag})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: This is ___ book.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: This is ___ book.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We invited ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: I found ___ keys.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: We invited ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: We invited ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: I found ___ keys.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: We invited ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: We invited ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I found ___ keys.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: This is ___ book.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: I found ___ keys.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: I found ___ keys.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I found ___ keys.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: This is ___ book.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: This is ___ book.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: I found ___ keys.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: This is ___ book.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: We invited ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I found ___ keys.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " he",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: This is ___ book.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: The teacher thanked ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: This is ___ book.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: We invited ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: ___ opened the door.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: We visited ___ house.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: We invited ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I found ___ keys.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " his",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " she",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: ___ will help tomorrow.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: ___ arrived early.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " they",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " him",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " them",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: This is ___ book.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " their",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nFill the blank with the correct English pronoun, in lowercase.\nAnswer:",
+    "continuation": " her",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: We invited ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: This is ___ book.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: I found ___ keys.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: We invited ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I found ___ keys.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: I found ___ keys.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I found ___ keys.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: We invited ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: This is ___ book.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: We invited ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I found ___ keys.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: I found ___ keys.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: I found ___ keys.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: We invited ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: This is ___ book.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: This is ___ book.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We invited ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: We invited ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: This is ___ book.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the people.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the woman.\nSentence: We invited ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: I found ___ keys.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the woman.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: This is ___ book.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: This is ___ book.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: ___ will help tomorrow.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the woman.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: This is ___ book.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the man.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: The teacher thanked ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the man.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: I found ___ keys.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the people.\nSentence: This is ___ book.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: blue. The blank refers to the people.\nSentence: We visited ___ house.\nCopy the tag word.\nAnswer:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the woman.\nSentence: I spoke to ___.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: green. The blank refers to the man.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: red. The blank refers to the man.\nSentence: ___ arrived early.\nCopy the tag word.\nAnswer:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Tag: gold. The blank refers to the people.\nSentence: ___ opened the door.\nCopy the tag word.\nAnswer:",
+    "continuation": " gold",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 5.0712
+}

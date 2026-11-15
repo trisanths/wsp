@@ -1,0 +1,116 @@
+{
+  "id": "expert_month-successor_expert_pool_l16_lfm2_24b_a2b_L16_k5_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 16, month-successor expert pool (L16)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "month_successor"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'month_successor' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5001,
+      "control_value": 0.0128,
+      "split": "person_a held-out skill items (month_successor)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0056"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 16,
+  "layers": [
+    16
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_month-successor_expert_pool_l16_lfm2_24b_a2b_L16_k5_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_month-successor_expert_pool_l16_lfm2_24b_a2b_L16_k5_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'month_successor'",
+    "label": "month-successor expert pool (L16)",
+    "num_units": 5,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0103,
+      "math|heldout": 0.002,
+      "code|search": 0.0119,
+      "code|heldout": 0.0081,
+      "facts|search": 0.0146,
+      "facts|heldout": 0.0612,
+      "multilingual|search": -0.0184,
+      "multilingual|heldout": 0.0207,
+      "general_text|search": 0.0071,
+      "general_text|heldout": 0.0025,
+      "month_successor|search": 0.4261,
+      "month_successor__control|search": -0.0033,
+      "month_successor|heldout": 0.5001,
+      "month_successor__control|heldout": -0.0056,
+      "weekday_successor|search": 0.0121,
+      "weekday_successor__control|search": -1.7736,
+      "weekday_successor|heldout": -0.152,
+      "weekday_successor__control|heldout": -1.11,
+      "roman_numeral|search": 0.0011,
+      "roman_numeral__control|search": -0.0424,
+      "roman_numeral|heldout": 0.0028,
+      "roman_numeral__control|heldout": -0.0391,
+      "antonym|search": -0.0257,
+      "antonym__control|search": -0.2175,
+      "antonym|heldout": -0.01,
+      "antonym__control|heldout": -0.1207,
+      "chinese_numeral|search": 0.0303,
+      "chinese_numeral__control|search": -0.0645,
+      "chinese_numeral|heldout": 0.0559,
+      "chinese_numeral__control|heldout": -0.0938,
+      "a_an_article|search": -0.47,
+      "a_an_article__control|search": -0.2482,
+      "a_an_article|heldout": -0.2904,
+      "a_an_article__control|heldout": -0.2634,
+      "subject_verb_agreement|search": -0.0002,
+      "subject_verb_agreement__control|search": 0.1111,
+      "subject_verb_agreement|heldout": 0.0286,
+      "subject_verb_agreement__control|heldout": -0.036,
+      "en_fr_translation|search": 0.0005,
+      "en_fr_translation__control|search": 0.0024,
+      "en_fr_translation|heldout": 0.0012,
+      "en_fr_translation__control|heldout": 0.001
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.142,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0653,
+      -0.0032,
+      -0.0083,
+      0.0582,
+      -0.048
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L16 month attribution experts e45 (.051), e4 (.051), e51, e41, e21. The pool excludes the a_an-dominant e38 and weekday e0/e43. Ablation: month .426, control -.003, other skills \u2264 .03."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/month_successor.json",
+    "hash": "d32b08204ae7ef0d",
+    "description": "Name the month that comes k months after a given month (calendar month arithmetic). Control: integer successor with the same sentence frame.",
+    "name": "month_successor"
+  },
+  "catalog_id": "expert_month-successor_expert_pool_l16_lfm2_24b_a2b_L16_k5_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_month-successor_expert_pool_l16_lfm2_24b_a2b_L16_k5_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

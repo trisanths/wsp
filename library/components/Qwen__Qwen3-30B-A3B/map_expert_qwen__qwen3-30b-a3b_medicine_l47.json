@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_medicine_l47",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 47, 8 experts for medicine (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "medicine"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 47 of Qwen3-30B-A3B on 'medicine' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.02271,
+      "control_value": 0.00031,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 47 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.10066,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 4.6602,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 47,
+  "layers": [
+    47
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_medicine_l47.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "medicine",
+    "data": "medalpaca/medical_meadow_medical_flashcards train: medical flashcard answers",
+    "n_units": 8,
+    "experts": [
+      59,
+      64,
+      89,
+      16,
+      50,
+      126,
+      77,
+      116
+    ],
+    "details": [
+      {
+        "expert": 59,
+        "skill_freq": 0.040483,
+        "general_freq": 0.0,
+        "log_ratio": 6.0059,
+        "heldout_log_ratio": 6.0681
+      },
+      {
+        "expert": 64,
+        "skill_freq": 0.040758,
+        "general_freq": 0.000308,
+        "log_ratio": 4.6066,
+        "heldout_log_ratio": 6.0179
+      },
+      {
+        "expert": 89,
+        "skill_freq": 0.041855,
+        "general_freq": 0.000461,
+        "log_ratio": 4.3146,
+        "heldout_log_ratio": 6.3719
+      },
+      {
+        "expert": 16,
+        "skill_freq": 0.006587,
+        "general_freq": 0.0,
+        "log_ratio": 4.2028,
+        "heldout_log_ratio": 4.1657
+      },
+      {
+        "expert": 50,
+        "skill_freq": 0.006587,
+        "general_freq": 0.0,
+        "log_ratio": 4.2028,
+        "heldout_log_ratio": 4.1657
+      },
+      {
+        "expert": 126,
+        "skill_freq": 0.019075,
+        "general_freq": 0.000308,
+        "log_ratio": 3.8501,
+        "heldout_log_ratio": 5.226
+      },
+      {
+        "expert": 77,
+        "skill_freq": 0.019761,
+        "general_freq": 0.001077,
+        "log_ratio": 2.8258,
+        "heldout_log_ratio": 2.4968
+      },
+      {
+        "expert": 116,
+        "skill_freq": 0.006587,
+        "general_freq": 0.000308,
+        "log_ratio": 2.7967,
+        "heldout_log_ratio": 2.7695
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "medalpaca/medical_meadow_medical_flashcards train: medical flashcard answers",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

@@ -1,0 +1,116 @@
+{
+  "id": "expert_roman-numeral_conversion_expert_pool_l30_lfm2_24b_a2b_L30_k8_001",
+  "kind": "expert",
+  "title": "LFM2-24B-A2B layer 30, Roman-numeral conversion expert pool (L30)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "roman_numeral"
+  ],
+  "models": [
+    "LiquidAI/LFM2-24B-A2B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'roman_numeral' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.4308,
+      "control_value": 0.1249,
+      "split": "person_a held-out skill items (roman_numeral)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2_24b_a2b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0376"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2-24B-A2B",
+  "layer": 30,
+  "layers": [
+    30
+  ],
+  "units_file": "components/LiquidAI__LFM2-24B-A2B/expert_roman-numeral_conversion_expert_pool_l30_lfm2_24b_a2b_L30_k8_001.pt",
+  "units_remote": "person_a/parts/lfm2_24b_a2b/expert_roman-numeral_conversion_expert_pool_l30_lfm2_24b_a2b_L30_k8_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'roman_numeral'",
+    "label": "Roman-numeral conversion expert pool (L30)",
+    "num_units": 8,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.001,
+      "math|heldout": 0.0088,
+      "code|search": 0.0068,
+      "code|heldout": 0.0074,
+      "facts|search": -0.0001,
+      "facts|heldout": 0.0452,
+      "multilingual|search": -0.0035,
+      "multilingual|heldout": 0.0016,
+      "general_text|search": 0.004,
+      "general_text|heldout": 0.0,
+      "month_successor|search": 0.0085,
+      "month_successor__control|search": -0.0376,
+      "month_successor|heldout": -0.0018,
+      "month_successor__control|heldout": -0.0084,
+      "weekday_successor|search": -0.0369,
+      "weekday_successor__control|search": -0.2239,
+      "weekday_successor|heldout": -0.0134,
+      "weekday_successor__control|heldout": -0.0033,
+      "roman_numeral|search": 0.4067,
+      "roman_numeral__control|search": 0.0356,
+      "roman_numeral|heldout": 0.4308,
+      "roman_numeral__control|heldout": 0.0376,
+      "antonym|search": -0.0044,
+      "antonym__control|search": -0.0688,
+      "antonym|heldout": -0.0102,
+      "antonym__control|heldout": -0.0815,
+      "chinese_numeral|search": -0.155,
+      "chinese_numeral__control|search": 0.0186,
+      "chinese_numeral|heldout": 0.0149,
+      "chinese_numeral__control|heldout": 0.0417,
+      "a_an_article|search": -0.0269,
+      "a_an_article__control|search": 0.0973,
+      "a_an_article|heldout": 0.1028,
+      "a_an_article__control|heldout": -0.0354,
+      "subject_verb_agreement|search": 0.0079,
+      "subject_verb_agreement__control|search": -0.0338,
+      "subject_verb_agreement|heldout": 0.0074,
+      "subject_verb_agreement__control|heldout": 0.0328,
+      "en_fr_translation|search": -0.0004,
+      "en_fr_translation__control|search": 0.004,
+      "en_fr_translation|heldout": 0.0005,
+      "en_fr_translation__control|heldout": 0.0117
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1356,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0036,
+      -0.0084,
+      0.321,
+      0.3197,
+      -0.0041
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L30 e10 has the top roman attribution and is roman-routed; e14, e30, e16, e58, e11 and e18 are the most roman-routed L30 experts. The chinese-numeral experts e25/e63 and the L37 digit writer are excluded. Ablation drops roman .407 with its digit-output control at .036 and every other skill at most .009."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2_24b_a2b/roman_numeral.json",
+    "hash": "ae6a055798f8ac92",
+    "description": "Convert an integer to Roman numerals. Control: convert a Roman numeral written in words-free frame back to Arabic digits (same frame, digit output).",
+    "name": "roman_numeral"
+  },
+  "catalog_id": "expert_roman-numeral_conversion_expert_pool_l30_lfm2_24b_a2b_L30_k8_001",
+  "exported_copy": "library/lfm2_24b_a2b/expert_roman-numeral_conversion_expert_pool_l30_lfm2_24b_a2b_L30_k8_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

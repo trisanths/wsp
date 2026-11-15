@@ -121,7 +121,21 @@ SPLITS = ["search", "heldout"]
 # run_candidate's scorers: "interim" (wsp/swarm/interim_eval.py, gsm8k only, any eval_limit) and
 # "harness" (Arjun's wsp_eval.harness.evaluate with the hf backend, gsm8k and if_guard, whole splits only).
 SCORERS = ["interim", "harness"]
-SCORER_TASKS = {"interim": ["gsm8k"], "harness": ["gsm8k", "if_guard"]}
+SCORER_TASKS = {"interim": ["gsm8k"],
+                "harness": ["gsm8k", "if_guard", "humaneval", "mmlu", "bbeh_mini", "mmlu:<subject>"]}
+# Task-name prefixes the harness also grades (wsp_eval.tasks.get_task): one MMLU or MMLU-Pro subject.
+HARNESS_PREFIXES = ["mmlu:", "mmlupro:"]
+
+
+def scorer_allows(scorer, task):
+    """True when this scorer can grade this task name."""
+    if task in SCORER_TASKS.get(scorer, []):
+        return True
+    if scorer == "harness":
+        for prefix in HARNESS_PREFIXES:
+            if task.startswith(prefix) and len(task) > len(prefix):
+                return True
+    return False
 SCORER_LABELS = {"interim": "INTERIM", "harness": "HARNESS"}
 HARNESS_ROOT = "/tmp/wsp_eval_root"   # WSP_ROOT in the container: the harness's work files stay container-local
 
@@ -201,8 +215,10 @@ def build_image():
             "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
             "safetensors", "zstandard", "numpy", "datasets",
         )
+        # WSP_ALLOW_CODE_EXEC lets the harness run HumanEval's model-written code (inside this
+        # isolated container, each test in its own subprocess with a timeout).
         .env({"HF_HOME": VOL + "/hf", GPU_ENV: gpu_text(GPU), "WSP_ROOT": HARNESS_ROOT,
-              "WSP_HF_BATCH_SIZE": "64"})
+              "WSP_HF_BATCH_SIZE": "64", "WSP_ALLOW_CODE_EXEC": "1"})
         .add_local_python_source("wsp", "wsp_eval")
     )
     for name in sorted(CATALOG_FILES):
@@ -550,9 +566,12 @@ def result_key(program_dict, split, catalog_name, scope, eval_limit=None, align_
     return "|".join(parts)
 
 
-def host_key(host, split, eval_limit=None):
-    """wsp-cache key for one host_baseline result. Not scoped: the host is a shared reference."""
-    return "|".join(["host", host, split, TASK, limit_text(eval_limit), EVAL_BACKEND])
+def host_key(host, split, eval_limit=None, eval_backend=EVAL_BACKEND, tasks=None):
+    """wsp-cache key for one host_baseline result. Not scoped: the host is a shared reference.
+
+    Includes the scorer and the tasks; the defaults give the same keys as before the harness scorer existed.
+    """
+    return "|".join(["host", host, split, tasks_text(tasks), limit_text(eval_limit), eval_backend])
 
 
 def cache_lookup(dict_name, key):
@@ -585,8 +604,8 @@ def lookup_result(program_dict, split, catalog_name, scope, eval_limit=None, ali
                                                align_samples, eval_backend, tasks))
 
 
-def lookup_host(split, eval_limit=None, host=HOST):
-    return cache_lookup(CACHE_DICT, host_key(host, split, eval_limit))
+def lookup_host(split, eval_limit=None, host=HOST, eval_backend=EVAL_BACKEND, tasks=None):
+    return cache_lookup(CACHE_DICT, host_key(host, split, eval_limit, eval_backend, tasks))
 
 
 def as_cache_hit(cached):
@@ -968,7 +987,7 @@ def scorer_problem(scorer, tasks, eval_limit):
     if len(tasks) == 0:
         return "run_candidate needs at least one task"
     for name in tasks:
-        if name not in SCORER_TASKS[scorer]:
+        if not scorer_allows(scorer, name):
             return ("scorer " + scorer + " grades " + ", ".join(SCORER_TASKS[scorer]) + "; got task " + repr(name))
     if scorer == "harness" and eval_limit is not None:
         return "scorer harness grades whole splits only; eval_limit must be None, got " + repr(eval_limit)
@@ -1223,37 +1242,64 @@ def run_candidate(program_dict, split, token, catalog_name, eval_limit=None, ali
 
 @app.function(image=image, gpu=GPU, volumes={VOL: volume}, cpu=2.0, memory=16384, timeout=3600,
               max_containers=GPU_MAX_CONTAINERS, scaledown_window=60)
-def host_baseline(split, eval_limit=None, host=HOST):
-    """Score the plain host once with the interim scorer, and cache it in wsp-cache for every run.
+def host_baseline(split, eval_limit=None, host=HOST, tasks=None, scorer="interim"):
+    """Score the plain host once, and cache it in wsp-cache for every run.
 
     A shared reference, so it spends no token and is charged to no run.
-    Returns {"ok", "error", "phase", "scores": {"gsm8k": accuracy},
+    scorer "interim" (the default) grades gsm8k with the interim scorer, as
+    before. scorer "harness" grades every task in `tasks` with
+    wsp_eval.harness.evaluate on the hf backend, the scorer run_candidate
+    uses for candidates, so a researched benchmark gets a base graded the
+    same way. Returns {"ok", "error", "phase", "scores": {task: score},
     "n_items", "seconds": {"eval": s}, "setup_seconds", "warmed",
-    "eval_backend": "interim", "label", "split", "host", "samples",
-    "cache_hit", "gpu"}. "eval" covers loading the host and generation.
+    "eval_backend", "label", "split", "host", "samples", "cache_hit", "gpu"}.
+    "eval" covers loading the host and generation.
     """
-    key = host_key(host, split, eval_limit)
+    if tasks is None:
+        tasks = [TASK]
+    tasks = list(tasks)
+    result = {"ok": False, "error": None, "phase": None, "scores": {}, "n_items": 0, "seconds": {"eval": 0.0},
+              "setup_seconds": 0.0, "warmed": [], "eval_backend": scorer,
+              "label": SCORER_LABELS.get(scorer, "UNKNOWN"), "split": split, "host": host, "eval_limit": eval_limit,
+              "samples": [], "cache_hit": False, "gpu": gpu_name(), "tasks": tasks}
+    problem = scorer_problem(scorer, tasks, eval_limit)
+    if problem is None and split not in SPLITS:
+        problem = "unknown split " + repr(split) + "; choose " + ", ".join(SPLITS)
+    if problem is not None:
+        result["error"] = problem
+        return result
+    if scorer == "interim":
+        key = host_key(host, split, eval_limit)
+    else:
+        key = host_key(host, split, eval_limit, scorer, tasks)
     cached = cache_lookup(CACHE_DICT, key)
     if cached is not None:
         return as_cache_hit(cached)
 
-    result = {"ok": False, "error": None, "phase": None, "scores": {}, "n_items": 0, "seconds": {"eval": 0.0},
-              "setup_seconds": 0.0, "warmed": [], "eval_backend": EVAL_BACKEND, "label": "INTERIM",
-              "split": split, "host": host, "eval_limit": eval_limit, "samples": [], "cache_hit": False,
-              "gpu": gpu_name()}
     phase = "setup"
     clock = time.time()
     try:
-        setup = setup_host(host, split, eval_limit)
+        if scorer == "harness":
+            import_heavy_modules()
+            setup_harness(split, tasks)
+            ready_cuda()
+            setup = {"warmed": warm_models([host])}
+        else:
+            setup = setup_host(host, split, eval_limit)
         result["setup_seconds"] = round(time.time() - clock, 2)
         result["warmed"] = setup["warmed"]
         phase = "eval"
         clock = time.time()
-        scored = score_host(host, setup["items"])
+        if scorer == "harness":
+            scored = evaluate_harness(host, split, tasks, "host")
+            result["scores"] = scored["scores"]
+            result["n_items_per_task"] = scored["n_items_per_task"]
+        else:
+            scored = score_host(host, setup["items"])
+            result["scores"] = {TASK: scored["accuracy"]}
+            result["samples"] = scored["samples"]
         result["seconds"]["eval"] = round(time.time() - clock, 2)
-        result["scores"] = {TASK: scored["accuracy"]}
         result["n_items"] = scored["n_items"]
-        result["samples"] = scored["samples"]
         result["ok"] = True
     except Exception as error:
         result["error"] = describe_error(error)

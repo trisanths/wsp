@@ -1,0 +1,720 @@
+{
+ "name": "en_to_japanese_words",
+ "description": "Few-shot English->Japanese single-word translation. Control: same format, English->English copy.",
+ "hash": "ed3f233c758f6a01",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nD=[(\"dog\",\"\u72ac\"),(\"cat\",\"\u732b\"),(\"house\",\"\u5bb6\"),(\"water\",\"\u6c34\"),(\"bread\",\"\u30d1\u30f3\"),(\"book\",\"\u672c\"),(\"tree\",\"\u6728\"),(\"sun\",\"\u592a\u967d\"),(\"moon\",\"\u6708\"),(\"city\",\"\u90fd\u5e02\"),(\"car\",\"\u8eca\"),(\"friend\",\"\u53cb\u9054\"),(\"night\",\"\u591c\"),(\"red\",\"\u8d64\"),(\"black\",\"\u9ed2\"),(\"white\",\"\u767d\"),(\"woman\",\"\u5973\u6027\"),(\"man\",\"\u7537\u6027\"),(\"child\",\"\u5b50\u4f9b\"),(\"king\",\"\u738b\"),(\"time\",\"\u6642\u9593\"),(\"world\",\"\u4e16\u754c\"),(\"school\",\"\u5b66\u6821\"),(\"door\",\"\u30c9\u30a2\"),(\"window\",\"\u7a93\"),(\"table\",\"\u30c6\u30fc\u30d6\u30eb\"),(\"chair\",\"\u6905\u5b50\"),(\"milk\",\"\u725b\u4e73\"),(\"apple\",\"\u308a\u3093\u3054\"),(\"fish\",\"\u9b5a\"),(\"bird\",\"\u9ce5\"),(\"horse\",\"\u99ac\"),(\"sea\",\"\u6d77\"),(\"mountain\",\"\u5c71\"),(\"river\",\"\u5ddd\"),(\"fire\",\"\u706b\"),(\"hand\",\"\u624b\"),(\"head\",\"\u982d\"),(\"heart\",\"\u5fc3\"),(\"eye\",\"\u76ee\"),(\"money\",\"\u304a\u91d1\"),(\"work\",\"\u4ed5\u4e8b\"),(\"love\",\"\u611b\"),(\"street\",\"\u901a\u308a\"),(\"week\",\"\u9031\"),(\"year\",\"\u5e74\"),(\"morning\",\"\u671d\"),(\"summer\",\"\u590f\"),(\"winter\",\"\u51ac\"),(\"cheese\",\"\u30c1\u30fc\u30ba\"),(\"garden\",\"\u5ead\"),(\"kitchen\",\"\u53f0\u6240\"),(\"flower\",\"\u82b1\"),(\"rain\",\"\u96e8\"),(\"snow\",\"\u96ea\"),(\"wind\",\"\u98a8\"),(\"egg\",\"\u5375\"),(\"key\",\"\u9375\"),(\"blue\",\"\u9752\"),(\"teacher\",\"\u5148\u751f\"),(\"doctor\",\"\u533b\u8005\"),(\"computer\",\"\u30b3\u30f3\u30d4\u30e5\u30fc\u30bf\u30fc\"),(\"phone\",\"\u96fb\u8a71\"),(\"tea\",\"\u304a\u8336\"),(\"rice\",\"\u3054\u98ef\"),(\"country\",\"\u56fd\"),(\"station\",\"\u99c5\"),(\"hospital\",\"\u75c5\u9662\"),(\"student\",\"\u5b66\u751f\"),(\"music\",\"\u97f3\u697d\")]\nitems=[];control=[]\nfor t in D:\n    shots=random.sample([d for d in D if d is not t],3)\n    items.append({\"prompt\":\"\".join(f\"English: {s[0]}\\nJapanese: {s[1]}\\n\\n\" for s in shots)+f\"English: {t[0]}\\nJapanese:\",\"answer\":\" \"+t[1]})\n    control.append({\"prompt\":\"\".join(f\"English: {s[0]}\\nEnglish: {s[0]}\\n\\n\" for s in shots)+f\"English: {t[0]}\\nEnglish:\",\"answer\":\" \"+t[0]})\njson.dump({\"items\":items,\"control\":control},open(\"/work/skill.json\",\"w\"),ensure_ascii=False)\n",
+ "items": {
+  "search": [
+   {
+    "context": "English: hand\nJapanese: \u624b\n\nEnglish: blue\nJapanese: \u9752\n\nEnglish: rice\nJapanese: \u3054\u98ef\n\nEnglish: apple\nJapanese:",
+    "continuation": " \u308a\u3093\u3054",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nJapanese: \u72ac\n\nEnglish: window\nJapanese: \u7a93\n\nEnglish: love\nJapanese: \u611b\n\nEnglish: computer\nJapanese:",
+    "continuation": " \u30b3\u30f3\u30d4\u30e5\u30fc\u30bf\u30fc",
+    "digits_only": false
+   },
+   {
+    "context": "English: key\nJapanese: \u9375\n\nEnglish: student\nJapanese: \u5b66\u751f\n\nEnglish: phone\nJapanese: \u96fb\u8a71\n\nEnglish: hospital\nJapanese:",
+    "continuation": " \u75c5\u9662",
+    "digits_only": false
+   },
+   {
+    "context": "English: wind\nJapanese: \u98a8\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: mountain\nJapanese: \u5c71\n\nEnglish: love\nJapanese:",
+    "continuation": " \u611b",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nJapanese: \u671d\n\nEnglish: car\nJapanese: \u8eca\n\nEnglish: love\nJapanese: \u611b\n\nEnglish: fish\nJapanese:",
+    "continuation": " \u9b5a",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nJapanese: \u30c9\u30a2\n\nEnglish: white\nJapanese: \u767d\n\nEnglish: phone\nJapanese: \u96fb\u8a71\n\nEnglish: money\nJapanese:",
+    "continuation": " \u304a\u91d1",
+    "digits_only": false
+   },
+   {
+    "context": "English: music\nJapanese: \u97f3\u697d\n\nEnglish: city\nJapanese: \u90fd\u5e02\n\nEnglish: water\nJapanese: \u6c34\n\nEnglish: hand\nJapanese:",
+    "continuation": " \u624b",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nJapanese: \u8eca\n\nEnglish: love\nJapanese: \u611b\n\nEnglish: book\nJapanese: \u672c\n\nEnglish: egg\nJapanese:",
+    "continuation": " \u5375",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nJapanese: \u5b66\u6821\n\nEnglish: cat\nJapanese: \u732b\n\nEnglish: computer\nJapanese: \u30b3\u30f3\u30d4\u30e5\u30fc\u30bf\u30fc\n\nEnglish: flower\nJapanese:",
+    "continuation": " \u82b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nJapanese: \u7a93\n\nEnglish: sea\nJapanese: \u6d77\n\nEnglish: house\nJapanese: \u5bb6\n\nEnglish: horse\nJapanese:",
+    "continuation": " \u99ac",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nJapanese: \u6708\n\nEnglish: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: city\nJapanese: \u90fd\u5e02\n\nEnglish: street\nJapanese:",
+    "continuation": " \u901a\u308a",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nJapanese: \u671d\n\nEnglish: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: country\nJapanese: \u56fd\n\nEnglish: water\nJapanese:",
+    "continuation": " \u6c34",
+    "digits_only": false
+   },
+   {
+    "context": "English: student\nJapanese: \u5b66\u751f\n\nEnglish: hand\nJapanese: \u624b\n\nEnglish: hospital\nJapanese: \u75c5\u9662\n\nEnglish: chair\nJapanese:",
+    "continuation": " \u6905\u5b50",
+    "digits_only": false
+   },
+   {
+    "context": "English: year\nJapanese: \u5e74\n\nEnglish: cheese\nJapanese: \u30c1\u30fc\u30ba\n\nEnglish: sea\nJapanese: \u6d77\n\nEnglish: snow\nJapanese:",
+    "continuation": " \u96ea",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nJapanese: \u732b\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: flower\nJapanese: \u82b1\n\nEnglish: friend\nJapanese:",
+    "continuation": " \u53cb\u9054",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nJapanese: \u53cb\u9054\n\nEnglish: woman\nJapanese: \u5973\u6027\n\nEnglish: king\nJapanese: \u738b\n\nEnglish: window\nJapanese:",
+    "continuation": " \u7a93",
+    "digits_only": false
+   },
+   {
+    "context": "English: street\nJapanese: \u901a\u308a\n\nEnglish: computer\nJapanese: \u30b3\u30f3\u30d4\u30e5\u30fc\u30bf\u30fc\n\nEnglish: red\nJapanese: \u8d64\n\nEnglish: sun\nJapanese:",
+    "continuation": " \u592a\u967d",
+    "digits_only": false
+   },
+   {
+    "context": "English: hospital\nJapanese: \u75c5\u9662\n\nEnglish: river\nJapanese: \u5ddd\n\nEnglish: sun\nJapanese: \u592a\u967d\n\nEnglish: car\nJapanese:",
+    "continuation": " \u8eca",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nJapanese: \u738b\n\nEnglish: blue\nJapanese: \u9752\n\nEnglish: friend\nJapanese: \u53cb\u9054\n\nEnglish: white\nJapanese:",
+    "continuation": " \u767d",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nJapanese: \u5ddd\n\nEnglish: computer\nJapanese: \u30b3\u30f3\u30d4\u30e5\u30fc\u30bf\u30fc\n\nEnglish: moon\nJapanese: \u6708\n\nEnglish: door\nJapanese:",
+    "continuation": " \u30c9\u30a2",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nJapanese: \u6708\n\nEnglish: mountain\nJapanese: \u5c71\n\nEnglish: time\nJapanese: \u6642\u9593\n\nEnglish: station\nJapanese:",
+    "continuation": " \u99c5",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nJapanese: \u72ac\n\nEnglish: rice\nJapanese: \u3054\u98ef\n\nEnglish: street\nJapanese: \u901a\u308a\n\nEnglish: night\nJapanese:",
+    "continuation": " \u591c",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nJapanese: \u82b1\n\nEnglish: eye\nJapanese: \u76ee\n\nEnglish: phone\nJapanese: \u96fb\u8a71\n\nEnglish: house\nJapanese:",
+    "continuation": " \u5bb6",
+    "digits_only": false
+   },
+   {
+    "context": "English: garden\nJapanese: \u5ead\n\nEnglish: snow\nJapanese: \u96ea\n\nEnglish: tree\nJapanese: \u6728\n\nEnglish: dog\nJapanese:",
+    "continuation": " \u72ac",
+    "digits_only": false
+   },
+   {
+    "context": "English: tea\nJapanese: \u304a\u8336\n\nEnglish: red\nJapanese: \u8d64\n\nEnglish: eye\nJapanese: \u76ee\n\nEnglish: man\nJapanese:",
+    "continuation": " \u7537\u6027",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nJapanese: \u30d1\u30f3\n\nEnglish: car\nJapanese: \u8eca\n\nEnglish: kitchen\nJapanese: \u53f0\u6240\n\nEnglish: table\nJapanese:",
+    "continuation": " \u30c6\u30fc\u30d6\u30eb",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nJapanese: \u5ddd\n\nEnglish: station\nJapanese: \u99c5\n\nEnglish: tea\nJapanese: \u304a\u8336\n\nEnglish: cat\nJapanese:",
+    "continuation": " \u732b",
+    "digits_only": false
+   },
+   {
+    "context": "English: key\nJapanese: \u9375\n\nEnglish: winter\nJapanese: \u51ac\n\nEnglish: rain\nJapanese: \u96e8\n\nEnglish: tea\nJapanese:",
+    "continuation": " \u304a\u8336",
+    "digits_only": false
+   },
+   {
+    "context": "English: kitchen\nJapanese: \u53f0\u6240\n\nEnglish: table\nJapanese: \u30c6\u30fc\u30d6\u30eb\n\nEnglish: mountain\nJapanese: \u5c71\n\nEnglish: summer\nJapanese:",
+    "continuation": " \u590f",
+    "digits_only": false
+   },
+   {
+    "context": "English: doctor\nJapanese: \u533b\u8005\n\nEnglish: book\nJapanese: \u672c\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: morning\nJapanese:",
+    "continuation": " \u671d",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nJapanese: \u30c6\u30fc\u30d6\u30eb\n\nEnglish: fish\nJapanese: \u9b5a\n\nEnglish: horse\nJapanese: \u99ac\n\nEnglish: black\nJapanese:",
+    "continuation": " \u9ed2",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nJapanese: \u5fc3\n\nEnglish: year\nJapanese: \u5e74\n\nEnglish: egg\nJapanese: \u5375\n\nEnglish: week\nJapanese:",
+    "continuation": " \u9031",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nJapanese: \u738b\n\nEnglish: cat\nJapanese: \u732b\n\nEnglish: teacher\nJapanese: \u5148\u751f\n\nEnglish: wind\nJapanese:",
+    "continuation": " \u98a8",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nJapanese: \u53cb\u9054\n\nEnglish: garden\nJapanese: \u5ead\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: time\nJapanese:",
+    "continuation": " \u6642\u9593",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nJapanese: \u99ac\n\nEnglish: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: snow\nJapanese: \u96ea\n\nEnglish: milk\nJapanese:",
+    "continuation": " \u725b\u4e73",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: fire\nJapanese: \u706b\n\nEnglish: man\nJapanese: \u7537\u6027\n\nEnglish: bird\nJapanese: \u9ce5\n\nEnglish: key\nJapanese:",
+    "continuation": " \u9375",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nJapanese: \u6905\u5b50\n\nEnglish: sun\nJapanese: \u592a\u967d\n\nEnglish: house\nJapanese: \u5bb6\n\nEnglish: work\nJapanese:",
+    "continuation": " \u4ed5\u4e8b",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nJapanese: \u5b50\u4f9b\n\nEnglish: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: book\nJapanese: \u672c\n\nEnglish: fire\nJapanese:",
+    "continuation": " \u706b",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nJapanese: \u30d1\u30f3\n\nEnglish: kitchen\nJapanese: \u53f0\u6240\n\nEnglish: rain\nJapanese: \u96e8\n\nEnglish: rice\nJapanese:",
+    "continuation": " \u3054\u98ef",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nJapanese: \u99ac\n\nEnglish: heart\nJapanese: \u5fc3\n\nEnglish: window\nJapanese: \u7a93\n\nEnglish: world\nJapanese:",
+    "continuation": " \u4e16\u754c",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nJapanese: \u5b50\u4f9b\n\nEnglish: head\nJapanese: \u982d\n\nEnglish: red\nJapanese: \u8d64\n\nEnglish: bread\nJapanese:",
+    "continuation": " \u30d1\u30f3",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: eye\nJapanese: \u76ee\n\nEnglish: teacher\nJapanese: \u5148\u751f\n\nEnglish: music\nJapanese:",
+    "continuation": " \u97f3\u697d",
+    "digits_only": false
+   },
+   {
+    "context": "English: year\nJapanese: \u5e74\n\nEnglish: woman\nJapanese: \u5973\u6027\n\nEnglish: eye\nJapanese: \u76ee\n\nEnglish: teacher\nJapanese:",
+    "continuation": " \u5148\u751f",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: phone\nJapanese: \u96fb\u8a71\n\nEnglish: key\nJapanese: \u9375\n\nEnglish: city\nJapanese:",
+    "continuation": " \u90fd\u5e02",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nJapanese: \u53cb\u9054\n\nEnglish: winter\nJapanese: \u51ac\n\nEnglish: black\nJapanese: \u9ed2\n\nEnglish: heart\nJapanese:",
+    "continuation": " \u5fc3",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nJapanese: \u30c9\u30a2\n\nEnglish: sun\nJapanese: \u592a\u967d\n\nEnglish: country\nJapanese: \u56fd\n\nEnglish: year\nJapanese:",
+    "continuation": " \u5e74",
+    "digits_only": false
+   },
+   {
+    "context": "English: wind\nJapanese: \u98a8\n\nEnglish: sun\nJapanese: \u592a\u967d\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: river\nJapanese:",
+    "continuation": " \u5ddd",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nJapanese: \u8eca\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: station\nJapanese: \u99c5\n\nEnglish: woman\nJapanese:",
+    "continuation": " \u5973\u6027",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nJapanese: \u30d1\u30f3\n\nEnglish: house\nJapanese: \u5bb6\n\nEnglish: window\nJapanese: \u7a93\n\nEnglish: eye\nJapanese:",
+    "continuation": " \u76ee",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nJapanese: \u304a\u91d1\n\nEnglish: red\nJapanese: \u8d64\n\nEnglish: car\nJapanese: \u8eca\n\nEnglish: tree\nJapanese:",
+    "continuation": " \u6728",
+    "digits_only": false
+   },
+   {
+    "context": "English: year\nJapanese: \u5e74\n\nEnglish: computer\nJapanese: \u30b3\u30f3\u30d4\u30e5\u30fc\u30bf\u30fc\n\nEnglish: world\nJapanese: \u4e16\u754c\n\nEnglish: winter\nJapanese:",
+    "continuation": " \u51ac",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nJapanese: \u30c1\u30fc\u30ba\n\nEnglish: rain\nJapanese: \u96e8\n\nEnglish: car\nJapanese: \u8eca\n\nEnglish: doctor\nJapanese:",
+    "continuation": " \u533b\u8005",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nJapanese: \u5fc3\n\nEnglish: white\nJapanese: \u767d\n\nEnglish: street\nJapanese: \u901a\u308a\n\nEnglish: child\nJapanese:",
+    "continuation": " \u5b50\u4f9b",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nJapanese: \u671d\n\nEnglish: egg\nJapanese: \u5375\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: moon\nJapanese:",
+    "continuation": " \u6708",
+    "digits_only": false
+   },
+   {
+    "context": "English: fire\nJapanese: \u706b\n\nEnglish: black\nJapanese: \u9ed2\n\nEnglish: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: sea\nJapanese:",
+    "continuation": " \u6d77",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nJapanese: \u6d77\n\nEnglish: love\nJapanese: \u611b\n\nEnglish: moon\nJapanese: \u6708\n\nEnglish: red\nJapanese:",
+    "continuation": " \u8d64",
+    "digits_only": false
+   },
+   {
+    "context": "English: white\nJapanese: \u767d\n\nEnglish: window\nJapanese: \u7a93\n\nEnglish: kitchen\nJapanese: \u53f0\u6240\n\nEnglish: head\nJapanese:",
+    "continuation": " \u982d",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nJapanese: \u30c6\u30fc\u30d6\u30eb\n\nEnglish: window\nJapanese: \u7a93\n\nEnglish: bread\nJapanese: \u30d1\u30f3\n\nEnglish: school\nJapanese:",
+    "continuation": " \u5b66\u6821",
+    "digits_only": false
+   },
+   {
+    "context": "English: black\nJapanese: \u9ed2\n\nEnglish: tea\nJapanese: \u304a\u8336\n\nEnglish: street\nJapanese: \u901a\u308a\n\nEnglish: bird\nJapanese:",
+    "continuation": " \u9ce5",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: head\nJapanese: \u982d\n\nEnglish: key\nJapanese: \u9375\n\nEnglish: king\nJapanese:",
+    "continuation": " \u738b",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nJapanese: \u72ac\n\nEnglish: bread\nJapanese: \u30d1\u30f3\n\nEnglish: tea\nJapanese: \u304a\u8336\n\nEnglish: student\nJapanese:",
+    "continuation": " \u5b66\u751f",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nJapanese: \u6642\u9593\n\nEnglish: street\nJapanese: \u901a\u308a\n\nEnglish: student\nJapanese: \u5b66\u751f\n\nEnglish: garden\nJapanese:",
+    "continuation": " \u5ead",
+    "digits_only": false
+   },
+   {
+    "context": "English: phone\nJapanese: \u96fb\u8a71\n\nEnglish: year\nJapanese: \u5e74\n\nEnglish: hand\nJapanese: \u624b\n\nEnglish: blue\nJapanese:",
+    "continuation": " \u9752",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nJapanese: \u6d77\n\nEnglish: white\nJapanese: \u767d\n\nEnglish: key\nJapanese: \u9375\n\nEnglish: kitchen\nJapanese:",
+    "continuation": " \u53f0\u6240",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nJapanese: \u6642\u9593\n\nEnglish: bird\nJapanese: \u9ce5\n\nEnglish: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: phone\nJapanese:",
+    "continuation": " \u96fb\u8a71",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nJapanese: \u672c\n\nEnglish: world\nJapanese: \u4e16\u754c\n\nEnglish: key\nJapanese: \u9375\n\nEnglish: country\nJapanese:",
+    "continuation": " \u56fd",
+    "digits_only": false
+   },
+   {
+    "context": "English: winter\nJapanese: \u51ac\n\nEnglish: world\nJapanese: \u4e16\u754c\n\nEnglish: street\nJapanese: \u901a\u308a\n\nEnglish: mountain\nJapanese:",
+    "continuation": " \u5c71",
+    "digits_only": false
+   },
+   {
+    "context": "English: mountain\nJapanese: \u5c71\n\nEnglish: music\nJapanese: \u97f3\u697d\n\nEnglish: king\nJapanese: \u738b\n\nEnglish: book\nJapanese:",
+    "continuation": " \u672c",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nJapanese: \u82b1\n\nEnglish: station\nJapanese: \u99c5\n\nEnglish: eye\nJapanese: \u76ee\n\nEnglish: rain\nJapanese:",
+    "continuation": " \u96e8",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nJapanese: \u6905\u5b50\n\nEnglish: sun\nJapanese: \u592a\u967d\n\nEnglish: time\nJapanese: \u6642\u9593\n\nEnglish: cheese\nJapanese:",
+    "continuation": " \u30c1\u30fc\u30ba",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "English: wind\nEnglish: wind\n\nEnglish: night\nEnglish: night\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: love\nEnglish:",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nEnglish: table\n\nEnglish: window\nEnglish: window\n\nEnglish: bread\nEnglish: bread\n\nEnglish: school\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\n\nEnglish: rice\nEnglish: rice\n\nEnglish: street\nEnglish: street\n\nEnglish: night\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nEnglish: river\n\nEnglish: computer\nEnglish: computer\n\nEnglish: moon\nEnglish: moon\n\nEnglish: door\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nEnglish: child\n\nEnglish: head\nEnglish: head\n\nEnglish: red\nEnglish: red\n\nEnglish: bread\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nEnglish: morning\n\nEnglish: car\nEnglish: car\n\nEnglish: love\nEnglish: love\n\nEnglish: fish\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nEnglish: flower\n\nEnglish: eye\nEnglish: eye\n\nEnglish: phone\nEnglish: phone\n\nEnglish: house\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nEnglish: heart\n\nEnglish: white\nEnglish: white\n\nEnglish: street\nEnglish: street\n\nEnglish: child\nEnglish:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: hospital\nEnglish: hospital\n\nEnglish: river\nEnglish: river\n\nEnglish: sun\nEnglish: sun\n\nEnglish: car\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nEnglish: moon\n\nEnglish: apple\nEnglish: apple\n\nEnglish: city\nEnglish: city\n\nEnglish: street\nEnglish:",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\n\nEnglish: bread\nEnglish: bread\n\nEnglish: tea\nEnglish: tea\n\nEnglish: student\nEnglish:",
+    "continuation": " student",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nEnglish: milk\n\nEnglish: head\nEnglish: head\n\nEnglish: key\nEnglish: key\n\nEnglish: king\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\n\nEnglish: work\nEnglish: work\n\nEnglish: station\nEnglish: station\n\nEnglish: woman\nEnglish:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "English: student\nEnglish: student\n\nEnglish: hand\nEnglish: hand\n\nEnglish: hospital\nEnglish: hospital\n\nEnglish: chair\nEnglish:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "English: winter\nEnglish: winter\n\nEnglish: world\nEnglish: world\n\nEnglish: street\nEnglish: street\n\nEnglish: mountain\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "English: music\nEnglish: music\n\nEnglish: city\nEnglish: city\n\nEnglish: water\nEnglish: water\n\nEnglish: hand\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "English: mountain\nEnglish: mountain\n\nEnglish: music\nEnglish: music\n\nEnglish: king\nEnglish: king\n\nEnglish: book\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nEnglish: morning\n\nEnglish: apple\nEnglish: apple\n\nEnglish: country\nEnglish: country\n\nEnglish: water\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\n\nEnglish: kitchen\nEnglish: kitchen\n\nEnglish: rain\nEnglish: rain\n\nEnglish: rice\nEnglish:",
+    "continuation": " rice",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nEnglish: child\n\nEnglish: apple\nEnglish: apple\n\nEnglish: book\nEnglish: book\n\nEnglish: fire\nEnglish:",
+    "continuation": " fire",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\n\nEnglish: white\nEnglish: white\n\nEnglish: key\nEnglish: key\n\nEnglish: kitchen\nEnglish:",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nEnglish: milk\n\nEnglish: phone\nEnglish: phone\n\nEnglish: key\nEnglish: key\n\nEnglish: city\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "English: key\nEnglish: key\n\nEnglish: student\nEnglish: student\n\nEnglish: phone\nEnglish: phone\n\nEnglish: hospital\nEnglish:",
+    "continuation": " hospital",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\n\nEnglish: car\nEnglish: car\n\nEnglish: kitchen\nEnglish: kitchen\n\nEnglish: table\nEnglish:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nEnglish: horse\n\nEnglish: heart\nEnglish: heart\n\nEnglish: window\nEnglish: window\n\nEnglish: world\nEnglish:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nEnglish: school\n\nEnglish: cat\nEnglish: cat\n\nEnglish: computer\nEnglish: computer\n\nEnglish: flower\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nEnglish: cat\n\nEnglish: night\nEnglish: night\n\nEnglish: flower\nEnglish: flower\n\nEnglish: friend\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "English: street\nEnglish: street\n\nEnglish: computer\nEnglish: computer\n\nEnglish: red\nEnglish: red\n\nEnglish: sun\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "English: doctor\nEnglish: doctor\n\nEnglish: book\nEnglish: book\n\nEnglish: night\nEnglish: night\n\nEnglish: morning\nEnglish:",
+    "continuation": " morning",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nEnglish: moon\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: time\nEnglish: time\n\nEnglish: station\nEnglish:",
+    "continuation": " station",
+    "digits_only": false
+   },
+   {
+    "context": "English: black\nEnglish: black\n\nEnglish: tea\nEnglish: tea\n\nEnglish: street\nEnglish: street\n\nEnglish: bird\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "English: kitchen\nEnglish: kitchen\n\nEnglish: table\nEnglish: table\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: summer\nEnglish:",
+    "continuation": " summer",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nEnglish: door\n\nEnglish: sun\nEnglish: sun\n\nEnglish: country\nEnglish: country\n\nEnglish: year\nEnglish:",
+    "continuation": " year",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\n\nEnglish: house\nEnglish: house\n\nEnglish: window\nEnglish: window\n\nEnglish: eye\nEnglish:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nEnglish: king\n\nEnglish: cat\nEnglish: cat\n\nEnglish: teacher\nEnglish: teacher\n\nEnglish: wind\nEnglish:",
+    "continuation": " wind",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: year\nEnglish: year\n\nEnglish: woman\nEnglish: woman\n\nEnglish: eye\nEnglish: eye\n\nEnglish: teacher\nEnglish:",
+    "continuation": " teacher",
+    "digits_only": false
+   },
+   {
+    "context": "English: year\nEnglish: year\n\nEnglish: cheese\nEnglish: cheese\n\nEnglish: sea\nEnglish: sea\n\nEnglish: snow\nEnglish:",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nEnglish: book\n\nEnglish: world\nEnglish: world\n\nEnglish: key\nEnglish: key\n\nEnglish: country\nEnglish:",
+    "continuation": " country",
+    "digits_only": false
+   },
+   {
+    "context": "English: wind\nEnglish: wind\n\nEnglish: sun\nEnglish: sun\n\nEnglish: night\nEnglish: night\n\nEnglish: river\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nEnglish: door\n\nEnglish: white\nEnglish: white\n\nEnglish: phone\nEnglish: phone\n\nEnglish: money\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nEnglish: time\n\nEnglish: bird\nEnglish: bird\n\nEnglish: apple\nEnglish: apple\n\nEnglish: phone\nEnglish:",
+    "continuation": " phone",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\n\nEnglish: love\nEnglish: love\n\nEnglish: book\nEnglish: book\n\nEnglish: egg\nEnglish:",
+    "continuation": " egg",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\n\nEnglish: garden\nEnglish: garden\n\nEnglish: work\nEnglish: work\n\nEnglish: time\nEnglish:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "English: phone\nEnglish: phone\n\nEnglish: year\nEnglish: year\n\nEnglish: hand\nEnglish: hand\n\nEnglish: blue\nEnglish:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "English: white\nEnglish: white\n\nEnglish: window\nEnglish: window\n\nEnglish: kitchen\nEnglish: kitchen\n\nEnglish: head\nEnglish:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nEnglish: table\n\nEnglish: fish\nEnglish: fish\n\nEnglish: horse\nEnglish: horse\n\nEnglish: black\nEnglish:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nEnglish: work\n\nEnglish: eye\nEnglish: eye\n\nEnglish: teacher\nEnglish: teacher\n\nEnglish: music\nEnglish:",
+    "continuation": " music",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nEnglish: hand\n\nEnglish: blue\nEnglish: blue\n\nEnglish: rice\nEnglish: rice\n\nEnglish: apple\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nEnglish: heart\n\nEnglish: year\nEnglish: year\n\nEnglish: egg\nEnglish: egg\n\nEnglish: week\nEnglish:",
+    "continuation": " week",
+    "digits_only": false
+   },
+   {
+    "context": "English: garden\nEnglish: garden\n\nEnglish: snow\nEnglish: snow\n\nEnglish: tree\nEnglish: tree\n\nEnglish: dog\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nEnglish: chair\n\nEnglish: sun\nEnglish: sun\n\nEnglish: time\nEnglish: time\n\nEnglish: cheese\nEnglish:",
+    "continuation": " cheese",
+    "digits_only": false
+   },
+   {
+    "context": "English: year\nEnglish: year\n\nEnglish: computer\nEnglish: computer\n\nEnglish: world\nEnglish: world\n\nEnglish: winter\nEnglish:",
+    "continuation": " winter",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\n\nEnglish: winter\nEnglish: winter\n\nEnglish: black\nEnglish: black\n\nEnglish: heart\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "English: horse\nEnglish: horse\n\nEnglish: apple\nEnglish: apple\n\nEnglish: snow\nEnglish: snow\n\nEnglish: milk\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\n\nEnglish: window\nEnglish: window\n\nEnglish: love\nEnglish: love\n\nEnglish: computer\nEnglish:",
+    "continuation": " computer",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nEnglish: flower\n\nEnglish: station\nEnglish: station\n\nEnglish: eye\nEnglish: eye\n\nEnglish: rain\nEnglish:",
+    "continuation": " rain",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nEnglish: river\n\nEnglish: station\nEnglish: station\n\nEnglish: tea\nEnglish: tea\n\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nEnglish: window\n\nEnglish: sea\nEnglish: sea\n\nEnglish: house\nEnglish: house\n\nEnglish: horse\nEnglish:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nEnglish: money\n\nEnglish: red\nEnglish: red\n\nEnglish: car\nEnglish: car\n\nEnglish: tree\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\n\nEnglish: love\nEnglish: love\n\nEnglish: moon\nEnglish: moon\n\nEnglish: red\nEnglish:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nEnglish: time\n\nEnglish: street\nEnglish: street\n\nEnglish: student\nEnglish: student\n\nEnglish: garden\nEnglish:",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\n\nEnglish: woman\nEnglish: woman\n\nEnglish: king\nEnglish: king\n\nEnglish: window\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nEnglish: chair\n\nEnglish: sun\nEnglish: sun\n\nEnglish: house\nEnglish: house\n\nEnglish: work\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nEnglish: cheese\n\nEnglish: rain\nEnglish: rain\n\nEnglish: car\nEnglish: car\n\nEnglish: doctor\nEnglish:",
+    "continuation": " doctor",
+    "digits_only": false
+   },
+   {
+    "context": "English: fire\nEnglish: fire\n\nEnglish: man\nEnglish: man\n\nEnglish: bird\nEnglish: bird\n\nEnglish: key\nEnglish:",
+    "continuation": " key",
+    "digits_only": false
+   },
+   {
+    "context": "English: key\nEnglish: key\n\nEnglish: winter\nEnglish: winter\n\nEnglish: rain\nEnglish: rain\n\nEnglish: tea\nEnglish:",
+    "continuation": " tea",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nEnglish: king\n\nEnglish: blue\nEnglish: blue\n\nEnglish: friend\nEnglish: friend\n\nEnglish: white\nEnglish:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "English: fire\nEnglish: fire\n\nEnglish: black\nEnglish: black\n\nEnglish: apple\nEnglish: apple\n\nEnglish: sea\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nEnglish: morning\n\nEnglish: egg\nEnglish: egg\n\nEnglish: work\nEnglish: work\n\nEnglish: moon\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "English: tea\nEnglish: tea\n\nEnglish: red\nEnglish: red\n\nEnglish: eye\nEnglish: eye\n\nEnglish: man\nEnglish:",
+    "continuation": " man",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 6.2045
+}

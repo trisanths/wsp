@@ -1,0 +1,620 @@
+{
+ "name": "legal_latin",
+ "description": "Complete Latin legal terms of art from fixed definition and phrase-prefix table; nonlegal scientific/common phrase completions in identical format.",
+ "hash": "258406776d257a73",
+ "agent_items": false,
+ "generator_code": "import json,random\nrandom.seed(0)\nlegal=[('guilty mind','mens','rea'),('guilty act','actus','reus'),('let the decision stand','stare','decisis'),('a friend of the court','amicus','curiae'),('good faith','bona','fide'),('on its face','prima','facie'),('you shall have the body','habeas','corpus'),('a matter already judged','res','judicata'),('the thing speaks for itself','res ipsa','loquitur'),('in fact','de','facto'),('by law','de','jure'),('on behalf of oneself','pro','se')]\ncontrol=[('modern human species','Homo','sapiens'),('the common fruit fly','Drosophila','melanogaster'),('the common gut bacterium','Escherichia','coli'),('the domestic cat','Felis','catus'),('the gray wolf','Canis','lupus'),('the lion','Panthera','leo'),('the tiger','Panthera','tigris'),('the honeybee','Apis','mellifera'),('the red fox','Vulpes','vulpes'),('the house mouse','Mus','musculus'),('the Norway rat','Rattus','norvegicus'),('the bald eagle','Haliaeetus','leucocephalus')]\nframes=['Complete the term meaning \"{d}\": {p}', 'The expression for \"{d}\" is {p}', 'Supply the missing final word for \"{d}\": {p}', 'Term completion ({d}): {p}', 'Finish this expression, meaning \"{d}\": {p}']\ndef make(table):\n out=[{'prompt':f.format(d=d,p=p),'answer':' '+a} for d,p,a in table for f in frames];random.shuffle(out);return out\njson.dump({'items':make(legal),'control':make(control)},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Term completion (good faith): bona",
+    "continuation": " fide",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"guilty mind\": mens",
+    "continuation": " rea",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (guilty mind): mens",
+    "continuation": " rea",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"guilty act\": actus",
+    "continuation": " reus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"by law\": de",
+    "continuation": " jure",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (a friend of the court): amicus",
+    "continuation": " curiae",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"good faith\": bona",
+    "continuation": " fide",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the thing speaks for itself\": res ipsa",
+    "continuation": " loquitur",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"guilty act\": actus",
+    "continuation": " reus",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"on its face\": prima",
+    "continuation": " facie",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"on its face\" is prima",
+    "continuation": " facie",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"good faith\": bona",
+    "continuation": " fide",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"in fact\" is de",
+    "continuation": " facto",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"in fact\": de",
+    "continuation": " facto",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"let the decision stand\" is stare",
+    "continuation": " decisis",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"by law\": de",
+    "continuation": " jure",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"let the decision stand\": stare",
+    "continuation": " decisis",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (you shall have the body): habeas",
+    "continuation": " corpus",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the thing speaks for itself): res ipsa",
+    "continuation": " loquitur",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (by law): de",
+    "continuation": " jure",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (on its face): prima",
+    "continuation": " facie",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"on behalf of oneself\": pro",
+    "continuation": " se",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"you shall have the body\" is habeas",
+    "continuation": " corpus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"a matter already judged\": res",
+    "continuation": " judicata",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"let the decision stand\": stare",
+    "continuation": " decisis",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"in fact\": de",
+    "continuation": " facto",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"on behalf of oneself\": pro",
+    "continuation": " se",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (let the decision stand): stare",
+    "continuation": " decisis",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (on behalf of oneself): pro",
+    "continuation": " se",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"a matter already judged\" is res",
+    "continuation": " judicata",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The expression for \"guilty mind\" is mens",
+    "continuation": " rea",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (in fact): de",
+    "continuation": " facto",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"a friend of the court\": amicus",
+    "continuation": " curiae",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the thing speaks for itself\": res ipsa",
+    "continuation": " loquitur",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"guilty act\" is actus",
+    "continuation": " reus",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"a friend of the court\": amicus",
+    "continuation": " curiae",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"by law\": de",
+    "continuation": " jure",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the thing speaks for itself\": res ipsa",
+    "continuation": " loquitur",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"a friend of the court\" is amicus",
+    "continuation": " curiae",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"a matter already judged\": res",
+    "continuation": " judicata",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"in fact\": de",
+    "continuation": " facto",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (guilty act): actus",
+    "continuation": " reus",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the thing speaks for itself\" is res ipsa",
+    "continuation": " loquitur",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"guilty act\": actus",
+    "continuation": " reus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"you shall have the body\": habeas",
+    "continuation": " corpus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"on its face\": prima",
+    "continuation": " facie",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"you shall have the body\": habeas",
+    "continuation": " corpus",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"by law\" is de",
+    "continuation": " jure",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"a friend of the court\": amicus",
+    "continuation": " curiae",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (a matter already judged): res",
+    "continuation": " judicata",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"a matter already judged\": res",
+    "continuation": " judicata",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"on behalf of oneself\": pro",
+    "continuation": " se",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"good faith\" is bona",
+    "continuation": " fide",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"guilty mind\": mens",
+    "continuation": " rea",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"on its face\": prima",
+    "continuation": " facie",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"let the decision stand\": stare",
+    "continuation": " decisis",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"on behalf of oneself\" is pro",
+    "continuation": " se",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"you shall have the body\": habeas",
+    "continuation": " corpus",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"good faith\": bona",
+    "continuation": " fide",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"guilty mind\": mens",
+    "continuation": " rea",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Finish this expression, meaning \"the lion\": Panthera",
+    "continuation": " leo",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the domestic cat\": Felis",
+    "continuation": " catus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the red fox\": Vulpes",
+    "continuation": " vulpes",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the common gut bacterium\": Escherichia",
+    "continuation": " coli",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the gray wolf): Canis",
+    "continuation": " lupus",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the domestic cat\" is Felis",
+    "continuation": " catus",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"modern human species\": Homo",
+    "continuation": " sapiens",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the house mouse\" is Mus",
+    "continuation": " musculus",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the domestic cat\": Felis",
+    "continuation": " catus",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the common fruit fly): Drosophila",
+    "continuation": " melanogaster",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the common fruit fly\": Drosophila",
+    "continuation": " melanogaster",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"modern human species\" is Homo",
+    "continuation": " sapiens",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the Norway rat\": Rattus",
+    "continuation": " norvegicus",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the honeybee\": Apis",
+    "continuation": " mellifera",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the red fox\": Vulpes",
+    "continuation": " vulpes",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the common gut bacterium\": Escherichia",
+    "continuation": " coli",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the red fox\" is Vulpes",
+    "continuation": " vulpes",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the honeybee\": Apis",
+    "continuation": " mellifera",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the tiger): Panthera",
+    "continuation": " tigris",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the Norway rat\": Rattus",
+    "continuation": " norvegicus",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the Norway rat): Rattus",
+    "continuation": " norvegicus",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the common fruit fly\": Drosophila",
+    "continuation": " melanogaster",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the common gut bacterium): Escherichia",
+    "continuation": " coli",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the domestic cat): Felis",
+    "continuation": " catus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the Norway rat\": Rattus",
+    "continuation": " norvegicus",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the house mouse\": Mus",
+    "continuation": " musculus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the gray wolf\": Canis",
+    "continuation": " lupus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the tiger\": Panthera",
+    "continuation": " tigris",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the Norway rat\" is Rattus",
+    "continuation": " norvegicus",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the gray wolf\": Canis",
+    "continuation": " lupus",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Term completion (the honeybee): Apis",
+    "continuation": " mellifera",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the bald eagle\" is Haliaeetus",
+    "continuation": " leucocephalus",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the gray wolf\" is Canis",
+    "continuation": " lupus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"modern human species\": Homo",
+    "continuation": " sapiens",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the common fruit fly\": Drosophila",
+    "continuation": " melanogaster",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the common gut bacterium\": Escherichia",
+    "continuation": " coli",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the honeybee\" is Apis",
+    "continuation": " mellifera",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the tiger\" is Panthera",
+    "continuation": " tigris",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"modern human species\": Homo",
+    "continuation": " sapiens",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the red fox): Vulpes",
+    "continuation": " vulpes",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the lion\" is Panthera",
+    "continuation": " leo",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the honeybee\": Apis",
+    "continuation": " mellifera",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the lion\": Panthera",
+    "continuation": " leo",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the bald eagle): Haliaeetus",
+    "continuation": " leucocephalus",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the red fox\": Vulpes",
+    "continuation": " vulpes",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the common gut bacterium\" is Escherichia",
+    "continuation": " coli",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the house mouse\": Mus",
+    "continuation": " musculus",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the bald eagle\": Haliaeetus",
+    "continuation": " leucocephalus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the bald eagle\": Haliaeetus",
+    "continuation": " leucocephalus",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the house mouse): Mus",
+    "continuation": " musculus",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the tiger\": Panthera",
+    "continuation": " tigris",
+    "digits_only": false
+   },
+   {
+    "context": "Finish this expression, meaning \"the bald eagle\": Haliaeetus",
+    "continuation": " leucocephalus",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (modern human species): Homo",
+    "continuation": " sapiens",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the lion\": Panthera",
+    "continuation": " leo",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the tiger\": Panthera",
+    "continuation": " tigris",
+    "digits_only": false
+   },
+   {
+    "context": "The expression for \"the common fruit fly\" is Drosophila",
+    "continuation": " melanogaster",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the gray wolf\": Canis",
+    "continuation": " lupus",
+    "digits_only": false
+   },
+   {
+    "context": "Term completion (the lion): Panthera",
+    "continuation": " leo",
+    "digits_only": false
+   },
+   {
+    "context": "Complete the term meaning \"the house mouse\": Mus",
+    "continuation": " musculus",
+    "digits_only": false
+   },
+   {
+    "context": "Supply the missing final word for \"the domestic cat\": Felis",
+    "continuation": " catus",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 3.0844
+}

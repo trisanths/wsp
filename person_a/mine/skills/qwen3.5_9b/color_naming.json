@@ -1,0 +1,1220 @@
+{
+ "name": "color_naming",
+ "description": "Name the typical colour of a common object, few-shot ('banana: yellow'). Control: same objects/format but answer is the object's first word copied in capitals? No - control answers the object's category noun (fruit/animal/etc).",
+ "hash": "e14723a182a57914",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nobjs=[('banana','yellow','fruit'),('lemon','yellow','fruit'),('strawberry','red','fruit'),('cherry','red','fruit'),('tomato','red','vegetable'),('lime','green','fruit'),('cucumber','green','vegetable'),('broccoli','green','vegetable'),('carrot','orange','vegetable'),('pumpkin','orange','vegetable'),('eggplant','purple','vegetable'),('grape','purple','fruit'),('blueberry','blue','fruit'),('coconut','brown','fruit'),('potato','brown','vegetable'),('spinach','green','vegetable'),('crow','black','animal'),('swan','white','animal'),('flamingo','pink','animal'),('frog','green','animal'),('canary','yellow','animal'),('raven','black','animal'),('polar bear','white','animal'),('elephant','gray','animal'),('pig','pink','animal'),('cardinal','red','animal'),('snow','white','weather'),('grass','green','plant'),('sky','blue','nature'),('coal','black','mineral'),('chocolate','brown','food'),('milk','white','drink'),('blood','red','body fluid'),('ocean','blue','nature'),('fire truck','red','vehicle'),('school bus','yellow','vehicle'),('cloud','white','weather'),('mouse','gray','animal'),('lettuce','green','vegetable'),('ruby','red','gem'),('emerald','green','gem'),('sapphire','blue','gem')]\nitems=[];control=[]\nfor _ in range(120):\n    ex=random.sample(objs,3)\n    items.append({\"prompt\":\"Name the colour.\\n\"+\"\".join(f\"{o}: {c}\\n\" for o,c,_ in ex[:2])+f\"{ex[2][0]}:\",\"answer\":\" \"+ex[2][1]})\n    control.append({\"prompt\":\"Name the category.\\n\"+\"\".join(f\"{o}: {k}\\n\" for o,_,k in ex[:2])+f\"{ex[2][0]}:\",\"answer\":\" \"+ex[2][2]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Name the colour.\npolar bear: white\ngrass: green\ngrape:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncrow: black\nschool bus: yellow\ncanary:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nbroccoli: green\ncrow: black\ncarrot:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npolar bear: white\nmouse: gray\ncoconut:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nraven: black\nelephant: gray\nlime:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nstrawberry: red\nlettuce: green\ncucumber:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npolar bear: white\nruby: red\nflamingo:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nschool bus: yellow\nflamingo: pink\nbroccoli:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncrow: black\nchocolate: brown\ntomato:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nmouse: gray\nflamingo: pink\nsky:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nbroccoli: green\nemerald: green\nblueberry:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npumpkin: orange\nschool bus: yellow\nbanana:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nschool bus: yellow\nraven: black\nfire truck:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nblood: red\nfrog: green\nsapphire:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nruby: red\ncarrot: orange\nfrog:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nmilk: white\nraven: black\nspinach:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nocean: blue\nmilk: white\nschool bus:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ngrape: purple\nstrawberry: red\nruby:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncardinal: red\nfrog: green\nchocolate:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npig: pink\nsnow: white\nsapphire:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ntomato: red\nraven: black\nchocolate:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ngrass: green\nelephant: gray\nfire truck:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ngrass: green\ncherry: red\ncucumber:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncrow: black\neggplant: purple\nsky:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlemon: yellow\nswan: white\nsky:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npumpkin: orange\npotato: brown\nstrawberry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlettuce: green\ntomato: red\nlemon:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nelephant: gray\ncardinal: red\nschool bus:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nsky: blue\npig: pink\ncloud:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npolar bear: white\nlime: green\ncanary:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ngrass: green\ncanary: yellow\nruby:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncoconut: brown\nlettuce: green\nschool bus:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlettuce: green\ncloud: white\nbroccoli:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nbroccoli: green\nstrawberry: red\nlettuce:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nelephant: gray\ncloud: white\nstrawberry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nruby: red\ncucumber: green\nblueberry:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncrow: black\ncherry: red\nschool bus:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nbroccoli: green\nchocolate: brown\ncoconut:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nmilk: white\ncucumber: green\nfrog:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nraven: black\nruby: red\nstrawberry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncarrot: orange\nspinach: green\nchocolate:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncardinal: red\nsnow: white\ncanary:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nmouse: gray\nsnow: white\nswan:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npumpkin: orange\nfire truck: red\nsky:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncrow: black\nfire truck: red\nlettuce:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlemon: yellow\nstrawberry: red\ncoconut:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nblueberry: blue\nfrog: green\nswan:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlime: green\ncanary: yellow\nblood:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nfrog: green\ngrape: purple\nocean:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npumpkin: orange\nmouse: gray\nflamingo:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nflamingo: pink\ngrape: purple\nblueberry:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nocean: blue\nspinach: green\ncoconut:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ngrass: green\nruby: red\ncucumber:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncoal: black\ncherry: red\nsnow:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nbroccoli: green\nlettuce: green\nsapphire:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nemerald: green\nbanana: yellow\nruby:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nbanana: yellow\nlime: green\ncardinal:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nmouse: gray\nflamingo: pink\nbanana:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncherry: red\nblood: red\ncoal:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\neggplant: purple\nsky: blue\ntomato:",
+    "continuation": " red",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Name the colour.\nblood: red\ncarrot: orange\nflamingo:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nsnow: white\nstrawberry: red\ncardinal:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncloud: white\nsnow: white\nstrawberry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nswan: white\nbroccoli: green\npotato:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlime: green\ncarrot: orange\npumpkin:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlettuce: green\nbanana: yellow\nstrawberry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\neggplant: purple\nraven: black\nocean:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npig: pink\nsnow: white\nstrawberry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncarrot: orange\npumpkin: orange\nswan:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nemerald: green\ncoconut: brown\nschool bus:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncrow: black\nblood: red\nmilk:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nbanana: yellow\ncoconut: brown\nocean:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npumpkin: orange\nfrog: green\ncucumber:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncarrot: orange\nflamingo: pink\nbroccoli:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nchocolate: brown\nsnow: white\ncloud:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ntomato: red\nsapphire: blue\nfrog:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ntomato: red\nfrog: green\ncardinal:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncoal: black\nlime: green\nraven:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlime: green\nlettuce: green\npig:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nblueberry: blue\nraven: black\neggplant:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nblueberry: blue\nspinach: green\nlemon:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncrow: black\ntomato: red\npotato:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlettuce: green\nsapphire: blue\nmilk:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nblueberry: blue\nschool bus: yellow\nemerald:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nstrawberry: red\nfire truck: red\nswan:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncardinal: red\nblueberry: blue\ncrow:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nelephant: gray\neggplant: purple\nraven:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nmilk: white\ncanary: yellow\nfrog:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nschool bus: yellow\ncucumber: green\npolar bear:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nchocolate: brown\nspinach: green\ncherry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nmouse: gray\nemerald: green\nraven:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncloud: white\npotato: brown\nspinach:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlime: green\nbanana: yellow\nlettuce:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlime: green\ncarrot: orange\nbanana:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npolar bear: white\npig: pink\ncrow:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nstrawberry: red\nlime: green\nfire truck:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nspinach: green\npotato: brown\nemerald:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nchocolate: brown\nsky: blue\nocean:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ngrape: purple\ncucumber: green\nchocolate:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nbroccoli: green\npumpkin: orange\nswan:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nsky: blue\nmilk: white\nsapphire:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncanary: yellow\ntomato: red\nblueberry:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncrow: black\nbroccoli: green\nlettuce:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncanary: yellow\ncloud: white\nspinach:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npolar bear: white\nmouse: gray\nemerald:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncloud: white\nemerald: green\nfire truck:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\npolar bear: white\nchocolate: brown\ncloud:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nruby: red\nbroccoli: green\nmilk:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nsapphire: blue\ncoal: black\nemerald:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nsapphire: blue\nocean: blue\npolar bear:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nlemon: yellow\nblueberry: blue\ngrape:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\neggplant: purple\ncoconut: brown\ncherry:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nsky: blue\ngrape: purple\nbanana:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncardinal: red\nocean: blue\nswan:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncarrot: orange\ncucumber: green\nruby:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncherry: red\nlemon: yellow\nfire truck:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\nstrawberry: red\nswan: white\neggplant:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncardinal: red\nemerald: green\nlime:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ncardinal: red\nlime: green\nelephant:",
+    "continuation": " gray",
+    "digits_only": false
+   },
+   {
+    "context": "Name the colour.\ngrape: purple\ncoconut: brown\npig:",
+    "continuation": " pink",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Name the category.\ntomato: vegetable\nfrog: animal\ncardinal:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nsnow: weather\nstrawberry: fruit\ncardinal:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlime: fruit\ncanary: animal\nblood:",
+    "continuation": " body fluid",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlime: fruit\ncarrot: vegetable\nbanana:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npolar bear: animal\npig: animal\ncrow:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nswan: animal\nbroccoli: vegetable\npotato:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nblood: body fluid\ncarrot: vegetable\nflamingo:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nspinach: vegetable\npotato: vegetable\nemerald:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nruby: gem\nbroccoli: vegetable\nmilk:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ngrass: plant\ncanary: animal\nruby:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nbanana: fruit\nlime: fruit\ncardinal:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nblueberry: fruit\nfrog: animal\nswan:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nschool bus: vehicle\nflamingo: animal\nbroccoli:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nblueberry: fruit\nraven: animal\neggplant:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npumpkin: vegetable\nmouse: animal\nflamingo:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nstrawberry: fruit\nfire truck: vehicle\nswan:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npolar bear: animal\nruby: gem\nflamingo:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nbroccoli: vegetable\nchocolate: food\ncoconut:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nbroccoli: vegetable\nlettuce: vegetable\nsapphire:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nschool bus: vehicle\ncucumber: vegetable\npolar bear:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncloud: weather\nsnow: weather\nstrawberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncarrot: vegetable\nflamingo: animal\nbroccoli:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ngrape: fruit\ncucumber: vegetable\nchocolate:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nruby: gem\ncucumber: vegetable\nblueberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nmouse: animal\nemerald: gem\nraven:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nsky: nature\nmilk: drink\nsapphire:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlettuce: vegetable\nsapphire: gem\nmilk:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nbroccoli: vegetable\nstrawberry: fruit\nlettuce:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nmilk: drink\nraven: animal\nspinach:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncardinal: animal\nocean: nature\nswan:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncoconut: fruit\nlettuce: vegetable\nschool bus:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncrow: animal\nfire truck: vehicle\nlettuce:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncrow: animal\neggplant: vegetable\nsky:",
+    "continuation": " nature",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncarrot: vegetable\ncucumber: vegetable\nruby:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nmouse: animal\nsnow: weather\nswan:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npolar bear: animal\nmouse: animal\nemerald:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nemerald: gem\ncoconut: fruit\nschool bus:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nelephant: animal\ncloud: weather\nstrawberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ngrass: plant\ncherry: fruit\ncucumber:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nraven: animal\nruby: gem\nstrawberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncrow: animal\nchocolate: food\ntomato:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nchocolate: food\nsnow: weather\ncloud:",
+    "continuation": " weather",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nchocolate: food\nspinach: vegetable\ncherry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nmouse: animal\nflamingo: animal\nsky:",
+    "continuation": " nature",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlemon: fruit\nblueberry: fruit\ngrape:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlime: fruit\ncarrot: vegetable\npumpkin:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlemon: fruit\nswan: animal\nsky:",
+    "continuation": " nature",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nstrawberry: fruit\nlettuce: vegetable\ncucumber:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npumpkin: vegetable\nfire truck: vehicle\nsky:",
+    "continuation": " nature",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncrow: animal\nbroccoli: vegetable\nlettuce:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nelephant: animal\neggplant: vegetable\nraven:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nsky: nature\ngrape: fruit\nbanana:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nsky: nature\npig: animal\ncloud:",
+    "continuation": " weather",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nstrawberry: fruit\nswan: animal\neggplant:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncloud: weather\nemerald: gem\nfire truck:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npolar bear: animal\nchocolate: food\ncloud:",
+    "continuation": " weather",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nmilk: drink\ncucumber: vegetable\nfrog:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nbroccoli: vegetable\nemerald: gem\nblueberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npumpkin: vegetable\nfrog: animal\ncucumber:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncloud: weather\npotato: vegetable\nspinach:",
+    "continuation": " vegetable",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Name the category.\nbroccoli: vegetable\ncrow: animal\ncarrot:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlettuce: vegetable\ntomato: vegetable\nlemon:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncoal: mineral\ncherry: fruit\nsnow:",
+    "continuation": " weather",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nschool bus: vehicle\nraven: animal\nfire truck:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncrow: animal\nschool bus: vehicle\ncanary:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncherry: fruit\nlemon: fruit\nfire truck:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlettuce: vegetable\nbanana: fruit\nstrawberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npolar bear: animal\nlime: fruit\ncanary:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncherry: fruit\nblood: body fluid\ncoal:",
+    "continuation": " mineral",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npig: animal\nsnow: weather\nsapphire:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nfrog: animal\ngrape: fruit\nocean:",
+    "continuation": " nature",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npumpkin: vegetable\npotato: vegetable\nstrawberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncardinal: animal\nsnow: weather\ncanary:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncoal: mineral\nlime: fruit\nraven:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nraven: animal\nelephant: animal\nlime:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ntomato: vegetable\nsapphire: gem\nfrog:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nflamingo: animal\ngrape: fruit\nblueberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nblood: body fluid\nfrog: animal\nsapphire:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nocean: nature\nmilk: drink\nschool bus:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ngrass: plant\nruby: gem\ncucumber:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncanary: animal\ncloud: weather\nspinach:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nsapphire: gem\ncoal: mineral\nemerald:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncrow: animal\nblood: body fluid\nmilk:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npumpkin: vegetable\nschool bus: vehicle\nbanana:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ngrass: plant\nelephant: animal\nfire truck:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nmilk: drink\ncanary: animal\nfrog:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncardinal: animal\nfrog: animal\nchocolate:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nbroccoli: vegetable\npumpkin: vegetable\nswan:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nblueberry: fruit\nspinach: vegetable\nlemon:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncrow: animal\ncherry: fruit\nschool bus:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nruby: gem\ncarrot: vegetable\nfrog:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ngrape: fruit\nstrawberry: fruit\nruby:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nbanana: fruit\ncoconut: fruit\nocean:",
+    "continuation": " nature",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nocean: nature\nspinach: vegetable\ncoconut:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nmouse: animal\nflamingo: animal\nbanana:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nblueberry: fruit\nschool bus: vehicle\nemerald:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npig: animal\nsnow: weather\nstrawberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncarrot: vegetable\npumpkin: vegetable\nswan:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlime: fruit\nbanana: fruit\nlettuce:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncrow: animal\ntomato: vegetable\npotato:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncardinal: animal\nlime: fruit\nelephant:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npolar bear: animal\nmouse: animal\ncoconut:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\neggplant: vegetable\ncoconut: fruit\ncherry:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nchocolate: food\nsky: nature\nocean:",
+    "continuation": " nature",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlime: fruit\nlettuce: vegetable\npig:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nsapphire: gem\nocean: nature\npolar bear:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlettuce: vegetable\ncloud: weather\nbroccoli:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\neggplant: vegetable\nsky: nature\ntomato:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncardinal: animal\nblueberry: fruit\ncrow:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\npolar bear: animal\ngrass: plant\ngrape:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nelephant: animal\ncardinal: animal\nschool bus:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\neggplant: vegetable\nraven: animal\nocean:",
+    "continuation": " nature",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nemerald: gem\nbanana: fruit\nruby:",
+    "continuation": " gem",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nstrawberry: fruit\nlime: fruit\nfire truck:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ntomato: vegetable\nraven: animal\nchocolate:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncardinal: animal\nemerald: gem\nlime:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\nlemon: fruit\nstrawberry: fruit\ncoconut:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ngrape: fruit\ncoconut: fruit\npig:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncarrot: vegetable\nspinach: vegetable\nchocolate:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Name the category.\ncanary: animal\ntomato: vegetable\nblueberry:",
+    "continuation": " fruit",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 6.0427
+}

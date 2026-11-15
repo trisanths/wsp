@@ -1,10 +1,11 @@
 import { html, useState, useEffect, useRef } from './lib.js';
 import { api } from './api.js';
-import { go, toast, useRoute, useRecent, useTheme, useHealth, useStubFlag, getLastBuild } from './util.js';
+import { go, toast, useRoute, useRecent, useTheme, useHealth, useStubFlag, getLastBuild, rowSuffixes } from './util.js';
 import { Icon, Mark, StubBadge, Dot } from './components.js';
 import { IconSwap, SwapText } from './motion.js';
+import { DEMO, setDemo, storageKey } from './demo-flag.js';
 
-const RUN_COLOR = { running: 'var(--blue)', starting: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)' };
+const RUN_COLOR = { planned: 'var(--text-4)', stopped: 'var(--text-3)', running: 'var(--blue)', starting: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', empty: 'var(--amber)', error: 'var(--red)' };
 
 function Row({ icon, label, href, onClick, on, rail, badge }) {
   const inner = html`<${Icon} n=${icon} size=${18} /><span class="sb-text">${label}</span>${badge}`;
@@ -26,11 +27,14 @@ export function Sidebar({ rail, onToggle, route }) {
     if (!spec) { toast('Draft a spec first, then pick how to build it.', 'info'); go('/'); return; }
     try {
       const r = await api.createBuilder(spec.id);
-      try { sessionStorage.setItem('wsp.budget.' + r.builder_id, JSON.stringify(r.budget)); } catch (e) { /* storage can be off */ }
+      try { sessionStorage.setItem(storageKey('wsp.budget.' + r.builder_id), JSON.stringify(r.budget)); } catch (e) { /* storage can be off */ }
       go('/build/' + r.builder_id + '?spec=' + spec.id);
     } catch (e) { toast('Could not open the builder: ' + e.message, 'err'); }
   };
-  const isRecent = (r) => (r.kind === 'spec' && route.name === 'spec' && route.id === r.id) || (r.kind === 'run' && route.name === 'run' && route.id === r.id);
+  const isRecent = (r) => (r.kind === 'spec' && route.name === 'spec' && route.id === r.id) || (r.kind === 'run' && route.name === 'run' && route.id === r.id) || (r.kind === 'shrink' && route.name === 'shrink' && route.id === r.id);
+  const shownRecent = recent.slice(0, 12);
+  const suffix = rowSuffixes(shownRecent);
+  const hrefOf = (r) => '#/' + r.kind + '/' + r.id + (r.kind === 'shrink' && r.spec ? '?spec=' + r.spec : '');
   return html`<aside class=${'sidebar' + (rail ? ' rail' : '')} aria-label="Sidebar">
     <div class="sb-head">
       <a class="logo" href="#/" data-tip=${rail ? 'Sapien' : null} data-tip-side="right" aria-label="Sapien home"><${Mark} size=${24} /><span class="logotext sb-text">Sapien</span></a>
@@ -41,20 +45,22 @@ export function Sidebar({ rail, onToggle, route }) {
       <${Row} icon="runs" label="Runs" href="#/runs" on=${route.name === 'runs'} rail=${rail} />
       <${Row} icon="cube" label="Builder" onClick=${openBuilder} on=${route.name === 'build'} rail=${rail} />
       <${Row} icon="grid" label="Parts library" href="#/parts" on=${route.name === 'parts'} rail=${rail} />
+      ${DEMO && html`<${Row} icon="play" label="Demo tour" href="#/demo" on=${route.name === 'demo'} rail=${rail} />`}
     </nav>
     <div class="sb-label sb-text">Recent</div>
     <div class="sb-recent sb-text">
       ${recent.length === 0 && html`<div class="sb-empty">Specs and runs you open show up here.</div>`}
-      ${recent.slice(0, 12).map((r) => html`<a class=${'sb-row sub' + (isRecent(r) ? ' on' : '')} key=${r.kind + r.id} href=${'#/' + r.kind + '/' + r.id} title=${r.title}>
-        <${Icon} n=${r.kind === 'run' ? 'runs' : 'file'} size=${16} /><span class="sb-title">${r.title || r.id}</span>
-        ${r.kind === 'run' && r.status && html`<${Dot} color=${RUN_COLOR[r.status] || 'var(--text-4)'} />`}</a>`)}
+      ${shownRecent.map((r) => html`<a class=${'sb-row sub' + (isRecent(r) ? ' on' : '')} key=${r.kind + r.id} href=${hrefOf(r)} title=${r.title}>
+        <${Icon} n=${r.kind === 'run' ? 'runs' : r.kind === 'shrink' ? 'shrink' : 'file'} size=${16} /><span class="sb-title">${r.title || r.id}${suffix[r.kind + r.id] && html` <span class="sb-sfx">${suffix[r.kind + r.id]}</span>`}</span>
+        ${(r.kind === 'run' || r.kind === 'shrink') && r.status && html`<${Dot} color=${RUN_COLOR[r.status] || 'var(--text-4)'} />`}</a>`)}
     </div>
     <div class="sb-foot">
       <button class="sb-row" onClick=${flip} data-tip=${rail ? (theme === 'dark' ? 'Light theme' : 'Dark theme') : null} data-tip-side="right" aria-label=${theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}><${IconSwap} state=${theme === 'dark' ? 'a' : 'b'} a=${html`<${Icon} n="sun" size=${18} />`} b=${html`<${Icon} n="moon" size=${18} />`} /><span class="sb-text"><${SwapText} text=${theme === 'dark' ? 'Light theme' : 'Dark theme'} /></span></button>
-      <div class="sb-status" title=${modal ? 'Jobs run on Modal GPUs' : stub ? 'Stub backend: numbers are not real results' : 'Backend'}>
+      <button class=${'sb-row sb-switch' + (DEMO ? ' is-on' : '')} role="switch" aria-checked=${DEMO ? 'true' : 'false'} onClick=${() => (DEMO ? setDemo(false, '#/') : setDemo(true, '#/demo'))} data-tip=${rail ? (DEMO ? 'Turn off demo mode' : 'Turn on demo mode') : null} data-tip-side="right" aria-label="Demo mode" title="Show every screen with sample data, no server needed"><${Icon} n="spark" size=${18} /><span class="sb-text sb-grow">Demo mode</span><span class="sw-track sb-text" aria-hidden="true"><span class="sw-knob"></span></span></button>
+      ${!DEMO && html`<div class="sb-status" title=${modal ? 'Jobs run on Modal GPUs' : stub ? 'Stub backend: numbers are not real results' : 'Backend'}>
         <${Icon} n="server" size=${18} />
         <span class="sb-text">${modal ? 'Modal GPU' : stub ? html`Stub backend <${StubBadge} small />` : health ? health.backend : 'Connecting'}</span>
-      </div>
+      </div>`}
     </div>
   </aside>`;
 }
@@ -72,6 +78,13 @@ export function Shell({ children }) {
       prev.current = route.name;
     }
   }, [route.name]);
+  // a window that narrows below the breakpoint folds the sidebar to the rail, so the page keeps its width
+  useEffect(() => {
+    let was = wide();
+    const f = () => { const now = wide(); if (was && !now) setRail(true); was = now; };
+    window.addEventListener('resize', f);
+    return () => window.removeEventListener('resize', f);
+  }, []);
   return html`<div class="shell">
     <${Sidebar} rail=${rail} onToggle=${() => setRail(!rail)} route=${route} />
     <div class="main-area">${children}</div>

@@ -12,6 +12,7 @@ from wsp.swarm import space
 
 from studio.server import catalog as catalog_mod
 from studio.server import envs
+from studio.server import modal_backend
 from studio.server import programs
 from studio.server import settings
 from studio.server import sizing
@@ -62,7 +63,7 @@ def start_run(spec, program=None):
             program = programs.normalize(program)
         except programs.ProgramError as error:
             raise RunError("the program is not valid: " + error.message)
-        errors = space.validate(program, catalog, config)
+        errors = programs.validate(program, catalog, config)
         if len(errors) > 0:
             raise RunError("the program is not valid: " + "; ".join(errors))
     host_params = catalog_mod.host_params_b(config["host"])
@@ -113,7 +114,15 @@ class Run:
                 state.status = "running"
                 state.touch()
         try:
+            state.load_base_scores()
+            if not state.stub and state.backend_name == "modal":
+                warning = modal_backend.deployed_warning()
+                if warning is not None:
+                    state.add_activity(None, "milestone", "bad", warning)
             self.swarm.run()
+            if self.controller.gate.stopped:
+                state.stopped_early = True
+                state.add_activity(None, "milestone", "info", "Stopped. The held-out check was skipped.")
             state.set_run_status("done")
         except Exception as error:
             message = type(error).__name__ + ": " + str(error)

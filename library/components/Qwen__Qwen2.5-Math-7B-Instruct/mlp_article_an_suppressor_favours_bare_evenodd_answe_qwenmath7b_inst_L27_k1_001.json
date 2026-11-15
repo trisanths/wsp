@@ -1,0 +1,116 @@
+{
+  "id": "mlp_article_an_suppressor_favours_bare_evenodd_answe_qwenmath7b_inst_L27_k1_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-7B-Instruct layer 27, article 'an' suppressor (favours bare even/odd answer)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "parity"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'parity' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1877,
+      "control_value": -0.0028,
+      "split": "person_a held-out skill items (parity)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 27,
+  "layers": [
+    27
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/mlp_article_an_suppressor_favours_bare_evenodd_answe_qwenmath7b_inst_L27_k1_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/mlp_article_an_suppressor_favours_bare_evenodd_answe_qwenmath7b_inst_L27_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'parity'",
+    "label": "article 'an' suppressor (favours bare even/odd answer)",
+    "num_units": 1,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": 0.0,
+      "code|search": 0.0005,
+      "code|heldout": -0.0003,
+      "facts|search": 0.0,
+      "facts|heldout": 0.001,
+      "multilingual|search": 0.0,
+      "multilingual|heldout": -0.0009,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0012,
+      "weekday_successor|search": 0.0007,
+      "weekday_successor__control|search": 0.0002,
+      "weekday_successor|heldout": -0.001,
+      "weekday_successor__control|heldout": 0.0008,
+      "number_to_word|search": -0.0024,
+      "number_to_word__control|search": -0.0005,
+      "number_to_word|heldout": -0.0118,
+      "number_to_word__control|heldout": -0.0003,
+      "object_color|search": -0.0011,
+      "object_color__control|search": 0.0,
+      "object_color|heldout": -0.0017,
+      "object_color__control|heldout": -0.0074,
+      "month_successor|search": -0.0039,
+      "month_successor__control|search": -0.0005,
+      "month_successor|heldout": -0.0037,
+      "month_successor__control|heldout": -0.0,
+      "parity|search": 0.1818,
+      "parity__control|search": 0.0001,
+      "parity|heldout": 0.1877,
+      "parity__control|heldout": 0.0,
+      "product_sign|search": 0.0004,
+      "product_sign__control|search": 0.0045,
+      "product_sign|heldout": 0.0007,
+      "product_sign__control|heldout": 0.0052,
+      "ordinal_word|search": 0.0087,
+      "ordinal_word__control|search": 0.0012,
+      "ordinal_word|heldout": 0.0,
+      "ordinal_word__control|heldout": 0.002,
+      "greek_letter_name|search": -0.0173,
+      "greek_letter_name__control|search": 0.0,
+      "greek_letter_name|heldout": -0.0284,
+      "greek_letter_name__control|heldout": 0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0606,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0,
+      -0.0014,
+      -0.0108,
+      -0.0018,
+      0.0
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L27 12772 down-proj negative lens = ' an', ' An', 'An', '_an' (positive = '(exp','(expected'); in 'n is ___' prompts it suppresses 'an (odd/even) number' phrasing. Attribution rank 1 for parity. Ablation .182 vs control .000."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/parity.json",
+    "hash": "666648ea627e736f",
+    "description": "Say whether an integer is even or odd. Control: same numbers, asking whether it is greater or less than 50 (answer ' greater'/' less').",
+    "name": "parity"
+  },
+  "catalog_id": "mlp_article_an_suppressor_favours_bare_evenodd_answe_qwenmath7b_inst_L27_k1_001",
+  "exported_copy": "library/qwenmath7b_inst/mlp_article_an_suppressor_favours_bare_evenodd_answe_qwenmath7b_inst_L27_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

@@ -35,6 +35,26 @@ def tiny_donor(kind):
         )
         config._attn_implementation = "eager"
         return config, transformers.Qwen2ForCausalLM(config).eval()
+    if kind == "lfm2":
+        # Conv layers 0 and 2, attention layers 1 and 3.
+        config = transformers.Lfm2Config(
+            hidden_size=48, intermediate_size=96, num_hidden_layers=4, num_attention_heads=4,
+            num_key_value_heads=2, vocab_size=300, max_position_embeddings=64, conv_L_cache=3,
+            block_multiple_of=16, layer_types=["conv", "full_attention", "conv", "full_attention"],
+        )
+        config._attn_implementation = "eager"
+        return config, transformers.Lfm2ForCausalLM(config).eval()
+    if kind == "lfm3":
+        # A sliding layer, conv layers, and a full layer, each type with
+        # its own rotary.
+        config = transformers.Lfm3Config(
+            hidden_size=48, intermediate_size=96, num_hidden_layers=4, num_attention_heads=4,
+            num_key_value_heads=2, head_dim=12, vocab_size=300, max_position_embeddings=64,
+            sliding_window=3, conv_L_cache=3, pad_token_id=0, bos_token_id=1, eos_token_id=2,
+            layer_types=["conv", "sliding_attention", "conv", "full_attention"],
+        )
+        config._attn_implementation = "eager"
+        return config, transformers.Lfm3ForCausalLM(config).eval()
     config = transformers.Gemma3TextConfig(
         hidden_size=48, intermediate_size=96, num_hidden_layers=4, num_attention_heads=4,
         num_key_value_heads=2, head_dim=12, vocab_size=300, max_position_embeddings=64,
@@ -52,11 +72,12 @@ def build_part(kind, part_kind):
     for name, value in donor.state_dict().items():
         tensors[name] = value.detach().clone()
     if part_kind == "attn_heads":
-        # Layer 1 is a sliding layer in the qwen2 and gemma3 donors.
+        # Layer 1 is a sliding layer in the qwen2, gemma3 and lfm3 donors.
         part = build_attn_heads(config, 1, [0, 3], tensors)
     else:
-        # Layers 1 and 2 hold a sliding and a full layer in gemma3, and
-        # two sliding layers in qwen2.
+        # Layers 1 and 2 hold a sliding and a full layer in gemma3, two
+        # sliding layers in qwen2, and an attention and a conv layer in
+        # lfm2 and lfm3.
         part = build_block_part(config, 1, 2, tensors)
     return part.float(), config.hidden_size
 
@@ -96,7 +117,7 @@ def padded_prompts():
 
 
 CASES = []
-for donor_kind in ["llama", "qwen2_sliding", "gemma3"]:
+for donor_kind in ["llama", "qwen2_sliding", "gemma3", "lfm2", "lfm3"]:
     for kind_of_part in ["attn_heads", "block"]:
         CASES.append((donor_kind, kind_of_part))
 
@@ -193,7 +214,7 @@ def test_manual_cached_loop_matches_full_forward():
     assert torch.allclose(step, full, atol=1e-4)
 
 
-@pytest.mark.parametrize("kind,part_kind", [("llama", "attn_heads"), ("gemma3", "block")])
+@pytest.mark.parametrize("kind,part_kind", [("llama", "attn_heads"), ("gemma3", "block"), ("lfm2", "block")])
 def test_beam_search_cached_equals_uncached(kind, part_kind):
     # Beam search reorders the host cache between steps. The part caches
     # must get the same reorder.
@@ -233,12 +254,13 @@ def test_static_cache_raises_and_hybrid_default_is_cleared():
             host.generate(input_ids=ids, attention_mask=mask, cache_implementation="static", **SETTINGS)
 
 
-@pytest.mark.parametrize("part_kind", ["attn_heads", "block"])
-def test_chunked_prefill_equals_uncached(part_kind):
+@pytest.mark.parametrize("kind,part_kind", [("gemma3", "attn_heads"), ("gemma3", "block"), ("lfm2", "block")])
+def test_chunked_prefill_equals_uncached(kind, part_kind):
     # generate with prefill_chunk_size calls host.forward directly, so the
     # host pre-hook does not run for the prefill chunks. The decoder hook
-    # must set the graft context for them.
-    host, _ = grafted_host("gemma3", part_kind)
+    # must set the graft context for them. The lfm2 block carries a conv
+    # state from chunk to chunk.
+    host, _ = grafted_host(kind, part_kind)
     ids, mask = padded_prompts()
     with torch.no_grad():
         # A plain call first leaves a context with no mask and no cache.

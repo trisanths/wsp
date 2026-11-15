@@ -1,0 +1,1220 @@
+{
+ "name": "object_color",
+ "description": "Name the typical colour of a familiar object (banana->yellow, grass->green). Control: same sentences asking for the object's category (fruit, plant...).",
+ "hash": "e8bf48573ec22644",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nO=[('banana','yellow','fruit'),('lemon','yellow','fruit'),('grass','green','plant'),('snow','white','weather'),('coal','black','mineral'),('blood','red','liquid'),('the sky','blue','place'),('a tomato','red','vegetable'),('milk','white','drink'),('a carrot','orange','vegetable'),('an orange','orange','fruit'),('a strawberry','red','fruit'),('a lime','green','fruit'),('chocolate','brown','food'),('a crow','black','bird'),('a flamingo','pink','bird'),('the ocean','blue','place'),('a cucumber','green','vegetable'),('an eggplant','purple','vegetable'),('a polar bear','white','animal'),('a frog','green','animal'),('a pumpkin','orange','vegetable'),('ink','black','liquid'),('a fire truck','red','vehicle'),('a school bus','yellow','vehicle'),('a cherry','red','fruit'),('a lettuce','green','vegetable'),('sugar','white','food'),('a raven','black','bird'),('a sunflower','yellow','plant'),('a grape','purple','fruit'),('soil','brown','mineral'),('a canary','yellow','bird'),('a pea','green','vegetable'),('cocoa','brown','drink')]\nitems=[];control=[]\nfor t in range(120):\n    sh=random.sample(O,3); q=random.choice([o for o in O if o not in sh])\n    cap=lambda s:s[0].upper()+s[1:]\n    p=''.join(f\"Q: What color is {o[0]}?\\nA: {o[1]}\\n\" for o in sh)+f\"Q: What color is {q[0]}?\\nA:\"\n    items.append({\"prompt\":p,\"answer\":\" \"+q[1]})\n    p2=''.join(f\"Q: What kind of thing is {o[0]}?\\nA: {o[2]}\\n\" for o in sh)+f\"Q: What kind of thing is {q[0]}?\\nA:\"\n    control.append({\"prompt\":p2,\"answer\":\" \"+q[2]})\njson.dump({\"items\":items,\"control\":control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Q: What color is a tomato?\nA: red\nQ: What color is a lime?\nA: green\nQ: What color is a polar bear?\nA: white\nQ: What color is a frog?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pumpkin?\nA: orange\nQ: What color is coal?\nA: black\nQ: What color is soil?\nA: brown\nQ: What color is a cucumber?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is blood?\nA: red\nQ: What color is a pea?\nA: green\nQ: What color is coal?\nA: black\nQ: What color is a sunflower?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is an eggplant?\nA: purple\nQ: What color is milk?\nA: white\nQ: What color is the sky?\nA: blue\nQ: What color is a polar bear?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is lemon?\nA: yellow\nQ: What color is grass?\nA: green\nQ: What color is milk?\nA: white\nQ: What color is a fire truck?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is blood?\nA: red\nQ: What color is lemon?\nA: yellow\nQ: What color is a cucumber?\nA: green\nQ: What color is soil?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lettuce?\nA: green\nQ: What color is the sky?\nA: blue\nQ: What color is a grape?\nA: purple\nQ: What color is a pea?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is ink?\nA: black\nQ: What color is blood?\nA: red\nQ: What color is a frog?\nA: green\nQ: What color is milk?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lime?\nA: green\nQ: What color is a strawberry?\nA: red\nQ: What color is a tomato?\nA: red\nQ: What color is a pea?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a fire truck?\nA: red\nQ: What color is an orange?\nA: orange\nQ: What color is a pumpkin?\nA: orange\nQ: What color is a grape?\nA:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is an orange?\nA: orange\nQ: What color is a flamingo?\nA: pink\nQ: What color is a crow?\nA: black\nQ: What color is soil?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is an eggplant?\nA: purple\nQ: What color is a fire truck?\nA: red\nQ: What color is a cherry?\nA: red\nQ: What color is milk?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is soil?\nA: brown\nQ: What color is a pumpkin?\nA: orange\nQ: What color is a lime?\nA: green\nQ: What color is the ocean?\nA:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pumpkin?\nA: orange\nQ: What color is a fire truck?\nA: red\nQ: What color is blood?\nA: red\nQ: What color is a school bus?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is soil?\nA: brown\nQ: What color is sugar?\nA: white\nQ: What color is grass?\nA: green\nQ: What color is a frog?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a flamingo?\nA: pink\nQ: What color is an eggplant?\nA: purple\nQ: What color is a strawberry?\nA: red\nQ: What color is chocolate?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is the ocean?\nA: blue\nQ: What color is chocolate?\nA: brown\nQ: What color is grass?\nA: green\nQ: What color is a flamingo?\nA:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a fire truck?\nA: red\nQ: What color is a tomato?\nA: red\nQ: What color is grass?\nA: green\nQ: What color is lemon?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a grape?\nA: purple\nQ: What color is ink?\nA: black\nQ: What color is chocolate?\nA: brown\nQ: What color is milk?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pumpkin?\nA: orange\nQ: What color is a carrot?\nA: orange\nQ: What color is an orange?\nA: orange\nQ: What color is sugar?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is snow?\nA: white\nQ: What color is banana?\nA: yellow\nQ: What color is blood?\nA: red\nQ: What color is a raven?\nA:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a grape?\nA: purple\nQ: What color is a lettuce?\nA: green\nQ: What color is a carrot?\nA: orange\nQ: What color is cocoa?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is cocoa?\nA: brown\nQ: What color is a cucumber?\nA: green\nQ: What color is milk?\nA: white\nQ: What color is the ocean?\nA:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lime?\nA: green\nQ: What color is a tomato?\nA: red\nQ: What color is soil?\nA: brown\nQ: What color is sugar?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a canary?\nA: yellow\nQ: What color is a school bus?\nA: yellow\nQ: What color is a pea?\nA: green\nQ: What color is grass?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a grape?\nA: purple\nQ: What color is ink?\nA: black\nQ: What color is an eggplant?\nA: purple\nQ: What color is a school bus?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is blood?\nA: red\nQ: What color is banana?\nA: yellow\nQ: What color is a lime?\nA: green\nQ: What color is a school bus?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a school bus?\nA: yellow\nQ: What color is an eggplant?\nA: purple\nQ: What color is a tomato?\nA: red\nQ: What color is chocolate?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is soil?\nA: brown\nQ: What color is chocolate?\nA: brown\nQ: What color is sugar?\nA: white\nQ: What color is blood?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is chocolate?\nA: brown\nQ: What color is snow?\nA: white\nQ: What color is an orange?\nA: orange\nQ: What color is a lime?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a frog?\nA: green\nQ: What color is coal?\nA: black\nQ: What color is a lime?\nA: green\nQ: What color is the ocean?\nA:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is lemon?\nA: yellow\nQ: What color is a cucumber?\nA: green\nQ: What color is a tomato?\nA: red\nQ: What color is the ocean?\nA:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a school bus?\nA: yellow\nQ: What color is a lettuce?\nA: green\nQ: What color is grass?\nA: green\nQ: What color is a raven?\nA:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coal?\nA: black\nQ: What color is the ocean?\nA: blue\nQ: What color is an orange?\nA: orange\nQ: What color is soil?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a polar bear?\nA: white\nQ: What color is a lettuce?\nA: green\nQ: What color is a school bus?\nA: yellow\nQ: What color is sugar?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a carrot?\nA: orange\nQ: What color is a school bus?\nA: yellow\nQ: What color is an eggplant?\nA: purple\nQ: What color is a pea?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is the sky?\nA: blue\nQ: What color is a polar bear?\nA: white\nQ: What color is an eggplant?\nA: purple\nQ: What color is milk?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is soil?\nA: brown\nQ: What color is a frog?\nA: green\nQ: What color is a polar bear?\nA: white\nQ: What color is a canary?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lettuce?\nA: green\nQ: What color is a cucumber?\nA: green\nQ: What color is a raven?\nA: black\nQ: What color is cocoa?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is the sky?\nA: blue\nQ: What color is ink?\nA: black\nQ: What color is a lime?\nA: green\nQ: What color is sugar?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a polar bear?\nA: white\nQ: What color is a cherry?\nA: red\nQ: What color is a pumpkin?\nA: orange\nQ: What color is a frog?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is banana?\nA: yellow\nQ: What color is a pumpkin?\nA: orange\nQ: What color is a frog?\nA: green\nQ: What color is a fire truck?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: green\nQ: What color is the sky?\nA: blue\nQ: What color is a cherry?\nA: red\nQ: What color is a crow?\nA:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: green\nQ: What color is blood?\nA: red\nQ: What color is cocoa?\nA: brown\nQ: What color is sugar?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is ink?\nA: black\nQ: What color is sugar?\nA: white\nQ: What color is a frog?\nA: green\nQ: What color is chocolate?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is banana?\nA: yellow\nQ: What color is a strawberry?\nA: red\nQ: What color is a polar bear?\nA: white\nQ: What color is an eggplant?\nA:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coal?\nA: black\nQ: What color is a crow?\nA: black\nQ: What color is milk?\nA: white\nQ: What color is grass?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pea?\nA: green\nQ: What color is a cucumber?\nA: green\nQ: What color is a flamingo?\nA: pink\nQ: What color is chocolate?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: green\nQ: What color is soil?\nA: brown\nQ: What color is the ocean?\nA: blue\nQ: What color is lemon?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pumpkin?\nA: orange\nQ: What color is a tomato?\nA: red\nQ: What color is an eggplant?\nA: purple\nQ: What color is a carrot?\nA:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a tomato?\nA: red\nQ: What color is a lime?\nA: green\nQ: What color is a cherry?\nA: red\nQ: What color is blood?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a strawberry?\nA: red\nQ: What color is snow?\nA: white\nQ: What color is a canary?\nA: yellow\nQ: What color is soil?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is milk?\nA: white\nQ: What color is banana?\nA: yellow\nQ: What color is a cherry?\nA: red\nQ: What color is a sunflower?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is the sky?\nA: blue\nQ: What color is soil?\nA: brown\nQ: What color is a carrot?\nA: orange\nQ: What color is sugar?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coal?\nA: black\nQ: What color is blood?\nA: red\nQ: What color is a pea?\nA: green\nQ: What color is grass?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a raven?\nA: black\nQ: What color is blood?\nA: red\nQ: What color is a school bus?\nA: yellow\nQ: What color is a pumpkin?\nA:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pumpkin?\nA: orange\nQ: What color is cocoa?\nA: brown\nQ: What color is chocolate?\nA: brown\nQ: What color is a polar bear?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: green\nQ: What color is a sunflower?\nA: yellow\nQ: What color is a school bus?\nA: yellow\nQ: What color is a canary?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a strawberry?\nA: red\nQ: What color is the sky?\nA: blue\nQ: What color is a grape?\nA: purple\nQ: What color is sugar?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coal?\nA: black\nQ: What color is lemon?\nA: yellow\nQ: What color is a pea?\nA: green\nQ: What color is a grape?\nA:",
+    "continuation": " purple",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What color is cocoa?\nA: brown\nQ: What color is a carrot?\nA: orange\nQ: What color is a polar bear?\nA: white\nQ: What color is the sky?\nA:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a fire truck?\nA: red\nQ: What color is a crow?\nA: black\nQ: What color is the ocean?\nA: blue\nQ: What color is an orange?\nA:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is sugar?\nA: white\nQ: What color is a lime?\nA: green\nQ: What color is ink?\nA: black\nQ: What color is a tomato?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a school bus?\nA: yellow\nQ: What color is the ocean?\nA: blue\nQ: What color is a carrot?\nA: orange\nQ: What color is banana?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is chocolate?\nA: brown\nQ: What color is snow?\nA: white\nQ: What color is lemon?\nA: yellow\nQ: What color is a grape?\nA:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a carrot?\nA: orange\nQ: What color is the sky?\nA: blue\nQ: What color is a lime?\nA: green\nQ: What color is a canary?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a fire truck?\nA: red\nQ: What color is grass?\nA: green\nQ: What color is soil?\nA: brown\nQ: What color is a canary?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a school bus?\nA: yellow\nQ: What color is a lettuce?\nA: green\nQ: What color is grass?\nA: green\nQ: What color is a cucumber?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is snow?\nA: white\nQ: What color is the sky?\nA: blue\nQ: What color is a grape?\nA: purple\nQ: What color is a strawberry?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a flamingo?\nA: pink\nQ: What color is a carrot?\nA: orange\nQ: What color is cocoa?\nA: brown\nQ: What color is a grape?\nA:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a canary?\nA: yellow\nQ: What color is soil?\nA: brown\nQ: What color is a cherry?\nA: red\nQ: What color is a polar bear?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: green\nQ: What color is a pea?\nA: green\nQ: What color is a carrot?\nA: orange\nQ: What color is an eggplant?\nA:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a grape?\nA: purple\nQ: What color is a raven?\nA: black\nQ: What color is a pea?\nA: green\nQ: What color is the ocean?\nA:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: green\nQ: What color is a cherry?\nA: red\nQ: What color is a raven?\nA: black\nQ: What color is a school bus?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is milk?\nA: white\nQ: What color is a carrot?\nA: orange\nQ: What color is a cucumber?\nA: green\nQ: What color is a school bus?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is banana?\nA: yellow\nQ: What color is a pea?\nA: green\nQ: What color is the sky?\nA: blue\nQ: What color is a crow?\nA:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pea?\nA: green\nQ: What color is chocolate?\nA: brown\nQ: What color is a crow?\nA: black\nQ: What color is blood?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is an eggplant?\nA: purple\nQ: What color is a tomato?\nA: red\nQ: What color is a grape?\nA: purple\nQ: What color is the ocean?\nA:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is snow?\nA: white\nQ: What color is the sky?\nA: blue\nQ: What color is a carrot?\nA: orange\nQ: What color is a cucumber?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is snow?\nA: white\nQ: What color is a school bus?\nA: yellow\nQ: What color is banana?\nA: yellow\nQ: What color is milk?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lettuce?\nA: green\nQ: What color is a canary?\nA: yellow\nQ: What color is a polar bear?\nA: white\nQ: What color is a fire truck?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a frog?\nA: green\nQ: What color is banana?\nA: yellow\nQ: What color is chocolate?\nA: brown\nQ: What color is lemon?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is snow?\nA: white\nQ: What color is an orange?\nA: orange\nQ: What color is milk?\nA: white\nQ: What color is an eggplant?\nA:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is sugar?\nA: white\nQ: What color is a pea?\nA: green\nQ: What color is soil?\nA: brown\nQ: What color is a frog?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is snow?\nA: white\nQ: What color is a polar bear?\nA: white\nQ: What color is a strawberry?\nA: red\nQ: What color is blood?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a tomato?\nA: red\nQ: What color is the ocean?\nA: blue\nQ: What color is milk?\nA: white\nQ: What color is a cherry?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a sunflower?\nA: yellow\nQ: What color is blood?\nA: red\nQ: What color is a pumpkin?\nA: orange\nQ: What color is grass?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a school bus?\nA: yellow\nQ: What color is a fire truck?\nA: red\nQ: What color is cocoa?\nA: brown\nQ: What color is a carrot?\nA:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is banana?\nA: yellow\nQ: What color is soil?\nA: brown\nQ: What color is a pumpkin?\nA: orange\nQ: What color is the ocean?\nA:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lime?\nA: green\nQ: What color is a sunflower?\nA: yellow\nQ: What color is ink?\nA: black\nQ: What color is coal?\nA:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a raven?\nA: black\nQ: What color is a strawberry?\nA: red\nQ: What color is banana?\nA: yellow\nQ: What color is a pea?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coal?\nA: black\nQ: What color is blood?\nA: red\nQ: What color is milk?\nA: white\nQ: What color is a lime?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is blood?\nA: red\nQ: What color is coal?\nA: black\nQ: What color is a lime?\nA: green\nQ: What color is a cucumber?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is soil?\nA: brown\nQ: What color is a lime?\nA: green\nQ: What color is cocoa?\nA: brown\nQ: What color is a flamingo?\nA:",
+    "continuation": " pink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: green\nQ: What color is a cucumber?\nA: green\nQ: What color is an orange?\nA: orange\nQ: What color is a strawberry?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is the sky?\nA: blue\nQ: What color is the ocean?\nA: blue\nQ: What color is coal?\nA: black\nQ: What color is a cucumber?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a cherry?\nA: red\nQ: What color is a pea?\nA: green\nQ: What color is an eggplant?\nA: purple\nQ: What color is a grape?\nA:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is blood?\nA: red\nQ: What color is a frog?\nA: green\nQ: What color is a canary?\nA: yellow\nQ: What color is cocoa?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a polar bear?\nA: white\nQ: What color is banana?\nA: yellow\nQ: What color is a raven?\nA: black\nQ: What color is a fire truck?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a grape?\nA: purple\nQ: What color is a school bus?\nA: yellow\nQ: What color is a crow?\nA: black\nQ: What color is lemon?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is the ocean?\nA: blue\nQ: What color is ink?\nA: black\nQ: What color is a grape?\nA: purple\nQ: What color is an orange?\nA:",
+    "continuation": " orange",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a strawberry?\nA: red\nQ: What color is grass?\nA: green\nQ: What color is the ocean?\nA: blue\nQ: What color is a pea?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is sugar?\nA: white\nQ: What color is a fire truck?\nA: red\nQ: What color is cocoa?\nA: brown\nQ: What color is a strawberry?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: green\nQ: What color is cocoa?\nA: brown\nQ: What color is coal?\nA: black\nQ: What color is lemon?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pumpkin?\nA: orange\nQ: What color is a tomato?\nA: red\nQ: What color is a grape?\nA: purple\nQ: What color is milk?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is milk?\nA: white\nQ: What color is a polar bear?\nA: white\nQ: What color is a school bus?\nA: yellow\nQ: What color is a sunflower?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a tomato?\nA: red\nQ: What color is a carrot?\nA: orange\nQ: What color is a cucumber?\nA: green\nQ: What color is lemon?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pumpkin?\nA: orange\nQ: What color is a pea?\nA: green\nQ: What color is the ocean?\nA: blue\nQ: What color is a tomato?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is an eggplant?\nA: purple\nQ: What color is a pumpkin?\nA: orange\nQ: What color is snow?\nA: white\nQ: What color is grass?\nA:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is chocolate?\nA: brown\nQ: What color is an eggplant?\nA: purple\nQ: What color is cocoa?\nA: brown\nQ: What color is a raven?\nA:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a pea?\nA: green\nQ: What color is soil?\nA: brown\nQ: What color is banana?\nA: yellow\nQ: What color is snow?\nA:",
+    "continuation": " white",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is grass?\nA: green\nQ: What color is chocolate?\nA: brown\nQ: What color is the ocean?\nA: blue\nQ: What color is a fire truck?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is chocolate?\nA: brown\nQ: What color is a school bus?\nA: yellow\nQ: What color is an eggplant?\nA: purple\nQ: What color is banana?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coal?\nA: black\nQ: What color is a polar bear?\nA: white\nQ: What color is ink?\nA: black\nQ: What color is a grape?\nA:",
+    "continuation": " purple",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is coal?\nA: black\nQ: What color is a pumpkin?\nA: orange\nQ: What color is a grape?\nA: purple\nQ: What color is a tomato?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is snow?\nA: white\nQ: What color is a lettuce?\nA: green\nQ: What color is a lime?\nA: green\nQ: What color is the sky?\nA:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is soil?\nA: brown\nQ: What color is a tomato?\nA: red\nQ: What color is snow?\nA: white\nQ: What color is a canary?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is an orange?\nA: orange\nQ: What color is a carrot?\nA: orange\nQ: What color is a sunflower?\nA: yellow\nQ: What color is a cherry?\nA:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is a lettuce?\nA: green\nQ: What color is grass?\nA: green\nQ: What color is an orange?\nA: orange\nQ: What color is soil?\nA:",
+    "continuation": " brown",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What color is blood?\nA: red\nQ: What color is a carrot?\nA: orange\nQ: What color is ink?\nA: black\nQ: What color is a sunflower?\nA:",
+    "continuation": " yellow",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Q: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is a crow?\nA: bird\nQ: What kind of thing is blood?\nA:",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a fire truck?\nA: vehicle\nQ: What kind of thing is a crow?\nA: bird\nQ: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is an orange?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is a cucumber?\nA: vegetable\nQ: What kind of thing is a flamingo?\nA: bird\nQ: What kind of thing is chocolate?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is a flamingo?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is grass?\nA: plant\nQ: What kind of thing is a cucumber?\nA: vegetable\nQ: What kind of thing is an orange?\nA: fruit\nQ: What kind of thing is a strawberry?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is banana?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is the sky?\nA:",
+    "continuation": " place",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a cherry?\nA: fruit\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is a grape?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is a tomato?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a frog?\nA: animal\nQ: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is the ocean?\nA:",
+    "continuation": " place",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is a polar bear?\nA:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is a crow?\nA: bird\nQ: What kind of thing is milk?\nA: drink\nQ: What kind of thing is grass?\nA:",
+    "continuation": " plant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is a frog?\nA: animal\nQ: What kind of thing is milk?\nA:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is snow?\nA: weather\nQ: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is milk?\nA:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is a carrot?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is snow?\nA: weather\nQ: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is a strawberry?\nA: fruit\nQ: What kind of thing is blood?\nA:",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a lettuce?\nA: vegetable\nQ: What kind of thing is the sky?\nA: place\nQ: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is a pea?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a frog?\nA: animal\nQ: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is a canary?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is grass?\nA:",
+    "continuation": " plant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is the ocean?\nA:",
+    "continuation": " place",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is sugar?\nA: food\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is a tomato?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is grass?\nA: plant\nQ: What kind of thing is a cherry?\nA: fruit\nQ: What kind of thing is a raven?\nA: bird\nQ: What kind of thing is a school bus?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is a raven?\nA: bird\nQ: What kind of thing is a fire truck?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is a pea?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a raven?\nA: bird\nQ: What kind of thing is a strawberry?\nA: fruit\nQ: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is a pea?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is an orange?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is snow?\nA: weather\nQ: What kind of thing is an orange?\nA: fruit\nQ: What kind of thing is milk?\nA: drink\nQ: What kind of thing is an eggplant?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is an orange?\nA: fruit\nQ: What kind of thing is soil?\nA:",
+    "continuation": " mineral",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a flamingo?\nA: bird\nQ: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is a strawberry?\nA: fruit\nQ: What kind of thing is chocolate?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is a grape?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is lemon?\nA: fruit\nQ: What kind of thing is a cucumber?\nA: vegetable\nQ: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is the ocean?\nA:",
+    "continuation": " place",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is sugar?\nA: food\nQ: What kind of thing is a frog?\nA: animal\nQ: What kind of thing is chocolate?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is sugar?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is a tomato?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is grass?\nA: plant\nQ: What kind of thing is the sky?\nA: place\nQ: What kind of thing is a cherry?\nA: fruit\nQ: What kind of thing is a crow?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is milk?\nA:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a flamingo?\nA: bird\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is a grape?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is a lettuce?\nA: vegetable\nQ: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is sugar?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is a cucumber?\nA: vegetable\nQ: What kind of thing is milk?\nA: drink\nQ: What kind of thing is the ocean?\nA:",
+    "continuation": " place",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is the sky?\nA: place\nQ: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is sugar?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is a strawberry?\nA: fruit\nQ: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is a pea?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is milk?\nA: drink\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is a cucumber?\nA: vegetable\nQ: What kind of thing is a school bus?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is a sunflower?\nA: plant\nQ: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is coal?\nA:",
+    "continuation": " mineral",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a fire truck?\nA: vehicle\nQ: What kind of thing is an orange?\nA: fruit\nQ: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a grape?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is snow?\nA:",
+    "continuation": " weather",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is snow?\nA: weather\nQ: What kind of thing is lemon?\nA: fruit\nQ: What kind of thing is a grape?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a canary?\nA: bird\nQ: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is grass?\nA:",
+    "continuation": " plant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is lemon?\nA: fruit\nQ: What kind of thing is a cucumber?\nA: vegetable\nQ: What kind of thing is soil?\nA:",
+    "continuation": " mineral",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is grass?\nA: plant\nQ: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is sugar?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is sugar?\nA: food\nQ: What kind of thing is a fire truck?\nA: vehicle\nQ: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is a strawberry?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a sunflower?\nA: plant\nQ: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is grass?\nA:",
+    "continuation": " plant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is banana?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is sugar?\nA: food\nQ: What kind of thing is blood?\nA:",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is snow?\nA: weather\nQ: What kind of thing is a canary?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is milk?\nA: drink\nQ: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is a sunflower?\nA:",
+    "continuation": " plant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is a cucumber?\nA: vegetable\nQ: What kind of thing is lemon?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a lettuce?\nA: vegetable\nQ: What kind of thing is a cucumber?\nA: vegetable\nQ: What kind of thing is a raven?\nA: bird\nQ: What kind of thing is cocoa?\nA:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is an orange?\nA: fruit\nQ: What kind of thing is a flamingo?\nA: bird\nQ: What kind of thing is a crow?\nA: bird\nQ: What kind of thing is soil?\nA:",
+    "continuation": " mineral",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is a raven?\nA: bird\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is the ocean?\nA:",
+    "continuation": " place",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is milk?\nA: drink\nQ: What kind of thing is a lime?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is a sunflower?\nA:",
+    "continuation": " plant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is a school bus?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is the sky?\nA: place\nQ: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is sugar?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is the ocean?\nA:",
+    "continuation": " place",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a cucumber?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is snow?\nA: weather\nQ: What kind of thing is a lettuce?\nA: vegetable\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is the sky?\nA:",
+    "continuation": " place",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is the sky?\nA: place\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is a canary?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is snow?\nA: weather\nQ: What kind of thing is an orange?\nA: fruit\nQ: What kind of thing is a lime?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a strawberry?\nA: fruit\nQ: What kind of thing is the sky?\nA: place\nQ: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is sugar?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is an orange?\nA: fruit\nQ: What kind of thing is sugar?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is grass?\nA: plant\nQ: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is lemon?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is a school bus?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a frog?\nA: animal\nQ: What kind of thing is a fire truck?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is the ocean?\nA:",
+    "continuation": " place",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is lemon?\nA: fruit\nQ: What kind of thing is grass?\nA: plant\nQ: What kind of thing is milk?\nA: drink\nQ: What kind of thing is a fire truck?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is the sky?\nA: place\nQ: What kind of thing is a crow?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is a cherry?\nA: fruit\nQ: What kind of thing is blood?\nA:",
+    "continuation": " liquid",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a fire truck?\nA: vehicle\nQ: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is a school bus?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is grass?\nA: plant\nQ: What kind of thing is a flamingo?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is milk?\nA: drink\nQ: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is a cherry?\nA: fruit\nQ: What kind of thing is a sunflower?\nA:",
+    "continuation": " plant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is grass?\nA: plant\nQ: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is lemon?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is snow?\nA: weather\nQ: What kind of thing is grass?\nA:",
+    "continuation": " plant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a canary?\nA: bird\nQ: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a cherry?\nA: fruit\nQ: What kind of thing is a polar bear?\nA:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is a fire truck?\nA: vehicle\nQ: What kind of thing is a cherry?\nA: fruit\nQ: What kind of thing is milk?\nA:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is a lettuce?\nA: vegetable\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is cocoa?\nA:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is a fire truck?\nA: vehicle\nQ: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is a carrot?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is milk?\nA:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is a crow?\nA: bird\nQ: What kind of thing is lemon?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a lettuce?\nA: vegetable\nQ: What kind of thing is a canary?\nA: bird\nQ: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is a fire truck?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is the sky?\nA: place\nQ: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is milk?\nA:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is sugar?\nA: food\nQ: What kind of thing is grass?\nA: plant\nQ: What kind of thing is a frog?\nA:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a fire truck?\nA: vehicle\nQ: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is grass?\nA: plant\nQ: What kind of thing is lemon?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is grass?\nA: plant\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is an eggplant?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a strawberry?\nA: fruit\nQ: What kind of thing is snow?\nA: weather\nQ: What kind of thing is a canary?\nA: bird\nQ: What kind of thing is soil?\nA:",
+    "continuation": " mineral",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is grass?\nA: plant\nQ: What kind of thing is a sunflower?\nA: plant\nQ: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is a canary?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is sugar?\nA: food\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a frog?\nA:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is a lettuce?\nA: vegetable\nQ: What kind of thing is grass?\nA: plant\nQ: What kind of thing is a cucumber?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is snow?\nA: weather\nQ: What kind of thing is the sky?\nA: place\nQ: What kind of thing is a grape?\nA: fruit\nQ: What kind of thing is a strawberry?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is a cucumber?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a frog?\nA: animal\nQ: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is lemon?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a lettuce?\nA: vegetable\nQ: What kind of thing is grass?\nA: plant\nQ: What kind of thing is an orange?\nA: fruit\nQ: What kind of thing is soil?\nA:",
+    "continuation": " mineral",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is milk?\nA: drink\nQ: What kind of thing is the sky?\nA: place\nQ: What kind of thing is a polar bear?\nA:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is grass?\nA: plant\nQ: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is a fire truck?\nA:",
+    "continuation": " vehicle",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is a frog?\nA: animal\nQ: What kind of thing is a canary?\nA: bird\nQ: What kind of thing is cocoa?\nA:",
+    "continuation": " drink",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is snow?\nA: weather\nQ: What kind of thing is the sky?\nA: place\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is a cucumber?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is chocolate?\nA: food\nQ: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is cocoa?\nA: drink\nQ: What kind of thing is a raven?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is a lettuce?\nA: vegetable\nQ: What kind of thing is grass?\nA: plant\nQ: What kind of thing is a raven?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is lemon?\nA: fruit\nQ: What kind of thing is a pea?\nA: vegetable\nQ: What kind of thing is a grape?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is milk?\nA: drink\nQ: What kind of thing is a cherry?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is a lime?\nA: fruit\nQ: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is a frog?\nA:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is an eggplant?\nA: vegetable\nQ: What kind of thing is a tomato?\nA: vegetable\nQ: What kind of thing is chocolate?\nA:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a fire truck?\nA: vehicle\nQ: What kind of thing is grass?\nA: plant\nQ: What kind of thing is soil?\nA: mineral\nQ: What kind of thing is a canary?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a raven?\nA: bird\nQ: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is a school bus?\nA: vehicle\nQ: What kind of thing is a pumpkin?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is the sky?\nA: place\nQ: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is coal?\nA: mineral\nQ: What kind of thing is a cucumber?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is snow?\nA: weather\nQ: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is a raven?\nA:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is an orange?\nA: fruit\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is a sunflower?\nA: plant\nQ: What kind of thing is a cherry?\nA:",
+    "continuation": " fruit",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is banana?\nA: fruit\nQ: What kind of thing is a strawberry?\nA: fruit\nQ: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is an eggplant?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is blood?\nA: liquid\nQ: What kind of thing is a carrot?\nA: vegetable\nQ: What kind of thing is ink?\nA: liquid\nQ: What kind of thing is a sunflower?\nA:",
+    "continuation": " plant",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a polar bear?\nA: animal\nQ: What kind of thing is a cherry?\nA: fruit\nQ: What kind of thing is a pumpkin?\nA: vegetable\nQ: What kind of thing is a frog?\nA:",
+    "continuation": " animal",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What kind of thing is a strawberry?\nA: fruit\nQ: What kind of thing is grass?\nA: plant\nQ: What kind of thing is the ocean?\nA: place\nQ: What kind of thing is a pea?\nA:",
+    "continuation": " vegetable",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 6.8031
+}

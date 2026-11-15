@@ -1,7 +1,7 @@
 # Parallel grafts: a redesign of cross-family grafting (rounds 22 and 23)
 
 Branch `parallel-graft`, 2026-11-14 to 2026-11-15. Code: `wsp/pgraft.py`,
-`modal_round22.py`, `modal_round23.py`, tests in `tests/test_pgraft.py`.
+`modal_round22pg.py`, `modal_round23pg.py`, tests in `tests/test_pgraft.py`.
 Raw rows in `results/round22*_rows.json` and `results/round23_rows.json`.
 The short version is at the end.
 

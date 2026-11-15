@@ -1,0 +1,116 @@
+{
+  "id": "mlp_positive-sign_and_answer-option_support_qwenmath1.5b_L17_k2_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-1.5B layer 17, positive-sign and answer-option support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath1.5b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "product_sign"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-1.5B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'product_sign' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1531,
+      "control_value": 0.0074,
+      "split": "person_a held-out skill items (product_sign)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath1.5b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0198"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-1.5B",
+  "layer": 17,
+  "layers": [
+    17
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-1.5B/mlp_positive-sign_and_answer-option_support_qwenmath1.5b_L17_k2_001.pt",
+  "units_remote": "person_a/parts/qwenmath1.5b/mlp_positive-sign_and_answer-option_support_qwenmath1.5b_L17_k2_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'product_sign'",
+    "label": "positive-sign and answer-option support",
+    "num_units": 2,
+    "d_model": 1536,
+    "effect": {
+      "math|search": 0.0006,
+      "math|heldout": 0.0001,
+      "code|search": -0.0007,
+      "code|heldout": 0.0,
+      "facts|search": 0.0003,
+      "facts|heldout": -0.0013,
+      "multilingual|search": -0.0001,
+      "multilingual|heldout": -0.0008,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0006,
+      "month_offset|search": 0.0,
+      "month_offset__control|search": -0.0402,
+      "month_offset|heldout": -0.0118,
+      "month_offset__control|heldout": -0.029,
+      "integer_parity|search": 0.0,
+      "integer_parity__control|search": 0.0,
+      "integer_parity|heldout": 0.0,
+      "integer_parity__control|heldout": 0.0,
+      "weekday_offset|search": -0.0003,
+      "weekday_offset__control|search": 0.0003,
+      "weekday_offset|heldout": -0.0002,
+      "weekday_offset__control|heldout": -0.0,
+      "primality_label|search": -0.0001,
+      "primality_label__control|search": -0.0001,
+      "primality_label|heldout": -0.0,
+      "primality_label__control|heldout": 0.0,
+      "product_sign|search": 0.179,
+      "product_sign__control|search": 0.0264,
+      "product_sign|heldout": 0.1531,
+      "product_sign__control|heldout": 0.0198,
+      "fraction_role|search": -0.006,
+      "fraction_role__control|search": 0.0397,
+      "fraction_role|heldout": -0.0091,
+      "fraction_role__control|heldout": 0.038,
+      "latex_superscript|search": -0.0017,
+      "latex_superscript__control|search": -0.0011,
+      "latex_superscript|heldout": 0.001,
+      "latex_superscript__control|heldout": 0.0035,
+      "boolean_negation|search": 0.0,
+      "boolean_negation__control|search": -0.0001,
+      "boolean_negation|heldout": 0.0,
+      "boolean_negation__control|heldout": -0.0
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0597,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0087,
+      0.0165,
+      -0.001,
+      0.0081,
+      0.0049
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L17 2512 down aligns positive/_positive .162, gate positive .185 and > .134, up positive .169: all three projections agree on sign semantics. L17 5911 gate blank/Options/Which with answers in down. Attribution expansion of 5911 yields two-neuron ablation .179 product-sign drop vs .026 matched control and negligible other task drops."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath1.5b/product_sign.json",
+    "hash": "c2ec963c7e1284f5",
+    "description": "Complete a sentence naming the sign of a two-integer product; controls name the sign of the first explicitly signed factor, using the same answer vocabulary.",
+    "name": "product_sign"
+  },
+  "catalog_id": "mlp_positive-sign_and_answer-option_support_qwenmath1.5b_L17_k2_001",
+  "exported_copy": "library/qwenmath1.5b/mlp_positive-sign_and_answer-option_support_qwenmath1.5b_L17_k2_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

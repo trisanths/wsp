@@ -1,6 +1,9 @@
 import { markStub } from './util.js';
+import { DEMO } from './demo-flag.js';
 
-export const MOCK = new URLSearchParams(location.search).get('mock') === '1';
+export const MOCK = new URLSearchParams(location.search).get('mock') === '1' || DEMO;
+// demo mode never turns the STUB marker on: one "Demo" pill covers every screen
+const stubMark = (v) => { if (!DEMO) markStub(v); };
 
 async function req(method, path, body, isForm) {
   const opt = { method, headers: {} };
@@ -18,7 +21,7 @@ async function req(method, path, body, isForm) {
     err.status = res.status;
     throw err;
   }
-  if (data && data.stub) markStub(true);
+  if (data && data.stub) stubMark(true);
   return data;
 }
 
@@ -36,12 +39,19 @@ const real = {
   startResearch: (id) => req('POST', '/api/spec/' + id + '/research', {}),
   createRun: (spec_id, program = null) => req('POST', '/api/runs', { spec_id, program }),
   getRun: (id) => req('GET', '/api/runs/' + id),
-  openStream(id, onSnap, onErr) {
+  openStream(id, onSnap, onErr, onNote) {
     const es = new EventSource('/api/runs/' + id + '/stream');
     es.addEventListener('snapshot', (e) => {
-      try { const s = JSON.parse(e.data); if (s && s.stub) markStub(true); onSnap(s); } catch (x) { /* skip bad frame */ }
+      try { const s = JSON.parse(e.data); if (s && s.stub) stubMark(true); onSnap(s); } catch (x) { /* skip bad frame */ }
     });
-    es.onerror = () => { es.close(); onErr(); };
+    // "event: error" with {"error": "..."} is a server message. A bare error is a dropped connection.
+    es.addEventListener('error', (e) => {
+      if (!e || typeof e.data !== 'string') { es.close(); onErr(); return; }
+      let msg = 'stream error';
+      try { const d = JSON.parse(e.data); if (d && d.error) msg = String(d.error); } catch (x) { /* keep the default */ }
+      if (onNote) onNote(msg);
+      onErr();
+    });
     return () => es.close();
   },
   pause: (id) => req('POST', '/api/runs/' + id + '/pause', {}),
@@ -55,6 +65,9 @@ const real = {
     const { tap_train_default, ...rest } = c;
     return { ...rest, parts: (c.parts || []).filter((x) => x.kind !== 'tap') };
   }),
+  recipes: () => req('GET', '/api/library/recipes'),
+  findings: () => req('GET', '/api/library/findings'),
+  stitches: () => req('GET', '/api/library/stitches'),
   programText: (program) => req('POST', '/api/program/text', { program }),
   programParse: (text) => req('POST', '/api/program/parse', { text }),
   programValidate: (program) => req('POST', '/api/program/validate', { program }),
@@ -64,6 +77,12 @@ const real = {
   builderSize: (id, program) => req('POST', '/api/builder/' + id + '/size', { program }),
   suggest: (id, program) => req('POST', '/api/builder/' + id + '/suggest', { program }),
   handoff: (id, program) => req('POST', '/api/builder/' + id + '/handoff', { program }),
+  createShrink: (spec_id) => req('POST', '/api/shrink', { spec_id }),
+  shrinkPlan: (id, fields = {}) => req('POST', '/api/shrink/' + id + '/plan', fields),
+  shrinkRun: (id, options = {}) => req('POST', '/api/shrink/' + id + '/run', options),
+  measured: () => req('GET', '/api/measured'),
+  specRequest: (id) => req('GET', '/api/spec/' + id + '/request'),
+  specPlan: (id) => req('POST', '/api/spec/' + id + '/plan', {}),
 };
 
 let impl = real;
@@ -75,7 +94,7 @@ const wrapped = {};
 for (const k of Object.keys(real)) {
   wrapped[k] = async (...a) => {
     const r = await impl[k](...a);
-    if (r && r.stub && k !== 'openStream') markStub(true);
+    if (r && r.stub && k !== 'openStream') stubMark(true);
     return r;
   };
 }

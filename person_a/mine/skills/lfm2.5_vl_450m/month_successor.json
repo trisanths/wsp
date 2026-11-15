@@ -1,0 +1,1220 @@
+{
+ "name": "month_successor",
+ "description": "Name the month that follows (or is k months after) a given month. Control: same format with number successor.",
+ "hash": "cba3eb6438a2ca61",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nM=['January','February','March','April','May','June','July','August','September','October','November','December']\nitems=[];ctrl=[]\nshot=\"Q: What month comes after June?\\nA: July\\nQ: What month comes after October?\\nA: November\\n\"\nnshot=\"Q: What number comes after 6?\\nA: 7\\nQ: What number comes after 10?\\nA: 11\\n\"\nfor r in range(10):\n  for i in range(12):\n    items.append({\"prompt\":shot+f\"Q: What month comes after {M[i]}?\\nA:\",\"answer\":\" \"+M[(i+1)%12]})\nfor n in range(1,121):\n    ctrl.append({\"prompt\":nshot+f\"Q: What number comes after {n+11}?\\nA:\",\"answer\":\" \"+str(n+12)})\nrandom.shuffle(items)\nitems=items[:120]\njson.dump({\"items\":items,\"control\":ctrl},open('/work/skill.json','w'))\n",
+ "items": {
+  "search": [
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after September?\nA:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after April?\nA:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after June?\nA:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after August?\nA:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after February?\nA:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after March?\nA:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after December?\nA:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after May?\nA:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after October?\nA:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after January?\nA:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after July?\nA:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What month comes after June?\nA: July\nQ: What month comes after October?\nA: November\nQ: What month comes after November?\nA:",
+    "continuation": " December",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 131?\nA:",
+    "continuation": " 132",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 93?\nA:",
+    "continuation": " 94",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 32?\nA:",
+    "continuation": " 33",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 102?\nA:",
+    "continuation": " 103",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 80?\nA:",
+    "continuation": " 81",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 53?\nA:",
+    "continuation": " 54",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 16?\nA:",
+    "continuation": " 17",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 91?\nA:",
+    "continuation": " 92",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 50?\nA:",
+    "continuation": " 51",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 22?\nA:",
+    "continuation": " 23",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 26?\nA:",
+    "continuation": " 27",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 107?\nA:",
+    "continuation": " 108",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 34?\nA:",
+    "continuation": " 35",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 90?\nA:",
+    "continuation": " 91",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 126?\nA:",
+    "continuation": " 127",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 83?\nA:",
+    "continuation": " 84",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 85?\nA:",
+    "continuation": " 86",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 64?\nA:",
+    "continuation": " 65",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 106?\nA:",
+    "continuation": " 107",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 21?\nA:",
+    "continuation": " 22",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 94?\nA:",
+    "continuation": " 95",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 128?\nA:",
+    "continuation": " 129",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 108?\nA:",
+    "continuation": " 109",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 105?\nA:",
+    "continuation": " 106",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 51?\nA:",
+    "continuation": " 52",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 48?\nA:",
+    "continuation": " 49",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 117?\nA:",
+    "continuation": " 118",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 62?\nA:",
+    "continuation": " 63",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 28?\nA:",
+    "continuation": " 29",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 45?\nA:",
+    "continuation": " 46",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 36?\nA:",
+    "continuation": " 37",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 18?\nA:",
+    "continuation": " 19",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 96?\nA:",
+    "continuation": " 97",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 17?\nA:",
+    "continuation": " 18",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 47?\nA:",
+    "continuation": " 48",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 86?\nA:",
+    "continuation": " 87",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 23?\nA:",
+    "continuation": " 24",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 116?\nA:",
+    "continuation": " 117",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 55?\nA:",
+    "continuation": " 56",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 124?\nA:",
+    "continuation": " 125",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 42?\nA:",
+    "continuation": " 43",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 78?\nA:",
+    "continuation": " 79",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 129?\nA:",
+    "continuation": " 130",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 37?\nA:",
+    "continuation": " 38",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 63?\nA:",
+    "continuation": " 64",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 43?\nA:",
+    "continuation": " 44",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 110?\nA:",
+    "continuation": " 111",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 71?\nA:",
+    "continuation": " 72",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 31?\nA:",
+    "continuation": " 32",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 76?\nA:",
+    "continuation": " 77",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 54?\nA:",
+    "continuation": " 55",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 77?\nA:",
+    "continuation": " 78",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 92?\nA:",
+    "continuation": " 93",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 125?\nA:",
+    "continuation": " 126",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 57?\nA:",
+    "continuation": " 58",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 73?\nA:",
+    "continuation": " 74",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 33?\nA:",
+    "continuation": " 34",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 59?\nA:",
+    "continuation": " 60",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 19?\nA:",
+    "continuation": " 20",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 30?\nA:",
+    "continuation": " 31",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 111?\nA:",
+    "continuation": " 112",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 58?\nA:",
+    "continuation": " 59",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 100?\nA:",
+    "continuation": " 101",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 35?\nA:",
+    "continuation": " 36",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 115?\nA:",
+    "continuation": " 116",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 65?\nA:",
+    "continuation": " 66",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 98?\nA:",
+    "continuation": " 99",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 49?\nA:",
+    "continuation": " 50",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 70?\nA:",
+    "continuation": " 71",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 88?\nA:",
+    "continuation": " 89",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 130?\nA:",
+    "continuation": " 131",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 56?\nA:",
+    "continuation": " 57",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 103?\nA:",
+    "continuation": " 104",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 82?\nA:",
+    "continuation": " 83",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 123?\nA:",
+    "continuation": " 124",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 68?\nA:",
+    "continuation": " 69",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 40?\nA:",
+    "continuation": " 41",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 79?\nA:",
+    "continuation": " 80",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 97?\nA:",
+    "continuation": " 98",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 66?\nA:",
+    "continuation": " 67",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 39?\nA:",
+    "continuation": " 40",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 118?\nA:",
+    "continuation": " 119",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 13?\nA:",
+    "continuation": " 14",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 81?\nA:",
+    "continuation": " 82",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 119?\nA:",
+    "continuation": " 120",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 99?\nA:",
+    "continuation": " 100",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 14?\nA:",
+    "continuation": " 15",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 113?\nA:",
+    "continuation": " 114",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 52?\nA:",
+    "continuation": " 53",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 25?\nA:",
+    "continuation": " 26",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 87?\nA:",
+    "continuation": " 88",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 41?\nA:",
+    "continuation": " 42",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 104?\nA:",
+    "continuation": " 105",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 46?\nA:",
+    "continuation": " 47",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 121?\nA:",
+    "continuation": " 122",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 101?\nA:",
+    "continuation": " 102",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 12?\nA:",
+    "continuation": " 13",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 122?\nA:",
+    "continuation": " 123",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 89?\nA:",
+    "continuation": " 90",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 67?\nA:",
+    "continuation": " 68",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 61?\nA:",
+    "continuation": " 62",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 15?\nA:",
+    "continuation": " 16",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 74?\nA:",
+    "continuation": " 75",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 24?\nA:",
+    "continuation": " 25",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 38?\nA:",
+    "continuation": " 39",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 112?\nA:",
+    "continuation": " 113",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 60?\nA:",
+    "continuation": " 61",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 95?\nA:",
+    "continuation": " 96",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 72?\nA:",
+    "continuation": " 73",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 69?\nA:",
+    "continuation": " 70",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 127?\nA:",
+    "continuation": " 128",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 75?\nA:",
+    "continuation": " 76",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 27?\nA:",
+    "continuation": " 28",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 44?\nA:",
+    "continuation": " 45",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 20?\nA:",
+    "continuation": " 21",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 109?\nA:",
+    "continuation": " 110",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 114?\nA:",
+    "continuation": " 115",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 120?\nA:",
+    "continuation": " 121",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 84?\nA:",
+    "continuation": " 85",
+    "digits_only": false
+   },
+   {
+    "context": "Q: What number comes after 6?\nA: 7\nQ: What number comes after 10?\nA: 11\nQ: What number comes after 29?\nA:",
+    "continuation": " 30",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 7.2303
+}

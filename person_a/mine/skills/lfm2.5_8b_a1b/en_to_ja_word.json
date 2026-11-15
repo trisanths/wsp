@@ -1,0 +1,1220 @@
+{
+ "name": "en_to_ja_word",
+ "description": "2-shot English->Japanese word translation (common nouns). Control: Japanese->English with same pairs.",
+ "hash": "f0b9e8976e8a5b8e",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nLANG=\"Japanese\"\nbase=[\"house\",\"water\",\"book\",\"dog\",\"cat\",\"tree\",\"city\",\"school\",\"bread\",\"sun\",\"moon\",\"friend\",\"car\",\"door\",\"window\",\"river\",\"mountain\",\"apple\",\"milk\",\"fish\",\"bird\",\"flower\",\"night\",\"king\",\"hand\",\"heart\",\"money\",\"work\",\"food\",\"sea\"]\ntr=[\"\u5bb6\",\"\u6c34\",\"\u672c\",\"\u72ac\",\"\u732b\",\"\u6728\",\"\u90fd\u5e02\",\"\u5b66\u6821\",\"\u30d1\u30f3\",\"\u592a\u967d\",\"\u6708\",\"\u53cb\u9054\",\"\u8eca\",\"\u30c9\u30a2\",\"\u7a93\",\"\u5ddd\",\"\u5c71\",\"\u308a\u3093\u3054\",\"\u725b\u4e73\",\"\u9b5a\",\"\u9ce5\",\"\u82b1\",\"\u591c\",\"\u738b\",\"\u624b\",\"\u5fc3\",\"\u304a\u91d1\",\"\u4ed5\u4e8b\",\"\u98df\u3079\u7269\",\"\u6d77\"]\nwords=list(zip(base,tr));items=[];ctrl=[]\nfor en,t in words:\n    others=[w for w in words if w[0]!=en]\n    for rep in range(4):\n        shots=random.sample(others,2)\n        items.append({\"prompt\":\"\".join(f\"English: {a}\\n{LANG}: {b}\\n\\n\" for a,b in shots)+f\"English: {en}\\n{LANG}:\",\"answer\":\" \"+t})\n        ctrl.append({\"prompt\":\"\".join(f\"{LANG}: {b}\\nEnglish: {a}\\n\\n\" for a,b in shots)+f\"{LANG}: {t}\\nEnglish:\",\"answer\":\" \"+en})\njson.dump({\"items\":items,\"control\":ctrl},open('/work/skill.json','w'),ensure_ascii=False)",
+ "items": {
+  "search": [
+   {
+    "context": "English: money\nJapanese: \u304a\u91d1\n\nEnglish: car\nJapanese: \u8eca\n\nEnglish: window\nJapanese:",
+    "continuation": " \u7a93",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nJapanese: \u5bb6\n\nEnglish: dog\nJapanese: \u72ac\n\nEnglish: heart\nJapanese:",
+    "continuation": " \u5fc3",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nJapanese: \u6c34\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: hand\nJapanese:",
+    "continuation": " \u624b",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nJapanese: \u592a\u967d\n\nEnglish: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: house\nJapanese:",
+    "continuation": " \u5bb6",
+    "digits_only": false
+   },
+   {
+    "context": "English: city\nJapanese: \u90fd\u5e02\n\nEnglish: tree\nJapanese: \u6728\n\nEnglish: work\nJapanese:",
+    "continuation": " \u4ed5\u4e8b",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nJapanese: \u5b66\u6821\n\nEnglish: sun\nJapanese: \u592a\u967d\n\nEnglish: window\nJapanese:",
+    "continuation": " \u7a93",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nJapanese: \u738b\n\nEnglish: mountain\nJapanese: \u5c71\n\nEnglish: milk\nJapanese:",
+    "continuation": " \u725b\u4e73",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nJapanese: \u8eca\n\nEnglish: window\nJapanese: \u7a93\n\nEnglish: tree\nJapanese:",
+    "continuation": " \u6728",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nJapanese: \u672c\n\nEnglish: hand\nJapanese: \u624b\n\nEnglish: school\nJapanese:",
+    "continuation": " \u5b66\u6821",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: mountain\nJapanese: \u5c71\n\nEnglish: city\nJapanese:",
+    "continuation": " \u90fd\u5e02",
+    "digits_only": false
+   },
+   {
+    "context": "English: mountain\nJapanese: \u5c71\n\nEnglish: dog\nJapanese: \u72ac\n\nEnglish: friend\nJapanese:",
+    "continuation": " \u53cb\u9054",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nJapanese: \u672c\n\nEnglish: sea\nJapanese: \u6d77\n\nEnglish: apple\nJapanese:",
+    "continuation": " \u308a\u3093\u3054",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nJapanese: \u53cb\u9054\n\nEnglish: bird\nJapanese: \u9ce5\n\nEnglish: tree\nJapanese:",
+    "continuation": " \u6728",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nJapanese: \u6d77\n\nEnglish: cat\nJapanese: \u732b\n\nEnglish: mountain\nJapanese:",
+    "continuation": " \u5c71",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nJapanese: \u304a\u91d1\n\nEnglish: school\nJapanese: \u5b66\u6821\n\nEnglish: milk\nJapanese:",
+    "continuation": " \u725b\u4e73",
+    "digits_only": false
+   },
+   {
+    "context": "English: tree\nJapanese: \u6728\n\nEnglish: moon\nJapanese: \u6708\n\nEnglish: cat\nJapanese:",
+    "continuation": " \u732b",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nJapanese: \u9b5a\n\nEnglish: dog\nJapanese: \u72ac\n\nEnglish: flower\nJapanese:",
+    "continuation": " \u82b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: house\nJapanese: \u5bb6\n\nEnglish: school\nJapanese:",
+    "continuation": " \u5b66\u6821",
+    "digits_only": false
+   },
+   {
+    "context": "English: window\nJapanese: \u7a93\n\nEnglish: book\nJapanese: \u672c\n\nEnglish: house\nJapanese:",
+    "continuation": " \u5bb6",
+    "digits_only": false
+   },
+   {
+    "context": "English: food\nJapanese: \u98df\u3079\u7269\n\nEnglish: city\nJapanese: \u90fd\u5e02\n\nEnglish: fish\nJapanese:",
+    "continuation": " \u9b5a",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nJapanese: \u6d77\n\nEnglish: school\nJapanese: \u5b66\u6821\n\nEnglish: book\nJapanese:",
+    "continuation": " \u672c",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nJapanese: \u8eca\n\nEnglish: book\nJapanese: \u672c\n\nEnglish: money\nJapanese:",
+    "continuation": " \u304a\u91d1",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nJapanese: \u732b\n\nEnglish: money\nJapanese: \u304a\u91d1\n\nEnglish: moon\nJapanese:",
+    "continuation": " \u6708",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nJapanese: \u672c\n\nEnglish: moon\nJapanese: \u6708\n\nEnglish: flower\nJapanese:",
+    "continuation": " \u82b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nJapanese: \u591c\n\nEnglish: school\nJapanese: \u5b66\u6821\n\nEnglish: hand\nJapanese:",
+    "continuation": " \u624b",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: river\nJapanese: \u5ddd\n\nEnglish: friend\nJapanese:",
+    "continuation": " \u53cb\u9054",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nJapanese: \u6d77\n\nEnglish: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: friend\nJapanese:",
+    "continuation": " \u53cb\u9054",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nJapanese: \u6c34\n\nEnglish: flower\nJapanese: \u82b1\n\nEnglish: food\nJapanese:",
+    "continuation": " \u98df\u3079\u7269",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nJapanese: \u30d1\u30f3\n\nEnglish: window\nJapanese: \u7a93\n\nEnglish: bird\nJapanese:",
+    "continuation": " \u9ce5",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nJapanese: \u53cb\u9054\n\nEnglish: school\nJapanese: \u5b66\u6821\n\nEnglish: sun\nJapanese:",
+    "continuation": " \u592a\u967d",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nJapanese: \u6708\n\nEnglish: tree\nJapanese: \u6728\n\nEnglish: book\nJapanese:",
+    "continuation": " \u672c",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nJapanese: \u82b1\n\nEnglish: school\nJapanese: \u5b66\u6821\n\nEnglish: city\nJapanese:",
+    "continuation": " \u90fd\u5e02",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nJapanese: \u592a\u967d\n\nEnglish: milk\nJapanese: \u725b\u4e73\n\nEnglish: car\nJapanese:",
+    "continuation": " \u8eca",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nJapanese: \u72ac\n\nEnglish: milk\nJapanese: \u725b\u4e73\n\nEnglish: car\nJapanese:",
+    "continuation": " \u8eca",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nJapanese: \u9ce5\n\nEnglish: city\nJapanese: \u90fd\u5e02\n\nEnglish: money\nJapanese:",
+    "continuation": " \u304a\u91d1",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nJapanese: \u304a\u91d1\n\nEnglish: tree\nJapanese: \u6728\n\nEnglish: king\nJapanese:",
+    "continuation": " \u738b",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nJapanese: \u592a\u967d\n\nEnglish: milk\nJapanese: \u725b\u4e73\n\nEnglish: dog\nJapanese:",
+    "continuation": " \u72ac",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: city\nJapanese: \u90fd\u5e02\n\nEnglish: door\nJapanese:",
+    "continuation": " \u30c9\u30a2",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: dog\nJapanese: \u72ac\n\nEnglish: tree\nJapanese:",
+    "continuation": " \u6728",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nJapanese: \u591c\n\nEnglish: dog\nJapanese: \u72ac\n\nEnglish: food\nJapanese:",
+    "continuation": " \u98df\u3079\u7269",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nJapanese: \u8eca\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: milk\nJapanese:",
+    "continuation": " \u725b\u4e73",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nJapanese: \u72ac\n\nEnglish: king\nJapanese: \u738b\n\nEnglish: night\nJapanese:",
+    "continuation": " \u591c",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nJapanese: \u9ce5\n\nEnglish: mountain\nJapanese: \u5c71\n\nEnglish: bread\nJapanese:",
+    "continuation": " \u30d1\u30f3",
+    "digits_only": false
+   },
+   {
+    "context": "English: food\nJapanese: \u98df\u3079\u7269\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: cat\nJapanese:",
+    "continuation": " \u732b",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nJapanese: \u6708\n\nEnglish: mountain\nJapanese: \u5c71\n\nEnglish: water\nJapanese:",
+    "continuation": " \u6c34",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nJapanese: \u82b1\n\nEnglish: book\nJapanese: \u672c\n\nEnglish: heart\nJapanese:",
+    "continuation": " \u5fc3",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: water\nJapanese: \u6c34\n\nEnglish: king\nJapanese:",
+    "continuation": " \u738b",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nJapanese: \u53cb\u9054\n\nEnglish: mountain\nJapanese: \u5c71\n\nEnglish: tree\nJapanese:",
+    "continuation": " \u6728",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nJapanese: \u72ac\n\nEnglish: money\nJapanese: \u304a\u91d1\n\nEnglish: sea\nJapanese:",
+    "continuation": " \u6d77",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nJapanese: \u738b\n\nEnglish: heart\nJapanese: \u5fc3\n\nEnglish: food\nJapanese:",
+    "continuation": " \u98df\u3079\u7269",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nJapanese: \u6c34\n\nEnglish: money\nJapanese: \u304a\u91d1\n\nEnglish: school\nJapanese:",
+    "continuation": " \u5b66\u6821",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nJapanese: \u82b1\n\nEnglish: house\nJapanese: \u5bb6\n\nEnglish: bread\nJapanese:",
+    "continuation": " \u30d1\u30f3",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: fish\nJapanese: \u9b5a\n\nEnglish: door\nJapanese:",
+    "continuation": " \u30c9\u30a2",
+    "digits_only": false
+   },
+   {
+    "context": "English: food\nJapanese: \u98df\u3079\u7269\n\nEnglish: city\nJapanese: \u90fd\u5e02\n\nEnglish: night\nJapanese:",
+    "continuation": " \u591c",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nJapanese: \u6708\n\nEnglish: door\nJapanese: \u30c9\u30a2\n\nEnglish: king\nJapanese:",
+    "continuation": " \u738b",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nJapanese: \u9ce5\n\nEnglish: sea\nJapanese: \u6d77\n\nEnglish: dog\nJapanese:",
+    "continuation": " \u72ac",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nJapanese: \u738b\n\nEnglish: money\nJapanese: \u304a\u91d1\n\nEnglish: dog\nJapanese:",
+    "continuation": " \u72ac",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nJapanese: \u72ac\n\nEnglish: water\nJapanese: \u6c34\n\nEnglish: work\nJapanese:",
+    "continuation": " \u4ed5\u4e8b",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nJapanese: \u6708\n\nEnglish: fish\nJapanese: \u9b5a\n\nEnglish: window\nJapanese:",
+    "continuation": " \u7a93",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nJapanese: \u304a\u91d1\n\nEnglish: friend\nJapanese: \u53cb\u9054\n\nEnglish: bird\nJapanese:",
+    "continuation": " \u9ce5",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: mountain\nJapanese: \u5c71\n\nEnglish: door\nJapanese: \u30c9\u30a2\n\nEnglish: water\nJapanese:",
+    "continuation": " \u6c34",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nJapanese: \u5ddd\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: bird\nJapanese:",
+    "continuation": " \u9ce5",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nJapanese: \u82b1\n\nEnglish: king\nJapanese: \u738b\n\nEnglish: bird\nJapanese:",
+    "continuation": " \u9ce5",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nJapanese: \u9b5a\n\nEnglish: school\nJapanese: \u5b66\u6821\n\nEnglish: moon\nJapanese:",
+    "continuation": " \u6708",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: door\nJapanese: \u30c9\u30a2\n\nEnglish: school\nJapanese:",
+    "continuation": " \u5b66\u6821",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nJapanese: \u5ddd\n\nEnglish: milk\nJapanese: \u725b\u4e73\n\nEnglish: flower\nJapanese:",
+    "continuation": " \u82b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: night\nJapanese: \u591c\n\nEnglish: bread\nJapanese: \u30d1\u30f3\n\nEnglish: river\nJapanese:",
+    "continuation": " \u5ddd",
+    "digits_only": false
+   },
+   {
+    "context": "English: food\nJapanese: \u98df\u3079\u7269\n\nEnglish: door\nJapanese: \u30c9\u30a2\n\nEnglish: house\nJapanese:",
+    "continuation": " \u5bb6",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nJapanese: \u9b5a\n\nEnglish: house\nJapanese: \u5bb6\n\nEnglish: work\nJapanese:",
+    "continuation": " \u4ed5\u4e8b",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nJapanese: \u5fc3\n\nEnglish: cat\nJapanese: \u732b\n\nEnglish: book\nJapanese:",
+    "continuation": " \u672c",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nJapanese: \u5fc3\n\nEnglish: sea\nJapanese: \u6d77\n\nEnglish: house\nJapanese:",
+    "continuation": " \u5bb6",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nJapanese: \u5b66\u6821\n\nEnglish: friend\nJapanese: \u53cb\u9054\n\nEnglish: king\nJapanese:",
+    "continuation": " \u738b",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nJapanese: \u8eca\n\nEnglish: fish\nJapanese: \u9b5a\n\nEnglish: water\nJapanese:",
+    "continuation": " \u6c34",
+    "digits_only": false
+   },
+   {
+    "context": "English: house\nJapanese: \u5bb6\n\nEnglish: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: sea\nJapanese:",
+    "continuation": " \u6d77",
+    "digits_only": false
+   },
+   {
+    "context": "English: heart\nJapanese: \u5fc3\n\nEnglish: cat\nJapanese: \u732b\n\nEnglish: mountain\nJapanese:",
+    "continuation": " \u5c71",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nJapanese: \u672c\n\nEnglish: bird\nJapanese: \u9ce5\n\nEnglish: window\nJapanese:",
+    "continuation": " \u7a93",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nJapanese: \u30d1\u30f3\n\nEnglish: book\nJapanese: \u672c\n\nEnglish: sea\nJapanese:",
+    "continuation": " \u6d77",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nJapanese: \u738b\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: apple\nJapanese:",
+    "continuation": " \u308a\u3093\u3054",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nJapanese: \u5ddd\n\nEnglish: food\nJapanese: \u98df\u3079\u7269\n\nEnglish: city\nJapanese:",
+    "continuation": " \u90fd\u5e02",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: fish\nJapanese:",
+    "continuation": " \u9b5a",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nJapanese: \u672c\n\nEnglish: city\nJapanese: \u90fd\u5e02\n\nEnglish: moon\nJapanese:",
+    "continuation": " \u6708",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nJapanese: \u592a\u967d\n\nEnglish: river\nJapanese: \u5ddd\n\nEnglish: door\nJapanese:",
+    "continuation": " \u30c9\u30a2",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nJapanese: \u9b5a\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: money\nJapanese:",
+    "continuation": " \u304a\u91d1",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nJapanese: \u5b66\u6821\n\nEnglish: house\nJapanese: \u5bb6\n\nEnglish: night\nJapanese:",
+    "continuation": " \u591c",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: apple\nJapanese:",
+    "continuation": " \u308a\u3093\u3054",
+    "digits_only": false
+   },
+   {
+    "context": "English: tree\nJapanese: \u6728\n\nEnglish: city\nJapanese: \u90fd\u5e02\n\nEnglish: river\nJapanese:",
+    "continuation": " \u5ddd",
+    "digits_only": false
+   },
+   {
+    "context": "English: school\nJapanese: \u5b66\u6821\n\nEnglish: money\nJapanese: \u304a\u91d1\n\nEnglish: moon\nJapanese:",
+    "continuation": " \u6708",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nJapanese: \u9ce5\n\nEnglish: moon\nJapanese: \u6708\n\nEnglish: flower\nJapanese:",
+    "continuation": " \u82b1",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: tree\nJapanese: \u6728\n\nEnglish: book\nJapanese:",
+    "continuation": " \u672c",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nJapanese: \u30c9\u30a2\n\nEnglish: fish\nJapanese: \u9b5a\n\nEnglish: sea\nJapanese:",
+    "continuation": " \u6d77",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nJapanese: \u738b\n\nEnglish: food\nJapanese: \u98df\u3079\u7269\n\nEnglish: sun\nJapanese:",
+    "continuation": " \u592a\u967d",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nJapanese: \u672c\n\nEnglish: sea\nJapanese: \u6d77\n\nEnglish: cat\nJapanese:",
+    "continuation": " \u732b",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nJapanese: \u6d77\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: fish\nJapanese:",
+    "continuation": " \u9b5a",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nJapanese: \u624b\n\nEnglish: bread\nJapanese: \u30d1\u30f3\n\nEnglish: night\nJapanese:",
+    "continuation": " \u591c",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nJapanese: \u6c34\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: apple\nJapanese:",
+    "continuation": " \u308a\u3093\u3054",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nJapanese: \u738b\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: bread\nJapanese:",
+    "continuation": " \u30d1\u30f3",
+    "digits_only": false
+   },
+   {
+    "context": "English: door\nJapanese: \u30c9\u30a2\n\nEnglish: milk\nJapanese: \u725b\u4e73\n\nEnglish: fish\nJapanese:",
+    "continuation": " \u9b5a",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nJapanese: \u9ce5\n\nEnglish: money\nJapanese: \u304a\u91d1\n\nEnglish: dog\nJapanese:",
+    "continuation": " \u72ac",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nJapanese: \u72ac\n\nEnglish: money\nJapanese: \u304a\u91d1\n\nEnglish: hand\nJapanese:",
+    "continuation": " \u624b",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: fish\nJapanese: \u9b5a\n\nEnglish: heart\nJapanese:",
+    "continuation": " \u5fc3",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: food\nJapanese: \u98df\u3079\u7269\n\nEnglish: sun\nJapanese:",
+    "continuation": " \u592a\u967d",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nJapanese: \u72ac\n\nEnglish: hand\nJapanese: \u624b\n\nEnglish: cat\nJapanese:",
+    "continuation": " \u732b",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nJapanese: \u5ddd\n\nEnglish: book\nJapanese: \u672c\n\nEnglish: mountain\nJapanese:",
+    "continuation": " \u5c71",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nJapanese: \u308a\u3093\u3054\n\nEnglish: sun\nJapanese: \u592a\u967d\n\nEnglish: city\nJapanese:",
+    "continuation": " \u90fd\u5e02",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nJapanese: \u30d1\u30f3\n\nEnglish: mountain\nJapanese: \u5c71\n\nEnglish: milk\nJapanese:",
+    "continuation": " \u725b\u4e73",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nJapanese: \u672c\n\nEnglish: moon\nJapanese: \u6708\n\nEnglish: friend\nJapanese:",
+    "continuation": " \u53cb\u9054",
+    "digits_only": false
+   },
+   {
+    "context": "English: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: tree\nJapanese: \u6728\n\nEnglish: river\nJapanese:",
+    "continuation": " \u5ddd",
+    "digits_only": false
+   },
+   {
+    "context": "English: hand\nJapanese: \u624b\n\nEnglish: friend\nJapanese: \u53cb\u9054\n\nEnglish: sun\nJapanese:",
+    "continuation": " \u592a\u967d",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: dog\nJapanese: \u72ac\n\nEnglish: money\nJapanese:",
+    "continuation": " \u304a\u91d1",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nJapanese: \u725b\u4e73\n\nEnglish: bird\nJapanese: \u9ce5\n\nEnglish: heart\nJapanese:",
+    "continuation": " \u5fc3",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nJapanese: \u6708\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: car\nJapanese:",
+    "continuation": " \u8eca",
+    "digits_only": false
+   },
+   {
+    "context": "English: water\nJapanese: \u6c34\n\nEnglish: bird\nJapanese: \u9ce5\n\nEnglish: river\nJapanese:",
+    "continuation": " \u5ddd",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nJapanese: \u672c\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: mountain\nJapanese:",
+    "continuation": " \u5c71",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nJapanese: \u304a\u91d1\n\nEnglish: night\nJapanese: \u591c\n\nEnglish: bread\nJapanese:",
+    "continuation": " \u30d1\u30f3",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nJapanese: \u304a\u91d1\n\nEnglish: work\nJapanese: \u4ed5\u4e8b\n\nEnglish: water\nJapanese:",
+    "continuation": " \u6c34",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nJapanese: \u304a\u91d1\n\nEnglish: bird\nJapanese: \u9ce5\n\nEnglish: door\nJapanese:",
+    "continuation": " \u30c9\u30a2",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nJapanese: \u5ddd\n\nEnglish: city\nJapanese: \u90fd\u5e02\n\nEnglish: food\nJapanese:",
+    "continuation": " \u98df\u3079\u7269",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nJapanese: \u732b\n\nEnglish: food\nJapanese: \u98df\u3079\u7269\n\nEnglish: hand\nJapanese:",
+    "continuation": " \u624b",
+    "digits_only": false
+   },
+   {
+    "context": "English: sun\nJapanese: \u592a\u967d\n\nEnglish: king\nJapanese: \u738b\n\nEnglish: car\nJapanese:",
+    "continuation": " \u8eca",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nJapanese: \u53cb\u9054\n\nEnglish: money\nJapanese: \u304a\u91d1\n\nEnglish: work\nJapanese:",
+    "continuation": " \u4ed5\u4e8b",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Japanese: \u30d1\u30f3\nEnglish: bread\n\nJapanese: \u672c\nEnglish: book\n\nJapanese: \u6d77\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5ddd\nEnglish: river\n\nJapanese: \u591c\nEnglish: night\n\nJapanese: \u9ce5\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u53cb\u9054\nEnglish: friend\n\nJapanese: \u5c71\nEnglish: mountain\n\nJapanese: \u6728\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u624b\nEnglish: hand\n\nJapanese: \u30d1\u30f3\nEnglish: bread\n\nJapanese: \u591c\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6c34\nEnglish: water\n\nJapanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u308a\u3093\u3054\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u9b5a\nEnglish: fish\n\nJapanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u6708\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5c71\nEnglish: mountain\n\nJapanese: \u30c9\u30a2\nEnglish: door\n\nJapanese: \u6c34\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u30c9\u30a2\nEnglish: door\n\nJapanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u9b5a\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u624b\nEnglish: hand\n\nJapanese: \u53cb\u9054\nEnglish: friend\n\nJapanese: \u592a\u967d\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6708\nEnglish: moon\n\nJapanese: \u6728\nEnglish: tree\n\nJapanese: \u672c\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u738b\nEnglish: king\n\nJapanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u72ac\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u6c34\nEnglish: water\n\nJapanese: \u738b\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u8eca\nEnglish: car\n\nJapanese: \u7a93\nEnglish: window\n\nJapanese: \u6728\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u9b5a\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u738b\nEnglish: king\n\nJapanese: \u5fc3\nEnglish: heart\n\nJapanese: \u98df\u3079\u7269\nEnglish:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u591c\nEnglish: night\n\nJapanese: \u308a\u3093\u3054\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u738b\nEnglish: king\n\nJapanese: \u5c71\nEnglish: mountain\n\nJapanese: \u725b\u4e73\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u90fd\u5e02\nEnglish: city\n\nJapanese: \u30c9\u30a2\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6708\nEnglish: moon\n\nJapanese: \u30c9\u30a2\nEnglish: door\n\nJapanese: \u738b\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u308a\u3093\u3054\nEnglish: apple\n\nJapanese: \u6728\nEnglish: tree\n\nJapanese: \u672c\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u82b1\nEnglish: flower\n\nJapanese: \u738b\nEnglish: king\n\nJapanese: \u9ce5\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5bb6\nEnglish: house\n\nJapanese: \u308a\u3093\u3054\nEnglish: apple\n\nJapanese: \u6d77\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u72ac\nEnglish: dog\n\nJapanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u624b\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u6728\nEnglish: tree\n\nJapanese: \u738b\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u738b\nEnglish: king\n\nJapanese: \u98df\u3079\u7269\nEnglish: food\n\nJapanese: \u592a\u967d\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u98df\u3079\u7269\nEnglish: food\n\nJapanese: \u592a\u967d\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u9b5a\nEnglish: fish\n\nJapanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u304a\u91d1\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u72ac\nEnglish: dog\n\nJapanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u8eca\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6728\nEnglish: tree\n\nJapanese: \u6708\nEnglish: moon\n\nJapanese: \u732b\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u591c\nEnglish: night\n\nJapanese: \u30d1\u30f3\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u82b1\nEnglish: flower\n\nJapanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u90fd\u5e02\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6708\nEnglish: moon\n\nJapanese: \u5c71\nEnglish: mountain\n\nJapanese: \u6c34\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u672c\nEnglish: book\n\nJapanese: \u6708\nEnglish: moon\n\nJapanese: \u82b1\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u6c34\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u9ce5\nEnglish: bird\n\nJapanese: \u5c71\nEnglish: mountain\n\nJapanese: \u30d1\u30f3\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u30d1\u30f3\nEnglish: bread\n\nJapanese: \u5c71\nEnglish: mountain\n\nJapanese: \u725b\u4e73\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5fc3\nEnglish: heart\n\nJapanese: \u732b\nEnglish: cat\n\nJapanese: \u672c\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u9ce5\nEnglish: bird\n\nJapanese: \u90fd\u5e02\nEnglish: city\n\nJapanese: \u304a\u91d1\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u732b\nEnglish: cat\n\nJapanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u6708\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u591c\nEnglish: night\n\nJapanese: \u72ac\nEnglish: dog\n\nJapanese: \u98df\u3079\u7269\nEnglish:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u672c\nEnglish: book\n\nJapanese: \u624b\nEnglish: hand\n\nJapanese: \u5b66\u6821\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5fc3\nEnglish: heart\n\nJapanese: \u732b\nEnglish: cat\n\nJapanese: \u5c71\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u30c9\u30a2\nEnglish: door\n\nJapanese: \u9b5a\nEnglish: fish\n\nJapanese: \u6d77\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u5c71\nEnglish: mountain\n\nJapanese: \u90fd\u5e02\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6708\nEnglish: moon\n\nJapanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u8eca\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u30c9\u30a2\nEnglish: door\n\nJapanese: \u5b66\u6821\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u591c\nEnglish: night\n\nJapanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u624b\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u592a\u967d\nEnglish: sun\n\nJapanese: \u7a93\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u98df\u3079\u7269\nEnglish: food\n\nJapanese: \u591c\nEnglish: night\n\nJapanese: \u732b\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5ddd\nEnglish: river\n\nJapanese: \u672c\nEnglish: book\n\nJapanese: \u5c71\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u6708\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u672c\nEnglish: book\n\nJapanese: \u591c\nEnglish: night\n\nJapanese: \u5c71\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u30d1\u30f3\nEnglish: bread\n\nJapanese: \u7a93\nEnglish: window\n\nJapanese: \u9ce5\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5ddd\nEnglish: river\n\nJapanese: \u90fd\u5e02\nEnglish: city\n\nJapanese: \u98df\u3079\u7269\nEnglish:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u672c\nEnglish: book\n\nJapanese: \u6708\nEnglish: moon\n\nJapanese: \u53cb\u9054\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u6728\nEnglish: tree\n\nJapanese: \u5ddd\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u72ac\nEnglish: dog\n\nJapanese: \u6728\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5c71\nEnglish: mountain\n\nJapanese: \u72ac\nEnglish: dog\n\nJapanese: \u53cb\u9054\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u8eca\nEnglish: car\n\nJapanese: \u9b5a\nEnglish: fish\n\nJapanese: \u6c34\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u672c\nEnglish: book\n\nJapanese: \u6d77\nEnglish: sea\n\nJapanese: \u732b\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Japanese: \u6c34\nEnglish: water\n\nJapanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u624b\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6d77\nEnglish: sea\n\nJapanese: \u308a\u3093\u3054\nEnglish: apple\n\nJapanese: \u53cb\u9054\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u98df\u3079\u7269\nEnglish: food\n\nJapanese: \u90fd\u5e02\nEnglish: city\n\nJapanese: \u591c\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u53cb\u9054\nEnglish: friend\n\nJapanese: \u9ce5\nEnglish: bird\n\nJapanese: \u6728\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5bb6\nEnglish: house\n\nJapanese: \u72ac\nEnglish: dog\n\nJapanese: \u5fc3\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u9ce5\nEnglish: bird\n\nJapanese: \u30c9\u30a2\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5ddd\nEnglish: river\n\nJapanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u82b1\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u53cb\u9054\nEnglish: friend\n\nJapanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u592a\u967d\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6708\nEnglish: moon\n\nJapanese: \u9b5a\nEnglish: fish\n\nJapanese: \u7a93\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u98df\u3079\u7269\nEnglish: food\n\nJapanese: \u90fd\u5e02\nEnglish: city\n\nJapanese: \u9b5a\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u72ac\nEnglish: dog\n\nJapanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u6d77\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u5ddd\nEnglish: river\n\nJapanese: \u53cb\u9054\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u72ac\nEnglish: dog\n\nJapanese: \u738b\nEnglish: king\n\nJapanese: \u591c\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u738b\nEnglish: king\n\nJapanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u308a\u3093\u3054\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u90fd\u5e02\nEnglish: city\n\nJapanese: \u6728\nEnglish: tree\n\nJapanese: \u4ed5\u4e8b\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u672c\nEnglish: book\n\nJapanese: \u9ce5\nEnglish: bird\n\nJapanese: \u7a93\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6c34\nEnglish: water\n\nJapanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u5b66\u6821\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6d77\nEnglish: sea\n\nJapanese: \u732b\nEnglish: cat\n\nJapanese: \u5c71\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u9b5a\nEnglish: fish\n\nJapanese: \u72ac\nEnglish: dog\n\nJapanese: \u82b1\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u9b5a\nEnglish: fish\n\nJapanese: \u30c9\u30a2\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u308a\u3093\u3054\nEnglish: apple\n\nJapanese: \u592a\u967d\nEnglish: sun\n\nJapanese: \u90fd\u5e02\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u72ac\nEnglish: dog\n\nJapanese: \u304a\u91d1\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5fc3\nEnglish: heart\n\nJapanese: \u6d77\nEnglish: sea\n\nJapanese: \u5bb6\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u672c\nEnglish: book\n\nJapanese: \u6d77\nEnglish: sea\n\nJapanese: \u308a\u3093\u3054\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u8eca\nEnglish: car\n\nJapanese: \u672c\nEnglish: book\n\nJapanese: \u304a\u91d1\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u9ce5\nEnglish: bird\n\nJapanese: \u6708\nEnglish: moon\n\nJapanese: \u82b1\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u7a93\nEnglish: window\n\nJapanese: \u672c\nEnglish: book\n\nJapanese: \u5bb6\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u308a\u3093\u3054\nEnglish: apple\n\nJapanese: \u9b5a\nEnglish: fish\n\nJapanese: \u5fc3\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u672c\nEnglish: book\n\nJapanese: \u90fd\u5e02\nEnglish: city\n\nJapanese: \u6708\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u592a\u967d\nEnglish: sun\n\nJapanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u72ac\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u725b\u4e73\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u5bb6\nEnglish: house\n\nJapanese: \u5b66\u6821\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u53cb\u9054\nEnglish: friend\n\nJapanese: \u738b\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u82b1\nEnglish: flower\n\nJapanese: \u5bb6\nEnglish: house\n\nJapanese: \u30d1\u30f3\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u72ac\nEnglish: dog\n\nJapanese: \u6c34\nEnglish: water\n\nJapanese: \u4ed5\u4e8b\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u5bb6\nEnglish: house\n\nJapanese: \u591c\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u98df\u3079\u7269\nEnglish: food\n\nJapanese: \u30c9\u30a2\nEnglish: door\n\nJapanese: \u5bb6\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u9b5a\nEnglish: fish\n\nJapanese: \u5bb6\nEnglish: house\n\nJapanese: \u4ed5\u4e8b\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6d77\nEnglish: sea\n\nJapanese: \u591c\nEnglish: night\n\nJapanese: \u9b5a\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u592a\u967d\nEnglish: sun\n\nJapanese: \u5ddd\nEnglish: river\n\nJapanese: \u30c9\u30a2\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u592a\u967d\nEnglish: sun\n\nJapanese: \u738b\nEnglish: king\n\nJapanese: \u8eca\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u592a\u967d\nEnglish: sun\n\nJapanese: \u308a\u3093\u3054\nEnglish: apple\n\nJapanese: \u5bb6\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6c34\nEnglish: water\n\nJapanese: \u9ce5\nEnglish: bird\n\nJapanese: \u5ddd\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u9ce5\nEnglish: bird\n\nJapanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u72ac\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u5ddd\nEnglish: river\n\nJapanese: \u98df\u3079\u7269\nEnglish: food\n\nJapanese: \u90fd\u5e02\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u9ce5\nEnglish: bird\n\nJapanese: \u5fc3\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u592a\u967d\nEnglish: sun\n\nJapanese: \u725b\u4e73\nEnglish: milk\n\nJapanese: \u8eca\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u53cb\u9054\nEnglish: friend\n\nJapanese: \u9ce5\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6728\nEnglish: tree\n\nJapanese: \u90fd\u5e02\nEnglish: city\n\nJapanese: \u5ddd\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u8eca\nEnglish: car\n\nJapanese: \u7a93\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6c34\nEnglish: water\n\nJapanese: \u82b1\nEnglish: flower\n\nJapanese: \u98df\u3079\u7269\nEnglish:",
+    "continuation": " food",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u591c\nEnglish: night\n\nJapanese: \u30d1\u30f3\nEnglish: bread\n\nJapanese: \u5ddd\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u9ce5\nEnglish: bird\n\nJapanese: \u6d77\nEnglish: sea\n\nJapanese: \u72ac\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u738b\nEnglish: king\n\nJapanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u30d1\u30f3\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u6d77\nEnglish: sea\n\nJapanese: \u5b66\u6821\nEnglish: school\n\nJapanese: \u672c\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u732b\nEnglish: cat\n\nJapanese: \u98df\u3079\u7269\nEnglish: food\n\nJapanese: \u624b\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u82b1\nEnglish: flower\n\nJapanese: \u672c\nEnglish: book\n\nJapanese: \u5fc3\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u53cb\u9054\nEnglish: friend\n\nJapanese: \u304a\u91d1\nEnglish: money\n\nJapanese: \u4ed5\u4e8b\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u8eca\nEnglish: car\n\nJapanese: \u4ed5\u4e8b\nEnglish: work\n\nJapanese: \u725b\u4e73\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "Japanese: \u72ac\nEnglish: dog\n\nJapanese: \u624b\nEnglish: hand\n\nJapanese: \u732b\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 2.8218
+}

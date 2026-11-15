@@ -1,0 +1,132 @@
+{
+  "id": "map_expert_liquidai__lfm2-8b-a1b_prose_ru_l22",
+  "kind": "expert",
+  "title": "LFM2-8B-A1B layer 22, 7 experts for prose_ru (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "prose_ru"
+  ],
+  "models": [
+    "LiquidAI/LFM2-8B-A1B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 7 experts at layer 22 of LFM2-8B-A1B on 'prose_ru' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.42794,
+      "control_value": 0.05767,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 7 experts at layer 22 of LFM2-8B-A1B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 1.89469,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 1.95506,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/LiquidAI__LFM2-8B-A1B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "LiquidAI/LFM2-8B-A1B",
+  "layer": 22,
+  "layers": [
+    22
+  ],
+  "units_file": "components/LiquidAI__LFM2-8B-A1B/map_expert_liquidai__lfm2-8b-a1b_prose_ru_l22.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "prose_ru",
+    "data": "wikimedia/wikipedia 20231101.ru train: Russian encyclopedia text continuation",
+    "n_units": 7,
+    "experts": [
+      21,
+      23,
+      12,
+      13,
+      11,
+      8,
+      16
+    ],
+    "details": [
+      {
+        "expert": 21,
+        "skill_freq": 0.744754,
+        "general_freq": 0.013405,
+        "log_ratio": 4.0101,
+        "heldout_log_ratio": 4.0598
+      },
+      {
+        "expert": 23,
+        "skill_freq": 0.325414,
+        "general_freq": 0.018182,
+        "log_ratio": 2.8795,
+        "heldout_log_ratio": 3.3023
+      },
+      {
+        "expert": 12,
+        "skill_freq": 0.942045,
+        "general_freq": 0.133128,
+        "log_ratio": 1.9561,
+        "heldout_log_ratio": 1.9069
+      },
+      {
+        "expert": 13,
+        "skill_freq": 0.348618,
+        "general_freq": 0.062866,
+        "log_ratio": 1.7117,
+        "heldout_log_ratio": 1.6715
+      },
+      {
+        "expert": 11,
+        "skill_freq": 0.573776,
+        "general_freq": 0.144068,
+        "log_ratio": 1.3814,
+        "heldout_log_ratio": 1.4344
+      },
+      {
+        "expert": 8,
+        "skill_freq": 0.029533,
+        "general_freq": 0.012635,
+        "log_ratio": 0.8445,
+        "heldout_log_ratio": 1.1101
+      },
+      {
+        "expert": 16,
+        "skill_freq": 0.03142,
+        "general_freq": 0.019414,
+        "log_ratio": 0.4795,
+        "heldout_log_ratio": 0.2004
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "wikimedia/wikipedia 20231101.ru train: Russian encyclopedia text continuation",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 8.34,
+  "n_layers": 24,
+  "hidden": 2048,
+  "family": "lfm2_moe",
+  "architecture": "Lfm2MoeForCausalLM",
+  "license": "lfm1.0",
+  "revision": "7ed1404fdf502a5446c1b67d4fe1533158d6f2ad"
+}

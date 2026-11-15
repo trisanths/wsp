@@ -682,3 +682,219 @@ def test_probe_objective_drives_search_and_restores_host():
     zero = [e for e in result["log"] if e["label"] == "zero"][0]
     assert abs(zero["objective_a"]) < 0.02
     assert result["best"]["objective_a"] > 0.3
+
+
+def test_probe_guard_is_harm_on_general_text_not_distance_from_the_host():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    info = objective.calibrate(host)
+    assert info["host_nll"] > 0.0
+    at_host = objective.scores(host)
+    assert abs(at_host["harm"]) < 1e-6
+    assert objective(at_host)[0] == pytest.approx(0.0, abs=1e-6)
+    own = objective.scores(member)
+    assert own["drift"] > 0.0
+    assert own["harm"] == pytest.approx(own["general_nll"] - info["host_nll"])
+    # The KL guard charges the member for being different; the harm guard charges it only for being worse.
+    kl_guard = weave.ProbeObjective(["m"], {"m": cache}, general, batch_size=4, guard="kl", drift_tolerance=0.0)
+    kl_guard.calibrate(host)
+    nll_guard = weave.ProbeObjective(["m"], {"m": cache}, general, batch_size=4, drift_tolerance=0.0)
+    nll_guard.calibrate(host)
+    value_kl, detail_kl = kl_guard(kl_guard.scores(member))
+    value_nll, detail_nll = nll_guard(nll_guard.scores(member))
+    assert detail_kl["penalty"] > 0.0
+    assert detail_nll["penalty"] == pytest.approx(10.0 * max(0.0, own["harm"]))
+    assert detail_nll["guard"] == "nll" and detail_kl["guard"] == "kl"
+
+
+def test_kl_and_nll_in_chunks_equal_the_unchunked_value():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    for chunk in (1, 3, 7, 1000):
+        whole = weave.kl_to_cache(host, cache, batch_size=4, seq_chunk=None)
+        part = weave.kl_to_cache(host, cache, batch_size=4, seq_chunk=chunk)
+        assert part["tokens"] == whole["tokens"]
+        assert abs(part["kl"] - whole["kl"]) < 1e-6
+        whole_n = weave.nll_on_cache(host, cache, batch_size=4, seq_chunk=None)
+        part_n = weave.nll_on_cache(host, cache, batch_size=4, seq_chunk=chunk)
+        assert part_n["tokens"] == whole_n["tokens"]
+        assert abs(part_n["nll"] - whole_n["nll"]) < 1e-6
+
+
+def test_nll_matches_log_softmax_reference():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    got = weave.nll_on_cache(host, cache, batch_size=4, seq_chunk=2)
+    offsets = np.concatenate([[0], np.cumsum(cache["lengths"])])
+    total = 0.0
+    count = 0
+    with torch.no_grad():
+        for i in range(len(cache["lengths"])):
+            ids = torch.from_numpy(cache["ids"][offsets[i]:offsets[i + 1]].astype(np.int64))[None]
+            logp = torch.log_softmax(host(input_ids=ids).logits.float()[:, :-1], dim=-1)
+            total += float(-logp.gather(-1, ids[:, 1:, None]).sum())
+            count += ids.shape[1] - 1
+    assert got["tokens"] == count
+    assert abs(got["nll"] - total / count) < 1e-5
+
+
+def test_nll_and_kl_build_no_autograd_graph():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    assert all(p.requires_grad for p in host.parameters())
+    seen = []
+    original = host.forward
+
+    def spy(*args, **kwargs):
+        out = original(*args, **kwargs)
+        seen.append(out.logits.requires_grad)
+        return out
+
+    host.forward = spy
+    weave.nll_on_cache(host, cache, batch_size=4)
+    weave.kl_to_cache(host, cache, batch_size=4)
+    assert len(seen) > 0
+    assert not any(seen)
+
+
+def test_teacher_cache_chunks_equal_unchunked():
+    host = tiny(0, torch.float32)
+    tokenizer = ProbeTokenizer()
+    a = weave.build_teacher_cache(host, tokenizer, PROBE_TEXTS, top_k=8, max_length=32, batch_size=4, seq_chunk=1000)
+    b = weave.build_teacher_cache(host, tokenizer, PROBE_TEXTS, top_k=8, max_length=32, batch_size=4, seq_chunk=3)
+    assert np.array_equal(a["top_ids"], b["top_ids"])
+    assert np.allclose(a["top_logp"].astype(np.float32), b["top_logp"].astype(np.float32), atol=1e-3)
+    assert np.allclose(a["tail"].astype(np.float32), b["tail"].astype(np.float32), atol=1e-3)
+
+
+def test_cache_stage_frees_every_member(tmp_path):
+    import gc
+    import weakref
+
+    tokenizer = ProbeTokenizer()
+    refs = []
+
+    def make(seed):
+        def load():
+            model = perturbed(tiny(0, torch.float32), seed, scale=0.05)
+            refs.append(weakref.ref(model))
+            return model
+        return load
+
+    for seed in (1, 2, 3):
+        key = "split:m%d" % seed
+        wanted = {key: PROBE_TEXTS}
+        paths = {key: str(tmp_path / ("m%d.npz" % seed))}
+        got = weave.fill_caches(make(seed), wanted, paths, tokenizer, top_k=8, max_length=32, batch_size=4)
+        assert got[key]["top_k"] == 8
+        gc.collect()
+        assert refs[-1]() is None
+    assert len(refs) == 3
+    assert all(r() is None for r in refs)
+    again = weave.fill_caches(lambda: pytest.fail("loaded a model for an existing cache"), wanted, paths, tokenizer)
+    assert len(again) == 1
+
+
+def test_cache_stage_frees_the_member_after_an_error(tmp_path):
+    import gc
+    import weakref
+
+    refs = []
+
+    def load():
+        model = tiny(0, torch.float32)
+        refs.append(weakref.ref(model))
+        return model
+
+    class Broken:
+        pad_token = "x"
+        padding_side = "right"
+
+        def __call__(self, *args, **kwargs):
+            raise RuntimeError("tokenizer failed")
+
+    with pytest.raises(RuntimeError):
+        weave.fill_caches(load, {"k": PROBE_TEXTS}, {"k": str(tmp_path / "k.npz")}, Broken(), top_k=8)
+    gc.collect()
+    assert refs[0]() is None
+
+
+def test_memory_report_runs_without_cuda():
+    out = weave.memory_report("test", log=lambda *_: None)
+    assert out["stage"] == "test"
+
+
+# ---------------------------------------------------------------- the round 21 FAMILIES table
+
+
+def round21():
+    import importlib
+    import pathlib
+    import sys
+
+    root = str(pathlib.Path(__file__).resolve().parents[1])
+    if root not in sys.path:
+        sys.path.insert(0, root)
+    return importlib.import_module("modal_round21")
+
+
+FAMILY_KEYS = {"host", "params_b", "targets", "guards", "transfer", "refs", "members", "memory_gib", "gpu"}
+MEMBER_KEYS = {"name", "id", "skill", "ref"}
+MEMBER_OPTIONAL = {"reasoning", "mlp_only", "unscored"}
+
+
+def test_every_family_has_the_required_keys():
+    module = round21()
+    for name, fam in module.FAMILIES.items():
+        assert FAMILY_KEYS <= set(fam), name
+        assert set(fam) - FAMILY_KEYS <= {"exploratory"}, name
+        assert isinstance(fam["host"], str) and "/" in fam["host"], name
+        assert fam["params_b"] > 0 and fam["memory_gib"] > 0 and fam["gpu"], name
+        assert len(fam["members"]) >= 2, name + ": a family needs two members"
+        names = [m["name"] for m in fam["members"]]
+        ids = [m["id"] for m in fam["members"]]
+        assert len(set(names)) == len(names), name
+        assert len(set(ids)) == len(ids) and fam["host"] not in ids, name
+        for member in fam["members"]:
+            assert MEMBER_KEYS <= set(member), (name, member)
+            assert set(member) - MEMBER_KEYS <= MEMBER_OPTIONAL, (name, member)
+            assert member["ref"] is None or member["ref"] in fam["refs"], (name, member)
+        for key, repo in fam["refs"].items():
+            assert any(m["ref"] == key for m in fam["members"]), name + ": unused reference " + key
+
+
+def test_every_member_skill_has_a_scorer_a_pool_or_is_marked():
+    module = round21()
+    scorers = set(module.FINAL_COUNTS)
+    for name, fam in module.FAMILIES.items():
+        for skill in fam["targets"] + fam["guards"] + fam["transfer"]:
+            assert skill in scorers, (name, skill)
+        scored = False
+        for member in fam["members"]:
+            skill = member["skill"]
+            known = skill in scorers or skill in module.POOL_BY_SKILL
+            marked = bool(fam.get("exploratory")) or bool(member.get("unscored")) or bool(member.get("reasoning"))
+            assert known or marked, (name, member["name"], skill)
+            if member.get("unscored") or fam.get("exploratory"):
+                assert skill not in scorers, (name, member["name"], "a scored skill is marked unscored")
+            if skill in fam["targets"]:
+                scored = True
+        assert scored or fam.get("exploratory"), name + ": no member has a target skill"
+
+
+def test_every_family_has_a_plan_that_fits_its_budget():
+    module = round21()
+    for name in module.FAMILIES:
+        plan = module.make_plan(name, 20.0 if name in module.BIG else 10.0)
+        assert plan["fits_budget"], name
+    for name in module.BIG:
+        assert name in module.FAMILIES
+
+
+def test_a_member_can_be_forced_to_mlp_only():
+    module = round21()
+    forced = [m for fam in module.FAMILIES.values() for m in fam["members"] if m.get("mlp_only")]
+    assert forced and all(m["skill"] == "medmcqa" for m in forced)
+    text = open(module.__file__).read()
+    start = text.index("def run_family")
+    body = text[start:text.index("\n@app.function", start)]
+    assert 'spec.get("mlp_only")' in body
+    assert '("mlp", "norm")' in body
+    member = weave.Member("m", "s", {"model.layers.0.self_attn.q_proj.weight": torch.zeros(2, 2)}, mlp_only=True)
+    assert not member.covers("model.layers.0.self_attn.q_proj.weight", "attn")

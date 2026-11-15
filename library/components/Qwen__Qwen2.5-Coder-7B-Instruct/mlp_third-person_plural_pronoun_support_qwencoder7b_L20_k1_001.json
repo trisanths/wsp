@@ -1,0 +1,112 @@
+{
+  "id": "mlp_third-person_plural_pronoun_support_qwencoder7b_L20_k1_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Coder-7B-Instruct layer 20, Third-person plural pronoun support",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwencoder7b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "pronoun_case"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Coder-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'pronoun_case' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5036,
+      "control_value": 0.0006,
+      "split": "person_a held-out skill items (pronoun_case)",
+      "seeds": null,
+      "source": "person_a/catalog/qwencoder7b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by -0.0071"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Coder-7B-Instruct",
+  "layer": 20,
+  "layers": [
+    20
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Coder-7B-Instruct/mlp_third-person_plural_pronoun_support_qwencoder7b_L20_k1_001.pt",
+  "units_remote": "person_a/parts/qwencoder7b/mlp_third-person_plural_pronoun_support_qwencoder7b_L20_k1_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'pronoun_case'",
+    "label": "Third-person plural pronoun support",
+    "num_units": 1,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": 0.0003,
+      "code|search": 0.0001,
+      "code|heldout": -0.0004,
+      "facts|search": 0.0023,
+      "facts|heldout": -0.0009,
+      "multilingual|search": 0.0005,
+      "multilingual|heldout": -0.0004,
+      "general_text|search": 0.0003,
+      "general_text|heldout": 0.0004,
+      "english_agreement|search": 0.0153,
+      "english_agreement__control|search": -0.2773,
+      "english_agreement|heldout": 0.0176,
+      "english_agreement__control|heldout": -0.2616,
+      "german_article|search": -0.0076,
+      "german_article__control|search": 0.0002,
+      "german_article|heldout": -0.0142,
+      "german_article__control|heldout": -0.0001,
+      "emotion_synonym|search": 0.0013,
+      "emotion_synonym__control|search": -0.0032,
+      "emotion_synonym|heldout": -0.0024,
+      "emotion_synonym__control|heldout": -0.0035,
+      "english_plural|search": -0.0004,
+      "english_plural__control|search": -0.0003,
+      "english_plural|heldout": 0.001,
+      "english_plural__control|heldout": -0.0004,
+      "polite_formula|search": 0.001,
+      "polite_formula__control|search": -0.0,
+      "polite_formula|heldout": -0.0031,
+      "polite_formula__control|heldout": -0.0,
+      "pronoun_case|search": 0.5166,
+      "pronoun_case__control|search": -0.0101,
+      "pronoun_case|heldout": 0.5036,
+      "pronoun_case__control|heldout": -0.0071,
+      "cyrillic_transliteration|search": -0.0022,
+      "cyrillic_transliteration__control|search": 0.0027,
+      "cyrillic_transliteration|heldout": -0.0001,
+      "cyrillic_transliteration__control|heldout": 0.0029
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1722,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0041,
+      0.0017,
+      0.0041,
+      0.0001,
+      0.0012
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "9585 down promotes them/They/\u4ed6\u4eec/\u5b83\u4eec/they/\u043e\u043d\u0438. This matches L24 7306 independently screened plural-pronoun feature; attribution .601 on pronoun case gives strong independent causal prediction. Single-unit screen tests narrow referent replacement against tag copy."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwencoder7b/pronoun_case.json",
+    "hash": "803f31b971f83c2a",
+    "description": "Choose subject, object, or possessive English pronoun for a specified person/group in a sentence; control copies an unrelated given tag.",
+    "name": "pronoun_case"
+  },
+  "catalog_id": "mlp_third-person_plural_pronoun_support_qwencoder7b_L20_k1_001",
+  "exported_copy": "library/qwencoder7b/mlp_third-person_plural_pronoun_support_qwencoder7b_L20_k1_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

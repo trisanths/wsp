@@ -1,0 +1,462 @@
+
+===== 2026-11-14 19:28:21 C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Scripts\python.exe -u C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py --model phi4_14b --budget-usd 25.0 --max-hours 3.0 --max-screens 60 --effort high --smoke
+model: microsoft/phi-4 | revision: 2db69c1c3e91a05d2c64a3185acfbaf36f744e25 | GPU: EngineL40S
+structure: {
+ "n_layers": 40,
+ "d_model": 5120,
+ "layers_with": {
+  "attn": 40,
+  "mlp": 40,
+  "experts": 0
+ },
+ "example": {
+  "attn": {
+   "path": "self_attn.o_proj",
+   "n_heads": 40,
+   "head_dim": 128,
+   "type": "Phi3Attention"
+  },
+  "mlp": {
+   "path": "mlp.down_proj",
+   "width": 17920
+  }
+ },
+ "hf_id": "microsoft/phi-4",
+ "revision": "2db69c1c3e91a05d2c64a3185acfbaf36f744e25",
+ "load_seconds": 121.7,
+ "model_class": "Phi3ForCausalLM",
+ "vocab": 100352
+}
+base scores (geometric-mean prob of answer tokens):
+   code|heldout 0.53761
+   code|search 0.56346
+   facts|heldout 0.34563
+   facts|search 0.39664
+   general_text|heldout 0.10493
+   general_text|search 0.10506
+   math|heldout 0.78174
+   math|search 0.74158
+   multilingual|heldout 0.31732
+   multilingual|search 0.28608
+margin vs shuffled answers (nats; < 0.25 => built-in skill skipped): {'math': 1.0539, 'code': 0.5571, 'facts': 7.7334, 'multilingual': 2.3615, 'general_text': 0.8319}
+skipped skills: []
+one ablation {"kind": "attn_heads", "layer": 20, "indices": [0, 1]} -> {"math|search": 0.0001, "math|heldout": -0.0008, "code|search": 0.0005, "code|heldout": -0.0005, "facts|search": -0.0006, "facts|heldout": -0.0032, "multilingual|search": -0.0006, "multilingual|heldout": -0.0008, "general_text|search": 0.0012, "general_text|heldout": -0.0015} in 30.1 s
+smoke OK in 216.4 s (wall clock, includes model load)
+
+===== 2026-11-14 19:37:57 C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Scripts\python.exe -u C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py --model phi4_14b --budget-usd 25.0 --max-hours 3.0 --max-screens 60 --effort medium --person Rex
+[phi4_14b] run run-20261114-193801 GPU EngineL40S revision 2db69c1c3e | shared memory on
+[phi4_14b][agent] I’ll first look for interpretable input and output directions in the weights, then test whether small candidate parts selectively support the behavior those directions suggest.
+
+[phi4_14b][tool] model_structure {"structure": {"attn": {"path": "self_attn.o_proj", "n_heads": 40, "head_dim": 128, "type": "Phi3Attention"}, "mlp": {"path": "mlp.down_proj", "width": 17920}}, "n_layers": 40, "layers_with": {"attn": 40, "mlp": 40, "experts": 0}, "base_sco
+[phi4_14b][tool] run_python {"output": "{'_name_or_path': 'microsoft/phi-4', 'architectures': ['Phi3ForCausalLM'], 'attention_bias': False, 'attention_dropout': 0.0, 'bos_token_id': 100257, 'embd_pdrop': 0.0, 'eos_token_id': 100265, 'hidden_act': 'silu', 'hidden_size'
+[phi4_14b][tool] run_python {"output": "0 {'months': ([10846, 3717], [0.067, 0.052]), 'weekdays': ([10846, 8315], [0.097, 0.05]), 'ordinals': ([15947, 1052], [0.057, 0.051]), 'parity': ([13173, 15215], [0.061, 0.06]), 'sign': ([387, 6860], [0.061, 0.054]), 'boolean': 
+[phi4_14b][tool] run_python {"output": "\n[stderr]\nTraceback (most recent call last):\n  File \"<string>\", line 6, in <module>\nNameError: name 'U' is not defined\n\n[exit code 1]"}
+[phi4_14b][tool] run_python {"output": "37 8880 OUT [(['\u0120second'], 1.783), (['\u00e7\u00ac\u00ac'], 1.703), (['second'], 1.611), (['\u0120third'], 1.56), (['\u0120\u00e7\u00ac\u00ac'], 1.428), (['third'], 1.41), (['Second'], 1.379), (['(second'], 1.372), (['\u012
+[phi4_14b][tool] run_python {"output": "layer 37 norm quantiles [0.2145247757434845, 1.3814594745635986, 1.400215983390808, 1.437806248664856, 2.5018575191497803]\n8880 norm 1.1171621084213257 negative tokens [(['iddy'], -0.155), (['enberg'], -0.154), (['enheim'], -0.
+[phi4_14b][tool] define_skill {"accepted": true, "name": "ordinal_word", "hash": "a1a7f566d93cbabe", "n_items": 100, "n_control": 100, "base_score_search": 0.3431, "margin_nats": 6.8063, "note": "frozen; the held-out half is hidden. It now joins every ablation's scoring
+[phi4_14b][tool] define_skill {"accepted": true, "name": "product_sign", "hash": "e7b8b4cb28641841", "n_items": 100, "n_control": 100, "base_score_search": 0.06604, "margin_nats": 1.975, "note": "frozen; the held-out half is hidden. It now joins every ablation's scoring
+[phi4_14b][tool] define_skill {"accepted": true, "name": "weekday_offset", "hash": "fdf205362ef0a930", "n_items": 112, "n_control": 112, "base_score_search": 0.02393, "margin_nats": 0.5379, "note": "frozen; the held-out half is hidden. It now joins every ablation's scor
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 37, "n": 153, "first": [290, 403, 471, 573, 1000, 1893, 2000, 2591]}, "drops": {"math": 0.0, "code": -0.0, "facts": 0.007, "multilingual": 0.001, "general_text": 0.0, "ordinal_word": -0.056, "ordina
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 34, "n": 1, "first": [15456]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.001, "multilingual": -0.0, "general_text": -0.0, "ordinal_word": -0.003, "ordinal_word__control": -0.002, "product_s
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 37, "n": 1, "first": [8880]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.001, "multilingual": 0.0, "general_text": 0.0, "ordinal_word": -0.0, "ordinal_word__control": -0.031, "product_sign": -0
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 37, "n": 1, "first": [14180]}, "drops": {"math": 0.001, "code": 0.0, "facts": -0.002, "multilingual": -0.0, "general_text": 0.0, "ordinal_word": -0.004, "ordinal_word__control": -0.003, "product_sig
+[phi4_14b][tool] attribution_scan {"scan_id": "scan1", "top_units_[layer,unit,score]": {"ordinal_word": [[24, 12340, 0.046], [37, 16863, 0.042], [34, 9616, 0.04], [37, 5378, 0.037], [37, 9110, 0.031], [37, 6104, 0.031], [24, 17571, 0.03], [39, 15663, 0.029]], "product_sign"
+[phi4_14b][agent] The late-layer weights contain striking ordinal, sign-word, and weekday output directions. But the first ablations show that alignment alone is not enough: removing the strongest sign and weekday units actually improves their test scores. I’ll use those as lexical clues, not call them arithmetic cir
+[phi4_14b][tool] run_python {"output": "24 12340 + [(['\u0120thousand'], 0.38), (['\u0120Thousand'], 0.36), (['\u0120thousands'], 0.35), (['\u0120hundred'], 0.33), (['\u0120Thousands'], 0.32), (['Suffix'], 0.32), (['-prefix'], 0.32), (['\u0120ordinal'], 0.31)] - [(['\
+[phi4_14b][tool] screen {"passed": false, "reasons": ["held-out check failed"], "drops": {"math": 0.0, "code": 0.0, "facts": 0.0, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": 0.003, "ordinal_word__control": 0.001, "product_sign": 0.003, "product_si
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 1, "first": [12340]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.003, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": 0.051, "ordinal_word__control": 0.057, "product_sign
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 37, "n": 1, "first": [6104]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.002, "multilingual": -0.0, "general_text": 0.0, "ordinal_word": 0.028, "ordinal_word__control": 0.003, "product_sign": 
+[phi4_14b][tool] run_python {"output": "0 {'weekdays': ([15012, 5505, 4181], [0.339, 0.172, 0.171]), 'ordinals': ([13144, 11822, 14358], [0.282, 0.205, 0.2]), 'sign': ([15669, 17455, 17675], [0.219, 0.188, 0.142]), 'months': ([15607, 10935, 2462], [0.233, 0.219, 0.203
+[phi4_14b][tool] run_python {"output": "0 15012 input [(['Friday'], 0.256), (['Thursday'], 0.251), (['Saturday'], 0.243), (['\u0120friday'], 0.24), (['Tuesday'], 0.237), (['\u0120Fridays'], 0.232), (['Wednesday'], 0.226), (['\u0120Friday'], 0.225), (['riday'], 0.224),
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 0, "n": 1, "first": [15012]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.003, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": 0.002, "ordinal_word__control": 0.004, "product_sign
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 0, "n": 1, "first": [15669]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.001, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": -0.009, "ordinal_word__control": 0.021, "product_sign
+[phi4_14b][tool] define_skill {"rejected": true, "reason": "model is near chance on this test (margin 0.362 nats < 0.5); make it easier or pick another hypothesis", "base_score_search": 0.01413}
+[phi4_14b][tool] define_skill {"accepted": true, "name": "fraction_role", "hash": "c2b3347c3b02459c", "n_items": 100, "n_control": 100, "base_score_search": 0.0851, "margin_nats": 2.3012, "note": "frozen; the held-out half is hidden. It now joins every ablation's scorin
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 0, "n": 2, "first": [2808, 14692]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.004, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": -0.001, "ordinal_word__control": 0.006, "product
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 24, "n": 1, "first": [9249]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.003, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": -0.006, "ordinal_word__control": 0.003, "product_sign
+[phi4_14b][tool] attribution_scan {"error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 478.00 MiB. GPU 0 has a total capacity of 44.44 GiB of which 74.38 MiB is free. Process 1 has 44.36 GiB memory in use. Of the allocated memory 43.16 GiB is allocated by PyTo
+[phi4_14b][tool] attribution_scan {"error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 478.00 MiB. GPU 0 has a total capacity of 44.44 GiB of which 134.38 MiB is free. Process 1 has 44.30 GiB memory in use. Of the allocated memory 42.57 GiB is allocated by PyT
+[phi4_14b][tool] run_python {"output": "30 weekday near seed [(12047, 1.0), (7817, 0.124), (10842, 0.107), (8254, 0.1), (17488, 0.081), (16288, 0.068), (2189, 0.058), (17255, 0.057), (398, 0.057), (15947, 0.053), (17874, 0.052), (6315, 0.052)]\n7817 + [(['eyJ'], 0.19)
+[phi4_14b][tool] screen {"passed": false, "reasons": ["held-out check failed"], "drops": {"math": 0.0, "code": 0.0, "facts": -0.001, "multilingual": -0.001, "general_text": -0.0, "ordinal_word": -0.005, "ordinal_word__control": -0.013, "product_sign": -0.001, "pro
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 37, "n": 4, "first": [5206, 6104, 10815, 13766]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.003, "multilingual": -0.0, "general_text": 0.0, "ordinal_word": 0.017, "ordinal_word__control": -
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 0, "n": 1, "first": [14692]}, "drops": {"math": -0.001, "code": 0.0, "facts": -0.002, "multilingual": -0.001, "general_text": -0.001, "ordinal_word": 0.004, "ordinal_word__control": 0.003, "product_
+[phi4_14b][tool] attribution_scan {"scan_id": "scan2", "top_units_[layer,unit,score]": {"fraction_role": [[24, 11308, 0.072], [37, 13428, 0.068], [34, 6469, 0.066], [37, 17135, 0.06], [37, 4512, 0.058], [39, 5836, 0.057], [30, 9892, 0.052], [37, 16947, 0.041]]}, "use": "par
+[phi4_14b][tool] run_python {"output": "['survey.pt', 'input_survey.pt', 'weekday30_2.json', 'weekday30_4.json', 'weekday30_8.json', 'weekday30_12.json', 'ordinal24_2.json', 'ordinal24_4.json', 'ordinal24_8.json', 'ordinal24_12.json', 'ordinal37_2.json', 'ordinal37_4.
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.1463 < 0.15", "held-out check failed"], "drops": {"math": -0.0, "code": 0.001, "facts": -0.004, "multilingual": -0.001, "general_text": 0.001, "ordinal_word": 0.003, "ordinal_word__control": 0.01
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 34, "n": 1, "first": [6469]}, "drops": {"math": 0.001, "code": 0.0, "facts": -0.003, "multilingual": -0.0, "general_text": -0.0, "ordinal_word": -0.003, "ordinal_word__control": -0.002, "product_sig
+[phi4_14b][tool] define_skill {"accepted": true, "name": "month_number", "hash": "7e3e288140c344e4", "n_items": 120, "n_control": 120, "base_score_search": 0.3776, "margin_nats": 6.55, "note": "frozen; the held-out half is hidden. It now joins every ablation's scoring."
+[phi4_14b][tool] screen {"error": "ModuleNotFoundError(\"No module named 'fcntl'\")"}
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 39, "n": 1, "first": [6561]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.001, "multilingual": 0.0, "general_text": 0.001, "ordinal_word": -0.0, "ordinal_word__control": -0.0, "product_sign": -
+Traceback (most recent call last):
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\synchronicity\synchronizer.py", line 547, in _run_function_sync
+    value = fut.result()
+            ^^^^^^^^^^^^
+  File "C:\Users\Rex\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 454, in result
+    raise CancelledError()
+concurrent.futures._base.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py", line 83, in <module>
+    for round_no in range(1, 6):
+    ^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py", line 78, in main
+    # Keep going until the budget, time or screen limit is really used: if the agent stops early,
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\agent.py", line 478, in run
+    finish_refused += 1
+                 ^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\agent.py", line 356, in tool
+    self.weight_proposals += 1
+          ^^^^^^^^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\client.py", line 104, in ablate
+    res = self.call("ablate", self.payload(), part)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\client.py", line 51, in call
+    result = getattr(self.engine, method).remote(*args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 359, in wait
+    gotit = waiter.acquire(True, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+===== 2026-11-14 19:57:42 C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Scripts\python.exe -u C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py --model phi4_14b --budget-usd 22.0 --max-hours 2.75 --max-screens 60 --effort medium --person Rex
+Traceback (most recent call last):
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py", line 100, in <module>
+    main()
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py", line 71, in main
+    import agent
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\agent.py", line 9, in <module>
+    from openai import OpenAI
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\__init__.py", line 9, in <module>
+    from . import types
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\__init__.py", line 68, in <module>
+    from .eval_create_params import EvalCreateParams as EvalCreateParams
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\eval_create_params.py", line 10, in <module>
+    from .graders.grader_inputs_param import GraderInputsParam
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\graders\__init__.py", line 5, in <module>
+    from .multi_grader import MultiGrader as MultiGrader
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\graders\multi_grader.py", line 8, in <module>
+    from .label_model_grader import LabelModelGrader
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\graders\label_model_grader.py", line 7, in <module>
+    from .grader_inputs import GraderInputs
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\graders\grader_inputs.py", line 7, in <module>
+    from ..responses.response_input_text import ResponseInputText
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\responses\__init__.py", line 7, in <module>
+    from .tool_param import ToolParam as ToolParam
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\responses\tool_param.py", line 27, in <module>
+    from ..chat.chat_completion_function_tool_param import ChatCompletionFunctionToolParam
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\chat\__init__.py", line 18, in <module>
+    from .completion_create_params import CompletionCreateParams as CompletionCreateParams
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\chat\completion_create_params.py", line 13, in <module>
+    from .chat_completion_message_param import ChatCompletionMessageParam
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\chat\chat_completion_message_param.py", line 9, in <module>
+    from .chat_completion_user_message_param import ChatCompletionUserMessageParam
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\openai\types\chat\chat_completion_user_message_param.py", line 13, in <module>
+    class ChatCompletionUserMessageParam(TypedDict, total=False):
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\typing_extensions.py", line 1233, in __new__
+    n: typing._type_check(tp, msg, module=tp_dict.__module__)
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\AppData\Local\Programs\Python\Python312\Lib\typing.py", line 193, in _type_check
+    arg = _type_convert(arg, module=module, allow_special_forms=allow_special_forms)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\AppData\Local\Programs\Python\Python312\Lib\typing.py", line 171, in _type_convert
+    return ForwardRef(arg, module=module, is_class=allow_special_forms)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\AppData\Local\Programs\Python\Python312\Lib\typing.py", line 904, in __init__
+    code = compile(arg_to_compile, '<string>', 'eval')
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+===== 2026-11-14 19:58:01 C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Scripts\python.exe -u C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py --model phi4_14b --budget-usd 25.0 --max-hours 3.0 --max-screens 60 --effort medium --person Rex
+[phi4_14b] round 1 | budget left $25.0 | hours left 3.0
+[phi4_14b] run run-20261114-195808 GPU EngineL40S revision 2db69c1c3e | shared memory on
+[phi4_14b][tool] model_structure {"structure": {"attn": {"path": "self_attn.o_proj", "n_heads": 40, "head_dim": 128, "type": "Phi3Attention"}, "mlp": {"path": "mlp.down_proj", "width": 17920}}, "n_layers": 40, "layers_with": {"attn": 40, "mlp": 40, "experts": 0}, "base_sco
+[phi4_14b][agent] I’ll start by reading late-layer MLP weights for recognizable token patterns, then test whether small candidate parts selectively support the behavior they suggest. I’ll avoid repeating the parts already screened.
+[phi4_14b][tool] run_python {"output": "['lm_head.weight', 'model.embed_tokens.weight', 'model.layers.0.input_layernorm.weight', 'model.layers.0.mlp.down_proj.weight', 'model.layers.0.mlp.gate_up_proj.weight', 'model.layers.0.post_attention_layernorm.weight', 'model.l
+[phi4_14b][tool] run_python {"output": "roman 10\nboolean 4\nordinal 10\nmonth 12\ndirection 4\ncomparative 4\nparity 2\nsign 2\n28 roman [(6977, 0.13), (10870, 0.085), (7851, 0.08)]\n28 boolean [(16768, 0.122), (15364, 0.12), (4876, 0.077)]\n28 ordinal [(17376, 0.491
+[phi4_14b][tool] run_python {"output": "\n[stderr]\nTraceback (most recent call last):\n  File \"<string>\", line 6, in <module>\nNameError: name 'U' is not defined\n\n[exit code 1]"}
+[phi4_14b][tool] run_python {"output": "28 17376 [(['\u0120fifth'], 1.3), (['\u0120sixth'], 1.3), (['\u0120seventh'], 1.26), (['\u0120fourth'], 1.24), (['\u0120ninth'], 1.22), (['\u0120eighth'], 1.2), (['\u0120tenth'], 1.16), (['\u0120third'], 1.11), (['third'], 1.04)
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 1, "first": [17376]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.001, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": 0.028, "ordinal_word__control": -0.349, "product_s
+[phi4_14b][tool] run_python {"output": "28 17376 gate [(['\u0120Boyd'], 0.17), (['\u0120Emerson'], 0.16), (['_plugins'], 0.16), (['\u0120Corinthians'], 0.16), (['adm'], 0.16), (['\u00e6\u0143\u00a3\u00e5\u013e\u00a8'], 0.16), (['\u0120thats'], 0.16)]\n28 17376 up [(['
+[phi4_14b][tool] define_skill {"rejected": true, "reason": "model is near chance on this test (margin -0.0065 nats < 0.5); make it easier or pick another hypothesis", "base_score_search": 0.00441}
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 39, "n": 1, "first": [6561]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.001, "multilingual": 0.0, "general_text": 0.001, "ordinal_word": -0.0, "ordinal_word__control": -0.0, "product_sign": -
+[phi4_14b][tool] define_skill {"accepted": true, "name": "comparative_adjective", "hash": "bf4581827f490787", "n_items": 96, "n_control": 96, "base_score_search": 0.92785, "margin_nats": 14.7246, "note": "frozen; the held-out half is hidden. It now joins every ablation'
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 36, "n": 1, "first": [5421]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.002, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": -0.002, "ordinal_word__control": 0.001, "product_sign
+[phi4_14b][tool] attribution_scan {"scan_id": "scan1", "top_units_[layer,unit,score]": {"ordinal_word": [[28, 3971, 0.095], [32, 16743, 0.058], [36, 14590, 0.049], [28, 17376, 0.043], [36, 13567, 0.04], [28, 7110, 0.04], [36, 2954, 0.035], [39, 15663, 0.029]], "product_sign
+[phi4_14b][tool] run_python {"output": "28 3971 [['\u0120eighty'], ['\u0120sixty'], ['\u0120ninety'], ['\u0120seventy'], ['\u0120thirty'], ['twenty'], ['\u0120eighteen'], ['\u0120twenty'], ['\u0120fifteen']] norm 1.329\n28 7110 [['\u0120taxp'], ['\u0120danmark'], ['\u
+[phi4_14b][tool] define_skill {"accepted": true, "name": "compass_opposite", "hash": "7e782ef31b47e7b3", "n_items": 80, "n_control": 80, "base_score_search": 0.70602, "margin_nats": 5.2547, "note": "frozen; the held-out half is hidden. It now joins every ablation's scor
+[phi4_14b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.001, "code": -0.0, "facts": -0.001, "multilingual": -0.0, "general_text": 0.0, "ordinal_word": 0.294, "ordinal_word__control": 0.028, "product_sign": -0.004, "product_sign__control": -0.00
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 32, "n": 1, "first": [7711]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.002, "multilingual": 0.0, "general_text": -0.0, "ordinal_word": -0.005, "ordinal_word__control": -0.004, "product_sign":
+[phi4_14b][agent] One small part has passed screening: layer 28 MLP units 3971 and 17376, whose output weights promote number words and ordinals. Removing them reduced the ordinal test score by 29.4%, versus 2.8% on its matched control; the held-out and random-part checks also passed.
+
+This looks like number-word out
+[phi4_14b][tool] run_python {"output": "12 compass [(9213, 0.094), (14019, 0.089)]\n12 comparative [(10226, 0.061), (1255, 0.058)]\n12 ordinal [(10527, 0.071), (6136, 0.062)]\n12 fraction [(15653, 0.064), (11548, 0.058)]\n12 roman [(10006, 0.111), (8296, 0.078)]\n12 b
+[phi4_14b][tool] run_python {"output": "20 16966 [['\u0120yes'], ['\u0120YES'], ['\u0120Yes'], ['yes'], ['Yes'], ['YES'], ['\u0120True'], ['\u0120true'], ['true'], ['True'], ['\u0120TRUE'], ['_yes']]\n24 2242 [['\u0120III'], ['\u0120II'], ['III'], ['\u0120VII'], ['-II
+[phi4_14b][tool] define_skill {"accepted": true, "name": "roman_numeral", "hash": "cf138456145f32b1", "n_items": 100, "n_control": 100, "base_score_search": 0.92334, "margin_nats": 9.1886, "note": "frozen; the held-out half is hidden. It now joins every ablation's scori
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.0072 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (-0.0003)"], "drops": {"math": -0.0, "code": -0.0, "facts": -0.001, "multilingual": -0.0, "general_text
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 34, "n": 1, "first": [11621]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.003, "multilingual": 0.0, "general_text": -0.001, "ordinal_word": -0.002, "ordinal_word__control": 0.0, "product_sign"
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 1, "first": [331]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.004, "multilingual": -0.001, "general_text": -0.0, "ordinal_word": -0.006, "ordinal_word__control": -0.004, "product_sig
+[phi4_14b][tool] attribution_scan {"scan_id": "scan2", "top_units_[layer,unit,score]": {"roman_numeral": [[30, 4229, 0.06], [28, 12753, 0.017], [24, 17040, 0.016], [34, 4093, 0.009], [38, 4896, 0.005], [34, 4169, 0.005], [20, 11026, 0.005], [28, 4682, 0.005]], "compass_oppo
+[phi4_14b][tool] run_python {"output": "20 154 promotes [['**\u010d\u010a'], ['\u0120**)'], ['\u0120**'], ['\u0120***/\u010a'], ['\u0120**\u010a'], ['\u0120[...]\u010a\u010a'], ['_________________\u010a\u010a'], [')**']] suppresses [['ffi'], ['\u0120sense'], ['349'], 
+[phi4_14b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": 0.013, "ordinal_word__control": 0.037, "product_sign": 0.006, "product_sign__control": -0.005,
+[phi4_14b][tool] screen {"passed": false, "reasons": ["matched control changed by 0.617 (limit +-0.064)"], "drops": {"math": 0.001, "code": 0.0, "facts": -0.003, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": 0.191, "ordinal_word__control": 0.617, "p
+[phi4_14b][tool] screen {"passed": false, "reasons": ["matched control changed by 0.34 (limit +-0.101)"], "drops": {"math": 0.0, "code": 0.0, "facts": -0.001, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": 0.304, "ordinal_word__control": 0.34, "produ
+Traceback (most recent call last):
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\synchronicity\synchronizer.py", line 547, in _run_function_sync
+    value = fut.result()
+            ^^^^^^^^^^^^
+  File "C:\Users\Rex\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 454, in result
+    raise CancelledError()
+concurrent.futures._base.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py", line 100, in <module>
+    if cost.get("stop_reason") not in ["finished", "no tool call"]:
+^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py", line 90, in main
+    hours_left = args.max_hours - (time.time() - start) / 3600.0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\agent.py", line 490, in run
+    result = {"ok": True}
+                 ^^^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\agent.py", line 357, in tool
+    return {"error": "weight_rationale is required"}
+          ^^^^^^^^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\client.py", line 123, in ablate
+    res = self.call("ablate", self.payload(), part)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\client.py", line 70, in call
+    result = getattr(self.engine, method).remote(*args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 359, in wait
+    gotit = waiter.acquire(True, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+===== 2026-11-14 20:11:35 C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Scripts\python.exe -u C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py --model phi4_14b --budget-usd 25.0 --max-hours 3.0 --max-screens 60 --effort medium --llm openai --person Rex
+[phi4_14b] round 1 | budget left $25.0 | hours left 3.0
+[phi4_14b] run run-20261114-201139 GPU EngineL40S revision 2db69c1c3e | shared memory on
+[phi4_14b][tool] model_structure {"structure": {"attn": {"path": "self_attn.o_proj", "n_heads": 40, "head_dim": 128, "type": "Phi3Attention"}, "mlp": {"path": "mlp.down_proj", "width": 17920}}, "n_layers": 40, "layers_with": {"attn": 40, "mlp": 40, "experts": 0}, "base_sco
+[phi4_14b][tool] run_python {"output": "['lm_head.weight', 'model.embed_tokens.weight', 'model.layers.0.input_layernorm.weight', 'model.layers.0.mlp.down_proj.weight', 'model.layers.0.mlp.gate_up_proj.weight', 'model.layers.0.post_attention_layernorm.weight', 'model.l
+[phi4_14b][agent] I’ll start by looking for MLP units whose output weights align with recognizable word groups, then test whether ablating them selectively affects the corresponding behavior. I’ll avoid repeating the parts screened in earlier sessions.
+[phi4_14b][tool] run_python {"output": "{'month_number': [['\u0120February'], ['\u0120May'], ['\u0120December'], ['\u0120October'], ['\u0120January'], ['\u0120September'], ['\u0120August'], ['\u0120April'], ['\u0120March'], ['\u0120June'], ['\u0120November'], ['\u0120
+[phi4_14b][tool] run_python {"output": "\n[stderr]\nTraceback (most recent call last):\n  File \"<string>\", line 4, in <module>\nNameError: name 'scan' is not defined\n\n[exit code 1]"}
+[phi4_14b][tool] run_python {"output": "28 month_number [(1820, 0.5266), (8056, 0.3857), (5658, 0.246)]\n28 compass_opposite [(1917, 0.1037), (16152, 0.1019), (9854, 0.1012)]\n28 comparative_adjective [(6271, 0.4018), (1258, 0.3332), (12540, 0.3052)]\n28 product_sign 
+[phi4_14b][tool] run_python {"output": "28 1820 [(['\u0120October'], 1.17), (['\u0120November'], 1.15), (['\u0120September'], 1.15), (['\u0120August'], 1.15), (['\u0120January'], 1.14), (['\u0120July'], 1.14), (['\u0120June'], 1.13), (['\u0120April'], 1.12), (['\u0120
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 1, "first": [331]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.004, "multilingual": -0.001, "general_text": -0.0, "ordinal_word": -0.006, "ordinal_word__control": -0.004, "product_sig
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 1, "first": [1820]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.002, "multilingual": -0.002, "general_text": -0.0, "ordinal_word": -0.003, "ordinal_word__control": -0.001, "product_
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 2, "first": [9048, 12134]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.003, "multilingual": -0.001, "general_text": -0.0, "ordinal_word": -0.008, "ordinal_word__control": -0.001, "prod
+[phi4_14b][tool] recall_shared {"results": "- Hanav: integer_parity task description: Few-shot integer parity classification on one- and two-digit integers, with matched number-copy controls.\n- [Rex | gemma4_31b | attempt] Model gemma4_31b: {\"kind\": \"mlp_cluster\", \
+[phi4_14b][tool] run_python {"output": "34 month_number [(14502, 0.1438), (15456, 0.0954), (12268, 0.0765)]\n34 compass_opposite [(4633, 0.1609), (4740, 0.1433), (14941, 0.0917)]\n34 comparative_adjective [(11621, 0.4336), (6945, 0.1112), (5194, 0.1105)]\n34 product_s
+[phi4_14b][tool] attribution_scan {"scan_id": "scan1", "top_units_[layer,unit,score]": {"month_number": [[30, 16857, 0.12], [28, 8056, 0.032], [24, 15745, 0.022], [24, 539, 0.021], [34, 9981, 0.02], [24, 3903, 0.019], [30, 11589, 0.018], [28, 4112, 0.017]], "comparative_adj
+[phi4_14b][tool] define_skill {"error": "agent-defined skill cap reached"}
+[phi4_14b][tool] run_python {"output": "30 16857 [(['\u0120Monday'], 0.3), (['Monday'], 0.29), (['\u0120monday'], 0.28), (['Friday'], 0.28), (['\u0120Friday'], 0.28), (['\u0120weekday'], 0.27), (['\u0120Mondays'], 0.27), (['\u0120Thursday'], 0.27), (['Week'], 0.27), (
+[phi4_14b][tool] run_python {"output": "negative 24 200 [(['\u0120Medium'], -0.48), (['\u0120medium'], -0.48), (['Medium'], -0.43), (['\u0120Moderate'], -0.41), (['medium'], -0.41), ([\"\u0120'\"], -0.4), (['\u0120False'], -0.38), (['\u0120\u00e2\u0122\u013a'], -0.38)
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 1, "first": [16857]}, "drops": {"math": 0.001, "code": 0.0, "facts": -0.004, "multilingual": -0.001, "general_text": -0.0, "ordinal_word": -0.006, "ordinal_word__control": 0.012, "product_s
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 2, "first": [1820, 8056]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.003, "multilingual": -0.001, "general_text": -0.0, "ordinal_word": -0.007, "ordinal_word__control": 0.003, "pro
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 36, "n": 1, "first": [5421]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.002, "multilingual": -0.001, "general_text": 0.0, "ordinal_word": -0.002, "ordinal_word__control": 0.001, "product_sign
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 34, "n": 1, "first": [1279]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.003, "multilingual": -0.0, "general_text": -0.0, "ordinal_word": -0.004, "ordinal_word__control": -0.005, "product_si
+[phi4_14b][agent] The first ablations show why vocabulary alignment alone is insufficient: units that strongly promote month names, compass directions, or comparative adjectives mostly had little effect on the relevant tests. One calendar-discriminating unit caused a 12.6% relative drop on month-number performance, b
+[phi4_14b][tool] attribution_scan {"error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 478.00 MiB. GPU 0 has a total capacity of 44.44 GiB of which 154.38 MiB is free. Process 1 has 44.28 GiB memory in use. Of the allocated memory 42.87 GiB is allocated by PyT
+[phi4_14b][tool] run_python {"output": "26 month_number [(6354, 0.3649), (4476, 0.3616), (8067, 0.2204)]\n26 compass_opposite [(1188, 0.1886), (14939, 0.1771), (16478, 0.1571)]\n26 comparative_adjective [(6553, 0.3347), (5607, 0.2515), (7649, 0.2242)]\n26 product_sign
+[phi4_14b][tool] ablate {"error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 680.00 MiB. GPU 0 has a total capacity of 44.44 GiB of which 192.38 MiB is free. Process 1 has 44.25 GiB memory in use. Of the allocated memory 42.40 GiB is allocated by PyT
+[phi4_14b][tool] ablate {"error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 680.00 MiB. GPU 0 has a total capacity of 44.44 GiB of which 94.38 MiB is free. Process 1 has 44.34 GiB memory in use. Of the allocated memory 42.40 GiB is allocated by PyTo
+[phi4_14b][tool] ablate {"error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 680.00 MiB. GPU 0 has a total capacity of 44.44 GiB of which 94.38 MiB is free. Process 1 has 44.34 GiB memory in use. Of the allocated memory 42.40 GiB is allocated by PyTo
+[phi4_14b][tool] attribution_scan {"error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 134.00 MiB. GPU 0 has a total capacity of 44.44 GiB of which 92.38 MiB is free. Process 1 has 44.34 GiB memory in use. Of the allocated memory 43.31 GiB is allocated by PyTo
+[phi4_14b][tool] screen {"error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 680.00 MiB. GPU 0 has a total capacity of 44.44 GiB of which 94.38 MiB is free. Process 1 has 44.34 GiB memory in use. Of the allocated memory 42.40 GiB is allocated by PyTo
+[phi4_14b][tool] run_python {"output": "38 16969 [(['\u0120date'], 1.17), (['\u0120dates'], 1.1), (['\u0120Date'], 1.07), (['\u00e6\u0139\u00a5\u00e6\u013e\u0141'], 1.01), (['date'], 1.0), (['-date'], 0.98), (['Date'], 0.97), (['\u0120Dates'], 0.96), (['\u0120DATE'], 
+[phi4_14b][tool] run_python {"output": "Refined L38 unit16969 label: date/calendar lexical support, not a pure month-name feature.\n"}
+[phi4_14b][tool] finish {"error": "Not yet: $22.25 of the OpenAI budget and 59 screens are left. Keep mining: try layers, part kinds and skills you have not covered yet (check recall_shared for what teammates already found, and avoid repeating it), define new skil
+[phi4_14b][tool] activation_scan {"error": "OutOfMemoryError('CUDA out of memory. Tried to allocate 710.00 MiB. GPU 0 has a total capacity of 44.44 GiB of which 290.38 MiB is free. Process 1 has 44.15 GiB memory in use. Of the allocated memory 42.15 GiB is allocated by PyT
+[phi4_14b][tool] recall_shared {"results": "- [Rex | phi4_14b | attempt] Model phi4_14b: {\"kind\": \"mlp_cluster\", \"layer\": 30, \"n\": 1, \"first\": [16857]} labelled 'None' (target skill None), evidence weights+ablation. Weight rationale: Column16857 contrasts weekd
+Traceback (most recent call last):
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Lib\site-packages\synchronicity\synchronizer.py", line 547, in _run_function_sync
+    value = fut.result()
+            ^^^^^^^^^^^^
+  File "C:\Users\Rex\AppData\Local\Programs\Python\Python312\Lib\concurrent\futures\_base.py", line 454, in result
+    raise CancelledError()
+concurrent.futures._base.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py", line 105, in <module>
+    main()
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py", line 95, in main
+    cost = agent.run(args.model, budget_usd=budget_left, max_hours=hours_left,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\agent.py", line 493, in run
+    result = session.tool(item.name, args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\agent.py", line 300, in tool
+    return {"output": self.sandbox().run(args.get("code", ""))}
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\weight_sandbox.py", line 61, in run
+    p.wait()
+  File "C:\Users\Rex\AppData\Local\Programs\Python\Python312\Lib\threading.py", line 359, in wait
+    gotit = waiter.acquire(True, timeout)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyboardInterrupt
+
+===== 2026-11-14 20:19:52 C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\.venv\Scripts\python.exe -u C:\Users\Rex\Desktop\Work\Projects\ai research\person_a\mine\run.py --model phi4_14b --budget-usd 25.0 --max-hours 3.0 --max-screens 60 --effort medium --llm openai --person Rex
+[phi4_14b] round 1 | budget left $25.0 | hours left 3.0
+[phi4_14b] run run-20261114-201956 GPU EngineH100 revision 2db69c1c3e | shared memory on
+[phi4_14b][tool] model_structure {"structure": {"attn": {"path": "self_attn.o_proj", "n_heads": 40, "head_dim": 128, "type": "Phi3Attention"}, "mlp": {"path": "mlp.down_proj", "width": 17920}}, "n_layers": 40, "layers_with": {"attn": 40, "mlp": 40, "experts": 0}, "base_sco
+[phi4_14b][agent] I’ll look for interpretable directions in the weights, then test whether small groups of units selectively support the functions they suggest. I’ll avoid repeating the parts already screened in earlier sessions.
+[phi4_14b][tool] run_python {"output": "['lm_head.weight', 'model.embed_tokens.weight', 'model.layers.0.input_layernorm.weight', 'model.layers.0.mlp.down_proj.weight', 'model.layers.0.mlp.gate_up_proj.weight', 'model.layers.0.post_attention_layernorm.weight', 'model.l
+[phi4_14b][tool] run_python {"output": "compass [(' north', [10411]), (' south', [10007]), (' east', [11226]), (' west', [9909])]\ncomparison [(' bigger', [11493]), (' smaller', [9333]), (' taller', [51009]), (' shorter', [24210]), (' faster', [10819]), (' slower', [2
+[phi4_14b][tool] run_python {"output": "\n[stderr]\nTraceback (most recent call last):\n  File \"<string>\", line 6, in <module>\nNameError: name 'U' is not defined\n\n[exit code 1]"}
+[phi4_14b][tool] run_python {"output": "24 7294 [(['\u0120even'], 1.19), (['even'], 1.14), (['Even'], 1.08), (['\u0120Even'], 1.07), (['\u0120EVEN'], 1.0), (['_even'], 0.95), (['-even'], 0.83), (['\u0120incluso'], 0.74), (['\u00e2\u0122\u0136even'], 0.72), (['\u0120an
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 3, "first": [331, 9048, 12134]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.002, "multilingual": 0.0, "general_text": -0.001, "ordinal_word": 0.005, "ordinal_word__control": -0.006,
+[phi4_14b][tool] recall_shared {"results": "- [Rex | gemma4_31b | skill] Model gemma4_31b: accepted agent skill 'integer_parity' - Classify integer parity as even or odd; matched control classifies sign in the same format.. Base score 0.00085, margin 3.3801 nats over shu
+[phi4_14b][tool] run_python {"output": "28 17065 gate [([',and'], 0.066), (['\u0120or'], 0.066), (['AtIndex'], 0.061), (['\u0120atau'], 0.06), (['\u00e2\u0122\u00a6and'], 0.053), (['\u0120and'], 0.053), (['.DropTable'], 0.053), (['_LOOP'], 0.052), (['\u0120nord'], 0.0
+[phi4_14b][tool] attribution_scan {"scan_id": "scan1", "top_units_[layer,unit,score]": {"comparative_adjective": [[36, 5421, 0.008], [24, 3400, 0.005], [30, 10105, 0.004], [30, 10678, 0.003], [28, 2764, 0.003], [28, 16292, 0.003], [38, 3009, 0.002], [30, 17086, 0.002]], "co
+[phi4_14b][tool] define_skill {"error": "agent-defined skill cap reached"}
+[phi4_14b][tool] run_python {"output": "36 5421 [(['er'], 0.81), (['\u0120longer'], 0.79), (['\u0120shorter'], 0.77), (['\u00e6\u013d\u00b4'], 0.75), (['\u0120stronger'], 0.75), (['\u0120bigger'], 0.75), (['\u0120quicker'], 0.74), (['\u0120faster'], 0.74), (['\u0120he
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 36, "n": 1, "first": [5421]}, "drops": {"math": 0.0, "code": -0.0, "facts": 0.001, "multilingual": 0.001, "general_text": -0.001, "ordinal_word": -0.001, "ordinal_word__control": 0.005, "product_sig
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 28, "n": 2, "first": [1820, 8056]}, "drops": {"math": -0.0, "code": -0.0, "facts": -0.001, "multilingual": 0.0, "general_text": -0.0, "ordinal_word": 0.008, "ordinal_word__control": -0.001, "product
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 32, "n": 1, "first": [15365]}, "drops": {"math": 0.001, "code": -0.0, "facts": 0.0, "multilingual": -0.0, "general_text": -0.001, "ordinal_word": 0.007, "ordinal_word__control": 0.003, "product_sign
+[phi4_14b][agent] The late-layer weights contain clear month-name, compass-direction, and comparative-adjective output directions. Their ablations have had small effects so far, though, so token alignment alone is not enough to establish a specialized part. The harness also reports that the custom-skill limit is reac
+[phi4_14b][tool] run_python {"output": "0 compass gate [(919, 0.288), (14065, 0.166)] out [(12513, 0.059), (11422, 0.054)]\n0 comparison gate [(10212, 0.172), (9905, 0.155)] out [(13245, 0.058), (2864, 0.053)]\n0 month gate [(15607, 0.178), (14063, 0.177)] out [(10846
+[phi4_14b][tool] run_python {"output": "0 919 [(['\u0120west'], 0.293), (['\u0120WEST'], 0.274), (['West'], 0.271), (['\u0120West'], 0.269), (['WEST'], 0.267), (['-west'], 0.264), (['-West'], 0.243), (['.WEST'], 0.238), (['\u0120southwest'], 0.232), (['west'], 0.232),
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 0, "n": 3, "first": [919, 15012, 15607]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.001, "multilingual": 0.0, "general_text": -0.0, "ordinal_word": 0.004, "ordinal_word__control": 0.003, "prod
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 1, "first": [16775]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.001, "multilingual": 0.0, "general_text": -0.0, "ordinal_word": -0.002, "ordinal_word__control": -0.001, "product_si
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 1, "n": 1, "first": [14040]}, "drops": {"math": 0.0, "code": 0.0, "facts": 0.001, "multilingual": 0.001, "general_text": -0.001, "ordinal_word": -0.009, "ordinal_word__control": 0.009, "product_sign
+[phi4_14b][tool] run_python {"output": "8 sign [(29, 0.0052), (39, 0.0046)]\n8 compass [(15, 0.0086), (14, 0.0056)]\n8 weekday [(15, 0.0151), (16, 0.0114)]\n8 month [(15, 0.013), (16, 0.011)]\n8 comparison [(0, 0.0062), (24, 0.0037)]\n12 sign [(1, 0.0115), (3, 0.0081)
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 28, "n": 1, "first": [25]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.003, "multilingual": -0.0, "general_text": -0.0, "ordinal_word": 0.005, "ordinal_word__control": -0.0, "product_sign": 0
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 1, "first": [30]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.004, "multilingual": -0.0, "general_text": -0.001, "ordinal_word": 0.001, "ordinal_word__control": 0.011, "product_sign"
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 34, "n": 1, "first": [17]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.0, "multilingual": 0.0, "general_text": -0.0, "ordinal_word": -0.004, "ordinal_word__control": 0.004, "product_sign": 0.
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 32, "n": 1, "first": [31]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.001, "multilingual": 0.001, "general_text": 0.0, "ordinal_word": -0.004, "ordinal_word__control": 0.016, "product_sign": 0.
+[phi4_14b][tool] attribution_scan {"scan_id": "scan2", "top_units_[layer,unit,score]": {"product_sign": [[38, 0, 0.102], [18, 26, 0.089], [26, 23, 0.084], [26, 22, 0.083], [12, 21, 0.07], [32, 31, 0.07], [20, 18, 0.068], [18, 7, 0.066]], "weekday_offset": [[16, 22, 0.613], 
+[phi4_14b][tool] run_python {"output": "8 9 contrast [' north', ' south'] pos [(['\u0120Units'], 0.059), (['\u0120Terms'], 0.059), (['Tor'], 0.057), (['\u0120LET'], 0.056), (['\u0120ARG'], 0.056), (['THE'], 0.055), (['\u0120oltre'], 0.055)] neg [(['\u0120Conversely'],
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 16, "n": 1, "first": [22]}, "drops": {"math": 0.004, "code": 0.006, "facts": 0.008, "multilingual": 0.001, "general_text": 0.003, "ordinal_word": 0.036, "ordinal_word__control": 0.039, "product_sign"
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 8, "n": 1, "first": [9]}, "drops": {"math": 0.001, "code": 0.001, "facts": -0.001, "multilingual": 0.002, "general_text": -0.001, "ordinal_word": 0.016, "ordinal_word__control": -0.004, "product_sign
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 20, "n": 1, "first": [18]}, "drops": {"math": 0.002, "code": -0.0, "facts": -0.001, "multilingual": 0.0, "general_text": -0.0, "ordinal_word": 0.016, "ordinal_word__control": 0.03, "product_sign": 0.
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 12, "n": 1, "first": [25]}, "drops": {"math": 0.001, "code": -0.001, "facts": 0.009, "multilingual": 0.007, "general_text": -0.002, "ordinal_word": -0.007, "ordinal_word__control": -0.085, "product_s
+[phi4_14b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.001, "code": 0.001, "facts": -0.001, "multilingual": 0.002, "general_text": -0.001, "ordinal_word": 0.016, "ordinal_word__control": -0.004, "product_sign": 0.03, "product_sign__control": 0
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 22, "n": 1, "first": [24]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.006, "multilingual": -0.001, "general_text": -0.001, "ordinal_word": 0.035, "ordinal_word__control": -0.012, "product_sign
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 2, "first": [22, 23]}, "drops": {"math": 0.001, "code": 0.015, "facts": -0.009, "multilingual": 0.014, "general_text": 0.003, "ordinal_word": 0.077, "ordinal_word__control": 0.105, "product_
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 20, "n": 1, "first": [27]}, "drops": {"math": -0.001, "code": 0.0, "facts": -0.003, "multilingual": 0.0, "general_text": -0.002, "ordinal_word": -0.017, "ordinal_word__control": -0.043, "product_sign
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 38, "n": 1, "first": [0]}, "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": 0.0, "general_text": -0.001, "ordinal_word": 0.011, "ordinal_word__control": 0.045, "product_sign": 0.
+[phi4_14b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.0, "facts": -0.006, "multilingual": -0.001, "general_text": -0.001, "ordinal_word": 0.035, "ordinal_word__control": -0.012, "product_sign": 0.097, "product_sign__control": 0.
+[phi4_14b][agent] Two attention heads have passed the screening gate:
+
+- **Layer 8, head 9:** cardinal-direction opposition support — a 24.2% relative drop on the target test, versus a 2.7% improvement on its matched control.
+- **Layer 22, head 24:** weekday-offset support — a 47.2% target drop, versus a 6.3% control
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 3, "first": [22, 23, 26]}, "drops": {"math": -0.002, "code": 0.016, "facts": -0.009, "multilingual": 0.015, "general_text": 0.004, "ordinal_word": 0.079, "ordinal_word__control": 0.106, "pro
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 20, "n": 2, "first": [27, 28]}, "drops": {"math": 0.0, "code": 0.001, "facts": -0.015, "multilingual": -0.001, "general_text": -0.002, "ordinal_word": 0.001, "ordinal_word__control": 0.002, "product_
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 1, "first": [23]}, "drops": {"math": -0.0, "code": 0.004, "facts": -0.013, "multilingual": 0.006, "general_text": -0.002, "ordinal_word": 0.027, "ordinal_word__control": 0.043, "product_sign
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 1, "first": [22]}, "drops": {"math": 0.001, "code": 0.007, "facts": -0.003, "multilingual": 0.001, "general_text": 0.001, "ordinal_word": 0.06, "ordinal_word__control": 0.077, "product_sign"
+[phi4_14b][tool] attribution_scan {"scan_id": "scan3", "top_units_[layer,unit,score]": {"product_sign": [[36, 13567, 0.114], [24, 200, 0.113], [18, 10548, 0.11], [26, 17232, 0.109], [38, 11948, 0.091], [12, 15085, 0.083], [38, 17404, 0.068], [28, 7110, 0.067]], "weekday_off
+[phi4_14b][tool] run_python {"output": "36 13567 out [(['\u0120\u00e2\u0122\u012d\u00e2\u0122\u012d'], 0.19), (['\u0120Irma'], 0.18), (['\u0120Bord'], 0.17), (['\u0120Engel'], 0.17), (['\u0120Modelo'], 0.16), (['\u0120Liga'], 0.16), (['\u0120Elsa'], 0.16), (['\u0120Ch
+[phi4_14b][tool] run_python {"output": "20  positive [(1673, 0.187), (16441, 0.144), (10710, 0.141)]\n20  negative [(10710, 0.18), (1673, 0.173), (12795, 0.168)]\n20  Monday [(2023, 0.097), (17697, 0.082), (6857, 0.072)]\n20  Thursday [(17697, 0.097), (6857, 0.084), (
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 36, "n": 1, "first": [7379]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.001, "multilingual": 0.001, "general_text": -0.0, "ordinal_word": -0.002, "ordinal_word__control": 0.0, "product_sign":
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 36, "n": 1, "first": [10550]}, "drops": {"math": 0.0, "code": -0.001, "facts": 0.0, "multilingual": 0.001, "general_text": 0.0, "ordinal_word": 0.0, "ordinal_word__control": -0.004, "product_sign": 
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 34, "n": 1, "first": [15456]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.003, "multilingual": -0.0, "general_text": -0.0, "ordinal_word": 0.005, "ordinal_word__control": -0.008, "product_sign
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 18, "n": 1, "first": [10548]}, "drops": {"math": 0.001, "code": -0.0, "facts": -0.001, "multilingual": -0.0, "general_text": -0.0, "ordinal_word": 0.02, "ordinal_word__control": 0.065, "product_sign
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 4, "first": [22, 23, 26, 31]}, "drops": {"math": -0.001, "code": 0.015, "facts": -0.008, "multilingual": 0.015, "general_text": 0.005, "ordinal_word": 0.086, "ordinal_word__control": 0.106, 
+[phi4_14b][tool] finish {"error": "Not yet: $17.79 of the OpenAI budget and 58 screens are left. Keep mining: try layers, part kinds and skills you have not covered yet (check recall_shared for what teammates already found, and avoid repeating it), define new skil
+[phi4_14b][tool] recall_shared {"results": "- [Rex | phi4_14b | attempt] Model phi4_14b: {\"kind\": \"attn_heads\", \"layer\": 20, \"n\": 2, \"first\": [27, 28]} labelled 'None' (target skill None), evidence weights+ablation. Weight rationale: H27 maps month contrast aga
+[phi4_14b][tool] run_python {"output": "21 fraction + [(17506, 0.084), (11845, 0.078)] - 7263 -0.064\n21 ordinal + [(16357, 0.121), (3638, 0.1)] - 17697 -0.107\n21 roman + [(10833, 0.145), (10586, 0.076)] - 872 -0.085\n21 sign + [(2601, 0.206), (11084, 0.125)] - 3171 
+[phi4_14b][tool] run_python {"output": "25 10304 + [(['\u0120ratio'], 0.68), (['\u0120denominator'], 0.64), (['\u0120Ratio'], 0.64), (['Ratio'], 0.64), (['\u0120ratios'], 0.63), (['ratio'], 0.62), (['\u0120divided'], 0.62)] - [(['\u0120Angel'], -0.16), (['\u0120Spl'],
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.2974 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (-0.0011)"], "drops": {"math": -0.0, "code": -0.0, "facts": -0.001, "multilingual": 0.0, "general_text"
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.0469 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (-0.0005)"], "drops": {"math": 0.0, "code": 0.0, "facts": -0.0, "multilingual": 0.0, "general_text": -0
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.1726 < 0.15", "held-out check failed", "matched control changed by -0.0896 (limit +-0.05)", "a random same-size part dropped the target as much (-0.0023)"], "drops": {"math": 0.0, "code": -0.0, 
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0004 < 0.15", "held-out check failed"], "drops": {"math": 0.001, "code": 0.0, "facts": -0.002, "multilingual": -0.0, "general_text": -0.001, "ordinal_word": -0.0, "ordinal_word__control": 0.0, "p
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0006 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0118)"], "drops": {"math": 0.001, "code": 0.0, "facts": -0.001, "multilingual": 0.001, "general_text"
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0451 < 0.15", "held-out check failed", "matched control changed by -0.1851 (limit +-0.05)"], "drops": {"math": 0.001, "code": -0.0, "facts": -0.001, "multilingual": 0.001, "general_text": -0.001,
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.0724 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0025)"], "drops": {"math": 0.0, "code": -0.0, "facts": -0.002, "multilingual": 0.0, "general_text": 
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.0137 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (-0.0)"], "drops": {"math": 0.0, "code": -0.0, "facts": -0.001, "multilingual": -0.0, "general_text": 0
+[phi4_14b][tool] run_python {"output": "3 sign 21 0.0049 min 32 -0.0058\n3 compass 21 0.0034 min 28 -0.0029\n3 weekday 21 0.0024 min 1 -0.0024\n3 month 23 0.0026 min 1 -0.002\n3 fraction 39 0.0045 min 1 -0.0084\n3 roman 20 0.0048 min 0 -0.0024\n3 ordinal 23 0.0032 min
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0308 < 0.15", "held-out check failed", "matched control changed by -0.0525 (limit +-0.05)"], "drops": {"math": 0.001, "code": 0.0, "facts": 0.0, "multilingual": 0.001, "general_text": 0.0, "ordin
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0009 < 0.15", "held-out check failed", "matched control changed by 0.0518 (limit +-0.05)"], "drops": {"math": 0.001, "code": -0.002, "facts": -0.002, "multilingual": 0.0, "general_text": 0.001, "
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.0017 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0079)"], "drops": {"math": 0.0, "code": 0.001, "facts": -0.004, "multilingual": 0.001, "general_text
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.001 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0063)"], "drops": {"math": 0.002, "code": 0.0, "facts": 0.001, "multilingual": 0.002, "general_text": 
+[phi4_14b][tool] attribution_scan {"scan_id": "scan4", "top_units_[layer,unit,score]": {"product_sign": [[11, 24, 0.09], [5, 4, 0.086], [23, 38, 0.067], [23, 36, 0.064], [17, 11, 0.064], [35, 21, 0.064], [21, 31, 0.064], [13, 31, 0.062]], "month_number": [[9, 13, 0.146], [9
+[phi4_14b][tool] run_python {"output": "15 24 Otop [(['\u0120[\u00e2\u0122\u00a6]'], 0.129), (['\u0120[...]'], 0.129), ([',\u00e2\u0122\u013f'], 0.121), (['.\u00e2\u0122\u013f'], 0.116), ([',\u00e2\u0122\u013b\u00e2\u0122\u013b'], 0.112)] Obot [(['?\u010a\u010a\u010a\
+[phi4_14b] context restart 1 at 60782 tokens
+[phi4_14b][tool] model_structure {"structure": {"attn": {"path": "self_attn.o_proj", "n_heads": 40, "head_dim": 128, "type": "Phi3Attention"}, "mlp": {"path": "mlp.down_proj", "width": 17920}}, "n_layers": 40, "layers_with": {"attn": 40, "mlp": 40, "experts": 0}, "base_sco
+[phi4_14b][agent] I’ll avoid the candidates already tested and look for new lexical features in the weights. Any promising label will need a matched-control test and causal screening; token alignment alone is not enough.
+
+[phi4_14b][tool] run_python {"output": "['directions.pt', 'early.pt', 'ov.pt', 'sign_week.pt', 'odd_layers.pt', 'odd_ov.pt']\n['lm_head.weight', 'model.embed_tokens.weight', 'model.layers.0.input_layernorm.weight', 'model.layers.0.mlp.down_proj.weight', 'model.layers.
+[phi4_14b][tool] run_python {"output": "\n[stderr]\nTraceback (most recent call last):\n  File \"<string>\", line 7, in <module>\nNameError: name 'Un' is not defined\n\n[exit code 1]"}
+[phi4_14b][tool] run_python {"output": "28 17065 + [(' even', 0.698), ('even', 0.594), (' sogar', 0.593), (' Even', 0.588), ('Even', 0.586), (' incluso', 0.511), (' nawet', 0.511), (' m\u00eame', 0.485), ('_even', 0.469)] - [('.did', -0.043), ('----------\\r\\n', -0.0
+[phi4_14b][tool] recall_shared {"results": "- [Rex | gemma4_31b | attempt] Model gemma4_31b: {\"kind\": \"mlp_cluster\", \"layer\": 59, \"n\": 1, \"first\": [5941]} labelled 'Odd/even classification input support' (target skill integer_parity), evidence weights+attributi
+[phi4_14b][tool] run_python {"output": "28 17065 gate [(',and', 0.066), (' or', 0.066), ('AtIndex', 0.061), (' atau', 0.06), ('\u2026and', 0.053), (' and', 0.053), ('.DropTable', 0.053), ('_LOOP', 0.052)]\n28 17065 up [('timestamp', 0.055), ('_Source', 0.055), ('uisse
+[phi4_14b][tool] define_skill {"error": "agent-defined skill cap reached"}
+[phi4_14b][tool] run_python {"output": "month_number [(0.5274215936660767, 'month_number', 38, 10363, -0.5274215936660767), (0.47361451387405396, 'month_number', 38, 16969, 0.47361451387405396), (0.3652794361114502, 'month_number', 26, 6354, 0.3652794361114502), (0.36
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 4, "first": [331, 1204, 9048, 12134]}, "drops": {"math": 0.001, "code": 0.0, "facts": -0.002, "multilingual": -0.0, "general_text": -0.001, "ordinal_word": 0.006, "ordinal_word__control": 0
+[phi4_14b][tool] attribution_scan {"scan_id": "scan5", "top_units_[layer,unit,score]": {"product_sign": [[26, 17232, 0.109], [38, 11948, 0.091], [38, 17404, 0.074], [22, 13118, 0.06], [38, 7384, 0.059], [38, 10291, 0.057], [38, 12725, 0.051], [38, 6644, 0.05]], "weekday_off
+[phi4_14b][tool] run_python {"output": "22 3483 out+ [('ANS', 0.063), ('ibName', 0.062), (' answer', 0.06), (' r\u00e9sult', 0.06), ('answer', 0.056), (' sint', 0.055)] out- [(' \ufffd', -0.056), (' listing', -0.053), (' formula', -0.052), ('ati', -0.052), ('paging', 
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 30, "n": 1, "first": [16857]}, "drops": {"math": 0.001, "code": 0.0, "facts": -0.001, "multilingual": 0.0, "general_text": -0.001, "ordinal_word": 0.007, "ordinal_word__control": 0.011, "product_sig
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 26, "n": 1, "first": [15132]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.0, "general_text": -0.001, "ordinal_word": -0.012, "ordinal_word__control": -0.021, "product_si
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 38, "n": 2, "first": [10363, 16969]}, "drops": {"math": 0.0, "code": -0.0, "facts": -0.001, "multilingual": -0.0, "general_text": 0.001, "ordinal_word": -0.001, "ordinal_word__control": 0.004, "prod
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 34, "n": 1, "first": [11621]}, "drops": {"math": 0.001, "code": 0.0, "facts": -0.002, "multilingual": 0.001, "general_text": -0.0, "ordinal_word": 0.004, "ordinal_word__control": 0.003, "product_sig
+[phi4_14b][tool] run_python {"output": "neighbors 26 15132 [(15132, 1.0), (485, 0.15), (13438, -0.15), (14448, 0.15), (15735, 0.139), (8398, -0.137), (8031, 0.13), (1188, -0.114), (17610, 0.101)]\n485 + [(' <$', 0.05), ('.po', 0.045), ('azed', 0.045), ('imed', 0.045),
+[phi4_14b][tool] screen {"passed": false, "reasons": ["matched control changed by -0.0725 (limit +-0.065)"], "drops": {"math": 0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.0, "general_text": -0.001, "ordinal_word": -0.012, "ordinal_word__control": -0.021,
+[phi4_14b][tool] screen {"passed": false, "reasons": ["matched control changed by -0.0743 (limit +-0.065)"], "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": 0.0, "general_text": -0.001, "ordinal_word": -0.007, "ordinal_word__control": -0.022,
+[phi4_14b][tool] screen {"passed": false, "reasons": ["matched control changed by -0.1282 (limit +-0.087)"], "drops": {"math": 0.0, "code": -0.0, "facts": -0.003, "multilingual": -0.0, "general_text": -0.001, "ordinal_word": -0.021, "ordinal_word__control": -0.014
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.1025 < 0.15", "held-out check failed", "matched control changed by -0.0578 (limit +-0.05)"], "drops": {"math": 0.001, "code": 0.0, "facts": -0.001, "multilingual": -0.0, "general_text": -0.0, "or
+[phi4_14b][agent] New tests are blocked by the skill cap, so I’m continuing with the existing labels. The strongest new result is a temporal-word unit at layer 26: removing it drops weekday-offset performance by 19.4%, but its matched-control change narrowly exceeds the allowed limit. It does not qualify as a selecti
+[phi4_14b][tool] run_python {"output": "weekday_offset [(0.2879317104816437, 'weekday_offset', 0, 15012, 0.2879317104816437), (0.1610746681690216, 'weekday_offset', 0, 5505, 0.1610746681690216), (0.1129440888762474, 'weekday_offset', 1, 13098, 0.1129440888762474), (0.
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 0, "n": 2, "first": [5505, 15012]}, "drops": {"math": 0.001, "code": 0.0, "facts": -0.002, "multilingual": 0.0, "general_text": -0.001, "ordinal_word": 0.002, "ordinal_word__control": 0.007, "produc
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 0, "n": 2, "first": [919, 14065]}, "drops": {"math": 0.0, "code": 0.0, "facts": -0.004, "multilingual": 0.0, "general_text": -0.001, "ordinal_word": 0.013, "ordinal_word__control": 0.006, "product_s
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 0, "n": 2, "first": [15669, 17675]}, "drops": {"math": 0.001, "code": 0.0, "facts": 0.001, "multilingual": -0.001, "general_text": -0.001, "ordinal_word": -0.005, "ordinal_word__control": 0.007, "pr
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 1, "n": 1, "first": [14040]}, "drops": {"math": 0.0, "code": 0.0, "facts": 0.001, "multilingual": 0.001, "general_text": -0.001, "ordinal_word": -0.009, "ordinal_word__control": 0.009, "product_sign
+[phi4_14b][tool] attribution_scan {"scan_id": "scan6", "top_units_[layer,unit,score]": {"ordinal_word": [[28, 3971, 0.095], [32, 16743, 0.07], [1, 3368, 0.061], [0, 10534, 0.046], [24, 12340, 0.045], [28, 17376, 0.042], [36, 13567, 0.041], [36, 14590, 0.037]], "fraction_rol
+[phi4_14b][tool] run_python {"output": "0 11068 + [('igraphy', 0.083), ('igraph', 0.07), (' upon', 0.062), (' tf', 0.059), (' dt', 0.057)] - [('better', -0.057), (' restaurants', -0.057), (' Viagra', -0.057), (' prediction', -0.056), ('/>\\n\\n', -0.056)] gate [('all'
+[phi4_14b][tool] screen {"passed": false, "reasons": ["matched control changed by -0.1632 (limit +-0.076)"], "drops": {"math": 0.001, "code": -0.0, "facts": -0.003, "multilingual": 0.001, "general_text": -0.001, "ordinal_word": -0.002, "ordinal_word__control": 0.0
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.1451 < 0.15", "held-out check failed"], "drops": {"math": 0.001, "code": 0.0, "facts": -0.001, "multilingual": 0.001, "general_text": -0.001, "ordinal_word": 0.003, "ordinal_word__control": 0.006
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.1454 < 0.15", "held-out check failed", "matched control changed by 0.143 (limit +-0.05)"], "drops": {"math": 0.001, "code": 0.0, "facts": -0.001, "multilingual": 0.001, "general_text": -0.0, "ord
+[phi4_14b][tool] ablate {"part": {"kind": "mlp_cluster", "layer": 16, "n": 1, "first": [6980]}, "drops": {"math": 0.001, "code": 0.0, "facts": -0.002, "multilingual": 0.001, "general_text": -0.001, "ordinal_word": -0.005, "ordinal_word__control": 0.007, "product_s
+[phi4_14b][tool] run_python {"output": " weekday [(3734, 0.266), (10665, 0.125), (8442, 0.083), (12179, 0.081), (17685, 0.08), (4017, 0.075), (15876, 0.075)]\n weekdays [(3734, 0.263), (10665, 0.145), (350, 0.105), (8442, 0.102), (8184, 0.092), (9612, 0.077), (15982, 
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.1325 < 0.15", "held-out check failed", "matched control changed by -0.0561 (limit +-0.05)"], "drops": {"math": 0.001, "code": -0.0, "facts": 0.001, "multilingual": 0.001, "general_text": -0.001, 
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.1279 < 0.15", "held-out check failed"], "drops": {"math": 0.0, "code": 0.0, "facts": -0.001, "multilingual": -0.0, "general_text": -0.0, "ordinal_word": -0.002, "ordinal_word__control": -0.001, "
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.1476 < 0.15", "held-out check failed", "matched control changed by -0.0732 (limit +-0.05)"], "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": -0.0, "general_text": -0.001, "o
+[phi4_14b][tool] run_python {"output": "head 22 signOV [[-0.005280752666294575, -0.0033813603222370148, -0.011688902974128723, -0.01672380045056343], [0.0004089523572474718, -0.004148891195654869, 0.010328463278710842, 0.004299483262002468], [0.0071592628955841064, 0.
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 1, "first": [31]}, "drops": {"math": 0.001, "code": 0.0, "facts": -0.003, "multilingual": 0.001, "general_text": -0.0, "ordinal_word": -0.002, "ordinal_word__control": 0.001, "product_sign":
+[phi4_14b][tool] ablate {"part": {"kind": "attn_heads", "layer": 26, "n": 1, "first": [26]}, "drops": {"math": -0.003, "code": 0.0, "facts": -0.001, "multilingual": 0.001, "general_text": 0.0, "ordinal_word": 0.0, "ordinal_word__control": 0.012, "product_sign": 0.
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0051 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0053)"], "drops": {"math": -0.0, "code": 0.0, "facts": -0.002, "multilingual": 0.001, "general_text":
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0117 < 0.15", "held-out check failed"], "drops": {"math": 0.0, "code": -0.0, "facts": -0.001, "multilingual": 0.001, "general_text": -0.001, "ordinal_word": 0.003, "ordinal_word__control": -0.004
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0995 < 0.15", "held-out check failed"], "drops": {"math": 0.0, "code": 0.0, "facts": -0.001, "multilingual": 0.001, "general_text": -0.0, "ordinal_word": 0.008, "ordinal_word__control": -0.002, "
+[phi4_14b][tool] finish {"error": "Not yet: $6.8 of the OpenAI budget and 33 screens are left. Keep mining: try layers, part kinds and skills you have not covered yet (check recall_shared for what teammates already found, and avoid repeating it), define new skills
+[phi4_14b][tool] recall_shared {"results": "- [Rex | phi4_14b | attempt] Model phi4_14b: {\"kind\": \"attn_heads\", \"layer\": 26, \"n\": 1, \"first\": [22]} labelled 'None' (target skill None), evidence weights+ablation. Weight rationale: H22 shares signed-value subspac
+[phi4_14b][tool] run_python {"output": "weekday_offset [(0.054434798657894135, 'weekday_offset', 36, 7), (0.0526038222014904, 'weekday_offset', 28, 26), (0.04823094606399536, 'weekday_offset', 36, 5), (0.03383173793554306, 'weekday_offset', 24, 24), (0.032528541982173
+[phi4_14b][tool] attribution_scan {"scan_id": "scan7", "top_units_[layer,unit,score]": {"weekday_offset": [[22, 24, 0.561], [28, 10, 0.343], [22, 14, 0.271], [18, 0, 0.244], [18, 39, 0.222], [28, 13, 0.219], [22, 5, 0.206], [22, 26, 0.193]], "month_number": [[18, 21, 0.101]
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0045 < 0.15", "held-out check failed"], "drops": {"math": 0.001, "code": -0.0, "facts": -0.001, "multilingual": -0.0, "general_text": 0.0, "ordinal_word": -0.006, "ordinal_word__control": -0.006,
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0089 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0233)"], "drops": {"math": 0.001, "code": -0.0, "facts": -0.003, "multilingual": -0.0, "general_text"
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.1352 < 0.15", "held-out check failed", "other skill 'product_sign' dropped 0.0537 > 0.05", "other skill 'weekday_offset' dropped 0.0652 > 0.05", "matched control changed by 0.0677 (limit +-0.05)"
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0774 < 0.15", "held-out check failed", "other skill 'weekday_offset' dropped 0.1865 > 0.05"], "drops": {"math": 0.001, "code": 0.0, "facts": -0.001, "multilingual": -0.0, "general_text": -0.001, 
+[phi4_14b][tool] run_python {"output": "22 24 O+ [('.How', 0.065), ('.\\n', 0.061), ('\uff1f\\n', 0.06), ('\u4e5f', 0.06), ('?\\n', 0.059)] O- [(' firstly', -0.069), (' \ufffd', -0.063), ('\ufffd', -0.063), (' \u30fb', -0.058), (' Firstly', -0.057)]\nQK  after [('as\u
+[phi4_14b][tool] screen {"passed": true, "reasons": [], "drops": {"math": -0.0, "code": 0.0, "facts": -0.006, "multilingual": -0.001, "general_text": -0.001, "ordinal_word": 0.035, "ordinal_word__control": -0.012, "product_sign": 0.097, "product_sign__control": 0.
+[phi4_14b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.002, "code": 0.0, "facts": 0.001, "multilingual": 0.002, "general_text": -0.0, "ordinal_word": 0.01, "ordinal_word__control": -0.003, "product_sign": -0.009, "product_sign__control": 0.012
+[phi4_14b][tool] screen {"passed": false, "reasons": ["other skill 'ordinal_word' dropped 0.0752 > 0.063", "other skill 'product_sign' dropped 0.0751 > 0.063", "matched control changed by 0.1081 (limit +-0.063)"], "drops": {"math": 0.002, "code": -0.0, "facts": -0
+[phi4_14b][tool] screen {"passed": true, "reasons": [], "drops": {"math": 0.001, "code": -0.0, "facts": -0.003, "multilingual": 0.002, "general_text": -0.0, "ordinal_word": 0.002, "ordinal_word__control": 0.03, "product_sign": 0.02, "product_sign__control": -0.002
+[phi4_14b][agent] Three attention parts passed screening:
+
+- **Layer 28, head 10:** 30.5% weekday-offset drop; matched-control change −1.4%.
+- **Layer 28, heads 10 and 26:** 47.7% drop; control change −0.7%.
+- **Layer 22, head 24:** 47.2% drop; control change +6.3%.
+
+All passed the held-out and random-part checks. Th
+[phi4_14b][tool] run_python {"output": "head 28 10\nQK  weekday [(' weekday', 0.067), (' Saturday', 0.028), (' Answer', 0.027), (' Wednesday', 0.021), (' Tuesday', 0.009)]\nQK  after [('1', 0.191), (':', 0.136), (' weekday', 0.105), (' Saturday', 0.044), ('2', 0.038)]
+[phi4_14b][tool] run_python {"output": "weekday_offset [(0.4051421582698822, 'weekday_offset', 28, 26), (0.17578856647014618, 'weekday_offset', 28, 10), (0.14124621450901031, 'weekday_offset', 24, 31), (0.10619651526212692, 'weekday_offset', 24, 30), (0.09590341895818
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0016 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0252)"], "drops": {"math": 0.0, "code": 0.0, "facts": 0.002, "multilingual": 0.002, "general_text": 0
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0022 < 0.15", "held-out check failed"], "drops": {"math": 0.001, "code": -0.0, "facts": -0.002, "multilingual": 0.001, "general_text": 0.0, "ordinal_word": -0.003, "ordinal_word__control": 0.004,
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0315 < 0.15", "held-out check failed", "other skill 'product_sign' dropped 0.0692 > 0.05", "matched control changed by 0.0684 (limit +-0.05)"], "drops": {"math": 0.002, "code": -0.001, "facts": -
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0027 < 0.15", "held-out check failed"], "drops": {"math": 0.001, "code": -0.0, "facts": -0.001, "multilingual": 0.002, "general_text": 0.0, "ordinal_word": 0.005, "ordinal_word__control": 0.03, "
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0029 < 0.15", "held-out check failed", "other skill 'fraction_role' dropped 0.0893 > 0.05", "matched control changed by 0.0914 (limit +-0.05)", "a random same-size part dropped the target as much
+[phi4_14b][tool] run_python {"output": "fraction_role [(0.40917760133743286, 'fraction_role', 'numer', 35, 12885, -0.40917760133743286), (0.37235167622566223, 'fraction_role', 'den', 39, 12699, 0.37235167622566223), (0.37224578857421875, 'fraction_role', 'den', 39, 14
+[phi4_14b][tool] run_python {"output": "35 12885 + [(' timespec', 0.056), ('acman', 0.053), (' onPostExecute', 0.05), (' wxDefault', 0.049), ('incy', 0.049), ('pesan', 0.047), (' urlparse', 0.046)] - [(' num', -0.526), (' number', -0.523), (' n\u00famero', -0.518), ('
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.635 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0012)"], "drops": {"math": -0.0, "code": -0.0, "facts": 0.0, "multilingual": 0.0, "general_text": 0.0
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop 0.0345 < 0.15", "held-out check failed"], "drops": {"math": 0.001, "code": -0.0, "facts": -0.002, "multilingual": 0.001, "general_text": -0.0, "ordinal_word": 0.001, "ordinal_word__control": -0.01,
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.013 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0083)"], "drops": {"math": 0.0, "code": 0.0, "facts": 0.0, "multilingual": 0.0, "general_text": -0.00
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.0404 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (0.0001)"], "drops": {"math": 0.0, "code": -0.0, "facts": -0.0, "multilingual": 0.0, "general_text": 0.
+[phi4_14b][tool] screen {"passed": false, "reasons": ["target drop -0.0031 < 0.15", "held-out check failed", "a random same-size part dropped the target as much (-0.0001)"], "drops": {"math": 0.0, "code": -0.0, "facts": -0.001, "multilingual": 0.0, "general_text":
+[phi4_14b][tool] attribution_scan {"scan_id": "scan8", "top_units_[layer,unit,score]": {"fraction_role": [[25, 10181, 0.087], [31, 15661, 0.086], [23, 17101, 0.079], [23, 6609, 0.077], [27, 14794, 0.065], [37, 17135, 0.061], [37, 13428, 0.06], [29, 12985, 0.055]], "ordinal_
+[phi4_14b] context restart 2 at 61960 tokens
+[phi4_14b][tool] run_python {"output": "['lm_head.weight', 'model.embed_tokens.weight', 'model.layers.0.input_layernorm.weight', 'model.layers.0.mlp.down_proj.weight', 'model.layers.0.mlp.gate_up_proj.weight', 'model.layers.0.post_attention_layernorm.weight', 'model.l
+[phi4_14b] DONE {"run_id": "run-20261114-201956", "person": "Rex", "openai_usd_est": 25.09, "modal_gpu_usd_est": 1.21, "modal_busy_seconds": 1104, "gpu": "EngineH100", "note": "modal estimate counts busy call time only (not idle keep-warm or first load); OpenAI estimate prices cached input tokens at full rate", "usage": {"input_tokens": 2379295, "cached_input_tokens": 2257175, "output_tokens": 24567, "worker_input_tokens": 58700, "worker_output_tokens": 5111, "restarts": 2}, "turns": 78, "python_runs": 34, "screens": 45, "stop_reason": "OpenAI budget reached", "summary": null, "parts_in_catalog": 7, "shared_memory": {"enabled": true, "records": 90}}

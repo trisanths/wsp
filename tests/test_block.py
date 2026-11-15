@@ -34,6 +34,26 @@ def tiny_donor(kind):
         )
         config._attn_implementation = "eager"
         return config, transformers.Qwen2ForCausalLM(config).eval()
+    if kind == "lfm2":
+        # Conv layers 0 and 2, attention layers 1 and 3.
+        config = transformers.Lfm2Config(
+            hidden_size=48, intermediate_size=96, num_hidden_layers=4, num_attention_heads=4,
+            num_key_value_heads=2, vocab_size=300, max_position_embeddings=64, conv_L_cache=3,
+            block_multiple_of=16, layer_types=["conv", "full_attention", "conv", "full_attention"],
+        )
+        config._attn_implementation = "eager"
+        return config, transformers.Lfm2ForCausalLM(config).eval()
+    if kind == "lfm3":
+        # A sliding layer, conv layers, and a full layer, each type with
+        # its own rotary.
+        config = transformers.Lfm3Config(
+            hidden_size=48, intermediate_size=96, num_hidden_layers=4, num_attention_heads=4,
+            num_key_value_heads=2, head_dim=12, vocab_size=300, max_position_embeddings=64,
+            sliding_window=3, conv_L_cache=3, pad_token_id=0, bos_token_id=1, eos_token_id=2,
+            layer_types=["conv", "sliding_attention", "conv", "full_attention"],
+        )
+        config._attn_implementation = "eager"
+        return config, transformers.Lfm3ForCausalLM(config).eval()
     if kind == "gemma3":
         config = transformers.Gemma3TextConfig(
             hidden_size=48, intermediate_size=96, num_hidden_layers=4, num_attention_heads=4,
@@ -87,7 +107,7 @@ def capture_block(model, first, last, input_ids, attention_mask=None, position_i
     return store["in"], store["out"]
 
 
-@pytest.mark.parametrize("kind", ["llama", "qwen2", "qwen2_sliding", "gemma3"])
+@pytest.mark.parametrize("kind", ["llama", "qwen2", "qwen2_sliding", "gemma3", "lfm2", "lfm3"])
 def test_block_equals_donor_layers(kind):
     config, donor = tiny_donor(kind)
     part = build_block_part(config, 1, 2, donor_tensors(donor))
@@ -99,7 +119,7 @@ def test_block_equals_donor_layers(kind):
     assert torch.allclose(out, y - x, atol=1e-5)
 
 
-@pytest.mark.parametrize("kind", ["llama", "qwen2", "qwen2_sliding", "gemma3"])
+@pytest.mark.parametrize("kind", ["llama", "qwen2", "qwen2_sliding", "gemma3", "lfm2", "lfm3"])
 def test_block_with_left_padding(kind):
     config, donor = tiny_donor(kind)
     part = build_block_part(config, 1, 2, donor_tensors(donor))

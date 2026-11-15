@@ -1,0 +1,116 @@
+{
+  "id": "heads_countrycapital_retrieval_head_group_l21_lfm2.5_2.6b_L21_k4_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-2.6B layer 21, country\u2192capital retrieval head group (L21)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "capital_city"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-2.6B"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'capital_city' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.6431,
+      "control_value": 0.0121,
+      "split": "person_a held-out skill items (capital_city)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_2.6b.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0158"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-2.6B",
+  "layer": 21,
+  "layers": [
+    21
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-2.6B/heads_countrycapital_retrieval_head_group_l21_lfm2.5_2.6b_L21_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_2.6b/heads_countrycapital_retrieval_head_group_l21_lfm2.5_2.6b_L21_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'capital_city'",
+    "label": "country\u2192capital retrieval head group (L21)",
+    "num_units": 4,
+    "d_model": 2048,
+    "effect": {
+      "math|search": 0.0102,
+      "math|heldout": 0.047,
+      "code|search": 0.0762,
+      "code|heldout": 0.0731,
+      "facts|search": 0.1959,
+      "facts|heldout": 0.2251,
+      "multilingual|search": 0.0026,
+      "multilingual|heldout": -0.0127,
+      "general_text|search": -0.0031,
+      "general_text|heldout": 0.0062,
+      "month_successor|search": 0.1847,
+      "month_successor__control|search": 0.0072,
+      "month_successor|heldout": 0.1644,
+      "month_successor__control|heldout": 0.0084,
+      "weekday_successor|search": 0.0929,
+      "weekday_successor__control|search": 0.0082,
+      "weekday_successor|heldout": 0.1333,
+      "weekday_successor__control|heldout": 0.0081,
+      "roman_numerals|search": 0.0214,
+      "roman_numerals__control|search": 0.0036,
+      "roman_numerals|heldout": 0.0158,
+      "roman_numerals__control|heldout": 0.003,
+      "object_color|search": 0.1134,
+      "object_color__control|search": 0.0323,
+      "object_color|heldout": 0.1037,
+      "object_color__control|heldout": 0.0412,
+      "antonym|search": 0.0316,
+      "antonym__control|search": 0.0238,
+      "antonym|heldout": 0.0808,
+      "antonym__control|heldout": 0.0266,
+      "ordinal_word|search": 0.009,
+      "ordinal_word__control|search": 0.0409,
+      "ordinal_word|heldout": 0.0112,
+      "ordinal_word__control|heldout": 0.0474,
+      "capital_city|search": 0.7326,
+      "capital_city__control|search": 0.0131,
+      "capital_city|heldout": 0.6431,
+      "capital_city__control|heldout": 0.0158,
+      "past_tense|search": -0.0854,
+      "past_tense__control|search": 0.0237,
+      "past_tense|heldout": -0.016,
+      "past_tense__control|heldout": 0.0256
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.2442,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0094,
+      0.0357,
+      0.0084,
+      0.0066,
+      0.0004
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Head 7 carries the top L21 capital-city attribution (.022, second across all attention layers). Combined with heads 3, 10 and 28, it cuts capital .73. Their static OV does not map country\u2192capital directly (L21's OV capital heads are 6/26), so these heads move the country identity to the answer position for the downstream lookup. Capital is otherwise the most robust skill (base .93): no single whole MLP dropped it more than .45."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_2.6b/capital_city.json",
+    "hash": "1794e1d72923abc9",
+    "description": "Name the capital of a country, few-shot 'Country: X. Capital: Y'. Control: same format copying country name.",
+    "name": "capital_city"
+  },
+  "catalog_id": "heads_countrycapital_retrieval_head_group_l21_lfm2.5_2.6b_L21_k4_001",
+  "exported_copy": "library/lfm2.5_2.6b/heads_countrycapital_retrieval_head_group_l21_lfm2.5_2.6b_L21_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

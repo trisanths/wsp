@@ -316,6 +316,19 @@ def _text_of(value):
 
 
 def row_pair(row, kind, features=None):
+    """Render one dataset row as (user, assistant), or None to skip it.
+
+    Real datasets hold odd rows (a LogiQA row without options, a missing
+    field, an empty answer). A row the renderer cannot read is skipped,
+    never an error, so one bad row cannot stop a compile.
+    """
+    try:
+        return _row_pair_strict(row, kind, features)
+    except (KeyError, IndexError, TypeError, ValueError, AttributeError):
+        return None
+
+
+def _row_pair_strict(row, kind, features=None):
     """Return (user, assistant) for one dataset row, or None to skip it. assistant is None for plain text.
 
     features is the dataset's features mapping, needed only by kind "classify" (label names).
@@ -531,7 +544,9 @@ def pairs(name, count, seed=0, skip=0, reported=None):
     """Return count (user, assistant) pairs of one pool, after skipping skip pairs. Seeded order.
 
     Sources that are reported (or derived from a reported benchmark) are
-    skipped. ValueError when no source of the pool is left.
+    skipped. ValueError when no source of the pool is left. The list is
+    shorter than count only when every source is spent; callers that need
+    an exact count must check the length.
     """
     sources, excluded = _usable(name, reported)
     if len(sources) == 0:
@@ -544,35 +559,50 @@ def pairs(name, count, seed=0, skip=0, reported=None):
         ids.append(source[0])
     check_sources(ids, reported)
     want = count + skip
-    per_source = want // len(sources) + 1
-    out = []
+    streams = []
     for dataset_id, config, split, kind in sources:
-        streamed = (dataset_id, config, split) in STREAMED
-        rows = _load(dataset_id, config, split, stream=streamed, seed=seed)
-        features = _features(rows)
-        taken = 0
-        if streamed:
-            for seen, row in enumerate(rows):
-                if taken >= per_source or seen > per_source * 40:
-                    break
-                pair = row_pair(row, kind, features)
-                if pair is None:
-                    continue
-                out.append(pair)
-                taken += 1
-            continue
-        order = list(range(len(rows)))
-        random.Random(seed).shuffle(order)
-        for index in order:
-            if taken >= per_source:
-                break
-            pair = row_pair(rows[index], kind, features)
+        streams.append(_source_pairs(dataset_id, config, split, kind, seed, want))
+    # Round robin over the sources, each in its own fixed seeded order. A small source runs out
+    # and the others keep going, so a pool is short only when every source is spent. The order
+    # does not depend on count, so pairs(name, n) is a prefix of pairs(name, m) for m > n, and
+    # two calls with different skip values give disjoint slices.
+    out = []
+    live = list(streams)
+    while len(out) < want and len(live) > 0:
+        still = []
+        for stream in live:
+            if len(out) >= want:
+                still.append(stream)
+                continue
+            pair = next(stream, None)
             if pair is None:
                 continue
             out.append(pair)
-            taken += 1
-    random.Random(seed + 1).shuffle(out)
+            still.append(stream)
+        live = still
     return out[skip:skip + count]
+
+
+def _source_pairs(dataset_id, config, split, kind, seed, want):
+    """Yield the readable (user, assistant) pairs of one source in a fixed seeded order."""
+    streamed = (dataset_id, config, split) in STREAMED
+    rows = _load(dataset_id, config, split, stream=streamed, seed=seed)
+    features = _features(rows)
+    if streamed:
+        # A stream cannot be indexed. Read on until enough pairs came out, with a bound on rows read.
+        for seen, row in enumerate(rows):
+            if seen > (want + 1) * 40:
+                return
+            pair = row_pair(row, kind, features)
+            if pair is not None:
+                yield pair
+        return
+    order = list(range(len(rows)))
+    random.Random(seed).shuffle(order)
+    for index in order:
+        pair = row_pair(rows[index], kind, features)
+        if pair is not None:
+            yield pair
 
 
 def pool(name, count, tokenizer=None, seed=0, skip=0, reported=None):

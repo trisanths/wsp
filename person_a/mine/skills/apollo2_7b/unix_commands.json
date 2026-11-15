@@ -1,0 +1,980 @@
+{
+ "name": "unix_commands",
+ "description": "Retrieve standard Unix command names from filesystem-operation descriptions. Controls copy the supplied path without choosing a command.",
+ "hash": "c854431678375b42",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\noperations={'change the current directory to this path':'cd','list entries in this directory':'ls','create this directory':'mkdir','remove this empty directory':'rmdir','display the entire contents of this text file':'cat','display the first lines of this text file':'head','display the last lines of this text file':'tail','create this empty file or update its timestamp':'touch'}\nitems=[];control=[]\nfor i in range(96):\n op=list(operations)[i%len(operations)];path=random.choice(['sample','notes','archive','work','draft','project','logs','data']);p=f'Path: {path}. Task: {op}.\\n'\n items.append({'prompt':p+'Write only the standard Unix command name, no arguments or flags. Answer:','answer':' '+operations[op]})\n control.append({'prompt':p+'Write only the path, no command. Answer:','answer':' '+path})\njson.dump({'items':items,'control':control},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "Path: logs. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Path: logs. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: create this empty file or update its timestamp.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " touch",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the entire contents of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: change the current directory to this path.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " cd",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: create this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " mkdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: remove this empty directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " rmdir",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the last lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " tail",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the first lines of this text file.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: list entries in this directory.\nWrite only the standard Unix command name, no arguments or flags. Answer:",
+    "continuation": " ls",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "Path: archive. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " archive",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " archive",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " archive",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Path: data. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " archive",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " archive",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " archive",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: sample. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " sample",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: display the first lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: work. Task: display the last lines of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " archive",
+    "digits_only": false
+   },
+   {
+    "context": "Path: data. Task: create this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " data",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: remove this empty directory.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: draft. Task: display the entire contents of this text file.\nWrite only the path, no command. Answer:",
+    "continuation": " draft",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " archive",
+    "digits_only": false
+   },
+   {
+    "context": "Path: archive. Task: create this empty file or update its timestamp.\nWrite only the path, no command. Answer:",
+    "continuation": " archive",
+    "digits_only": false
+   },
+   {
+    "context": "Path: logs. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " logs",
+    "digits_only": false
+   },
+   {
+    "context": "Path: project. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " project",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: change the current directory to this path.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   },
+   {
+    "context": "Path: notes. Task: list entries in this directory.\nWrite only the path, no command. Answer:",
+    "continuation": " notes",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.9883
+}

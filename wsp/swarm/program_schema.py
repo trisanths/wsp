@@ -110,6 +110,22 @@ def heal_data(program):
     return value.get("data")
 
 
+def lora(program):
+    """Return a copy of the host LoRA dict ({"rank", "budget_params", ...}), or None."""
+    value = program.get("lora")
+    if value is None:
+        return None
+    return dict(value)
+
+
+def make_lora_program(host, rank, heal, seed=0):
+    """A host LoRA program: no grafts, a rank-`rank` LoRA on the host, trained by the heal pass."""
+    program = Program(host=host, seed=seed).lora(rank=rank)
+    data = program.to_dict()
+    data["heal"] = dict(heal)
+    return normalize(data)
+
+
 def has_host_edits(program):
     """True when the program has host masks or task vectors."""
     if program.get("masks") is not None:

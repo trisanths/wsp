@@ -1,4 +1,4 @@
-import { html, useState, useEffect, useRef } from './lib.js';
+import { html, render, useState, useEffect, useLayoutEffect, useRef } from './lib.js';
 import { agentColor, agentInitials, tokenizeLine, useStubFlag, useHealth, subscribeToasts, clamp, pct, go } from './util.js';
 import { usePresence, presenceClass, tokenMs, reduced, PopNum, SlidingBar, dissolveText } from './motion.js';
 
@@ -38,14 +38,23 @@ const ICONS = {
   spark: 'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM19 16l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z',
   file: 'M7 3h7l5 5v13H7zM14 3v5h5',
   scissors: 'M5 5l14 14M5 19L19 5',
+  shrink: 'M4 9h5V4M20 9h-5V4M4 15h5v5M20 15h-5v5',
   server: 'M4 5h16v6H4zM4 13h16v6H4zM8 8h.01M8 16h.01',
 };
 export function Icon({ n, size = 16, sw = 1.75 }) {
   return html`<svg class="ic-svg" width=${size} height=${size} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width=${sw} stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d=${ICONS[n] || ''}/></svg>`;
 }
 
+import { DEMO } from './demo-flag.js';
+
 export function StubBadge({ small, title }) {
+  if (DEMO) return null;
   return html`<span class=${'stubtag' + (small ? ' sm' : '')} title=${title || 'Stub backend: these numbers are not real results'}>STUB</span>`;
+}
+
+/** The one quiet marker for demo mode, shown in the top bar of every screen. */
+export function DemoPill() {
+  return html`<span class="demopill" title="Demo mode: sample data, not real results">Demo</span>`;
 }
 
 // the studio mark: three bars, the middle one cut, like a deletion mask
@@ -68,19 +77,24 @@ export function TopBar({ children, right }) {
       <${Menu} open=${open} origin="top-left" onClose=${() => setOpen(false)} style=${{ top: '36px', left: 0, minWidth: '260px' }}>
         <div class="mrow"><span class="mk">Agent model</span><span class="mv">${(health && health.llm_model) || 'not set'}</span></div>
         <div class="mrow"><span class="mk">Agent provider</span><span class="mv">${(health && health.llm) || 'none'}</span></div>
-        <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? 'Stub' : health.backend) : 'unknown'}</span></div>
+        <div class="mrow"><span class="mk">Backend</span><span class="mv">${health ? (modal ? 'Modal GPU' : health.backend === 'stub' ? (DEMO ? 'Sample data' : 'Stub') : health.backend) : 'unknown'}</span></div>
         <div class="mnote">Read only. The server sets these.</div>
       <//>
     </div>
     ${children}
     <span class="grow"></span>
     ${right}
-    ${modal ? html`<span class="pill" title="Jobs run on Modal GPUs">Modal GPU</span>` : stub && html`<${StubBadge} />`}
+    ${DEMO ? html`<${DemoPill} />` : modal ? html`<span class="pill" title="Jobs run on Modal GPUs">Modal GPU</span>` : stub && html`<${StubBadge} />`}
   </header>`;
 }
 
 export function Dot({ color, pulse }) {
   return html`<span class=${'dot' + (pulse ? ' pulse' : '')} style=${{ background: color, color }}></span>`;
+}
+
+// a quiet grey mark for a run that was stopped: a ring with a small square
+export function StopMark({ size = 16 }) {
+  return html`<svg class="stopmark" width=${size} height=${size} viewBox="0 0 16 16" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="6.25" stroke="currentColor" stroke-width="1.25"/><rect x="5.5" y="5.5" width="5" height="5" rx="1" fill="currentColor"/></svg>`;
 }
 
 export function Avatar({ agent, size = 32 }) {
@@ -193,19 +207,80 @@ export function ErrorBox({ error, onRetry }) {
 }
 
 // A tiny menu that closes on outside click. It opens from the corner named by origin.
-export function Menu({ open, onClose, children, class: cls, style, origin = 'top-left' }) {
+// The menu is drawn in a layer on the page body, so no parent can clip it. It sits under its
+// button (above it when the class has "up") and flips or shifts to stay inside the window.
+export function Menu({ open, onClose, children, class: cls, style, origin = 'top-left', anchorSel }) {
   const ref = useRef();
+  const anchor = useRef();
+  const host = useRef(null);
   const st = usePresence(open, tokenMs('--dropdown-close-dur', 150));
+  const up = !!(cls && /\bup\b/.test(cls));
+  const trigger = () => {
+    const p = anchor.current && anchor.current.parentElement;
+    return p && ((anchorSel && p.querySelector(anchorSel)) || p.querySelector('button'));
+  };
   useEffect(() => {
     if (!open) return;
     const f = (e) => { if (ref.current && !ref.current.contains(e.target)) onClose(); };
-    const k = (e) => { if (e.key === 'Escape') onClose(); };
+    const k = (e) => {
+      if (e.key === 'Escape') { onClose(); return; }
+      if ((e.key !== 'ArrowDown' && e.key !== 'ArrowUp') || !ref.current || !ref.current.contains(document.activeElement)) return;
+      const items = [...ref.current.querySelectorAll('.mi:not(:disabled)')];
+      if (!items.length) return;
+      e.preventDefault();
+      const i = items.indexOf(document.activeElement);
+      const n = e.key === 'ArrowDown' ? (i + 1) % items.length : (i <= 0 ? items.length - 1 : i - 1);
+      items[n].focus();
+    };
     const t = setTimeout(() => document.addEventListener('mousedown', f), 0);
     document.addEventListener('keydown', k);
-    return () => { clearTimeout(t); document.removeEventListener('mousedown', f); document.removeEventListener('keydown', k); };
+    return () => {
+      clearTimeout(t); document.removeEventListener('mousedown', f); document.removeEventListener('keydown', k);
+      // give focus back to the button only when it was inside the panel, so outside clicks keep theirs
+      if (ref.current && ref.current.contains(document.activeElement)) { const b = trigger(); if (b) b.focus({ preventScroll: true }); }
+    };
   }, [open]);
-  if (st === 'out') return null;
-  return html`<div class=${'menu t-dropdown ' + presenceClass(st) + ' ' + (cls || '')} data-origin=${cls && /\bup\b/.test(cls) ? 'bottom-left' : origin} style=${style} ref=${ref}>${children}</div>`;
+  useEffect(() => {
+    if (!open || !ref.current || ref.current.contains(document.activeElement)) return;
+    const first = ref.current.querySelector('.mi:not(:disabled)');
+    if (first) first.focus({ preventScroll: true });
+  }, [open, st]);
+  const minWidth = (style && style.minWidth) || '220px';
+  const place = () => {
+    const el = ref.current;
+    const par = anchor.current && anchor.current.parentElement;
+    const box = par && ((anchorSel && par.querySelector(anchorSel)) || par);
+    if (!el || !box) return;
+    const r = box.getBoundingClientRect();
+    const vw = window.innerWidth, vh = window.innerHeight, m = 12, gap = 6;
+    el.style.maxHeight = '340px';
+    const w = el.offsetWidth, h = el.offsetHeight;
+    const below = vh - r.bottom - gap - m, above = r.top - gap - m;
+    const goUp = up ? !(above < h && below > above) : below < h && above > below;
+    const room = Math.max(120, goUp ? above : below);
+    const hh = Math.min(h, room, 340);
+    el.style.maxHeight = Math.min(340, room) + 'px';
+    el.style.top = Math.max(m, goUp ? r.top - gap - hh : r.bottom + gap) + 'px';
+    const x = origin.endsWith('right') ? r.right - w : r.left;
+    el.style.left = clamp(x, m, Math.max(m, vw - w - m)) + 'px';
+  };
+  const place_ = useRef(place);
+  place_.current = place;
+  useEffect(() => {
+    if (!open) return;
+    const f = () => place_.current();
+    window.addEventListener('resize', f);
+    window.addEventListener('scroll', f, true);
+    return () => { window.removeEventListener('resize', f); window.removeEventListener('scroll', f, true); };
+  }, [open]);
+  useLayoutEffect(() => {
+    if (!host.current) { host.current = document.createElement('div'); document.body.appendChild(host.current); }
+    const vnode = st === 'out' ? null : html`<div class=${'menu t-dropdown ' + presenceClass(st) + ' ' + (cls || '')} data-origin=${up ? (origin.startsWith('top') ? 'bottom' + origin.slice(3) : origin) : origin} style=${{ minWidth }} ref=${ref}>${children}</div>`;
+    render(vnode, host.current);
+    if (vnode) place();
+  });
+  useEffect(() => () => { if (host.current) { render(null, host.current); host.current.remove(); host.current = null; } }, []);
+  return html`<span class="menu-anchor" ref=${anchor} hidden></span>`;
 }
 
 // A composer: rounded box, optional chips on top, a growing textarea, attach and send buttons.

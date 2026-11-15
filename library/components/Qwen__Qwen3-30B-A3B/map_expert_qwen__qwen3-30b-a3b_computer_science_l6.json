@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3-30b-a3b_computer_science_l6",
+  "kind": "expert",
+  "title": "Qwen3-30B-A3B layer 6, 8 experts for computer_science (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "computer_science"
+  ],
+  "models": [
+    "Qwen/Qwen3-30B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 6 of Qwen3-30B-A3B on 'computer_science' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.20841,
+      "control_value": 0.00031,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 6 of Qwen3-30B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 6.20482,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 7.03716,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3-30B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3-30B-A3B",
+  "layer": 6,
+  "layers": [
+    6
+  ],
+  "units_file": "components/Qwen__Qwen3-30B-A3B/map_expert_qwen__qwen3-30b-a3b_computer_science_l6.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "computer_science",
+    "data": "cais/mmlu all test (subjects: college_computer_science, high_school_computer_science, computer_security, machine_learning, electrical_engineering): computer science questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      59,
+      2,
+      80,
+      32,
+      78,
+      60,
+      106,
+      40
+    ],
+    "details": [
+      {
+        "expert": 59,
+        "skill_freq": 0.198574,
+        "general_freq": 0.000154,
+        "log_ratio": 6.6621,
+        "heldout_log_ratio": 7.5274
+      },
+      {
+        "expert": 2,
+        "skill_freq": 0.187748,
+        "general_freq": 0.000154,
+        "log_ratio": 6.6061,
+        "heldout_log_ratio": 7.3125
+      },
+      {
+        "expert": 80,
+        "skill_freq": 0.167415,
+        "general_freq": 0.000154,
+        "log_ratio": 6.4915,
+        "heldout_log_ratio": 7.4392
+      },
+      {
+        "expert": 32,
+        "skill_freq": 0.543702,
+        "general_freq": 0.000769,
+        "log_ratio": 6.439,
+        "heldout_log_ratio": 6.6729
+      },
+      {
+        "expert": 78,
+        "skill_freq": 0.126485,
+        "general_freq": 0.000154,
+        "log_ratio": 6.2113,
+        "heldout_log_ratio": 7.1113
+      },
+      {
+        "expert": 60,
+        "skill_freq": 0.03644,
+        "general_freq": 0.0,
+        "log_ratio": 5.901,
+        "heldout_log_ratio": 5.7191
+      },
+      {
+        "expert": 106,
+        "skill_freq": 0.312913,
+        "general_freq": 0.000769,
+        "log_ratio": 5.8867,
+        "heldout_log_ratio": 7.8948
+      },
+      {
+        "expert": 40,
+        "skill_freq": 0.094006,
+        "general_freq": 0.000308,
+        "log_ratio": 5.4409,
+        "heldout_log_ratio": 6.6201
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: college_computer_science, high_school_computer_science, computer_security, machine_learning, electrical_engineering): computer science questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 30.53,
+  "n_layers": 48,
+  "hidden": 2048,
+  "family": "qwen3_moe",
+  "architecture": "Qwen3MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "ad44e777bcd18fa416d9da3bd8f70d33ebb85d39"
+}

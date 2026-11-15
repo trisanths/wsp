@@ -1,0 +1,720 @@
+{
+ "name": "en_to_italian_words",
+ "description": "Few-shot English->Italian single-word translation. Control: same format, English->English copy.",
+ "hash": "cfe23e315bc648ab",
+ "agent_items": false,
+ "generator_code": "import random, json\nrandom.seed(0)\nD=[(\"dog\",\"cane\"),(\"cat\",\"gatto\"),(\"house\",\"casa\"),(\"water\",\"acqua\"),(\"bread\",\"pane\"),(\"book\",\"libro\"),(\"tree\",\"albero\"),(\"sun\",\"sole\"),(\"moon\",\"luna\"),(\"city\",\"citt\u00e0\"),(\"car\",\"macchina\"),(\"friend\",\"amico\"),(\"night\",\"notte\"),(\"day\",\"giorno\"),(\"red\",\"rosso\"),(\"green\",\"verde\"),(\"black\",\"nero\"),(\"white\",\"bianco\"),(\"big\",\"grande\"),(\"small\",\"piccolo\"),(\"new\",\"nuovo\"),(\"old\",\"vecchio\"),(\"woman\",\"donna\"),(\"man\",\"uomo\"),(\"child\",\"bambino\"),(\"king\",\"re\"),(\"time\",\"tempo\"),(\"world\",\"mondo\"),(\"school\",\"scuola\"),(\"door\",\"porta\"),(\"window\",\"finestra\"),(\"table\",\"tavolo\"),(\"chair\",\"sedia\"),(\"milk\",\"latte\"),(\"apple\",\"mela\"),(\"fish\",\"pesce\"),(\"bird\",\"uccello\"),(\"horse\",\"cavallo\"),(\"sea\",\"mare\"),(\"mountain\",\"montagna\"),(\"river\",\"fiume\"),(\"fire\",\"fuoco\"),(\"hand\",\"mano\"),(\"head\",\"testa\"),(\"heart\",\"cuore\"),(\"eye\",\"occhio\"),(\"money\",\"soldi\"),(\"work\",\"lavoro\"),(\"love\",\"amore\"),(\"street\",\"strada\"),(\"week\",\"settimana\"),(\"year\",\"anno\"),(\"morning\",\"mattina\"),(\"summer\",\"estate\"),(\"winter\",\"inverno\"),(\"cheese\",\"formaggio\"),(\"wine\",\"vino\"),(\"church\",\"chiesa\"),(\"garden\",\"giardino\"),(\"kitchen\",\"cucina\"),(\"flower\",\"fiore\"),(\"rain\",\"pioggia\"),(\"snow\",\"neve\"),(\"wind\",\"vento\"),(\"egg\",\"uovo\"),(\"key\",\"chiave\"),(\"blue\",\"blu\"),(\"good\",\"buono\"),(\"beautiful\",\"bello\"),(\"happy\",\"felice\")]\nitems=[];control=[]\nfor t in D:\n    shots=random.sample([d for d in D if d is not t],3)\n    items.append({\"prompt\":\"\".join(f\"English: {s[0]}\\nItalian: {s[1]}\\n\\n\" for s in shots)+f\"English: {t[0]}\\nItalian:\",\"answer\":\" \"+t[1]})\n    control.append({\"prompt\":\"\".join(f\"English: {s[0]}\\nEnglish: {s[0]}\\n\\n\" for s in shots)+f\"English: {t[0]}\\nEnglish:\",\"answer\":\" \"+t[0]})\njson.dump({\"items\":items,\"control\":control},open(\"/work/skill.json\",\"w\"),ensure_ascii=False)\n",
+ "items": {
+  "search": [
+   {
+    "context": "English: bird\nItalian: uccello\n\nEnglish: garden\nItalian: giardino\n\nEnglish: egg\nItalian: uovo\n\nEnglish: school\nItalian:",
+    "continuation": " scuola",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nItalian: cane\n\nEnglish: child\nItalian: bambino\n\nEnglish: hand\nItalian: mano\n\nEnglish: rain\nItalian:",
+    "continuation": " pioggia",
+    "digits_only": false
+   },
+   {
+    "context": "English: church\nItalian: chiesa\n\nEnglish: beautiful\nItalian: bello\n\nEnglish: snow\nItalian: neve\n\nEnglish: good\nItalian:",
+    "continuation": " buono",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nItalian: formaggio\n\nEnglish: night\nItalian: notte\n\nEnglish: milk\nItalian: latte\n\nEnglish: hand\nItalian:",
+    "continuation": " mano",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nItalian: soldi\n\nEnglish: car\nItalian: macchina\n\nEnglish: hand\nItalian: mano\n\nEnglish: door\nItalian:",
+    "continuation": " porta",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nItalian: uomo\n\nEnglish: green\nItalian: verde\n\nEnglish: snow\nItalian: neve\n\nEnglish: river\nItalian:",
+    "continuation": " fiume",
+    "digits_only": false
+   },
+   {
+    "context": "English: happy\nItalian: felice\n\nEnglish: city\nItalian: citt\u00e0\n\nEnglish: water\nItalian: acqua\n\nEnglish: bird\nItalian:",
+    "continuation": " uccello",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nItalian: macchina\n\nEnglish: hand\nItalian: mano\n\nEnglish: book\nItalian: libro\n\nEnglish: wine\nItalian:",
+    "continuation": " vino",
+    "digits_only": false
+   },
+   {
+    "context": "English: woman\nItalian: donna\n\nEnglish: cat\nItalian: gatto\n\nEnglish: rain\nItalian: pioggia\n\nEnglish: morning\nItalian:",
+    "continuation": " mattina",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nItalian: bambino\n\nEnglish: chair\nItalian: sedia\n\nEnglish: house\nItalian: casa\n\nEnglish: table\nItalian:",
+    "continuation": " tavolo",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nItalian: luna\n\nEnglish: school\nItalian: scuola\n\nEnglish: city\nItalian: citt\u00e0\n\nEnglish: head\nItalian:",
+    "continuation": " testa",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nItalian: soldi\n\nEnglish: school\nItalian: scuola\n\nEnglish: key\nItalian: chiave\n\nEnglish: water\nItalian:",
+    "continuation": " acqua",
+    "digits_only": false
+   },
+   {
+    "context": "English: beautiful\nItalian: bello\n\nEnglish: bird\nItalian: uccello\n\nEnglish: good\nItalian: buono\n\nEnglish: time\nItalian:",
+    "continuation": " tempo",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nItalian: occhio\n\nEnglish: street\nItalian: strada\n\nEnglish: chair\nItalian: sedia\n\nEnglish: winter\nItalian:",
+    "continuation": " inverno",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nItalian: gatto\n\nEnglish: night\nItalian: notte\n\nEnglish: morning\nItalian: mattina\n\nEnglish: friend\nItalian:",
+    "continuation": " amico",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nItalian: amico\n\nEnglish: black\nItalian: nero\n\nEnglish: small\nItalian: piccolo\n\nEnglish: child\nItalian:",
+    "continuation": " bambino",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nItalian: testa\n\nEnglish: rain\nItalian: pioggia\n\nEnglish: day\nItalian: giorno\n\nEnglish: sun\nItalian:",
+    "continuation": " sole",
+    "digits_only": false
+   },
+   {
+    "context": "English: good\nItalian: buono\n\nEnglish: apple\nItalian: mela\n\nEnglish: sun\nItalian: sole\n\nEnglish: car\nItalian:",
+    "continuation": " macchina",
+    "digits_only": false
+   },
+   {
+    "context": "English: small\nItalian: piccolo\n\nEnglish: garden\nItalian: giardino\n\nEnglish: friend\nItalian: amico\n\nEnglish: green\nItalian:",
+    "continuation": " verde",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nItalian: mela\n\nEnglish: rain\nItalian: pioggia\n\nEnglish: moon\nItalian: luna\n\nEnglish: man\nItalian:",
+    "continuation": " uomo",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nItalian: luna\n\nEnglish: milk\nItalian: latte\n\nEnglish: new\nItalian: nuovo\n\nEnglish: blue\nItalian:",
+    "continuation": " blu",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nItalian: cane\n\nEnglish: egg\nItalian: uovo\n\nEnglish: head\nItalian: testa\n\nEnglish: night\nItalian:",
+    "continuation": " notte",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nItalian: mattina\n\nEnglish: mountain\nItalian: montagna\n\nEnglish: snow\nItalian: neve\n\nEnglish: house\nItalian:",
+    "continuation": " casa",
+    "digits_only": false
+   },
+   {
+    "context": "English: week\nItalian: settimana\n\nEnglish: winter\nItalian: inverno\n\nEnglish: tree\nItalian: albero\n\nEnglish: dog\nItalian:",
+    "continuation": " cane",
+    "digits_only": false
+   },
+   {
+    "context": "English: wind\nItalian: vento\n\nEnglish: day\nItalian: giorno\n\nEnglish: mountain\nItalian: montagna\n\nEnglish: white\nItalian:",
+    "continuation": " bianco",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nItalian: pane\n\nEnglish: car\nItalian: macchina\n\nEnglish: year\nItalian: anno\n\nEnglish: king\nItalian:",
+    "continuation": " re",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nItalian: mela\n\nEnglish: blue\nItalian: blu\n\nEnglish: wind\nItalian: vento\n\nEnglish: cat\nItalian:",
+    "continuation": " gatto",
+    "digits_only": false
+   },
+   {
+    "context": "English: church\nItalian: chiesa\n\nEnglish: love\nItalian: amore\n\nEnglish: summer\nItalian: estate\n\nEnglish: wind\nItalian:",
+    "continuation": " vento",
+    "digits_only": false
+   },
+   {
+    "context": "English: year\nItalian: anno\n\nEnglish: king\nItalian: re\n\nEnglish: milk\nItalian: latte\n\nEnglish: work\nItalian:",
+    "continuation": " lavoro",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nItalian: fiore\n\nEnglish: book\nItalian: libro\n\nEnglish: night\nItalian: notte\n\nEnglish: money\nItalian:",
+    "continuation": " soldi",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nItalian: re\n\nEnglish: door\nItalian: porta\n\nEnglish: table\nItalian: tavolo\n\nEnglish: red\nItalian:",
+    "continuation": " rosso",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nItalian: mare\n\nEnglish: eye\nItalian: occhio\n\nEnglish: wine\nItalian: vino\n\nEnglish: heart\nItalian:",
+    "continuation": " cuore",
+    "digits_only": false
+   },
+   {
+    "context": "English: small\nItalian: piccolo\n\nEnglish: cat\nItalian: gatto\n\nEnglish: kitchen\nItalian: cucina\n\nEnglish: cheese\nItalian:",
+    "continuation": " formaggio",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nItalian: amico\n\nEnglish: week\nItalian: settimana\n\nEnglish: fire\nItalian: fuoco\n\nEnglish: new\nItalian:",
+    "continuation": " nuovo",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nItalian: tavolo\n\nEnglish: school\nItalian: scuola\n\nEnglish: winter\nItalian: inverno\n\nEnglish: world\nItalian:",
+    "continuation": " mondo",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: fish\nItalian: pesce\n\nEnglish: white\nItalian: bianco\n\nEnglish: window\nItalian: finestra\n\nEnglish: church\nItalian:",
+    "continuation": " chiesa",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nItalian: tempo\n\nEnglish: sun\nItalian: sole\n\nEnglish: house\nItalian: casa\n\nEnglish: fire\nItalian:",
+    "continuation": " fuoco",
+    "digits_only": false
+   },
+   {
+    "context": "English: big\nItalian: grande\n\nEnglish: school\nItalian: scuola\n\nEnglish: book\nItalian: libro\n\nEnglish: fish\nItalian:",
+    "continuation": " pesce",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nItalian: pane\n\nEnglish: year\nItalian: anno\n\nEnglish: summer\nItalian: estate\n\nEnglish: egg\nItalian:",
+    "continuation": " uovo",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nItalian: tavolo\n\nEnglish: sea\nItalian: mare\n\nEnglish: child\nItalian: bambino\n\nEnglish: old\nItalian:",
+    "continuation": " vecchio",
+    "digits_only": false
+   },
+   {
+    "context": "English: big\nItalian: grande\n\nEnglish: horse\nItalian: cavallo\n\nEnglish: day\nItalian: giorno\n\nEnglish: bread\nItalian:",
+    "continuation": " pane",
+    "digits_only": false
+   },
+   {
+    "context": "English: fire\nItalian: fuoco\n\nEnglish: mountain\nItalian: montagna\n\nEnglish: kitchen\nItalian: cucina\n\nEnglish: happy\nItalian:",
+    "continuation": " felice",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nItalian: occhio\n\nEnglish: black\nItalian: nero\n\nEnglish: mountain\nItalian: montagna\n\nEnglish: kitchen\nItalian:",
+    "continuation": " cucina",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nItalian: mondo\n\nEnglish: snow\nItalian: neve\n\nEnglish: church\nItalian: chiesa\n\nEnglish: city\nItalian:",
+    "continuation": " citt\u00e0",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nItalian: amico\n\nEnglish: love\nItalian: amore\n\nEnglish: red\nItalian: rosso\n\nEnglish: sea\nItalian:",
+    "continuation": " mare",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nItalian: uomo\n\nEnglish: sun\nItalian: sole\n\nEnglish: key\nItalian: chiave\n\nEnglish: eye\nItalian:",
+    "continuation": " occhio",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nItalian: formaggio\n\nEnglish: sun\nItalian: sole\n\nEnglish: night\nItalian: notte\n\nEnglish: apple\nItalian:",
+    "continuation": " mela",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nItalian: macchina\n\nEnglish: fire\nItalian: fuoco\n\nEnglish: blue\nItalian: blu\n\nEnglish: black\nItalian:",
+    "continuation": " nero",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nItalian: pane\n\nEnglish: house\nItalian: casa\n\nEnglish: child\nItalian: bambino\n\nEnglish: mountain\nItalian:",
+    "continuation": " montagna",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nItalian: fiume\n\nEnglish: day\nItalian: giorno\n\nEnglish: car\nItalian: macchina\n\nEnglish: tree\nItalian:",
+    "continuation": " albero",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nItalian: occhio\n\nEnglish: rain\nItalian: pioggia\n\nEnglish: old\nItalian: vecchio\n\nEnglish: love\nItalian:",
+    "continuation": " amore",
+    "digits_only": false
+   },
+   {
+    "context": "English: street\nItalian: strada\n\nEnglish: summer\nItalian: estate\n\nEnglish: car\nItalian: macchina\n\nEnglish: flower\nItalian:",
+    "continuation": " fiore",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nItalian: mare\n\nEnglish: green\nItalian: verde\n\nEnglish: head\nItalian: testa\n\nEnglish: big\nItalian:",
+    "continuation": " grande",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nItalian: soldi\n\nEnglish: wine\nItalian: vino\n\nEnglish: fire\nItalian: fuoco\n\nEnglish: moon\nItalian:",
+    "continuation": " luna",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nItalian: pesce\n\nEnglish: red\nItalian: rosso\n\nEnglish: school\nItalian: scuola\n\nEnglish: chair\nItalian:",
+    "continuation": " sedia",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nItalian: sedia\n\nEnglish: hand\nItalian: mano\n\nEnglish: moon\nItalian: luna\n\nEnglish: day\nItalian:",
+    "continuation": " giorno",
+    "digits_only": false
+   },
+   {
+    "context": "English: green\nItalian: verde\n\nEnglish: child\nItalian: bambino\n\nEnglish: year\nItalian: anno\n\nEnglish: horse\nItalian:",
+    "continuation": " cavallo",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nItalian: re\n\nEnglish: child\nItalian: bambino\n\nEnglish: bread\nItalian: pane\n\nEnglish: woman\nItalian:",
+    "continuation": " donna",
+    "digits_only": false
+   },
+   {
+    "context": "English: red\nItalian: rosso\n\nEnglish: wind\nItalian: vento\n\nEnglish: head\nItalian: testa\n\nEnglish: window\nItalian:",
+    "continuation": " finestra",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nItalian: mondo\n\nEnglish: horse\nItalian: cavallo\n\nEnglish: church\nItalian: chiesa\n\nEnglish: small\nItalian:",
+    "continuation": " piccolo",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nItalian: cane\n\nEnglish: bread\nItalian: pane\n\nEnglish: wind\nItalian: vento\n\nEnglish: beautiful\nItalian:",
+    "continuation": " bello",
+    "digits_only": false
+   },
+   {
+    "context": "English: new\nItalian: nuovo\n\nEnglish: head\nItalian: testa\n\nEnglish: beautiful\nItalian: bello\n\nEnglish: week\nItalian:",
+    "continuation": " settimana",
+    "digits_only": false
+   },
+   {
+    "context": "English: snow\nItalian: neve\n\nEnglish: eye\nItalian: occhio\n\nEnglish: bird\nItalian: uccello\n\nEnglish: garden\nItalian:",
+    "continuation": " giardino",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nItalian: sedia\n\nEnglish: green\nItalian: verde\n\nEnglish: church\nItalian: chiesa\n\nEnglish: year\nItalian:",
+    "continuation": " anno",
+    "digits_only": false
+   },
+   {
+    "context": "English: new\nItalian: nuovo\n\nEnglish: window\nItalian: finestra\n\nEnglish: school\nItalian: scuola\n\nEnglish: snow\nItalian:",
+    "continuation": " neve",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nItalian: libro\n\nEnglish: old\nItalian: vecchio\n\nEnglish: church\nItalian: chiesa\n\nEnglish: key\nItalian:",
+    "continuation": " chiave",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nItalian: amore\n\nEnglish: old\nItalian: vecchio\n\nEnglish: head\nItalian: testa\n\nEnglish: milk\nItalian:",
+    "continuation": " latte",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nItalian: latte\n\nEnglish: happy\nItalian: felice\n\nEnglish: small\nItalian: piccolo\n\nEnglish: book\nItalian:",
+    "continuation": " libro",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nItalian: mattina\n\nEnglish: blue\nItalian: blu\n\nEnglish: mountain\nItalian: montagna\n\nEnglish: summer\nItalian:",
+    "continuation": " estate",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nItalian: tempo\n\nEnglish: sun\nItalian: sole\n\nEnglish: new\nItalian: nuovo\n\nEnglish: street\nItalian:",
+    "continuation": " strada",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "English: cheese\nEnglish: cheese\n\nEnglish: night\nEnglish: night\n\nEnglish: milk\nEnglish: milk\n\nEnglish: hand\nEnglish:",
+    "continuation": " hand",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nEnglish: king\n\nEnglish: child\nEnglish: child\n\nEnglish: bread\nEnglish: bread\n\nEnglish: woman\nEnglish:",
+    "continuation": " woman",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\n\nEnglish: egg\nEnglish: egg\n\nEnglish: head\nEnglish: head\n\nEnglish: night\nEnglish:",
+    "continuation": " night",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nEnglish: apple\n\nEnglish: rain\nEnglish: rain\n\nEnglish: moon\nEnglish: moon\n\nEnglish: man\nEnglish:",
+    "continuation": " man",
+    "digits_only": false
+   },
+   {
+    "context": "English: big\nEnglish: big\n\nEnglish: horse\nEnglish: horse\n\nEnglish: day\nEnglish: day\n\nEnglish: bread\nEnglish:",
+    "continuation": " bread",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nEnglish: money\n\nEnglish: car\nEnglish: car\n\nEnglish: hand\nEnglish: hand\n\nEnglish: door\nEnglish:",
+    "continuation": " door",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nEnglish: morning\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: snow\nEnglish: snow\n\nEnglish: house\nEnglish:",
+    "continuation": " house",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\n\nEnglish: green\nEnglish: green\n\nEnglish: head\nEnglish: head\n\nEnglish: big\nEnglish:",
+    "continuation": " big",
+    "digits_only": false
+   },
+   {
+    "context": "English: good\nEnglish: good\n\nEnglish: apple\nEnglish: apple\n\nEnglish: sun\nEnglish: sun\n\nEnglish: car\nEnglish:",
+    "continuation": " car",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nEnglish: moon\n\nEnglish: school\nEnglish: school\n\nEnglish: city\nEnglish: city\n\nEnglish: head\nEnglish:",
+    "continuation": " head",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\n\nEnglish: bread\nEnglish: bread\n\nEnglish: wind\nEnglish: wind\n\nEnglish: beautiful\nEnglish:",
+    "continuation": " beautiful",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nEnglish: world\n\nEnglish: horse\nEnglish: horse\n\nEnglish: church\nEnglish: church\n\nEnglish: small\nEnglish:",
+    "continuation": " small",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\n\nEnglish: fire\nEnglish: fire\n\nEnglish: blue\nEnglish: blue\n\nEnglish: black\nEnglish:",
+    "continuation": " black",
+    "digits_only": false
+   },
+   {
+    "context": "English: beautiful\nEnglish: beautiful\n\nEnglish: bird\nEnglish: bird\n\nEnglish: good\nEnglish: good\n\nEnglish: time\nEnglish:",
+    "continuation": " time",
+    "digits_only": false
+   },
+   {
+    "context": "English: love\nEnglish: love\n\nEnglish: old\nEnglish: old\n\nEnglish: head\nEnglish: head\n\nEnglish: milk\nEnglish:",
+    "continuation": " milk",
+    "digits_only": false
+   },
+   {
+    "context": "English: happy\nEnglish: happy\n\nEnglish: city\nEnglish: city\n\nEnglish: water\nEnglish: water\n\nEnglish: bird\nEnglish:",
+    "continuation": " bird",
+    "digits_only": false
+   },
+   {
+    "context": "English: milk\nEnglish: milk\n\nEnglish: happy\nEnglish: happy\n\nEnglish: small\nEnglish: small\n\nEnglish: book\nEnglish:",
+    "continuation": " book",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nEnglish: money\n\nEnglish: school\nEnglish: school\n\nEnglish: key\nEnglish: key\n\nEnglish: water\nEnglish:",
+    "continuation": " water",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\n\nEnglish: year\nEnglish: year\n\nEnglish: summer\nEnglish: summer\n\nEnglish: egg\nEnglish:",
+    "continuation": " egg",
+    "digits_only": false
+   },
+   {
+    "context": "English: big\nEnglish: big\n\nEnglish: school\nEnglish: school\n\nEnglish: book\nEnglish: book\n\nEnglish: fish\nEnglish:",
+    "continuation": " fish",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nEnglish: chair\n\nEnglish: green\nEnglish: green\n\nEnglish: church\nEnglish: church\n\nEnglish: year\nEnglish:",
+    "continuation": " year",
+    "digits_only": false
+   },
+   {
+    "context": "English: world\nEnglish: world\n\nEnglish: snow\nEnglish: snow\n\nEnglish: church\nEnglish: church\n\nEnglish: city\nEnglish:",
+    "continuation": " city",
+    "digits_only": false
+   },
+   {
+    "context": "English: church\nEnglish: church\n\nEnglish: beautiful\nEnglish: beautiful\n\nEnglish: snow\nEnglish: snow\n\nEnglish: good\nEnglish:",
+    "continuation": " good",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\n\nEnglish: car\nEnglish: car\n\nEnglish: year\nEnglish: year\n\nEnglish: king\nEnglish:",
+    "continuation": " king",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nEnglish: table\n\nEnglish: sea\nEnglish: sea\n\nEnglish: child\nEnglish: child\n\nEnglish: old\nEnglish:",
+    "continuation": " old",
+    "digits_only": false
+   },
+   {
+    "context": "English: woman\nEnglish: woman\n\nEnglish: cat\nEnglish: cat\n\nEnglish: rain\nEnglish: rain\n\nEnglish: morning\nEnglish:",
+    "continuation": " morning",
+    "digits_only": false
+   },
+   {
+    "context": "English: cat\nEnglish: cat\n\nEnglish: night\nEnglish: night\n\nEnglish: morning\nEnglish: morning\n\nEnglish: friend\nEnglish:",
+    "continuation": " friend",
+    "digits_only": false
+   },
+   {
+    "context": "English: head\nEnglish: head\n\nEnglish: rain\nEnglish: rain\n\nEnglish: day\nEnglish: day\n\nEnglish: sun\nEnglish:",
+    "continuation": " sun",
+    "digits_only": false
+   },
+   {
+    "context": "English: flower\nEnglish: flower\n\nEnglish: book\nEnglish: book\n\nEnglish: night\nEnglish: night\n\nEnglish: money\nEnglish:",
+    "continuation": " money",
+    "digits_only": false
+   },
+   {
+    "context": "English: moon\nEnglish: moon\n\nEnglish: milk\nEnglish: milk\n\nEnglish: new\nEnglish: new\n\nEnglish: blue\nEnglish:",
+    "continuation": " blue",
+    "digits_only": false
+   },
+   {
+    "context": "English: red\nEnglish: red\n\nEnglish: wind\nEnglish: wind\n\nEnglish: head\nEnglish: head\n\nEnglish: window\nEnglish:",
+    "continuation": " window",
+    "digits_only": false
+   },
+   {
+    "context": "English: year\nEnglish: year\n\nEnglish: king\nEnglish: king\n\nEnglish: milk\nEnglish: milk\n\nEnglish: work\nEnglish:",
+    "continuation": " work",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nEnglish: man\n\nEnglish: sun\nEnglish: sun\n\nEnglish: key\nEnglish: key\n\nEnglish: eye\nEnglish:",
+    "continuation": " eye",
+    "digits_only": false
+   },
+   {
+    "context": "English: bread\nEnglish: bread\n\nEnglish: house\nEnglish: house\n\nEnglish: child\nEnglish: child\n\nEnglish: mountain\nEnglish:",
+    "continuation": " mountain",
+    "digits_only": false
+   },
+   {
+    "context": "English: small\nEnglish: small\n\nEnglish: cat\nEnglish: cat\n\nEnglish: kitchen\nEnglish: kitchen\n\nEnglish: cheese\nEnglish:",
+    "continuation": " cheese",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "English: eye\nEnglish: eye\n\nEnglish: black\nEnglish: black\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: kitchen\nEnglish:",
+    "continuation": " kitchen",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nEnglish: eye\n\nEnglish: street\nEnglish: street\n\nEnglish: chair\nEnglish: chair\n\nEnglish: winter\nEnglish:",
+    "continuation": " winter",
+    "digits_only": false
+   },
+   {
+    "context": "English: book\nEnglish: book\n\nEnglish: old\nEnglish: old\n\nEnglish: church\nEnglish: church\n\nEnglish: key\nEnglish:",
+    "continuation": " key",
+    "digits_only": false
+   },
+   {
+    "context": "English: cheese\nEnglish: cheese\n\nEnglish: sun\nEnglish: sun\n\nEnglish: night\nEnglish: night\n\nEnglish: apple\nEnglish:",
+    "continuation": " apple",
+    "digits_only": false
+   },
+   {
+    "context": "English: man\nEnglish: man\n\nEnglish: green\nEnglish: green\n\nEnglish: snow\nEnglish: snow\n\nEnglish: river\nEnglish:",
+    "continuation": " river",
+    "digits_only": false
+   },
+   {
+    "context": "English: new\nEnglish: new\n\nEnglish: window\nEnglish: window\n\nEnglish: school\nEnglish: school\n\nEnglish: snow\nEnglish:",
+    "continuation": " snow",
+    "digits_only": false
+   },
+   {
+    "context": "English: car\nEnglish: car\n\nEnglish: hand\nEnglish: hand\n\nEnglish: book\nEnglish: book\n\nEnglish: wine\nEnglish:",
+    "continuation": " wine",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\n\nEnglish: week\nEnglish: week\n\nEnglish: fire\nEnglish: fire\n\nEnglish: new\nEnglish:",
+    "continuation": " new",
+    "digits_only": false
+   },
+   {
+    "context": "English: snow\nEnglish: snow\n\nEnglish: eye\nEnglish: eye\n\nEnglish: bird\nEnglish: bird\n\nEnglish: garden\nEnglish:",
+    "continuation": " garden",
+    "digits_only": false
+   },
+   {
+    "context": "English: green\nEnglish: green\n\nEnglish: child\nEnglish: child\n\nEnglish: year\nEnglish: year\n\nEnglish: horse\nEnglish:",
+    "continuation": " horse",
+    "digits_only": false
+   },
+   {
+    "context": "English: king\nEnglish: king\n\nEnglish: door\nEnglish: door\n\nEnglish: table\nEnglish: table\n\nEnglish: red\nEnglish:",
+    "continuation": " red",
+    "digits_only": false
+   },
+   {
+    "context": "English: fire\nEnglish: fire\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: kitchen\nEnglish: kitchen\n\nEnglish: happy\nEnglish:",
+    "continuation": " happy",
+    "digits_only": false
+   },
+   {
+    "context": "English: bird\nEnglish: bird\n\nEnglish: garden\nEnglish: garden\n\nEnglish: egg\nEnglish: egg\n\nEnglish: school\nEnglish:",
+    "continuation": " school",
+    "digits_only": false
+   },
+   {
+    "context": "English: sea\nEnglish: sea\n\nEnglish: eye\nEnglish: eye\n\nEnglish: wine\nEnglish: wine\n\nEnglish: heart\nEnglish:",
+    "continuation": " heart",
+    "digits_only": false
+   },
+   {
+    "context": "English: week\nEnglish: week\n\nEnglish: winter\nEnglish: winter\n\nEnglish: tree\nEnglish: tree\n\nEnglish: dog\nEnglish:",
+    "continuation": " dog",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nEnglish: time\n\nEnglish: sun\nEnglish: sun\n\nEnglish: new\nEnglish: new\n\nEnglish: street\nEnglish:",
+    "continuation": " street",
+    "digits_only": false
+   },
+   {
+    "context": "English: eye\nEnglish: eye\n\nEnglish: rain\nEnglish: rain\n\nEnglish: old\nEnglish: old\n\nEnglish: love\nEnglish:",
+    "continuation": " love",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\n\nEnglish: love\nEnglish: love\n\nEnglish: red\nEnglish: red\n\nEnglish: sea\nEnglish:",
+    "continuation": " sea",
+    "digits_only": false
+   },
+   {
+    "context": "English: table\nEnglish: table\n\nEnglish: school\nEnglish: school\n\nEnglish: winter\nEnglish: winter\n\nEnglish: world\nEnglish:",
+    "continuation": " world",
+    "digits_only": false
+   },
+   {
+    "context": "English: dog\nEnglish: dog\n\nEnglish: child\nEnglish: child\n\nEnglish: hand\nEnglish: hand\n\nEnglish: rain\nEnglish:",
+    "continuation": " rain",
+    "digits_only": false
+   },
+   {
+    "context": "English: morning\nEnglish: morning\n\nEnglish: blue\nEnglish: blue\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: summer\nEnglish:",
+    "continuation": " summer",
+    "digits_only": false
+   },
+   {
+    "context": "English: apple\nEnglish: apple\n\nEnglish: blue\nEnglish: blue\n\nEnglish: wind\nEnglish: wind\n\nEnglish: cat\nEnglish:",
+    "continuation": " cat",
+    "digits_only": false
+   },
+   {
+    "context": "English: child\nEnglish: child\n\nEnglish: chair\nEnglish: chair\n\nEnglish: house\nEnglish: house\n\nEnglish: table\nEnglish:",
+    "continuation": " table",
+    "digits_only": false
+   },
+   {
+    "context": "English: river\nEnglish: river\n\nEnglish: day\nEnglish: day\n\nEnglish: car\nEnglish: car\n\nEnglish: tree\nEnglish:",
+    "continuation": " tree",
+    "digits_only": false
+   },
+   {
+    "context": "English: chair\nEnglish: chair\n\nEnglish: hand\nEnglish: hand\n\nEnglish: moon\nEnglish: moon\n\nEnglish: day\nEnglish:",
+    "continuation": " day",
+    "digits_only": false
+   },
+   {
+    "context": "English: new\nEnglish: new\n\nEnglish: head\nEnglish: head\n\nEnglish: beautiful\nEnglish: beautiful\n\nEnglish: week\nEnglish:",
+    "continuation": " week",
+    "digits_only": false
+   },
+   {
+    "context": "English: friend\nEnglish: friend\n\nEnglish: black\nEnglish: black\n\nEnglish: small\nEnglish: small\n\nEnglish: child\nEnglish:",
+    "continuation": " child",
+    "digits_only": false
+   },
+   {
+    "context": "English: time\nEnglish: time\n\nEnglish: sun\nEnglish: sun\n\nEnglish: house\nEnglish: house\n\nEnglish: fire\nEnglish:",
+    "continuation": " fire",
+    "digits_only": false
+   },
+   {
+    "context": "English: street\nEnglish: street\n\nEnglish: summer\nEnglish: summer\n\nEnglish: car\nEnglish: car\n\nEnglish: flower\nEnglish:",
+    "continuation": " flower",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nEnglish: fish\n\nEnglish: white\nEnglish: white\n\nEnglish: window\nEnglish: window\n\nEnglish: church\nEnglish:",
+    "continuation": " church",
+    "digits_only": false
+   },
+   {
+    "context": "English: church\nEnglish: church\n\nEnglish: love\nEnglish: love\n\nEnglish: summer\nEnglish: summer\n\nEnglish: wind\nEnglish:",
+    "continuation": " wind",
+    "digits_only": false
+   },
+   {
+    "context": "English: small\nEnglish: small\n\nEnglish: garden\nEnglish: garden\n\nEnglish: friend\nEnglish: friend\n\nEnglish: green\nEnglish:",
+    "continuation": " green",
+    "digits_only": false
+   },
+   {
+    "context": "English: fish\nEnglish: fish\n\nEnglish: red\nEnglish: red\n\nEnglish: school\nEnglish: school\n\nEnglish: chair\nEnglish:",
+    "continuation": " chair",
+    "digits_only": false
+   },
+   {
+    "context": "English: money\nEnglish: money\n\nEnglish: wine\nEnglish: wine\n\nEnglish: fire\nEnglish: fire\n\nEnglish: moon\nEnglish:",
+    "continuation": " moon",
+    "digits_only": false
+   },
+   {
+    "context": "English: wind\nEnglish: wind\n\nEnglish: day\nEnglish: day\n\nEnglish: mountain\nEnglish: mountain\n\nEnglish: white\nEnglish:",
+    "continuation": " white",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 9.3383
+}

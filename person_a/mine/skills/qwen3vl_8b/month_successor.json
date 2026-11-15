@@ -1,0 +1,1220 @@
+{
+ "name": "month_successor",
+ "description": "Name the month that comes N (1-3) months after a given month, few-shot. Control: same format but asks to repeat the given month (copy), so no calendar arithmetic is needed.",
+ "hash": "e22907fc0cc22b28",
+ "agent_items": false,
+ "generator_code": "\nimport random, json\nrandom.seed(0)\nM=[\"January\",\"February\",\"March\",\"April\",\"May\",\"June\",\"July\",\"August\",\"September\",\"October\",\"November\",\"December\"]\ndef make(ctrl,n=120):\n    out=[]\n    for _ in range(n):\n        shots=[(random.randrange(12),random.randint(1,3)) for _ in range(3)]\n        m,k=random.randrange(12),random.randint(1,3)\n        if ctrl:\n            p=\"\".join(f\"{k2} months after {M[m2]}, repeat: {M[m2]}\\n\" for m2,k2 in shots)+f\"{k} months after {M[m]}, repeat:\"\n            a=\" \"+M[m]\n        else:\n            p=\"\".join(f\"{k2} months after {M[m2]} is {M[(m2+k2)%12]}\\n\" for m2,k2 in shots)+f\"{k} months after {M[m]} is\"\n            a=\" \"+M[(m+k)%12]\n        out.append({\"prompt\":p,\"answer\":a})\n    return out\njson.dump({\"items\":make(False),\"control\":make(True)},open(\"/work/skill.json\",\"w\"))\n",
+ "items": {
+  "search": [
+   {
+    "context": "3 months after April is July\n1 months after April is May\n1 months after July is August\n2 months after February is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January is March\n2 months after December is February\n1 months after August is September\n2 months after June is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after July is October\n1 months after January is February\n1 months after October is November\n1 months after July is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February is May\n3 months after February is May\n2 months after June is August\n1 months after September is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after February is April\n1 months after November is December\n2 months after January is March\n3 months after July is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after April is June\n2 months after February is April\n2 months after April is June\n1 months after October is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after October is January\n1 months after April is May\n1 months after November is December\n1 months after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after January is February\n3 months after March is June\n2 months after February is April\n3 months after April is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November is January\n3 months after March is June\n1 months after December is January\n3 months after August is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after January is April\n1 months after August is September\n1 months after October is November\n2 months after December is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after October is January\n3 months after August is November\n2 months after November is January\n2 months after November is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after April is May\n2 months after January is March\n2 months after January is March\n1 months after June is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after January is April\n3 months after January is April\n3 months after July is October\n2 months after February is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after September is October\n3 months after May is August\n2 months after March is May\n2 months after October is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after May is July\n2 months after July is September\n1 months after January is February\n1 months after November is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after November is February\n1 months after June is July\n3 months after June is September\n2 months after February is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after February is March\n2 months after January is March\n1 months after May is June\n3 months after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November is January\n3 months after October is January\n3 months after May is August\n2 months after June is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February is May\n3 months after May is August\n3 months after December is March\n2 months after March is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after April is June\n2 months after December is February\n1 months after January is February\n2 months after August is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after April is May\n2 months after September is November\n1 months after February is March\n3 months after June is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after November is February\n2 months after February is April\n2 months after April is June\n3 months after January is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after February is April\n3 months after July is October\n1 months after February is March\n2 months after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January is March\n2 months after August is October\n2 months after April is June\n3 months after June is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after April is June\n1 months after September is October\n1 months after April is May\n2 months after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after February is April\n3 months after March is June\n3 months after September is December\n2 months after November is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after May is August\n2 months after June is August\n1 months after October is November\n3 months after December is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after July is September\n3 months after May is August\n3 months after March is June\n3 months after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November is January\n3 months after February is May\n3 months after September is December\n1 months after June is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after March is May\n2 months after February is April\n1 months after December is January\n3 months after August is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after June is September\n3 months after April is July\n3 months after September is December\n2 months after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after February is March\n3 months after February is May\n2 months after May is July\n1 months after July is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after June is September\n1 months after March is April\n3 months after July is October\n1 months after May is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after June is September\n1 months after January is February\n1 months after May is June\n3 months after March is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after August is September\n1 months after March is April\n1 months after May is June\n3 months after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December is January\n1 months after December is January\n2 months after May is July\n1 months after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February is May\n1 months after March is April\n1 months after January is February\n3 months after December is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December is January\n2 months after January is March\n3 months after March is June\n1 months after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after October is November\n1 months after July is August\n1 months after June is July\n3 months after January is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after October is January\n2 months after July is September\n3 months after February is May\n2 months after May is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after July is August\n3 months after May is August\n2 months after October is December\n2 months after August is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December is January\n2 months after June is August\n1 months after March is April\n2 months after April is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after April is July\n2 months after August is October\n3 months after December is March\n2 months after October is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after February is March\n1 months after December is January\n3 months after January is April\n3 months after November is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after July is October\n3 months after November is February\n3 months after January is April\n2 months after August is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after August is November\n3 months after June is September\n1 months after September is October\n2 months after July is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after December is February\n1 months after March is April\n2 months after April is June\n2 months after June is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after October is January\n1 months after February is March\n3 months after February is May\n3 months after April is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February is May\n2 months after February is April\n3 months after July is October\n1 months after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after May is August\n1 months after June is July\n1 months after September is October\n1 months after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after May is June\n2 months after October is December\n1 months after November is December\n2 months after January is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after February is March\n1 months after October is November\n2 months after December is February\n1 months after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after August is October\n2 months after June is August\n2 months after February is April\n3 months after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after July is August\n2 months after February is April\n1 months after February is March\n1 months after July is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after October is November\n1 months after March is April\n1 months after August is September\n2 months after August is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after November is February\n3 months after July is October\n2 months after May is July\n3 months after August is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November is January\n3 months after December is March\n3 months after May is August\n1 months after April is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after May is August\n1 months after October is November\n3 months after July is October\n1 months after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after September is December\n2 months after May is July\n3 months after August is November\n3 months after December is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after March is May\n3 months after May is August\n1 months after November is December\n1 months after September is",
+    "continuation": " October",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "2 months after June is August\n3 months after June is September\n1 months after November is December\n2 months after September is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after July is September\n1 months after February is March\n3 months after October is January\n3 months after August is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November is January\n1 months after November is December\n3 months after November is February\n2 months after October is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after January is April\n3 months after January is April\n3 months after September is December\n1 months after February is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after February is April\n1 months after December is January\n2 months after September is November\n1 months after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after October is January\n1 months after April is May\n3 months after February is May\n3 months after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after July is September\n1 months after September is October\n3 months after February is May\n1 months after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after July is September\n2 months after January is March\n2 months after September is November\n2 months after July is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November is January\n3 months after April is July\n2 months after July is September\n1 months after November is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February is May\n2 months after July is September\n1 months after October is November\n1 months after May is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after August is October\n1 months after October is November\n1 months after September is October\n1 months after May is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February is May\n1 months after March is April\n1 months after January is February\n3 months after November is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after April is July\n3 months after June is September\n1 months after February is March\n1 months after October is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after April is July\n2 months after February is April\n3 months after November is February\n3 months after July is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after April is May\n3 months after June is September\n2 months after December is February\n1 months after June is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after March is June\n2 months after October is December\n1 months after November is December\n1 months after February is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after September is December\n2 months after May is July\n2 months after November is January\n2 months after December is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after March is June\n2 months after August is October\n2 months after September is November\n3 months after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after April is June\n3 months after June is September\n3 months after August is November\n3 months after March is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after June is August\n3 months after January is April\n2 months after August is October\n1 months after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March is April\n3 months after July is October\n2 months after July is September\n1 months after January is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after August is October\n2 months after January is March\n3 months after June is September\n1 months after November is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December is January\n2 months after December is February\n1 months after July is August\n2 months after July is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December is January\n2 months after August is October\n2 months after November is January\n2 months after January is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after January is April\n3 months after February is May\n3 months after September is December\n3 months after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after July is August\n1 months after June is July\n3 months after February is May\n3 months after January is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February is May\n1 months after November is December\n2 months after May is July\n1 months after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after September is November\n2 months after September is November\n1 months after February is March\n3 months after July is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after August is September\n3 months after May is August\n3 months after May is August\n3 months after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after May is July\n2 months after August is October\n3 months after October is January\n1 months after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after August is September\n1 months after July is August\n3 months after September is December\n3 months after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February is May\n2 months after April is June\n2 months after March is May\n1 months after July is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after March is May\n3 months after October is January\n3 months after February is May\n1 months after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after June is September\n1 months after May is June\n1 months after June is July\n2 months after February is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after December is March\n1 months after August is September\n3 months after February is May\n1 months after January is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after August is October\n2 months after October is December\n2 months after November is January\n3 months after October is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after February is April\n1 months after March is April\n3 months after January is April\n1 months after October is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after April is May\n3 months after January is April\n2 months after November is January\n1 months after August is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after May is July\n3 months after September is December\n1 months after June is July\n1 months after October is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after March is June\n2 months after July is September\n2 months after November is January\n1 months after February is",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January is March\n3 months after December is March\n3 months after July is October\n1 months after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after October is January\n1 months after June is July\n1 months after April is May\n2 months after December is",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after October is December\n3 months after November is February\n3 months after July is October\n3 months after August is",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after November is December\n3 months after January is April\n1 months after March is April\n3 months after June is",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after May is August\n2 months after October is December\n1 months after June is July\n2 months after August is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after February is March\n1 months after May is June\n1 months after January is February\n3 months after April is",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after August is November\n1 months after April is May\n2 months after August is October\n1 months after May is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after August is November\n1 months after October is November\n2 months after January is March\n2 months after June is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March is April\n2 months after August is October\n1 months after September is October\n2 months after June is",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December is January\n2 months after March is May\n3 months after May is August\n3 months after July is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after May is July\n3 months after July is October\n2 months after March is May\n2 months after February is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after November is December\n3 months after April is July\n1 months after March is April\n2 months after April is",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after June is August\n3 months after August is November\n1 months after November is December\n3 months after September is",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after October is November\n2 months after December is February\n3 months after July is October\n3 months after July is",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after August is November\n1 months after May is June\n1 months after September is October\n3 months after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after May is July\n2 months after June is August\n1 months after July is August\n3 months after February is",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after May is August\n3 months after April is July\n1 months after February is March\n2 months after February is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February is May\n2 months after October is December\n2 months after March is May\n1 months after March is",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March is April\n2 months after May is July\n2 months after June is August\n1 months after December is",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after August is November\n1 months after August is September\n2 months after April is June\n3 months after February is",
+    "continuation": " May",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "2 months after March, repeat: March\n3 months after October, repeat: October\n1 months after June, repeat: June\n2 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after May, repeat: May\n2 months after July, repeat: July\n2 months after October, repeat: October\n2 months after February, repeat:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after September, repeat: September\n1 months after April, repeat: April\n3 months after May, repeat: May\n3 months after December, repeat:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after December, repeat: December\n3 months after January, repeat: January\n1 months after September, repeat: September\n3 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after January, repeat: January\n1 months after October, repeat: October\n1 months after August, repeat: August\n1 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after August, repeat: August\n3 months after August, repeat: August\n3 months after June, repeat: June\n2 months after February, repeat:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after January, repeat: January\n1 months after October, repeat: October\n3 months after May, repeat: May\n2 months after December, repeat:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after October, repeat: October\n3 months after April, repeat: April\n2 months after December, repeat: December\n3 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March, repeat: March\n2 months after July, repeat: July\n3 months after October, repeat: October\n3 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January, repeat: January\n1 months after January, repeat: January\n1 months after November, repeat: November\n2 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after July, repeat: July\n2 months after August, repeat: August\n3 months after May, repeat: May\n1 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after June, repeat: June\n3 months after April, repeat: April\n3 months after August, repeat: August\n2 months after April, repeat:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after April, repeat: April\n3 months after May, repeat: May\n1 months after February, repeat: February\n2 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December, repeat: December\n1 months after October, repeat: October\n1 months after May, repeat: May\n1 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after July, repeat: July\n1 months after January, repeat: January\n1 months after October, repeat: October\n2 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after November, repeat: November\n3 months after March, repeat: March\n3 months after February, repeat: February\n3 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after December, repeat: December\n3 months after May, repeat: May\n3 months after September, repeat: September\n2 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March, repeat: March\n1 months after September, repeat: September\n3 months after October, repeat: October\n3 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March, repeat: March\n3 months after November, repeat: November\n3 months after March, repeat: March\n1 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after July, repeat: July\n1 months after April, repeat: April\n1 months after August, repeat: August\n3 months after October, repeat:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January, repeat: January\n2 months after January, repeat: January\n2 months after April, repeat: April\n2 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after January, repeat: January\n3 months after February, repeat: February\n1 months after October, repeat: October\n3 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after September, repeat: September\n2 months after December, repeat: December\n1 months after November, repeat: November\n3 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after December, repeat: December\n3 months after May, repeat: May\n1 months after August, repeat: August\n3 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after August, repeat: August\n1 months after October, repeat: October\n3 months after September, repeat: September\n2 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after November, repeat: November\n2 months after March, repeat: March\n1 months after March, repeat: March\n1 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January, repeat: January\n1 months after January, repeat: January\n3 months after July, repeat: July\n3 months after December, repeat:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after July, repeat: July\n2 months after January, repeat: January\n3 months after May, repeat: May\n3 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after May, repeat: May\n1 months after January, repeat: January\n2 months after February, repeat: February\n1 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November, repeat: November\n3 months after April, repeat: April\n1 months after April, repeat: April\n2 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after February, repeat: February\n1 months after April, repeat: April\n2 months after March, repeat: March\n2 months after April, repeat:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after August, repeat: August\n2 months after June, repeat: June\n2 months after March, repeat: March\n3 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after June, repeat: June\n3 months after March, repeat: March\n2 months after December, repeat: December\n1 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December, repeat: December\n3 months after March, repeat: March\n1 months after May, repeat: May\n2 months after February, repeat:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March, repeat: March\n3 months after January, repeat: January\n2 months after September, repeat: September\n3 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after April, repeat: April\n1 months after July, repeat: July\n3 months after January, repeat: January\n3 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after January, repeat: January\n3 months after November, repeat: November\n1 months after March, repeat: March\n2 months after October, repeat:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after August, repeat: August\n2 months after April, repeat: April\n2 months after February, repeat: February\n1 months after February, repeat:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after January, repeat: January\n2 months after January, repeat: January\n3 months after December, repeat: December\n2 months after April, repeat:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after January, repeat: January\n3 months after April, repeat: April\n2 months after May, repeat: May\n1 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after April, repeat: April\n3 months after May, repeat: May\n1 months after November, repeat: November\n3 months after December, repeat:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after January, repeat: January\n3 months after January, repeat: January\n2 months after March, repeat: March\n2 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after July, repeat: July\n2 months after July, repeat: July\n3 months after October, repeat: October\n3 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after October, repeat: October\n3 months after July, repeat: July\n1 months after July, repeat: July\n1 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after November, repeat: November\n1 months after August, repeat: August\n1 months after October, repeat: October\n2 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after September, repeat: September\n1 months after January, repeat: January\n3 months after July, repeat: July\n1 months after May, repeat:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after July, repeat: July\n3 months after June, repeat: June\n2 months after August, repeat: August\n3 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after May, repeat: May\n1 months after July, repeat: July\n3 months after May, repeat: May\n3 months after May, repeat:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after May, repeat: May\n1 months after September, repeat: September\n2 months after April, repeat: April\n1 months after February, repeat:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after May, repeat: May\n3 months after February, repeat: February\n1 months after June, repeat: June\n3 months after October, repeat:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after March, repeat: March\n3 months after July, repeat: July\n2 months after April, repeat: April\n2 months after May, repeat:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after December, repeat: December\n2 months after November, repeat: November\n1 months after March, repeat: March\n3 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after February, repeat: February\n2 months after March, repeat: March\n2 months after February, repeat: February\n2 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after June, repeat: June\n2 months after March, repeat: March\n2 months after August, repeat: August\n1 months after October, repeat:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after November, repeat: November\n1 months after May, repeat: May\n3 months after June, repeat: June\n1 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after August, repeat: August\n1 months after December, repeat: December\n2 months after July, repeat: July\n1 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after May, repeat: May\n2 months after September, repeat: September\n2 months after May, repeat: May\n3 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after January, repeat: January\n1 months after January, repeat: January\n3 months after April, repeat: April\n1 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November, repeat: November\n2 months after March, repeat: March\n1 months after December, repeat: December\n2 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February, repeat: February\n2 months after February, repeat: February\n3 months after June, repeat: June\n2 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "3 months after June, repeat: June\n1 months after February, repeat: February\n1 months after June, repeat: June\n3 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after December, repeat: December\n2 months after March, repeat: March\n2 months after January, repeat: January\n1 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after May, repeat: May\n1 months after November, repeat: November\n1 months after October, repeat: October\n2 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after December, repeat: December\n2 months after January, repeat: January\n2 months after August, repeat: August\n1 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after May, repeat: May\n3 months after May, repeat: May\n2 months after August, repeat: August\n1 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December, repeat: December\n2 months after February, repeat: February\n1 months after April, repeat: April\n1 months after April, repeat:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after June, repeat: June\n1 months after February, repeat: February\n1 months after December, repeat: December\n3 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March, repeat: March\n3 months after August, repeat: August\n1 months after December, repeat: December\n3 months after April, repeat:",
+    "continuation": " April",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after August, repeat: August\n2 months after September, repeat: September\n3 months after March, repeat: March\n2 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after November, repeat: November\n1 months after April, repeat: April\n3 months after June, repeat: June\n3 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after April, repeat: April\n3 months after June, repeat: June\n3 months after April, repeat: April\n1 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after August, repeat: August\n3 months after December, repeat: December\n1 months after November, repeat: November\n2 months after May, repeat:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after December, repeat: December\n2 months after November, repeat: November\n2 months after March, repeat: March\n1 months after October, repeat:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February, repeat: February\n2 months after July, repeat: July\n3 months after March, repeat: March\n1 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after April, repeat: April\n1 months after June, repeat: June\n3 months after August, repeat: August\n2 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after October, repeat: October\n2 months after May, repeat: May\n3 months after December, repeat: December\n1 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after September, repeat: September\n3 months after August, repeat: August\n2 months after November, repeat: November\n1 months after May, repeat:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November, repeat: November\n2 months after June, repeat: June\n3 months after July, repeat: July\n1 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after July, repeat: July\n1 months after September, repeat: September\n1 months after January, repeat: January\n2 months after October, repeat:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after March, repeat: March\n3 months after November, repeat: November\n3 months after March, repeat: March\n2 months after February, repeat:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after September, repeat: September\n3 months after October, repeat: October\n3 months after April, repeat: April\n2 months after May, repeat:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January, repeat: January\n3 months after August, repeat: August\n3 months after December, repeat: December\n2 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January, repeat: January\n1 months after May, repeat: May\n2 months after December, repeat: December\n3 months after January, repeat:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after December, repeat: December\n3 months after November, repeat: November\n3 months after May, repeat: May\n1 months after October, repeat:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after February, repeat: February\n2 months after September, repeat: September\n1 months after May, repeat: May\n3 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after August, repeat: August\n1 months after June, repeat: June\n2 months after June, repeat: June\n3 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after April, repeat: April\n2 months after June, repeat: June\n1 months after July, repeat: July\n1 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after January, repeat: January\n2 months after May, repeat: May\n3 months after January, repeat: January\n1 months after December, repeat:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after August, repeat: August\n1 months after January, repeat: January\n3 months after September, repeat: September\n3 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after January, repeat: January\n3 months after December, repeat: December\n3 months after November, repeat: November\n3 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after December, repeat: December\n2 months after July, repeat: July\n1 months after August, repeat: August\n2 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after January, repeat: January\n3 months after October, repeat: October\n1 months after February, repeat: February\n2 months after December, repeat:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after February, repeat: February\n2 months after March, repeat: March\n2 months after April, repeat: April\n3 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after November, repeat: November\n2 months after April, repeat: April\n2 months after November, repeat: November\n3 months after May, repeat:",
+    "continuation": " May",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after September, repeat: September\n1 months after May, repeat: May\n2 months after January, repeat: January\n1 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after September, repeat: September\n1 months after March, repeat: March\n2 months after March, repeat: March\n3 months after December, repeat:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after April, repeat: April\n3 months after August, repeat: August\n2 months after September, repeat: September\n3 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after September, repeat: September\n1 months after March, repeat: March\n1 months after March, repeat: March\n3 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after April, repeat: April\n3 months after June, repeat: June\n2 months after December, repeat: December\n3 months after January, repeat:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after October, repeat: October\n3 months after October, repeat: October\n3 months after August, repeat: August\n3 months after March, repeat:",
+    "continuation": " March",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after March, repeat: March\n1 months after May, repeat: May\n2 months after November, repeat: November\n3 months after December, repeat:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after November, repeat: November\n3 months after November, repeat: November\n2 months after November, repeat: November\n2 months after January, repeat:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January, repeat: January\n1 months after December, repeat: December\n3 months after May, repeat: May\n3 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after October, repeat: October\n3 months after December, repeat: December\n2 months after May, repeat: May\n2 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after August, repeat: August\n2 months after March, repeat: March\n2 months after June, repeat: June\n1 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March, repeat: March\n3 months after June, repeat: June\n1 months after April, repeat: April\n3 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after January, repeat: January\n2 months after November, repeat: November\n1 months after March, repeat: March\n2 months after August, repeat:",
+    "continuation": " August",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after November, repeat: November\n2 months after November, repeat: November\n1 months after December, repeat: December\n2 months after October, repeat:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after August, repeat: August\n3 months after September, repeat: September\n2 months after September, repeat: September\n1 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after November, repeat: November\n1 months after August, repeat: August\n2 months after June, repeat: June\n1 months after November, repeat:",
+    "continuation": " November",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after December, repeat: December\n1 months after March, repeat: March\n2 months after January, repeat: January\n1 months after September, repeat:",
+    "continuation": " September",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after December, repeat: December\n1 months after November, repeat: November\n3 months after September, repeat: September\n2 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after June, repeat: June\n1 months after January, repeat: January\n1 months after January, repeat: January\n1 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after December, repeat: December\n1 months after June, repeat: June\n3 months after November, repeat: November\n3 months after December, repeat:",
+    "continuation": " December",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after March, repeat: March\n2 months after March, repeat: March\n2 months after June, repeat: June\n2 months after July, repeat:",
+    "continuation": " July",
+    "digits_only": false
+   },
+   {
+    "context": "3 months after January, repeat: January\n3 months after February, repeat: February\n1 months after June, repeat: June\n1 months after February, repeat:",
+    "continuation": " February",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after June, repeat: June\n1 months after July, repeat: July\n2 months after August, repeat: August\n3 months after October, repeat:",
+    "continuation": " October",
+    "digits_only": false
+   },
+   {
+    "context": "1 months after February, repeat: February\n2 months after June, repeat: June\n2 months after February, repeat: February\n1 months after January, repeat:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after October, repeat: October\n2 months after July, repeat: July\n2 months after May, repeat: May\n2 months after January, repeat:",
+    "continuation": " January",
+    "digits_only": false
+   },
+   {
+    "context": "2 months after October, repeat: October\n1 months after September, repeat: September\n1 months after August, repeat: August\n3 months after June, repeat:",
+    "continuation": " June",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 11.2229
+}

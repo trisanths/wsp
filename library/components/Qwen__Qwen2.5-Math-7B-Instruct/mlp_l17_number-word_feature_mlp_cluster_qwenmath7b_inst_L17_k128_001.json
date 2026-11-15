@@ -1,0 +1,116 @@
+{
+  "id": "mlp_l17_number-word_feature_mlp_cluster_qwenmath7b_inst_L17_k128_001",
+  "kind": "mlp_cluster",
+  "title": "Qwen2.5-Math-7B-Instruct layer 17, L17 number-word feature MLP cluster",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "number_to_word"
+  ],
+  "models": [
+    "Qwen/Qwen2.5-Math-7B-Instruct"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'number_to_word' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.1663,
+      "control_value": 0.0164,
+      "split": "person_a held-out skill items (number_to_word)",
+      "seeds": null,
+      "source": "person_a/catalog/qwenmath7b_inst.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0088"
+    }
+  ],
+  "generated": true,
+  "model": "Qwen/Qwen2.5-Math-7B-Instruct",
+  "layer": 17,
+  "layers": [
+    17
+  ],
+  "units_file": "components/Qwen__Qwen2.5-Math-7B-Instruct/mlp_l17_number-word_feature_mlp_cluster_qwenmath7b_inst_L17_k128_001.pt",
+  "units_remote": "person_a/parts/qwenmath7b_inst/mlp_l17_number-word_feature_mlp_cluster_qwenmath7b_inst_L17_k128_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'number_to_word'",
+    "label": "L17 number-word feature MLP cluster",
+    "num_units": 128,
+    "d_model": 3584,
+    "effect": {
+      "math|search": 0.0001,
+      "math|heldout": 0.0005,
+      "code|search": -0.0012,
+      "code|heldout": -0.0022,
+      "facts|search": -0.0027,
+      "facts|heldout": 0.0072,
+      "multilingual|search": -0.0011,
+      "multilingual|heldout": -0.0009,
+      "general_text|search": 0.0,
+      "general_text|heldout": 0.0,
+      "weekday_successor|search": 0.0106,
+      "weekday_successor__control|search": 0.0051,
+      "weekday_successor|heldout": 0.0187,
+      "weekday_successor__control|heldout": 0.0053,
+      "number_to_word|search": 0.1686,
+      "number_to_word__control|search": 0.008,
+      "number_to_word|heldout": 0.1663,
+      "number_to_word__control|heldout": 0.0088,
+      "object_color|search": 0.0052,
+      "object_color__control|search": 0.0169,
+      "object_color|heldout": 0.0193,
+      "object_color__control|heldout": 0.0362,
+      "month_successor|search": -0.007,
+      "month_successor__control|search": 0.0036,
+      "month_successor|heldout": -0.0062,
+      "month_successor__control|heldout": 0.0053,
+      "parity|search": -0.0076,
+      "parity__control|search": -0.0006,
+      "parity|heldout": -0.0128,
+      "parity__control|heldout": -0.0004,
+      "product_sign|search": -0.0008,
+      "product_sign__control|search": -0.0061,
+      "product_sign|heldout": 0.0001,
+      "product_sign__control|heldout": 0.001,
+      "ordinal_word|search": -0.2978,
+      "ordinal_word__control|search": -0.0221,
+      "ordinal_word|heldout": -0.2514,
+      "ordinal_word__control|heldout": -0.0136,
+      "greek_letter_name|search": 0.0376,
+      "greek_letter_name__control|search": -0.2121,
+      "greek_letter_name|heldout": 0.0263,
+      "greek_letter_name__control|heldout": -0.2128
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.0562,
+      "gate_version": 2
+    },
+    "random_drops": [
+      -0.0023,
+      0.0632,
+      0.0585,
+      0.0094,
+      -0.0468
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "Seed L17 10972 (top L17 number_to_word attribution, .13), grown to 128 units by summed |cos| similarity of gate rows, up rows and down columns."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/qwenmath7b_inst/number_to_word.json",
+    "hash": "752ca9c4bd72b26f",
+    "description": "Write a small integer (or a sum result) as an English number word. Control: same format asking for the digit form.",
+    "name": "number_to_word"
+  },
+  "catalog_id": "mlp_l17_number-word_feature_mlp_cluster_qwenmath7b_inst_L17_k128_001",
+  "exported_copy": "library/qwenmath7b_inst/mlp_l17_number-word_feature_mlp_cluster_qwenmath7b_inst_L17_k128_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}

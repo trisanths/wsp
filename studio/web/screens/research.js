@@ -2,6 +2,7 @@ import { html, useState, useEffect, useRef } from '../lib.js';
 import { ModelLogo } from '../logos.js';
 import { StreamText, ThinkLine, SuccessCheck, AutoHeight } from '../motion.js';
 import { Icon, Spinner } from '../components.js';
+import { benchName } from '../util.js';
 
 const PROVIDERS = { exa: 'Exa', openai_web: 'OpenAI web search', none: 'the model\'s own knowledge' };
 export const providerName = (p) => PROVIDERS[p] || 'web search';
@@ -113,7 +114,7 @@ export function AlsoConsidered({ proposals }) {
   return html`<section class="sect"><h2 class="sec"><span>Also considered</span></h2>
     <div class="rs-faint">Sapien cannot run these yet. Shown for reference.</div>
     ${list.map((p, i) => html`<div class="alsorow" key=${i}>
-      <div class="top"><span class="nm">${p.name}</span><span class="tag">reference only</span></div>
+      <div class="top"><span class="nm">${p.label || benchName(p.name || p.runnable_id || p.id)}</span><span class="tag">reference only</span></div>
       ${p.measures && html`<div class="rs-why">${p.measures}</div>`}
       <${RefList} scores=${p.reference_scores} />
     </div>`)}

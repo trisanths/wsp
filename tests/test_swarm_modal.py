@@ -912,3 +912,35 @@ def test_run_candidate_refuses_what_a_scorer_cannot_grade(fakes, work, monkeypat
     assert unknown["ok"] is False and "unknown scorer" in unknown["error"]
     assert work.calls == []
     assert compute_rows(fakes, "r1") == []
+
+
+def test_host_baseline_grades_any_harness_task_and_keys_it_apart(fakes, work, monkeypatch):
+    seen = []
+
+    def fake_evaluate_harness(model, split, tasks, namespace):
+        seen.append((model, split, list(tasks), namespace))
+        work.clock.advance(9.0)
+        scores = {}
+        per_task = {}
+        for name in tasks:
+            scores[name] = 0.2
+            per_task[name] = 150
+        return {"scores": scores, "n_items": 150 * len(tasks), "n_items_per_task": per_task}
+
+    monkeypatch.setattr(modal_swarm, "import_heavy_modules", lambda: None)
+    monkeypatch.setattr(modal_swarm, "ready_cuda", lambda: None)
+    monkeypatch.setattr(modal_swarm, "warm_models", lambda ids: list(ids))
+    monkeypatch.setattr(modal_swarm, "setup_harness", lambda split, tasks: work.clock.advance(30.0))
+    monkeypatch.setattr(modal_swarm, "evaluate_harness", fake_evaluate_harness)
+    tasks = ["mmlupro:law", "if_guard"]
+    first = call_local(modal_swarm.host_baseline, "search", None, tasks=tasks, scorer="harness")
+    assert first["ok"] is True and first["scores"] == {"mmlupro:law": 0.2, "if_guard": 0.2}
+    assert first["label"] == "HARNESS" and first["setup_seconds"] == 30.0 and first["seconds"] == {"eval": 9.0}
+    assert seen == [(modal_swarm.HOST, "search", tasks, "host")]
+    assert modal_swarm.lookup_host("search", None, eval_backend="harness", tasks=tasks) is not None
+    assert modal_swarm.lookup_host("search", None) is None
+    again = call_local(modal_swarm.host_baseline, "search", None, tasks=tasks, scorer="harness")
+    assert again["cache_hit"] is True and len(seen) == 1
+    refused = call_local(modal_swarm.host_baseline, "search", 20, tasks=tasks, scorer="harness")
+    assert refused["ok"] is False and "whole splits" in refused["error"]
+    assert len(fakes[modal_swarm.LEDGER_DICT].data) == 0

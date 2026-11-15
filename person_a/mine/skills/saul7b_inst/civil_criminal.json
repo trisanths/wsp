@@ -1,0 +1,980 @@
+{
+ "name": "civil_criminal",
+ "description": "Classify fixed-table legal proceedings as civil or criminal, with matched nonlegal classifications of animals as herbivores or carnivores.",
+ "hash": "0ef4cc6c220ae256",
+ "agent_items": false,
+ "generator_code": "import random,json\nrandom.seed(0)\nlegal={'civil':['a private lawsuit seeking damages for breach of contract','a private action seeking compensation for negligence','a lawsuit between neighbors over a property boundary','a divorce proceeding dividing marital property','a tenant\\'s lawsuit to recover a security deposit','a private suit seeking damages for defamation','a shareholder lawsuit seeking monetary compensation','a private patent infringement suit seeking an injunction','an employee\\'s lawsuit for unpaid wages','a private action to enforce a trust','a lawsuit seeking specific performance of a land sale contract','a private action to recover an unpaid debt'], 'criminal':['a state prosecution for burglary','a government prosecution for armed robbery','a prosecution seeking imprisonment for murder','a state prosecution for arson','a federal prosecution for bank robbery','a prosecution for perjury seeking penal punishment','a prosecution seeking a sentence for drug trafficking','a government prosecution for kidnapping','a state prosecution for shoplifting','a federal prosecution for counterfeiting currency','a prosecution seeking imprisonment for tax evasion','a prosecution for assault seeking a penal sentence']}\ncontrol={'herbivore':['a cow that grazes on grass','a deer that eats leaves','a horse that eats hay','a rabbit that eats grass and clover','a giraffe that browses leaves','a koala that eats eucalyptus leaves','an elephant that eats grasses and bark','a sheep that grazes on plants','a goat that browses shrubs','a manatee that eats aquatic plants','a zebra that grazes on grass','a bison that eats prairie grasses'], 'carnivore':['a lion that hunts zebras','a tiger that eats deer','a wolf that hunts elk','a leopard that hunts antelopes','a cheetah that hunts gazelles','an eagle that eats fish and rabbits','an owl that hunts mice','a shark that eats fish','a polar bear that hunts seals','a crocodile that eats fish and mammals','a seal that eats fish','a python that eats rodents']}\nframes=['Classify {description}. The {domain} classification is','For {description}, the {domain} category is','In a basic {domain} classification, {description} is','The {domain} label for {description} is']\ndef make(table,domain):\n rows=[{'prompt':f.format(description=d,domain=domain),'answer':' '+a} for a,ds in table.items() for d in ds for f in frames];random.shuffle(rows);return rows\njson.dump({'items':make(legal,'legal'),'control':make(control,'dietary')},open('/work/skill.json','w'))",
+ "items": {
+  "search": [
+   {
+    "context": "In a basic legal classification, a lawsuit between neighbors over a property boundary is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a prosecution seeking imprisonment for tax evasion is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a state prosecution for arson is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a prosecution seeking imprisonment for tax evasion. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a prosecution seeking imprisonment for murder, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a lawsuit seeking specific performance of a land sale contract, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a lawsuit between neighbors over a property boundary. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a private action to enforce a trust is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a federal prosecution for bank robbery, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a prosecution for assault seeking a penal sentence is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a private action to recover an unpaid debt is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a prosecution for assault seeking a penal sentence. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a prosecution for perjury seeking penal punishment, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a prosecution for perjury seeking penal punishment is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify an employee's lawsuit for unpaid wages. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a lawsuit between neighbors over a property boundary is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a prosecution seeking a sentence for drug trafficking is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a shareholder lawsuit seeking monetary compensation is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a tenant's lawsuit to recover a security deposit is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a shareholder lawsuit seeking monetary compensation is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a federal prosecution for bank robbery is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a private lawsuit seeking damages for breach of contract, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a prosecution seeking imprisonment for murder is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a tenant's lawsuit to recover a security deposit. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for an employee's lawsuit for unpaid wages is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a prosecution seeking imprisonment for tax evasion is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a shareholder lawsuit seeking monetary compensation. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a private action to enforce a trust, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a state prosecution for shoplifting is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a prosecution seeking a sentence for drug trafficking, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a state prosecution for arson is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a prosecution for perjury seeking penal punishment. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a private suit seeking damages for defamation. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a state prosecution for burglary, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a federal prosecution for bank robbery. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a state prosecution for shoplifting. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a state prosecution for shoplifting is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a lawsuit between neighbors over a property boundary, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a divorce proceeding dividing marital property is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a government prosecution for kidnapping is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a private action to enforce a trust. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a federal prosecution for counterfeiting currency, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a state prosecution for burglary. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a tenant's lawsuit to recover a security deposit is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a private lawsuit seeking damages for breach of contract is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a private action seeking compensation for negligence is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a government prosecution for kidnapping, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a private action to enforce a trust is",
+    "continuation": " civil",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "Classify a private lawsuit seeking damages for breach of contract. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a lawsuit seeking specific performance of a land sale contract. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a lawsuit seeking specific performance of a land sale contract is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a prosecution seeking a sentence for drug trafficking. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a federal prosecution for counterfeiting currency is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a private patent infringement suit seeking an injunction is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a government prosecution for armed robbery, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a private patent infringement suit seeking an injunction is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a private action seeking compensation for negligence, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a private suit seeking damages for defamation is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a state prosecution for arson. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a private patent infringement suit seeking an injunction. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a prosecution for perjury seeking penal punishment is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a state prosecution for burglary is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a private action seeking compensation for negligence is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For an employee's lawsuit for unpaid wages, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a prosecution for assault seeking a penal sentence, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a state prosecution for arson, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a private suit seeking damages for defamation is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a state prosecution for shoplifting, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a private action to recover an unpaid debt is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a private action to recover an unpaid debt, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a prosecution seeking a sentence for drug trafficking is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a prosecution seeking imprisonment for murder is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a private action seeking compensation for negligence. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a government prosecution for armed robbery is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a divorce proceeding dividing marital property. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a divorce proceeding dividing marital property is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a government prosecution for kidnapping. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a government prosecution for armed robbery is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a lawsuit seeking specific performance of a land sale contract is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a government prosecution for armed robbery. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a tenant's lawsuit to recover a security deposit, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, an employee's lawsuit for unpaid wages is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a federal prosecution for counterfeiting currency. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a prosecution seeking imprisonment for murder. The legal classification is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a private patent infringement suit seeking an injunction, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a government prosecution for kidnapping is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a private suit seeking damages for defamation, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a prosecution seeking imprisonment for tax evasion, the legal category is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a private action to recover an unpaid debt. The legal classification is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic legal classification, a state prosecution for burglary is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a private lawsuit seeking damages for breach of contract is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a federal prosecution for counterfeiting currency is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a prosecution for assault seeking a penal sentence is",
+    "continuation": " criminal",
+    "digits_only": false
+   },
+   {
+    "context": "For a divorce proceeding dividing marital property, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "For a shareholder lawsuit seeking monetary compensation, the legal category is",
+    "continuation": " civil",
+    "digits_only": false
+   },
+   {
+    "context": "The legal label for a federal prosecution for bank robbery is",
+    "continuation": " criminal",
+    "digits_only": false
+   }
+  ]
+ },
+ "control": {
+  "search": [
+   {
+    "context": "In a basic dietary classification, a python that eats rodents is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a tiger that eats deer is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a manatee that eats aquatic plants is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a cheetah that hunts gazelles. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a python that eats rodents. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a manatee that eats aquatic plants, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a goat that browses shrubs. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a python that eats rodents, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, an owl that hunts mice is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a bison that eats prairie grasses. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a cow that grazes on grass is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a zebra that grazes on grass is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a giraffe that browses leaves. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a cheetah that hunts gazelles, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a bison that eats prairie grasses is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for an eagle that eats fish and rabbits is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a horse that eats hay, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a rabbit that eats grass and clover is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a giraffe that browses leaves, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a horse that eats hay is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a seal that eats fish is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify an owl that hunts mice. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a goat that browses shrubs is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a bison that eats prairie grasses, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For an elephant that eats grasses and bark, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a crocodile that eats fish and mammals, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a manatee that eats aquatic plants is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a deer that eats leaves. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for an elephant that eats grasses and bark is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a lion that hunts zebras, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a wolf that hunts elk, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a polar bear that hunts seals is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a seal that eats fish. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a koala that eats eucalyptus leaves, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a deer that eats leaves is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a rabbit that eats grass and clover, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a goat that browses shrubs is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a bison that eats prairie grasses is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a cow that grazes on grass is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a giraffe that browses leaves is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a cow that grazes on grass. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, an elephant that eats grasses and bark is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a polar bear that hunts seals is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a seal that eats fish is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a sheep that grazes on plants, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a koala that eats eucalyptus leaves. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a lion that hunts zebras. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a polar bear that hunts seals, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   }
+  ],
+  "heldout": [
+   {
+    "context": "The dietary label for a cheetah that hunts gazelles is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify an elephant that eats grasses and bark. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a wolf that hunts elk is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a leopard that hunts antelopes is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a crocodile that eats fish and mammals is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for an owl that hunts mice is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a cow that grazes on grass, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a tiger that eats deer, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a wolf that hunts elk is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify an eagle that eats fish and rabbits. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a deer that eats leaves, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a shark that eats fish is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For an eagle that eats fish and rabbits, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a horse that eats hay is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a sheep that grazes on plants is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a koala that eats eucalyptus leaves is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a leopard that hunts antelopes is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a leopard that hunts antelopes, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a wolf that hunts elk. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a lion that hunts zebras is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a lion that hunts zebras is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a zebra that grazes on grass is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a crocodile that eats fish and mammals is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a python that eats rodents is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a sheep that grazes on plants is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a rabbit that eats grass and clover. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a leopard that hunts antelopes. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a shark that eats fish, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, an eagle that eats fish and rabbits is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a seal that eats fish, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a shark that eats fish is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a crocodile that eats fish and mammals. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a deer that eats leaves is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a manatee that eats aquatic plants. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a giraffe that browses leaves is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a koala that eats eucalyptus leaves is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a shark that eats fish. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "The dietary label for a rabbit that eats grass and clover is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a zebra that grazes on grass. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a cheetah that hunts gazelles is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For an owl that hunts mice, the dietary category is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a tiger that eats deer. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a sheep that grazes on plants. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a goat that browses shrubs, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "In a basic dietary classification, a tiger that eats deer is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a polar bear that hunts seals. The dietary classification is",
+    "continuation": " carnivore",
+    "digits_only": false
+   },
+   {
+    "context": "For a zebra that grazes on grass, the dietary category is",
+    "continuation": " herbivore",
+    "digits_only": false
+   },
+   {
+    "context": "Classify a horse that eats hay. The dietary classification is",
+    "continuation": " herbivore",
+    "digits_only": false
+   }
+  ]
+ },
+ "base_margin": 0.5474
+}

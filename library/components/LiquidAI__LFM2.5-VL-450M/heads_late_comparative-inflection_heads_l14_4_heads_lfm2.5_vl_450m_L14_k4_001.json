@@ -1,0 +1,116 @@
+{
+  "id": "heads_late_comparative-inflection_heads_l14_4_heads_lfm2.5_vl_450m_L14_k4_001",
+  "kind": "attn_heads",
+  "title": "LFM2.5-VL-450M layer 14, late comparative-inflection heads (L14, 4 heads)",
+  "status": "candidate",
+  "added_by": "Hanav (Person A)",
+  "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+  "updated": "2026-11-14",
+  "skills": [
+    "math",
+    "comparative_adjective"
+  ],
+  "models": [
+    "LiquidAI/LFM2.5-VL-450M"
+  ],
+  "evidence": [
+    {
+      "claim": "zeroing the part drops the 'comparative_adjective' skill on held-out items more than random same-size parts",
+      "metric": "relative drop in skill score",
+      "value": 0.5365,
+      "control_value": 0.1,
+      "split": "person_a held-out skill items (comparative_adjective)",
+      "seeds": null,
+      "source": "person_a/catalog/lfm2.5_vl_450m.jsonl",
+      "generated": true,
+      "control": "mean drop of 5 random same-size parts",
+      "note": "ablation screen in the donor; matched control task changed by 0.0372"
+    }
+  ],
+  "generated": true,
+  "model": "LiquidAI/LFM2.5-VL-450M",
+  "layer": 14,
+  "layers": [
+    14
+  ],
+  "units_file": "components/LiquidAI__LFM2.5-VL-450M/heads_late_comparative-inflection_heads_l14_4_heads_lfm2.5_vl_450m_L14_k4_001.pt",
+  "units_remote": "person_a/parts/lfm2.5_vl_450m/heads_late_comparative-inflection_heads_l14_4_heads_lfm2.5_vl_450m_L14_k4_001.pt",
+  "signature": {
+    "method": "ablation screen on skill 'comparative_adjective'",
+    "label": "late comparative-inflection heads (L14, 4 heads)",
+    "num_units": 4,
+    "d_model": 1024,
+    "effect": {
+      "math|search": 0.0096,
+      "math|heldout": 0.0088,
+      "code|search": 0.032,
+      "code|heldout": 0.039,
+      "facts|search": 0.0944,
+      "facts|heldout": 0.0278,
+      "multilingual|search": 0.0734,
+      "multilingual|heldout": 0.0721,
+      "general_text|search": 0.0877,
+      "general_text|heldout": 0.0941,
+      "month_successor|search": 0.1053,
+      "month_successor__control|search": -0.0061,
+      "month_successor|heldout": 0.01,
+      "month_successor__control|heldout": -0.0113,
+      "numberword_successor|search": 0.0013,
+      "numberword_successor__control|search": -0.0037,
+      "numberword_successor|heldout": -0.0113,
+      "numberword_successor__control|heldout": -0.0032,
+      "weekday_successor|search": 0.0124,
+      "weekday_successor__control|search": -0.0239,
+      "weekday_successor|heldout": -0.0135,
+      "weekday_successor__control|heldout": -0.0254,
+      "comparative_adjective|search": 0.4703,
+      "comparative_adjective__control|search": 0.02,
+      "comparative_adjective|heldout": 0.5365,
+      "comparative_adjective__control|heldout": 0.0372,
+      "irregular_past_tense|search": 0.03,
+      "irregular_past_tense__control|search": 0.0035,
+      "irregular_past_tense|heldout": 0.0124,
+      "irregular_past_tense__control|heldout": 0.0035,
+      "object_colour|search": 0.006,
+      "object_colour__control|search": 0.0047,
+      "object_colour|heldout": 0.0481,
+      "object_colour__control|heldout": 0.0034,
+      "antonym|search": 0.1043,
+      "antonym__control|search": 0.038,
+      "antonym|heldout": 0.1027,
+      "antonym__control|heldout": 0.0034,
+      "pronoun_gender|search": -0.011,
+      "pronoun_gender__control|search": 0.0461,
+      "pronoun_gender|heldout": -0.0063,
+      "pronoun_gender__control|heldout": 0.0341
+    },
+    "gate": {
+      "passed": true,
+      "reasons": [],
+      "limit_other": 0.1568,
+      "gate_version": 2
+    },
+    "random_drops": [
+      0.0792,
+      0.1885,
+      -0.2719,
+      0.1973,
+      0.3069
+    ],
+    "random_percentile": null,
+    "checks": null,
+    "weight_rationale": "L14 is the last attention layer before the L15 writer, and the logit-lens alignment of all categories jumps there. Heads 10-13 form two GQA pairs (KV heads 5 and 6), so they share value projections. h10 is among the top comparative attribution heads in L12/L10 at the same index, and the block ablation shows this contiguous KV-sharing group carries the adjective-to-comparative ('-er') move."
+  },
+  "tier": "screened",
+  "pipeline": "v2-mine",
+  "skill": {
+    "source": "agent",
+    "path": "mine/skills/lfm2.5_vl_450m/comparative_adjective.json",
+    "hash": "843c4bb5f5dc8973",
+    "description": "Form the English comparative of an adjective in a few-shot mapping (e.g. 'tall -> taller, cold -> colder, fast ->' -> ' faster'). Control: same few-shot format but identity mapping (word copied unchanged).",
+    "name": "comparative_adjective"
+  },
+  "catalog_id": "heads_late_comparative-inflection_heads_l14_4_heads_lfm2.5_vl_450m_L14_k4_001",
+  "exported_copy": "library/lfm2.5_vl_450m/heads_late_comparative-inflection_heads_l14_4_heads_lfm2.5_vl_450m_L14_k4_001.pt",
+  "status_reason": "ablation evidence in the donor only; not grafted against a random control yet"
+}
