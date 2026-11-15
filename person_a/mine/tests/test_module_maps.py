@@ -1,6 +1,7 @@
 # CPU test of the maps.py entry fields on a synthetic engine result with hand-checked numbers:
-# block_z, block_z_heldout, module_maps, module_share, selection_sources, and an entry built from a
-# result without module data.
+# block_z, block_z_heldout, the disjoint-window z and the window counts, module_maps, module_share,
+# the per-module held-out r with its layer count, selection_sources, reported_benchmark_skills, and
+# an entry built from a result without module data.
 #   .venv/bin/python mine/tests/test_module_maps.py
 import copy
 import importlib.util
@@ -108,16 +109,62 @@ def test_window_z():
     assert maps.block_z(search, []) == []
 
 
+def test_window_z_disjoint():
+    search = [0.0, 0.4, 0.8, 0.1, 0.05, 0.2, -0.1, 0.0]
+    # Windows of length 2 by start: 0.4, 1.2, 0.9, 0.15, 0.25, 0.2, 0.0.
+    # Block [1,2] has 6 other windows; starts 0 and 2 share a layer with it, so 4 are disjoint:
+    # 0.15, 0.25, 0.2, 0.0: mean 0.15, squared deviations 0 + 0.01 + 0.0025 + 0.0225 = 0.035
+    assert maps.block_window_counts(search, [[1, 2], [4, 5]]) == ([6, 6], [4, 4])
+    z = (1.2 - 0.15) / math.sqrt(0.035 / 3)
+    assert abs(z - 9.721) < 1e-3
+    assert close(maps.window_z_disjoint(search, 1, 2), z, 6e-4)
+    # Block [4,5]: starts 3 and 5 overlap it. Disjoint: 0.4, 1.2, 0.9, 0.0: mean 0.625,
+    # squared deviations 0.050625 + 0.330625 + 0.075625 + 0.390625 = 0.8475
+    z = (0.25 - 0.625) / math.sqrt(0.8475 / 3)
+    assert abs(z - (-0.706)) < 1e-3
+    assert close(maps.window_z_disjoint(search, 4, 5), z, 6e-4)
+    # the overlapping windows change the value: the plain z of the same blocks is 2.812 and -0.476
+    assert maps.window_z_disjoint(search, 1, 2) != maps.window_z(search, 1, 2)
+    held = [0.0, 0.1, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0]
+    # heldout, block [1,2]: the 4 disjoint windows all hold 0, so there is no deviation
+    assert maps.window_z_disjoint(held, 1, 2) is None
+    # heldout, block [4,5] holds 0; disjoint 0.1, 0.6, 0.5, 0.0: mean 0.3, squared deviations 0.26
+    assert close(maps.window_z_disjoint(held, 4, 5), -0.3 / math.sqrt(0.26 / 3), 6e-4)
+    assert abs(maps.window_z_disjoint(held, 4, 5) - (-1.019)) < 1e-3
+    # 5 layers, block [1,2]: 3 other windows give block_z a number, but only start 3 is disjoint
+    five = [0.5, 0.1, 0.0, 0.2, 0.3]
+    assert maps.window_z(five, 1, 2) is not None and maps.window_z_disjoint(five, 1, 2) is None
+    assert maps.block_window_counts(five, [[1, 2]]) == ([3], [1])
+    # block [0,0] of 5 layers: the 4 other single layers are all disjoint, so the two z are the same
+    assert maps.block_window_counts(five, [[0, 0]]) == ([4], [4])
+    assert maps.window_z_disjoint(five, 0, 0) == maps.window_z(five, 0, 0) is not None
+    assert maps.block_window_counts(five, [[0, 1]]) == ([3], [2]) and maps.window_z_disjoint(five, 0, 1) is None
+    assert maps.block_z_disjoint(search, [[1, 2], [4, 5]]) == [9.721, -0.706]
+    assert maps.block_z_disjoint(search, []) == [] and maps.block_window_counts(search, []) == ([], [])
+
+
 def test_module_share_and_r():
     share = maps.module_share([0.2, 0.0, 0.4, None, -0.2, 0.0, 0.3, 0.0, None],
                               [0.6, -0.2, 0.1, 0.4, 0.3, -0.1, None, 0.0, None])
-    # 0.2 / 0.8; nothing positive; 0.4 / 0.5; no attention; attention negative; nothing positive;
-    # no feed-forward; both zero; both missing
-    assert share == [0.25, None, 0.8, 0.0, 0.0, None, 1.0, None, None], share
+    # 0.2 / 0.8; nothing positive; 0.4 / 0.5; no attention (not a measured 0); attention negative
+    # and feed-forward positive (a measured 0); nothing positive; no feed-forward; both zero; both missing
+    assert share == [0.25, None, 0.8, None, 0.0, None, None, None, None], share
+    # a layer without attention never reads as "no attention share", whatever the other score is,
+    # and a score one rounding step above zero does not make a share of 1
+    assert maps.module_share([None, None, 0.00001], [0.4, -0.2, -0.3]) == [None, None, None]
+    # the floor: four log-probs rounded to 5 places can move a score by 2e-5
+    assert maps.SCORE_RESOLUTION == 4 * 0.5e-5
+    assert maps.module_share([0.00002, 0.00003, 0.00001, 0.3], [0.0, 0.0, 0.3, 0.00002]) == [None, 1.0, 0.0, 1.0]
     # layers where one list has no number are left out: pairs (1,1), (2,3), (3,2) give r = 0.5
-    assert maps.pearson_present([1.0, None, 2.0, 3.0], [1.0, 9.0, 3.0, 2.0]) == 0.5
-    assert maps.pearson_present([None, None], [1.0, 2.0]) is None
-    assert maps.pearson_present([1.0, 1.0, 1.0], [1.0, 2.0, 3.0]) is None
+    assert maps.pearson_present([1.0, None, 2.0, 3.0], [1.0, 9.0, 3.0, 2.0]) == (0.5, 3)
+    assert maps.pearson_present([None, None], [1.0, 2.0]) == (None, 0)
+    assert maps.pearson_present([1.0, 1.0, 1.0], [1.0, 2.0, 3.0]) == (None, 3)
+    # a minimum number of layers: 2 layers always give r = 1 or -1, so they give no r here
+    assert maps.MIN_R_LAYERS == 4
+    assert maps.pearson_present([0.1, None, 0.3, None], [0.2, None, 0.1, None]) == (-1.0, 2)
+    assert maps.pearson_present([0.1, None, 0.3, None], [0.2, None, 0.1, None], maps.MIN_R_LAYERS) == (None, 2)
+    assert maps.pearson_present([1.0, None, 2.0, 3.0], [1.0, 9.0, 3.0, 2.0], maps.MIN_R_LAYERS) == (None, 3)
+    assert maps.pearson_present([1.0, 2.0, 3.0, 5.0], [2.0, 4.0, 6.0, 10.0], maps.MIN_R_LAYERS) == (1.0, 4)
 
 
 def test_entry_with_modules():
@@ -133,31 +180,91 @@ def test_entry_with_modules():
     assert lm["block_z_heldout"] == [2.5, -0.725], lm["block_z_heldout"]
     assert lm["heldout"]["check_mass"] == [1.0, 0.0]
     assert abs(lm["heldout"]["split_half_r"] - 0.9225) < 2e-4
-    assert sorted(lm.keys()) == ["block_mass", "block_z", "block_z_heldout", "blocks", "heldout", "influence", "scores"]
+    assert lm["block_z_windows"] == [6, 6] and lm["block_z_disjoint_windows"] == [4, 4]
+    assert lm["block_z_disjoint"] == [9.721, -0.706], lm["block_z_disjoint"]
+    assert lm["block_z_disjoint_heldout"] == [None, -1.019], lm["block_z_disjoint_heldout"]
+    assert sorted(lm.keys()) == ["block_mass", "block_z", "block_z_disjoint", "block_z_disjoint_heldout",
+                                 "block_z_disjoint_windows", "block_z_heldout", "block_z_windows", "blocks",
+                                 "heldout", "influence", "scores"]
     assert sorted(lm["heldout"].keys()) == ["blocks", "check_mass", "select_mass", "split_half_r"]
 
     assert sorted(entry["module_maps"].keys()) == ["law"]  # not the reference, not a skill with no base score
     mm = entry["module_maps"]["law"]
     assert mm["attn"] == [0.2, 0.0, 0.4, None, -0.2, 0.0, 0.3, 0.0], mm["attn"]
     assert mm["mlp"] == [0.6, -0.2, 0.1, 0.4, 0.3, -0.1, None, 0.0], mm["mlp"]
-    assert mm["module_share"] == [0.25, None, 0.8, 0.0, 0.0, None, 1.0, None], mm["module_share"]
+    # layer 3 has no attention and layer 6 no feed-forward: no share there
+    assert mm["module_share"] == [0.25, None, 0.8, None, 0.0, None, None, None], mm["module_share"]
     # attention: heldout = 2 * search + 0.1 on the 7 layers that have attention
     assert mm["heldout"]["split_half_r"]["attn"] == 1.0
     # feed-forward, 7 layers: cov 0.43 - 1.1 * 0.9 / 7, variances 0.67 - 1.21 / 7 and 0.37 - 0.81 / 7
     r = (0.43 - 0.99 / 7) / math.sqrt((0.67 - 1.21 / 7) * (0.37 - 0.81 / 7))
     assert abs(r - 0.8116) < 2e-4
     assert abs(mm["heldout"]["split_half_r"]["mlp"] - r) < 6e-5
+    assert mm["heldout"]["n_layers"] == {"attn": 7, "mlp": 7}
+    assert sorted(mm["heldout"].keys()) == ["n_layers", "split_half_r"]
     assert sorted(mm.keys()) == ["attn", "heldout", "mlp", "module_share"]
     assert entry["module_parts"] == PARTS
     assert "attention output" in entry["module_method"]
     assert entry["skills"]["empty"] is None and "empty" not in entry["layer_maps"]
     assert entry["selection_sources"] == {"law": {"dataset": "x"}}
+    assert entry["reported_benchmark_skills"] is None  # the record does not say
+
+    # a model with attention in 3 layers only (5, 6, 7): too few for an r, and the entry says how many
+    res = engine_result(True)
+    for key in res["attn_lp"]:
+        for l in range(5):
+            res["attn_lp"][key][l] = None
+    mm = maps.build_entry("org/toy", res, SOURCES, ROW)["module_maps"]["law"]
+    assert mm["attn"][:5] == [None] * 5 and mm["attn"][5:] == [0.0, 0.3, 0.0]
+    assert mm["heldout"]["split_half_r"]["attn"] is None and mm["heldout"]["n_layers"] == {"attn": 3, "mlp": 7}
+    assert mm["heldout"]["split_half_r"]["mlp"] is not None
+    # layer 5 has both modules but no positive score, layer 6 has no feed-forward, layer 7 has zeros
+    assert mm["module_share"] == [None] * 8
+
+
+def test_merge_of_module_calls():
+    # one call for all layers, and the same layers from three calls that each bring their own base
+    whole = maps.module_increases(engine_result(True))
+    assert whole["layers"] == list(range(N)) and whole["parts"] == PARTS
+    assert abs(whole["attn"]["law|search"][2] - 0.5) < 1e-9 and whole["attn"]["law|search"][3] is None
+    assert whole["mlp"]["empty|search"] is None  # no base score
+    merged = None
+    for shift, layers in [(0.0, [0, 1, 2]), (0.25, [6, 7]), (-0.5, [3, 4, 5])]:
+        res = engine_result(True)
+        res["layers"] = layers
+        for key in res["base"]:
+            if res["base"][key]["lp"] is not None:
+                res["base"][key]["lp"] = round(res["base"][key]["lp"] + shift, 5)
+        for module in ["attn_lp", "mlp_lp"]:
+            for key in res[module]:
+                # another container: every log-prob of the call moves with its base; the layers
+                # that the call was not asked for are null
+                res[module][key] = [None if v is None or l not in layers else round(v + shift, 5)
+                                    for l, v in enumerate(res[module][key])]
+        part = maps.module_increases(res)
+        assert part["layers"] == layers
+        for l in range(N):
+            if l not in layers:
+                assert part["mlp"]["law|search"][l] is None
+        merged = maps.merge_increases(merged, part)
+    assert merged["layers"] == list(range(N))
+    for module in ["attn", "mlp"]:
+        for key in whole[module]:
+            if whole[module][key] is None:
+                assert merged[module][key] is None
+                continue
+            for l in range(N):
+                a, b = whole[module][key][l], merged[module][key][l]
+                assert (a is None and b is None) or abs(a - b) < 1e-9, (module, key, l, a, b)
+    assert maps.module_map(merged, "law") == maps.module_map(whole, "law")
+    assert list(maps.module_fields(merged, SOURCES)["module_maps"].keys()) == ["law"]
 
 
 def test_entry_without_module_data():
     plain = maps.build_entry("org/toy", engine_result(False), SOURCES, ROW)
-    assert sorted(plain.keys()) == sorted(OLD_KEYS + ["selection_sources"]), sorted(plain.keys())
-    assert plain["selection_sources"] is None
+    assert sorted(plain.keys()) == sorted(OLD_KEYS + ["selection_sources", "reported_benchmark_skills"]), \
+        sorted(plain.keys())
+    assert plain["selection_sources"] is None and plain["reported_benchmark_skills"] is None
     # the old fields keep their values: the same as in an entry that also has module data
     full = maps.build_entry("org/toy", engine_result(True), SOURCES, ROW)
     for key in OLD_KEYS:
@@ -169,17 +276,20 @@ def test_entry_without_module_data():
     # a result that has the module lists but not this skill gives no module map for it
     res = engine_result(True)
     del res["attn_lp"]["law|heldout"]
-    assert maps.module_map(res, "law") is None
-    assert maps.module_map(engine_result(False), "law") is None
+    assert maps.module_map(maps.module_increases(res), "law") is None
+    assert "law" not in maps.build_entry("org/toy", res, SOURCES, ROW)["module_maps"]
+    assert not maps.has_module_data(engine_result(False))
 
 
 def test_old_entry_is_still_read():
     # an entry as maps.py wrote it before these fields: every reader uses the fields it knows
     old = maps.build_entry("org/toy", engine_result(False), SOURCES, ROW)
     del old["selection_sources"]
+    del old["reported_benchmark_skills"]
     for skill in old["layer_maps"]:
-        del old["layer_maps"][skill]["block_z"]
-        del old["layer_maps"][skill]["block_z_heldout"]
+        for field in ["block_z", "block_z_heldout", "block_z_windows", "block_z_disjoint_windows",
+                      "block_z_disjoint", "block_z_disjoint_heldout"]:
+            del old["layer_maps"][skill][field]
     old = json.loads(json.dumps(old))
     assert sorted(old.keys()) == sorted(OLD_KEYS)
     with tempfile.TemporaryDirectory() as tmp:
@@ -255,6 +365,22 @@ def test_selection_sources():
         assert got == expected[name], (name, got)
     assert details["math"]["dataset"].split()[0] == "microsoft/orca-math-word-problems-200k"
 
+    # one place that names the skills from a reported dataset; benchmark_free stays as it was
+    assert maps.reported_skills(None) is None
+    assert maps.reported_skills({"a": {"reported_benchmark": True}, "b": {"reported_benchmark": False},
+                                 "c": {"reported_benchmark": True}}) == ["a", "c"]
+    assert maps.reported_skills({"a": {"reported_benchmark": False}}) == []
+    assert maps.reported_skills({"a": {"reported_benchmark": True}, "b": {"reported_benchmark": None}}) is None
+    reported = maps.reported_skills(details)
+    assert reported == sorted(n for n in details if details[n]["reported_benchmark"])
+    assert "physics" in reported and "law" in reported and "math" not in reported and GENERAL not in reported
+    for name in reported:
+        assert maps.dataset_id(details[name]["dataset"]) in healdata.BANNED
+    entry = maps.build_entry("org/toy", engine_result(False), SOURCES, ROW, {
+        "law": {"dataset": "cais/mmlu all test", "description": "d", "pool": None, "reported_benchmark": True},
+        GENERAL: {"dataset": "w", "description": "d", "pool": "prose", "reported_benchmark": False}})
+    assert entry["reported_benchmark_skills"] == ["law"] and entry["benchmark_free"] is True
+
 
 def test_maps_many_command():
     plain = maps_many.maps_command("Org__Model", False)
@@ -266,8 +392,10 @@ def test_maps_many_command():
 if __name__ == "__main__":
     before = copy.deepcopy(SOURCES)
     test_window_z()
+    test_window_z_disjoint()
     test_module_share_and_r()
     test_entry_with_modules()
+    test_merge_of_module_calls()
     test_entry_without_module_data()
     test_old_entry_is_still_read()
     test_selection_sources()

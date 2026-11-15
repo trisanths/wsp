@@ -1,15 +1,19 @@
-# CPU test of the engine's skill_maps(modules=...) on a toy decoder, and of maps.build_entry on its
-# result. It runs the real skill_maps, _score, _skill_sets, _tokenized, _batches and _stat_hook code
-# of engine_app.EngineBase; only padding and the row scorer are replaced, because they need a GPU.
+# CPU test of the engine's skill_maps(modules=..., layers=..., plain=...) on a toy decoder, of
+# maps.build_entry on its result, and of a --modules run split over several engine calls. It runs
+# the real skill_maps, _score, _skill_sets, _tokenized, _batches and _stat_hook code of
+# engine_app.EngineBase; only padding and the row scorer are replaced, because they need a GPU.
 #   .venv/bin/python mine/tests/test_skill_maps_engine.py
 # Nothing here talks to Modal: the engine class is used as a plain Python class, and the test
 # blocks every network connection while it imports the engine file and while it runs.
+import contextlib
 import importlib.util
+import io
 import json
 import math
 import os
 import socket
 import sys
+import tempfile
 
 import torch
 
@@ -195,6 +199,61 @@ def check_engine_and_entry():
     plain_entry = maps.build_entry("org/toy", plain, sources, row)
     assert "module_maps" not in plain_entry and "module_parts" not in plain_entry
     assert plain_entry["layer_maps"]["law"]["scores"] == entry["layer_maps"]["law"]["scores"]
+
+    # a layer list with plain=False: only the module passes of those layers, no whole-layer passes,
+    # no router counts
+    engine.row_calls = 0
+    part = engine.skill_maps(payload(), modules=True, layers=[3, 1], plain=False)
+    assert sorted(part.keys()) == ["attn_lp", "base", "expert_freq", "info", "layer_lp", "layers", "mlp_lp",
+                                   "module_parts", "seconds"]
+    assert part["layers"] == [1, 3] and part["layer_lp"] is None and part["expert_freq"] is None
+    # the base is cached; layers 1 and 3 have attention and a feed-forward module: 4 passes over 4 sets
+    assert engine.row_calls == 4 * 4, engine.row_calls
+    assert part["base"] == full["base"] and part["module_parts"] == full["module_parts"]
+    for module in ["attn_lp", "mlp_lp"]:
+        for name in names:
+            for l in range(n_layers):
+                assert part[module][name][l] == (full[module][name][l] if l in [1, 3] else None), (module, name, l)
+    # a layer list on a plain call: the other layers are null, the router counts are still there
+    engine.row_calls = 0
+    some = engine.skill_maps(payload(), layers=[0, 5])
+    assert sorted(some.keys()) == ["base", "expert_freq", "info", "layer_lp", "layers", "seconds"]
+    assert engine.row_calls == 4 * 2 and some["layers"] == [0, 5]
+    assert some["expert_freq"] == plain["expert_freq"]
+    for name in names:
+        for l in range(n_layers):
+            assert some["layer_lp"][name][l] == (plain["layer_lp"][name][l] if l in [0, 5] else None)
+    for bad in [[n_layers], [-1, 0]]:
+        try:
+            engine.skill_maps(payload(), layers=bad)
+        except ValueError as e:
+            assert "layers must be in" in str(e)
+        else:
+            raise AssertionError("a layer outside the model was accepted")
+    # nothing stays hooked after all these calls
+    assert engine.skill_maps(payload())["layer_lp"] == plain["layer_lp"]
+
+    # maps.py splits a --modules run over calls: the merged result is the same as from one call
+    asked = []
+
+    def call(layers):
+        asked.append(list(layers))
+        return engine.skill_maps(payload(), modules=True, layers=layers, plain=False)
+    chunks = maps.plan_module_calls(n_layers, None, 4)
+    assert chunks == [[0, 1, 2, 3], [4, 5]]
+    with tempfile.TemporaryDirectory() as tmp, contextlib.redirect_stdout(io.StringIO()):
+        state = maps.measure_modules(call, chunks, os.path.join(tmp, "partial.json"), {"model": "org/toy"})
+    assert asked == chunks and state["calls"] == 2
+    fields = json.loads(json.dumps(maps.module_fields(state["increases"], sources)))
+    assert fields["module_maps"] == entry["module_maps"] and fields["module_parts"] == entry["module_parts"]
+    added = maps.add_module_fields(plain_entry, state, sources, None)
+    assert added["layer_maps"] == plain_entry["layer_maps"] and added["module_calls"] == 2
+    assert json.loads(json.dumps(added["module_maps"])) == entry["module_maps"]
+    assert "module_maps" not in plain_entry  # the plain entry itself is not changed
+
+    # maps.py plans calls against the timeout that the engine classes really have
+    assert maps.CALL_TIMEOUT == engine_app.COMMON["timeout"]
+    assert engine_app.COMMON_MULTI["timeout"] >= maps.CALL_TIMEOUT
 
 
 if __name__ == "__main__":

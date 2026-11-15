@@ -147,45 +147,90 @@ experts. The parts zero the input of the out-projection, so a bias on that proje
 
 Cost in scoring passes. One pass scores every skill set once (39 sets with the current pool file,
 48 search items and 24 held-out items each).
-- A plain run takes one pass for the base scores and one pass per layer. A model with fused
-  experts also gets one forward pass over each half of each skill set, on at most 64 items per
-  half, for the router counts.
+- A plain run takes one pass for the base scores and one pass per layer, in one engine call. A
+  model with fused experts also gets one forward pass over each half of each skill set, on at
+  most 64 items per half, for the router counts.
 - `--modules` adds one pass per layer that has an attention module and one pass per layer that
   has a feed-forward module. That is up to three passes per layer in place of one.
-- One engine call maps the whole model. The call timeout in `engine_app.py` is 3600 s on the
-  single-GPU tiers and 3 hours on the multi-GPU tiers. Read `engine_seconds` of a plain entry of
-  the same model before you start a `--modules` run.
-- `--modules` needs an engine that was deployed with `skill_maps(modules=...)`. A plain run sends
-  the same call as before, so it also works with an older deployed engine.
-- An entry that exists is skipped. With `--modules`, an entry without `module_maps` is measured
-  again and replaced. `--force` always measures again.
+
+How a `--modules` run works. An engine call that reaches its timeout returns nothing (3600 s on
+the single-GPU tiers, 3 hours on the multi-GPU tiers, in `engine_app.py`). So the module passes
+do not go into the plain call.
+1. The layer and expert maps are kept from the entry that is there, when it is for the same model
+   revision and the same skill text. The whole-layer passes are not paid again. When there is no
+   such entry, the plain call runs first and its entry is written before any module call.
+2. The module passes go to the engine in calls of a few layers each. A call for N layers takes at
+   most 1 + 2 x N passes. `maps.py` takes the seconds per pass from the plain entry
+   (`engine_seconds` over 1 + `layers` passes) and picks the most layers for which that estimate
+   stays within half of the 3600 s timeout. `--layers-per-call N` sets the number by hand. When
+   the estimate for the 3 passes of one layer is above 3600 s, the run stops before any call.
+3. After each call the merged result is saved in
+   `atlas/pool_logs/<org>__<name>.modules-partial.json`. A run that fails starts again after the
+   saved layers, when the revision and the skill sets are the same. The file is removed when the
+   entry is written. `--force` does not use it.
+- `--modules` needs an engine that was deployed with `skill_maps(modules=, layers=, plain=)`.
+  With an older engine `maps.py` prints that and exits with code 3, and `maps_many.py` starts no
+  more models. A plain run sends the same call as before, so it works with an older engine.
+- An entry that exists is skipped. With `--modules`, an entry is skipped when it has the
+  `module_maps` field. `--force` always measures again, the plain passes included.
+- A plain run does not replace an entry that has `module_maps` unless `--force` is set.
+- `maps_many.py --modules` writes `atlas/pool_logs/<key>.modules-failed` when the run of a model
+  fails, and does not start that model again in later `--modules` runs. `--retry-failed` starts
+  it again. A run that ends well removes the file. Read `atlas/pool_logs/<key>.log` first.
 
 Output: `atlas/pool_entries/<org>__<name>.json`. Fields per skill:
 - `layer_maps[skill]`: `scores` and `influence` (one number per layer), `blocks`, `block_mass`,
   and `heldout` with `check_mass` and `split_half_r`.
 - `layer_maps[skill].block_z`: for each block, its positive score mass against the positive mass
   of every other window of the same length in the same model, in sample standard deviations. The
-  other windows may overlap the block. The value is null when there are fewer than 3 other
-  windows or when they all hold the same mass. `block_z` uses the search scores, which also chose
-  the block. `block_z_heldout` uses the held-out scores for the same block.
+  value is null when there are fewer than 3 other windows or when they all hold the same mass.
+  `block_z` uses the search scores, which also chose the block. `block_z_heldout` uses the
+  held-out scores for the same block.
+- How to read `block_z`. It is not a test against independent random blocks. Most of the other
+  windows share layers with the block: `block_z_windows` is the number of other windows and
+  `block_z_disjoint_windows` is how many of them share no layer with it. The first block is the
+  window with the most mass on the search scores, so its `block_z` is positive or null by
+  construction. Only `block_z_heldout` and `block_z_disjoint_heldout` are a check. A short block
+  is compared with windows that mostly hold zero mass, so the deviation is small and z can be
+  very large. Do not read it as a significance level.
+- `layer_maps[skill].block_z_disjoint` and `block_z_disjoint_heldout`: the same z against only
+  the windows that share no layer with the block. Null with fewer than 3 such windows or when
+  they all hold the same mass.
 - `module_maps[skill]` (only with `--modules`): `attn` and `mlp`, the layer score definition for
   one module, with null where the layer lacks the module. `module_share` is the attention share
-  of the positive `attn` + `mlp` score per layer. A missing module counts as 0, and the share is
-  null when neither score is positive. `heldout.split_half_r.attn` and `.mlp` are the Pearson r
-  of the search and held-out score lists.
+  of the positive `attn` + `mlp` score per layer. It is null where the layer lacks one of the two
+  modules (the `attn` and `mlp` lists still have the score that was measured), and null when
+  neither score is positive. A score at or below 0.00002 nats counts as 0 in the share, because
+  the four rounded log-probs behind a score can move it by that much. The share has no other
+  floor: read it with the two scores. `heldout.split_half_r.attn` and `.mlp` are the Pearson r of
+  the search and held-out score lists over the layers that have the module, and
+  `heldout.n_layers.attn` and `.mlp` are how many layers that is. r is null below 4 layers.
+- The adapter knows two modules per layer. Where it finds no attention module (the conv layers
+  of the LFM2 models), `attn` and `module_share` are null and the operator that sits there is
+  not measured.
 - `module_parts` (only with `--modules`): per layer, the part kinds that were zeroed for `attn`
   and for `mlp`. An empty list means the layer lacks the module.
+- `module_engine_seconds`, `module_calls`, `module_measured_at` (only with `--modules`): the
+  engine time and the number of the module calls, and when the module fields were written.
+  `engine_seconds` and `measured_at` stay those of the plain call.
 - `expert_maps[skill]` and `expert_details[skill]`: per layer, the experts that the router picks
   more on skill text than on general text, on both halves.
 - `selection_data[skill]`: one string with the dataset and the description of the skill text.
 - `selection_sources[skill]`: `dataset`, `description`, `pool` (the `wsp/healdata.py` pool that
   draws on the same dataset, or null), and `reported_benchmark` (true when the dataset id is in
   the `BANNED` list of `wsp/healdata.py`). Mining may use benchmark data, so read this field
-  before you train or select on a skill's text. `benchmark_free` is written as true for every
-  entry and does not look at the skill list.
+  before you train or select on a skill's text.
+- `reported_benchmark_skills`: the names of the skills with `reported_benchmark` true, or null
+  when `wsp/healdata.py` was not found. `benchmark_free` is written as true for every entry, as
+  before, and does not look at the skill list. An entry can have `benchmark_free: true` and a
+  list of reported skills here: trust the list. The owner decides if `benchmark_free` goes away.
+- A plain entry that `--modules` extends keeps its layer fields as they were written. An entry
+  from before `block_z` existed gets `block_z` only from a `--force` run.
 
-Tests (CPU only, no Modal call): `.venv/bin/python mine/tests/test_module_parts.py`,
-`mine/tests/test_skill_maps_engine.py`, and `mine/tests/test_module_maps.py`. Each prints `ok`.
+Tests (CPU only, no Modal call), each prints `ok`:
+```bash
+for t in mine/tests/test_*.py; do .venv/bin/python $t; done
+```
 
 ## 9. Rules
 - Never invent numbers. If something fails, report the exact error.

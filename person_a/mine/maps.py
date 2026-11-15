@@ -14,23 +14,47 @@
 # against the positive mass of every other window of the same length in the same model, in sample
 # standard deviations. Lists aligned with blocks. block_z uses the search scores, which also chose
 # the block; block_z_heldout uses the held-out scores for the same block.
+# How to read it: block_z is not a test against independent random blocks. Most of the other
+# windows share layers with the block (block_z_windows and block_z_disjoint_windows give the
+# counts). The first block is the window with the most mass on the search scores, so its block_z
+# is positive or null by construction; only the held-out values check it. A short block is
+# compared with windows that mostly hold zero mass, so the deviation is small and z is large.
+# block_z_disjoint and block_z_disjoint_heldout use only the windows that share no layer with
+# the block (null with fewer than 3 of them).
 #
 # --modules also measures each layer with only its attention output zeroed and with only its
 # feed-forward output zeroed (dense MLP, routed experts, or both). The entry then has
 #   module_maps[skill].attn, .mlp     the layer score definition, per module (null: no such module)
-#   module_maps[skill].module_share   per layer, the attention share of the positive attn + mlp score
+#   module_maps[skill].module_share   per layer, the attention share of the positive attn + mlp
+#                                     score; null where the layer lacks one of the two modules
 #   module_maps[skill].heldout.split_half_r.attn, .mlp   Pearson r of the search and held-out lists
+#   module_maps[skill].heldout.n_layers.attn, .mlp       the layers that r is over (null r below 4)
 #   module_parts                      per layer, the part kinds that were zeroed for each module
-# A plain run takes one scoring pass per layer (every skill set scored once). --modules adds one
-# pass per layer for the attention module and one for the feed-forward module, where the layer has
-# them: up to three passes per layer. It needs an engine deployed with skill_maps(modules=...).
-# An entry that exists without module_maps is measured again when --modules is set.
+#   module_engine_seconds, module_calls, module_measured_at
+# Cost. A plain run takes one scoring pass for the base and one per layer (every skill set scored
+# once per pass), in one engine call. --modules adds one pass per layer for the attention module
+# and one for the feed-forward module, where the layer has them: up to three passes per layer.
+# How a --modules run works. An engine call that reaches its timeout returns nothing, so the
+# module passes do not go into the plain call:
+#   1. The layer and expert maps come from the entry that is there, when it is for the same model
+#      revision and skill text. Without such an entry the plain call runs first and its entry is
+#      written before any module call.
+#   2. The module passes go to the engine in calls of a few layers each (at most 1 + 2 * layers
+#      passes per call). The layers per call come from the time per pass of the plain run, so the
+#      estimate for a call stays within half of the 3600 s timeout; --layers-per-call sets it.
+#   3. After each call the merged result is saved in atlas/pool_logs/<org>__<name>.modules-partial.json.
+#      A run that stops starts again after the saved layers. The file is removed with the entry write.
+# --modules needs an engine deployed with skill_maps(modules=, layers=, plain=). With an older
+# engine the run prints that and exits with code 3; a plain run sends the same call as before.
+# A plain run never replaces an entry that has module maps, unless --force is set.
 #
 # Data: skill text comes from mine/data/pool_skills.json and the built-in math, code and
 # general_text sets. Mining may use any dataset, and some pool skills come from a benchmark (the
 # MMLU domain skills). selection_sources says, per skill, the dataset, the wsp/healdata.py pool that
 # draws on the same dataset, and whether the dataset is on the default reported list (BANNED), so
-# compile and heal can keep away from data they are scored on.
+# compile and heal can keep away from data they are scored on. reported_benchmark_skills lists the
+# skills where that is true. benchmark_free is written as true for every entry, as before, and
+# does not look at the skills: read reported_benchmark_skills.
 # Selection uses the "search" half of each set; the "heldout" half only checks it.
 import argparse
 import datetime
@@ -55,6 +79,23 @@ TOP_EXPERTS = 8
 EPS = 1.0e-4
 MODULES = ["attn", "mlp"]
 MIN_OTHER_WINDOWS = 3
+# A module's held-out r needs this many layers that have the module. With 2 layers r is always 1 or -1.
+MIN_R_LAYERS = 4
+# A score is built from four log-probs that the engine rounds to 5 places (two base scores, two
+# ablated scores), so rounding alone can move it by 4 * 0.5e-5. A score at or below this is not
+# told apart from 0 in module_share.
+SCORE_RESOLUTION = 2.0e-5
+# The "timeout" of the single-GPU engine classes in engine_app.py (COMMON), in seconds. A call that
+# reaches it returns nothing. The multi-GPU classes have more time; this file plans for the smaller.
+CALL_TIMEOUT = 3600
+# The share of CALL_TIMEOUT that one planned module call may fill, by the estimate from the plain run.
+CALL_BUDGET = 0.5
+# Exit code of a --modules run that found an engine without skill_maps(modules=, layers=, plain=).
+# maps_many.py stops when it sees it, because every other model would fail the same way.
+OLD_ENGINE_EXIT = 3
+OLD_ENGINE_MESSAGE = ("the deployed engine has no skill_maps(modules=..., layers=..., plain=...): deploy the "
+                      "engine from a branch that has it, then run --modules again")
+LOG_DIR = os.path.join(REPO, "atlas", "pool_logs")
 HEALDATA = os.path.join(REPO, "wsp", "healdata.py")
 # Datasets of the built-in sets, read from mine/build_data.py (builtin_skills.json has no dataset field).
 BUILTIN_DATASETS = {
@@ -189,17 +230,25 @@ def positive_share(scores, blocks):
     return out
 
 
-def window_z(scores, first, last):
-    # How far the block's positive score mass is above the positive mass of every other window of
-    # the same length in the same model, in sample standard deviations of those other windows.
-    # The other windows may overlap the block. None with fewer than MIN_OTHER_WINDOWS other
-    # windows, or when they all have the same mass.
+def window_masses(scores, first, last):
+    # The positive score mass of the block, of every other window of the same length, and of the
+    # other windows that share no layer with the block.
     length = last - first + 1
     own = sum(max(0.0, v) for v in scores[first:last + 1])
     others = []
+    disjoint = []
     for start in range(0, len(scores) - length + 1):
-        if start != first:
-            others.append(sum(max(0.0, v) for v in scores[start:start + length]))
+        if start == first:
+            continue
+        mass = sum(max(0.0, v) for v in scores[start:start + length])
+        others.append(mass)
+        if start > last or start + length - 1 < first:
+            disjoint.append(mass)
+    return own, others, disjoint
+
+
+def z_against(own, others):
+    # None with fewer than MIN_OTHER_WINDOWS windows, or when they all have the same mass
     if len(others) < MIN_OTHER_WINDOWS:
         return None
     mean = sum(others) / len(others)
@@ -209,8 +258,37 @@ def window_z(scores, first, last):
     return round((own - mean) / sd, 3)
 
 
+def window_z(scores, first, last):
+    # How far the block's positive score mass is above the positive mass of every other window of
+    # the same length in the same model, in sample standard deviations of those other windows.
+    # The other windows may overlap the block, so they are not independent of it.
+    own, others, disjoint = window_masses(scores, first, last)
+    return z_against(own, others)
+
+
+def window_z_disjoint(scores, first, last):
+    # The same against only the windows that share no layer with the block
+    own, others, disjoint = window_masses(scores, first, last)
+    return z_against(own, disjoint)
+
+
 def block_z(scores, blocks):
     return [window_z(scores, first, last) for first, last in blocks]
+
+
+def block_z_disjoint(scores, blocks):
+    return [window_z_disjoint(scores, first, last) for first, last in blocks]
+
+
+def block_window_counts(scores, blocks):
+    # per block: how many other windows block_z compares with, and how many of them do not overlap it
+    n_others = []
+    n_disjoint = []
+    for first, last in blocks:
+        own, others, disjoint = window_masses(scores, first, last)
+        n_others.append(len(others))
+        n_disjoint.append(len(disjoint))
+    return n_others, n_disjoint
 
 
 def pearson(a, b):
@@ -245,79 +323,157 @@ def layer_map(res, skill):
             return None
         maps[split] = {"influence": own, "scores": [o - r for o, r in zip(own, ref)]}
     blocks, mass = suggest_blocks(maps["search"]["scores"])
+    n_others, n_disjoint = block_window_counts(maps["search"]["scores"], blocks)
     return {"scores": [round(v, 5) for v in maps["search"]["scores"]],
             "influence": [round(v, 5) for v in maps["search"]["influence"]],
             "blocks": blocks, "block_mass": mass,
             "block_z": block_z(maps["search"]["scores"], blocks),
             "block_z_heldout": block_z(maps["heldout"]["scores"], blocks),
+            # so a reader can judge block_z: most of its windows overlap the block
+            "block_z_windows": n_others, "block_z_disjoint_windows": n_disjoint,
+            "block_z_disjoint": block_z_disjoint(maps["search"]["scores"], blocks),
+            "block_z_disjoint_heldout": block_z_disjoint(maps["heldout"]["scores"], blocks),
             "heldout": {"blocks": blocks, "select_mass": mass,
                         "check_mass": positive_share(maps["heldout"]["scores"], blocks),
                         "split_half_r": pearson(maps["search"]["scores"], maps["heldout"]["scores"])}}
-
-
-def module_scores(res, skill, split, module):
-    # The layer score definition for one module: nats of answer log-prob lost on skill text when
-    # the module of each layer is zeroed, minus the same on general_text. None for a layer that
-    # lacks the module. Returns None when the skill or the reference has no base score.
-    lps = res[module + "_lp"]
-    base_own = res["base"][skill + "|" + split]["lp"]
-    base_ref = res["base"][REFERENCE + "|" + split]["lp"]
-    own = lps.get(skill + "|" + split)
-    ref = lps.get(REFERENCE + "|" + split)
-    if base_own is None or base_ref is None or own is None or ref is None:
-        return None
-    out = []
-    for o, r in zip(own, ref):
-        out.append(None if o is None or r is None else (base_own - o) - (base_ref - r))
-    return out
-
-
-def module_share(attn, mlp):
-    # Per layer: the attention share of the positive attn + mlp score. A module that the layer
-    # lacks counts as 0. None when neither score is positive.
-    out = []
-    for a, m in zip(attn, mlp):
-        pa = 0.0 if a is None else max(0.0, a)
-        pm = 0.0 if m is None else max(0.0, m)
-        out.append(None if pa + pm <= 0 else round(pa / (pa + pm), 4))
-    return out
-
-
-def pearson_present(a, b):
-    # Pearson r over the layers where both lists have a number
-    xs = []
-    ys = []
-    for x, y in zip(a, b):
-        if x is not None and y is not None:
-            xs.append(x)
-            ys.append(y)
-    return pearson(xs, ys)
 
 
 def has_module_data(res):
     return res.get("attn_lp") is not None and res.get("mlp_lp") is not None
 
 
-def module_map(res, skill):
-    if not has_module_data(res):
+def module_increases(res):
+    # One engine result with module data, as loss increases: for each module and each "skill|split"
+    # set, the nats of answer log-prob lost per layer when the module of that layer is zeroed.
+    # None for a layer that lacks the module or was not measured in this call; None in place of
+    # the list for a set with no base score. "layers" names the layers this call measured.
+    # Increases, and not log-probs, are what several calls can share: each call brings its own base.
+    n_layers = len(res["module_parts"])
+    measured = res.get("layers")
+    if measured is None:
+        measured = list(range(n_layers))
+    out = {"layers": list(measured), "parts": res["module_parts"]}
+    for module in MODULES:
+        out[module] = {}
+        for key in res[module + "_lp"]:
+            base = res["base"][key]["lp"]
+            if base is None:
+                out[module][key] = None
+            else:
+                out[module][key] = [None if lp is None else base - lp for lp in res[module + "_lp"][key]]
+    return out
+
+
+def merge_increases(done, new):
+    # Adds the layers that one more call measured to what earlier calls measured. `done` is None
+    # before the first call. Returns the merged record; `new` is not changed.
+    if done is None:
+        return json.loads(json.dumps(new))
+    for module in MODULES:
+        for key in new[module]:
+            if new[module][key] is None or done[module].get(key) is None:
+                done[module][key] = None
+                continue
+            for l in new["layers"]:
+                done[module][key][l] = new[module][key][l]
+    for l in new["layers"]:
+        if l not in done["layers"]:
+            done["layers"].append(l)
+    done["layers"].sort()
+    return done
+
+
+def module_scores(inc, skill, split, module):
+    # The layer score definition for one module: nats of answer log-prob lost on skill text when
+    # the module of each layer is zeroed, minus the same on general_text. None for a layer that
+    # lacks the module. Returns None when the skill or the reference has no base score.
+    own = inc[module].get(skill + "|" + split)
+    ref = inc[module].get(REFERENCE + "|" + split)
+    if own is None or ref is None:
         return None
+    return [None if o is None or r is None else o - r for o, r in zip(own, ref)]
+
+
+def module_share(attn, mlp):
+    # Per layer: the attention share of the positive attn + mlp score.
+    # None when the layer lacks either module: a share needs both scores, and a module that was
+    # not measured must not read as a measured 0. The attn and mlp lists keep the one score.
+    # None when neither score is above SCORE_RESOLUTION; a score at or below it counts as 0.
+    out = []
+    for a, m in zip(attn, mlp):
+        if a is None or m is None:
+            out.append(None)
+            continue
+        pa = a if a > SCORE_RESOLUTION else 0.0
+        pm = m if m > SCORE_RESOLUTION else 0.0
+        out.append(None if pa + pm <= 0 else round(pa / (pa + pm), 4))
+    return out
+
+
+def pearson_present(a, b, min_n=2):
+    # Pearson r over the layers where both lists have a number, and how many layers that is.
+    # r is None with fewer than min_n such layers.
+    xs = []
+    ys = []
+    for x, y in zip(a, b):
+        if x is not None and y is not None:
+            xs.append(x)
+            ys.append(y)
+    return (pearson(xs, ys) if len(xs) >= min_n else None), len(xs)
+
+
+def module_map(inc, skill):
+    # inc: the record of module_increases(), or of merge_increases() over several calls
     scores = {}
     for module in MODULES:
         for split in ["search", "heldout"]:
-            found = module_scores(res, skill, split, module)
+            found = module_scores(inc, skill, split, module)
             if found is None:
                 return None
             scores[module + "|" + split] = found
     out = {}
     agreement = {}
+    counts = {}
     for module in MODULES:
         out[module] = [None if v is None else round(v, 5) for v in scores[module + "|search"]]
-        agreement[module] = pearson_present(scores[module + "|search"], scores[module + "|heldout"])
-    # from the rounded scores: the engine rounds log-probs to 5 places, so a difference below that
-    # is float noise, and noise must not turn a zero score into a share of 1
+        agreement[module], counts[module] = pearson_present(scores[module + "|search"], scores[module + "|heldout"],
+                                                            MIN_R_LAYERS)
+    # from the rounded scores, so the share matches the attn and mlp lists that a reader sees
     out["module_share"] = module_share(out["attn"], out["mlp"])
-    out["heldout"] = {"split_half_r": agreement}
+    out["heldout"] = {"split_half_r": agreement, "n_layers": counts}
     return out
+
+
+MODULE_METHOD = ("module scores: loss increase on skill text when the attention output (attn) or "
+                 "the feed-forward output (mlp: dense MLP, routed experts, or both) of one layer "
+                 "is zeroed, minus the same for general_text (nats, search half). module_share: "
+                 "attention share of the positive attn + mlp score per layer, null where the layer lacks "
+                 "one of the two modules. split_half_r: Pearson r of the search and held-out score "
+                 "lists, per module, over the n_layers layers that have the module. module_parts: "
+                 "the part kinds zeroed per layer.")
+
+
+def module_fields(inc, names):
+    # the entry fields of a --modules run, for the skills in `names`
+    module_maps = {}
+    for name in names:
+        if name == REFERENCE:
+            continue
+        mm = module_map(inc, name)
+        if mm is not None:
+            module_maps[name] = mm
+    return {"module_maps": module_maps, "module_parts": inc["parts"], "module_method": MODULE_METHOD}
+
+
+def reported_skills(selection_sources):
+    # The skills whose text comes from a dataset on the reported list, in one place. None when
+    # that is not known (no selection_sources, or wsp/healdata.py was not found).
+    if selection_sources is None:
+        return None
+    flags = [selection_sources[name].get("reported_benchmark") for name in selection_sources]
+    if any(flag is None for flag in flags):
+        return None
+    return sorted(name for name in selection_sources if selection_sources[name]["reported_benchmark"])
 
 
 def expert_map(res, skill):
@@ -353,7 +509,6 @@ def build_entry(model, res, sources, row, selection_sources=None):
     info = res["info"]
     skills = {}
     layer_maps = {}
-    module_maps = {}
     expert_maps = {}
     expert_details = {}
     for name in sources:
@@ -363,9 +518,6 @@ def build_entry(model, res, sources, row, selection_sources=None):
         lm = layer_map(res, name)
         if lm is not None:
             layer_maps[name] = lm
-        mm = module_map(res, name)
-        if mm is not None:
-            module_maps[name] = mm
         top, details = expert_map(res, name)
         if top:
             expert_maps[name] = top
@@ -387,30 +539,151 @@ def build_entry(model, res, sources, row, selection_sources=None):
         "revision": res.get("revision"), "gpu": res.get("gpu"), "engine_seconds": res["seconds"],
         "measured_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "selection_sources": selection_sources,
+        # benchmark_free above is always true and does not look at the skills; this list does
+        "reported_benchmark_skills": reported_skills(selection_sources),
     }
     if has_module_data(res):
-        entry["module_maps"] = module_maps
-        entry["module_parts"] = res.get("module_parts")
-        entry["module_method"] = ("module scores: loss increase on skill text when the attention output (attn) or "
-                                  "the feed-forward output (mlp: dense MLP, routed experts, or both) of one layer "
-                                  "is zeroed, minus the same for general_text (nats, search half). module_share: "
-                                  "attention share of the positive attn + mlp score per layer. split_half_r: "
-                                  "Pearson r of the search and held-out score lists, per module. module_parts: "
-                                  "the part kinds zeroed per layer.")
+        entry.update(module_fields(module_increases(res), sources))
     return entry
 
 
+def read_entry(path):
+    # the entry file as a dict, or None when it is not there or is not a JSON object
+    try:
+        with open(path) as f:
+            entry = json.load(f)
+    except (OSError, ValueError):
+        return None
+    return entry if isinstance(entry, dict) else None
+
+
 def entry_done(path, modules):
-    # True when the entry file exists and already has what this run would measure
+    # True when the entry file exists and already has what this run would measure. For --modules
+    # the test is the key: an entry with an empty module_maps was measured and must not be paid again.
     if not os.path.exists(path):
         return False
     if not modules:
         return True
-    try:
-        with open(path) as f:
-            return bool(json.load(f).get("module_maps"))
-    except (OSError, ValueError):
+    entry = read_entry(path)
+    return entry is not None and "module_maps" in entry
+
+
+def write_entry(path, entry, force=False):
+    # Writes the entry file. Returns False and leaves the file as it is when the write would put
+    # an entry without module maps over one that has them (a plain run that ends after a --modules
+    # run of the same model) and force is not set. The tmp name has the process id, because two
+    # runs of one model can write at the same time.
+    current = read_entry(path)
+    if not force and current is not None and "module_maps" in current and "module_maps" not in entry:
         return False
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + "." + str(os.getpid()) + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(entry, f, indent=1)
+    os.replace(tmp, path)
+    return True
+
+
+def plain_entry_fits(entry, model, revision, sources):
+    # True when a --modules run can keep the layer and expert maps of this entry and add the module
+    # maps to it: the same model revision and the same skill text. An entry of another revision or
+    # of other skill sets is measured again from the start.
+    if entry is None or "layer_maps" not in entry or not entry.get("layers"):
+        return False
+    return entry.get("model") == model and entry.get("revision") == revision and entry.get("selection_data") == sources
+
+
+def seconds_per_pass(entry):
+    # Estimate from a plain entry: its engine time over its scoring passes (one for the base and
+    # one per layer). The time also holds the router counts, so the estimate is a little high.
+    if not entry.get("engine_seconds") or not entry.get("layers"):
+        return None
+    return entry["engine_seconds"] / (1 + entry["layers"])
+
+
+def plan_module_calls(n_layers, per_pass, per_call=0):
+    # Splits the layers of a --modules run over engine calls. One call for c layers takes at most
+    # 1 + 2 * c scoring passes (the base, then attention and feed-forward per layer).
+    # per_pass: seconds per pass from seconds_per_pass(), or None when not known.
+    # per_call: layers per call set by the user; 0 picks the most layers whose estimate stays
+    # within CALL_BUDGET of CALL_TIMEOUT, or 1 layer per call when there is no estimate.
+    # Returns None when the estimate says that a call for a single layer does not fit the timeout.
+    if per_pass is not None and 3 * per_pass > CALL_TIMEOUT:
+        return None
+    if per_call <= 0:
+        per_call = 1
+        if per_pass is not None:
+            per_call = max(1, int((CALL_TIMEOUT * CALL_BUDGET / per_pass - 1) / 2))
+    per_call = min(per_call, n_layers)
+    return [list(range(first, min(n_layers, first + per_call))) for first in range(0, n_layers, per_call)]
+
+
+class OldEngine(Exception):
+    pass
+
+
+def is_old_engine_error(exc):
+    # An engine deployed before skill_maps had modules, layers, and plain refuses the call with a
+    # TypeError on the unknown keyword, and no result comes back to check.
+    return isinstance(exc, OldEngine) or "unexpected keyword argument" in str(exc)
+
+
+def partial_path(model):
+    # next to the logs, and not in pool_entries, where every *.json file is read as an entry
+    return os.path.join(LOG_DIR, model.replace("/", "__") + ".modules-partial.json")
+
+
+def load_partial(path, stamp):
+    # the saved state of an earlier --modules run that stopped, when it is for the same model
+    # revision, skill sets, and layer count; else a new state
+    saved = read_entry(path)
+    if saved is not None and saved.get("stamp") == stamp:
+        return saved
+    return {"stamp": stamp, "increases": None, "engine_seconds": 0.0, "calls": 0}
+
+
+def measure_modules(call, chunks, path, stamp):
+    # Runs the module calls and merges their results.
+    # call(layers) returns the engine result of skill_maps(payload, modules=True, layers=layers,
+    # plain=False). The merged state goes to `path` after every call, so a call that fails or
+    # reaches its timeout loses only its own layers: the next run starts after the saved ones.
+    state = load_partial(path, stamp)
+    for chunk in chunks:
+        done = [] if state["increases"] is None else state["increases"]["layers"]
+        todo = [l for l in chunk if l not in done]
+        if not todo:
+            continue
+        res = call(todo)
+        if not has_module_data(res) or res.get("layers") is None:
+            raise OldEngine("the engine result has no module data for a layer list")
+        if sorted(res["layers"]) != todo:
+            raise RuntimeError("asked for layers " + str(todo) + ", the engine measured " + str(res["layers"]))
+        state["increases"] = merge_increases(state["increases"], module_increases(res))
+        state["engine_seconds"] = round(state["engine_seconds"] + res["seconds"], 1)
+        state["calls"] += 1
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        tmp = path + "." + str(os.getpid()) + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(state, f)
+        os.replace(tmp, path)
+        print("module call", state["calls"], "| layers", todo[0], "to", todo[-1], "| engine", res["seconds"], "s",
+              flush=True)
+    return state
+
+
+def add_module_fields(entry, state, sources, selection_sources):
+    # The plain entry with the module fields added. The fields that the plain run wrote stay as
+    # they are; an entry written before selection_sources existed gets it now (it is not measured).
+    out = dict(entry)
+    out.update(module_fields(state["increases"], sources))
+    out["module_engine_seconds"] = state["engine_seconds"]
+    out["module_calls"] = state["calls"]
+    out["module_measured_at"] = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    if out.get("selection_sources") is None:
+        out["selection_sources"] = selection_sources
+    if out.get("reported_benchmark_skills") is None:
+        out["reported_benchmark_skills"] = reported_skills(out["selection_sources"])
+    return out
 
 
 def main():
@@ -419,8 +692,10 @@ def main():
     ap.add_argument("--short", default=None, help="short name in registry/donors.csv")
     ap.add_argument("--force", action="store_true", help="measure again when the entry exists")
     ap.add_argument("--modules", action="store_true",
-                    help="also map the attention and feed-forward module of every layer (up to 3 scoring "
-                         "passes per layer in place of 1)")
+                    help="also map the attention and feed-forward module of every layer (up to 2 more scoring "
+                         "passes per layer, in engine calls of their own)")
+    ap.add_argument("--layers-per-call", type=int, default=0,
+                    help="with --modules: layers per engine call (default: from the time of the plain run)")
     args = ap.parse_args()
     import modal
 
@@ -441,8 +716,6 @@ def main():
     if entry_done(out_path, args.modules) and not args.force:
         print("exists:", out_path)
         return
-    if os.path.exists(out_path) and not args.force:
-        print("entry has no module maps, measuring again:", out_path)
     payload, sources = load_skills()
     healdata = load_healdata()
     if healdata is None:
@@ -453,32 +726,71 @@ def main():
     print("maps", row["hf_id"], "| revision", revision[:10], "| GPU", gpu, "|", len(sources), "skill sets", flush=True)
     start = time.time()
     engine = modal.Cls.from_name(common.APP_NAME, gpu)(model_key=key, hf_id=row["hf_id"], revision=revision)
-    if args.modules:
-        res = engine.skill_maps.remote(payload, modules=True)
-        if not has_module_data(res):
-            raise SystemExit("the engine returned no module data; deploy the engine with skill_maps(modules=...)")
-    else:
+    entry = None
+    if args.modules and not args.force:
+        entry = read_entry(out_path)
+        if plain_entry_fits(entry, row["hf_id"], revision, sources):
+            print("keeping the layer and expert maps of", out_path, "and adding the module maps", flush=True)
+        else:
+            if entry is not None:
+                print("the entry is for another revision or other skill sets, measuring it again:", out_path)
+            entry = None
+    if entry is None:
         # same call as before --modules existed, so it also works with an older deployed engine
         res = engine.skill_maps.remote(payload)
-    res["revision"] = revision
-    res["gpu"] = gpu
-    entry = build_entry(row["hf_id"], res, sources, row, details)
-    entry["wall_seconds"] = round(time.time() - start, 1)
-    os.makedirs(OUT_DIR, exist_ok=True)
-    tmp = out_path + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump(entry, f, indent=1)
-    os.replace(tmp, out_path)
-    best = []
-    for name in entry["layer_maps"]:
-        lm = entry["layer_maps"][name]
-        if lm["blocks"]:
-            best.append(name + " " + str(lm["blocks"][0]) + " r=" + str(lm["heldout"]["split_half_r"]) +
-                        " z=" + str(lm["block_z"][0]))
-    print("wrote", out_path, "| engine", res["seconds"], "s | wall", entry["wall_seconds"], "s")
-    print("first block per skill:", "; ".join(best))
-    if "module_maps" in entry:
-        print("module maps:", len(entry["module_maps"]), "skills")
+        res["revision"] = revision
+        res["gpu"] = gpu
+        entry = build_entry(row["hf_id"], res, sources, row, details)
+        entry["wall_seconds"] = round(time.time() - start, 1)
+        # written now, before any module call, so a module call that fails does not lose it
+        if write_entry(out_path, entry, args.force):
+            print("wrote", out_path, "| engine", res["seconds"], "s | wall", entry["wall_seconds"], "s")
+        else:
+            print("kept", out_path, "as it is: it has module maps and this run has none (use --force to replace it)")
+            return
+        best = []
+        for name in entry["layer_maps"]:
+            lm = entry["layer_maps"][name]
+            if lm["blocks"]:
+                best.append(name + " " + str(lm["blocks"][0]) + " r=" + str(lm["heldout"]["split_half_r"]) +
+                            " z=" + str(lm["block_z"][0]))
+        print("first block per skill:", "; ".join(best))
+    if not args.modules:
+        return
+    per_pass = seconds_per_pass(entry)
+    chunks = plan_module_calls(entry["layers"], per_pass, args.layers_per_call)
+    if chunks is None:
+        raise SystemExit("the plain run took " + str(round(per_pass, 1)) + " s per scoring pass: the 3 passes of a "
+                         "module call for one layer do not fit the " + str(CALL_TIMEOUT) + " s call timeout")
+    print("module maps:", len(chunks), "engine calls of at most", 1 + 2 * len(chunks[0]), "scoring passes | plain run:",
+          "no time known" if per_pass is None else str(round(per_pass, 1)) + " s per pass", flush=True)
+    hashes = {}
+    for name in payload["skills"]:
+        hashes[name] = payload["skills"][name]["hash"]
+    stamp = {"model": row["hf_id"], "revision": revision, "layers": entry["layers"], "skills": hashes}
+    partial = partial_path(row["hf_id"])
+    if args.force and os.path.exists(partial):
+        os.remove(partial)  # --force measures again: the saved calls of an earlier run are not used
+
+    def call(layers):
+        return engine.skill_maps.remote(payload, modules=True, layers=layers, plain=False)
+    try:
+        state = measure_modules(call, chunks, partial, stamp)
+    except Exception as exc:
+        if is_old_engine_error(exc):
+            print(OLD_ENGINE_MESSAGE, "(" + type(exc).__name__ + ": " + str(exc) + ")")
+            sys.exit(OLD_ENGINE_EXIT)
+        raise
+    # the entry may have been written again while the module calls ran: add to the file as it is now
+    current = read_entry(out_path)
+    if plain_entry_fits(current, row["hf_id"], revision, sources):
+        entry = current
+    entry = add_module_fields(entry, state, sources, details)
+    write_entry(out_path, entry, True)
+    if os.path.exists(partial):
+        os.remove(partial)
+    print("wrote", out_path, "| module maps:", len(entry["module_maps"]), "skills |", state["calls"], "calls | engine",
+          state["engine_seconds"], "s")
 
 
 if __name__ == "__main__":

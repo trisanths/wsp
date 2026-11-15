@@ -222,13 +222,15 @@ def install_all(info, layers, parts, handles):
         install(info, layers, part, handles)
 
 
-def module_ablation_maps(info, layers, names, score_all):
+def module_ablation_maps(info, layers, names, score_all, only=None):
     # For every layer: switch off its whole attention module, call score_all(), switch it on again,
     # then do the same for its feed-forward module. score_all() returns {name: value} for the model
     # as it is hooked at that moment. Returns
     #   {"attn": {name: [value per layer]}, "mlp": {name: [value per layer]},
     #    "parts": [{"attn": [part kinds], "mlp": [part kinds]} per layer]}
     # with None for a layer that lacks the module (score_all is not called for it).
+    # only: a list of layer numbers. The other layers are not measured and get None, so a caller
+    # can split a deep model over several calls. "parts" names the part kinds of every layer.
     out = {"attn": {}, "mlp": {}, "parts": []}
     for module in ["attn", "mlp"]:
         for name in names:
@@ -239,7 +241,7 @@ def module_ablation_maps(info, layers, names, score_all):
             parts = full_module_parts(info, l, module)
             kinds[module] = [p["kind"] for p in parts]
             scores = None
-            if parts:
+            if parts and (only is None or l in only):
                 handles = []
                 try:
                     install_all(info, layers, parts, handles)
