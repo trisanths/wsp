@@ -1,8 +1,57 @@
-# The wsp text syntax
+# Sapien language reference
 
-A wsp program names a host model and the parts to add to it. The text form
-is for people. It parses into the same `wsp.program.Program` object that
-agents send as JSON, and it prints back to the same text.
+Sapien is the language of the `wsp` package. A Sapien program names a base
+model, components mined from existing open models, and limits. The
+compiler builds one network from it. The text form is for people. It
+parses into the same `wsp.program.Program` object that agents send as JSON,
+and it prints back to the same text. Program files use the `.sap` suffix
+(`.wsp` and `.json` also work).
+
+## What Sapien is
+
+Rules of the language:
+
+- Compiling gives ONE network that runs alone. Its components are layer
+  blocks, attention heads, neuron clusters, MoE experts, or MLPs, each mined
+  from an existing model.
+- The only training is the stitches at the seams and a short heal. A LoRA
+  heal and a distillation heal are allowed.
+- Not Sapien: running a source model at inference (taps, parallel donors),
+  output ensembles, and hand-written weights. Taps stay in the code as a
+  research path. The `sapien` command refuses a program with taps unless
+  `--allow-parallel` is given.
+
+A request names a base (often small), the skills wanted, and limits: total
+parameters, parameters run per token, heal time. The `budget` statement
+holds the limits. A result must be judged against the base, the base plus a
+LoRA on the same data, the base plus distillation from the same source at the
+same heal budget, and the same program with random components of the same
+size (`control random`, below). What the logs show so far is in
+`results/README.md` and the repo README.
+
+## One program, one directory
+
+Every kind of program compiles to one directory format, and `wsp.load(path)`
+reads all of them and returns `(model, tokenizer)`:
+
+| Program has | Files the directory holds, beside `program.json`, `compile_report.json`, and the tokenizer |
+|---|---|
+| nothing added, or a LoRA | a plain Hugging Face model (the LoRA is merged) |
+| `graft` | `grafts.json`, `graft_weights.safetensors`, `lora.json` and `lora_weights.safetensors` with a LoRA |
+| `graft ... gate on` | the graft files, plus `gates.json` and `gate_weights.safetensors` |
+| `experts` | `manifest.json` and `skill_moe_weights.safetensors` |
+| `insert` | `insert.json`, `insert_weights.safetensors`, `donors/` |
+| `from`, `carve`, `splice` | a plain Hugging Face model |
+| `tap` | the graft files, `taps.json`, `tap_weights.safetensors` (not Sapien) |
+
+`compile_report.json` always has `params_total`, `params_active` (run per
+token), and `heal_seconds`. With a `budget` it also has a `budget` entry
+with the measured numbers. `params_active` leaves out the input embedding
+table (a lookup, unless the output head shares it) and, in an experts
+network, the experts that top_k leaves out.
+
+A program holds one kind of added component: grafts (with or without gates),
+experts, or inserts. The compile stops with an error for a mix.
 
 ```wsp
 host unsloth/Llama-3.2-1B-Instruct
@@ -136,6 +185,9 @@ Graft a catalog part into the host. A program can have many `graft` lines.
 | `sink off` | `sink` | turn off the attention sink feed (on by default) |
 | `rms_match on` | `rms_match` | scale mapped vectors to the donor's mean RMS (off by default) |
 | `part_lora_rank N` | `part_lora_rank` | a rank-N LoRA inside the donor part, trained by heal |
+| `gate on` | `gate` | put a token gate on the graft (below); off by default |
+| `gate_bias X` | `gate_bias` | the gate's start bias (default 0, a gate of 0.5) |
+| `gate_lr X` | `gate_lr` | the gate's learning rate in the heal (default 0.01) |
 | `stitch ...` | `stitch` | train `W_in` as a stitch before heal (see below) |
 
 `control_seed` and `glue_rank` also work as option names.
@@ -144,6 +196,18 @@ Graft a catalog part into the host. A program can have many `graft` lines.
 graft qmath_l18_contrast512 at 6 rank 64
 graft qmath_l18_contrast512 at 6 rank 64 control random seed 101
 graft qmath_l18_top512 sink off rms_match on part_lora_rank 4
+```
+
+A gated graft multiplies its change to the host state by
+`sigmoid(w . rms(h) + bias)` per token (`wsp/gate.py`), so several grafts
+can write into one host and each fires on its own tokens (fusion). The
+gates train in the heal. Grafts with `gate on` must share `gate_bias` and
+`gate_lr`. `wsp.load` attaches the gates.
+
+```wsp
+graft qmath_block_8_19 at 3 gate on gate_bias -1.0
+graft qcode_block_6_17 at 5 gate on gate_bias -1.0
+heal steps 500
 ```
 
 `stitch` goes last on the line. Its first word can be the kind (`linear`,
@@ -159,7 +223,116 @@ graft qmath_l18_top512 stitch multi offsets [-2, 0] objective mse lr 1e-3
 graft qmath_l18_top512 stitch lowrank rank 32
 ```
 
+### experts
+
+Routed experts from donor models (a skill MoE, `wsp/skill_moe.py`). In every
+decoder layer, the MLP becomes a router over the host's own MLP and the same
+layer's MLP of each donor. The router starts on the host (a bias of 16), so a
+fresh network equals the host. The heal trains the routers, the stitches of
+donors with another width, and an optional attention LoRA. The first word
+after `experts` is a comma list of donors. A program has one `experts` line.
+
+| Option | JSON key | Meaning |
+|---|---|---|
+| `top_k N` | `top_k` | experts that run per token out of the host plus the donors (default 1) |
+| `init uniform` | `router_init` | `base` (default) or `uniform`, a soft mixture from the start |
+| `base_logit X` | `base_logit` | the host's start logit under `base` (default 16) |
+| `balance on` | `load_balance` | add the router balance loss to the heal |
+| `balance_weight X` | `balance_weight` | its weight (default 0.01) |
+| `router_lr X` | `router_lr` | the routers' learning rate (default 0.001) |
+| `stitch KIND` | `stitch` | `linear`, `lowrank`, or `mlp`: treat every donor as stitched |
+| `stitch_rank N`, `stitch_hidden N` | `stitch_rank`, `stitch_hidden` | the rank of `lowrank` or the width of `mlp` |
+| `control random` | `control` | take each layer's MLP from a random other layer of the same donor |
+| `seed N` | `control_seed` | the seed of the random control (default 0) |
+
+A donor with the host's model type, width, and depth is a plain expert. Any
+other donor is a stitched expert: its MLP reads the host state through a
+trained stitch and writes back through a stitch that starts at zero. The
+`lora rank N` statement puts a LoRA of that rank on the attention of the
+host layers, trained in the same heal. Only the donors' MLP tensors are
+fetched, by byte-range reads.
+
+```wsp
+host Qwen/Qwen2.5-1.5B-Instruct
+experts Qwen/Qwen2.5-Math-1.5B-Instruct,Qwen/Qwen2.5-Coder-1.5B-Instruct top_k 2 balance on
+lora rank 8
+heal steps 1000 data mmlu_aux lr 1e-4
+```
+
+```wsp
+experts Qwen/Qwen2.5-Math-1.5B-Instruct top_k 1 control random seed 3
+```
+
+### insert
+
+Insert donor decoder layers into the host (`wsp/insert.py`). The network runs
+host layers `0..at-1`, then the donor layers as a residual branch
+`h + gate * stitch_out(block(stitch_in(h)) - stitch_in(h))`, then the rest of
+the host. The gate starts at 0, so a fresh network equals the host, and the
+heal opens it. The donor can be any family. A program can have many `insert`
+lines.
+
+| Option | JSON key | Meaning |
+|---|---|---|
+| `layers A..B` | `layers` | the donor layers, both ends included (required) |
+| `at N` | `at` | the insertion goes after host layer N - 1 (required) |
+| `stitch KIND` | `stitch` | `identity`, `linear`, `lowrank`, or `mlp`; left out, `identity` when the widths match, else `linear` |
+| `stitch_rank N`, `stitch_hidden N` | `stitch_rank`, `stitch_hidden` | the rank of `lowrank` or the width of `mlp` |
+| `part_lora_rank N` | `part_lora_rank` | a LoRA of rank N inside the donor layers |
+| `gate_init X` | `gate_init` | the gate's start value (default 0) |
+| `control random` | `control` | the same number of layers from a random other range of the donor |
+| `seed N` | `control_seed` | the seed of the random control (default 0) |
+
+The `lora rank N` statement puts a LoRA on the host layers, so the host can
+learn to read the inserted layers. The heal trains the stitches and the
+LoRAs at the heal `lr` and the gates at 0.01.
+
+```wsp
+host Qwen/Qwen2.5-0.5B-Instruct
+insert Qwen/Qwen2.5-14B-Instruct layers 14..34 at 7 stitch mlp part_lora_rank 8
+lora rank 16
+heal steps 1500 data mmlu_aux lr 1e-4
+```
+
+### budget
+
+The limits of a request. The compile checks them and reports the measured
+numbers. Sizes are in billions of parameters, written `2b` or `2`.
+
+| Option | JSON key | Meaning |
+|---|---|---|
+| `total S` | `max_total_params_b` | the most parameters the model holds |
+| `active S` | `max_active_params_b` | the most parameters one token runs |
+| `heal_minutes M` | `max_heal_minutes` | the most minutes the heal may take |
+
+The long names also work as option names. A model over a size limit stops
+the compile before the heal, with a `CompileError` that gives the measured
+`params_total` and `params_active`. A heal with `heal_minutes`
+stops at the limit and records `stopped_early` and `steps_run` in the
+report. Arms under one limit can run different numbers of steps, so compare
+them by `steps_run`. The one heal
+that cannot stop is the staged heal after taps. There the compile writes the
+model and then raises an error with the measured time.
+
+```wsp
+budget total 2b active 1b heal_minutes 30
+```
+
+### control
+
+`control random` is an option of `graft`, `experts`, and `insert`. It builds
+the same shape from random components of the same size from the same donor,
+so a program can produce its own random control: a graft takes random units
+of the same count from the same donor layer (a block takes a random range of
+the same length), experts take other layers of the donor, an insert takes
+another range of the donor. `Program.with_control("random", seed)` and
+`sapien compile --control random` set it on every component at once, with
+seeds `seed`, `seed + 1`, and so on. Masks, task vectors, and taps have no
+random control.
+
 ### tap
+
+**Not Sapien.** A tap reads a source model at inference.
 
 A tap: the donor reads the prompt with its own tokenizer and runs up to
 donor layer `layer`. At host layer `at`, a small gated cross-attention
@@ -225,6 +398,24 @@ its `data` names a pairs set in `wsp/pairs.py`.
 heal steps 300 data gsm8k_train lr 3e-4 batch_size 8 seq_len 384
 ```
 
+A heal trains the new parts and the LoRA, so a program with a `heal` and
+none of them (no `lora`, graft, experts, or insert) is a compile error.
+Every arm of a comparison with the same `seed` and `data` heals on the same
+texts.
+
+A distillation heal adds `distill TEACHER`. The loss is
+`kd_weight * KL(teacher || student) + LM loss`, at `temperature` (default 1).
+`kd_weight` defaults to 1. The teacher must share the host's tokenizer: the
+compile stops with an error that counts the differing tokens otherwise. The
+teacher loads for the heal only and is not part of the compiled model.
+`wsp.heal.distill_heal` is the loop. A program with taps cannot distill.
+
+```wsp
+host Qwen/Qwen2.5-0.5B-Instruct
+lora rank 16
+heal steps 1500 data mmlu_aux lr 1e-4 distill Qwen/Qwen2.5-14B-Instruct kd_weight 1.0
+```
+
 ## Writing a model from parts
 
 A written program makes one standard model at the size you ask for, from
@@ -250,7 +441,7 @@ The compile runs these steps in order:
 5. Save the model, its tokenizer, `program.json`, and
    `compile_report.json`.
 
-A written program cannot have masks, task vectors, grafts, or taps. In a
+A written program cannot have masks, task vectors, grafts, experts, inserts, or taps. In a
 written program, `heal` needs a `lora`, since the LoRA is what it trains.
 
 ### from
@@ -395,11 +586,17 @@ model.save_pretrained(out_dir)
 | `from X` | `"base_source": {"model": "X"}`, and `"host": "X"` |
 | `carve keep 22 select influence` | `"carve": {"keep": 22, "target_params_b": null, "select": "influence", "domain_data": null, "width": null}` |
 | `carve target 7.6b ... width mlp 0.75 heads 0.75` | `"target_params_b": 7.6`, `"width": {"keep_mlp": 0.75, "keep_heads": 0.75}` |
+| `experts a,b top_k 2` | `"experts": {"donors": ["a", "b"], "top_k": 2, "router_init": "base", "base_logit": 16.0, "load_balance": false, "balance_weight": 0.01, "router_lr": 0.001, "stitch": null, "stitch_rank": null, "stitch_hidden": null, "control": null, "control_seed": 0}` |
+| `insert d layers 3..5 at 2` | `"inserts": [{"donor": "d", "layers": [3, 5], "at": 2, "stitch": null, ..., "gate_init": 0.0, "control": null, "control_seed": 0}]` |
+| `graft g gate on gate_bias -1` | `"gate": true, "gate_bias": -1` in that graft |
+| `heal distill t kd_weight 0.5` | `"distill": "t", "kd_weight": 0.5, "temperature": 1.0` in the heal |
+| `budget total 2b active 1b heal_minutes 30` | `"budget": {"max_total_params_b": 2, "max_active_params_b": 1, "max_heal_minutes": 30}` |
 | `splice base q sources q=X,m=Y plan q:0..1, m:2` | `"splice": {"sources": {"q": "X", "m": "Y"}, "base": "q", "plan": [["q", 0], ["q", 1], ["m", 2]]}` |
 
 A missing statement gives its JSON default: `"masks": null`, empty
 `task_vectors` and `grafts`, `"heal": null`, and no `lora`, `taps`,
-`tap_train`, `base_source`, `carve`, or `splice` key. So a program
+`tap_train`, `base_source`, `carve`, `splice`, `experts`, `inserts`, or
+`budget` key. So a program
 without these keys has the same JSON (and the same hash) as before they
 existed. `format_program` writes `seed` and every
 `heal` and `tap_train` field, and leaves out graft, tap, and tv options
@@ -407,13 +604,48 @@ that hold their default.
 
 ## Command line
 
+The `sapien` command (also `python -m wsp.cli`) is the main entry:
+
+```bash
+sapien check prog.sap                  # parse, validate, estimate size against the budget
+sapien compile prog.sap -o out_dir     # build one model directory
+sapien compile prog.sap -o ctl --control random   # the program's own random control
+sapien score out_dir --skills gsm8k,mmlu
+sapien library query --kind block --skill math    # wraps scripts/library.py
+sapien atlas best --skill math --max-params-b 2   # reads atlas/entries
+```
+
+- `check` reads `config.json` of the host and every donor (no weights),
+  builds the configs on the meta device, and prints `params_total` and
+  `params_active` as estimates. It compares them with the `budget` and
+  exits with 1 when an estimate is over a limit. A graft needs `--catalog`
+  to be sized, and only block and MLP-cluster parts are sized. What it
+  cannot size, it lists as left out. `--json` prints the result as JSON.
+- `compile` takes `--catalog` (grafts, masks, task vectors), `--align N`,
+  `--device`, `--control random`, and `--control-seed N`. It prints the
+  measured `params_total`, `params_active`, `heal_seconds`, and whether the
+  budget held. Errors print as `error: ...` and exit with 1.
+- `score` loads the directory with `wsp.load` and runs `wsp.skills_eval`
+  (`gsm8k`, `math500`, `humaneval`, `mbpp`, `medmcqa`, `mmlu`). `--limit N`
+  scores the first N items of each skill, and `--json FILE` keeps the full
+  result.
+- `library` passes its arguments to `scripts/library.py`.
+- `atlas best` lists the atlas models with the skill, best first, under the
+  size limit. It needs entries in `atlas/entries/` (`modal_atlas.py`
+  writes them) and says so when there are none.
+- `check` and `compile` refuse a program with taps unless
+  `--allow-parallel` is given, because a tap is not Sapien.
+
+`pip install -e .` installs the `sapien` script. The older commands still work:
+
 ```bash
 .venv/bin/python -m wsp.lang check math.wsp      # parse and print the JSON
 .venv/bin/python -m wsp.lang format program.json  # print a JSON program as text
 .venv/bin/python -m wsp.lang compile math.wsp outputs/math --catalog catalog.jsonl
 ```
 
-A written program needs no `--catalog`.
+A written program, and a program with only `experts` or `insert` lines,
+needs no `--catalog`.
 
 `check` exits with 1 and prints `file: line N: ...` on an error. A `.json`
 file with a key that `wsp.lang` does not know is an error too, so no
@@ -439,6 +671,13 @@ grafts, default 200, 0 skips the fit) and `--device`.
    taps read the donors. The output directory gets the model,
    `program.json`, `program.wsp`, and `compile_report.json`.
    `wsp.load(path)` reads it back.
+
+Experts, inserts, and gated grafts have their own builders
+(`compile_experts`, `compile_inserts`, and the gate step of
+`compile_grafts` in `wsp/compiler.py`). Each checks the budget on the built
+model before the heal, trains its parts in one `heal` loop (`wsp/heal.py`,
+with a distillation teacher when the heal has `distill`), and writes the
+files in the table at the top. `wsp.load` picks the loader from the files.
 
 A tap program also saves `taps.json` (branch shapes, layers, final gates,
 and donor ids) and `tap_weights.safetensors`, plus `grafts.json` (an empty

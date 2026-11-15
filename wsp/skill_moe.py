@@ -59,6 +59,22 @@ routing options, LoRA options) and skill_moe_weights.safetensors (routers,
 stitches, LoRA). load_skill_moe loads the base by id and fetches only the
 expert MLP tensors it needs with wsp.fetch.fetch_tensors (or from a local
 model directory).
+
+Run 16c additions (diagnosis tools, further down in the file):
+
+  force_route / clear_force   send every token (in all layers or a layer
+                              range) to one named expert, no training
+  whole_layer=True            the expert is the specialist's whole decoder
+                              layer (LayerMoE), routed per token position at
+                              the layer level; keep_io=True also keeps each
+                              specialist's embeddings, final norm, and head
+                              so force_route(..., own_io=True) reproduces the
+                              specialist exactly
+  init_router_ridge           closed-form router start from domain texts
+                              (DUME style), with base_margin on the base logit
+  set_sequence_routing        one routing choice per sequence, from the mean
+                              router input at one early layer, used by all
+                              layers from that layer on
 """
 
 import json
@@ -184,6 +200,10 @@ class SkillMoE(nn.Module):
         self.router_bias = nn.Parameter(bias)
         self.aux_loss = None
         self.track = False
+        self.force = None
+        self.base_margin = 0.0
+        self.seq = None
+        self.layer_index = None
         self.register_buffer("route_counts", torch.zeros(n, dtype=torch.float64), persistent=False)
         self.register_buffer("prob_sums", torch.zeros(n, dtype=torch.float64), persistent=False)
 
@@ -195,6 +215,8 @@ class SkillMoE(nn.Module):
         with torch.autocast(device_type=x.device.type, enabled=False):
             weight = self.router.weight
             logits = torch.nn.functional.linear(x.to(weight.dtype), weight) + self.router_bias
+            if self.base_margin != 0.0:
+                logits = torch.cat([logits[:, :1] + self.base_margin, logits[:, 1:]], dim=-1)
             probs = torch.softmax(logits, dim=-1)
         n = self.n_experts()
         if self.top_k == n:
@@ -233,11 +255,76 @@ class SkillMoE(nn.Module):
         mean_prob = probs.mean(dim=0)
         return n * (share.detach() * mean_prob).sum()
 
+    def record_forced(self, tokens, index):
+        """Count tokens that a forced layer sent to expert index."""
+        if self.track:
+            self.route_counts[index] += float(tokens)
+            self.prob_sums[index] += float(tokens)
+
+    def forced_forward(self, h, flat_h, x_base):
+        """Send every token to expert self.force; no router, no weight."""
+        index = self.force
+        self.aux_loss = None
+        self.record_forced(flat_h.shape[0], index)
+        y = self.experts[index](flat_h, x_base)
+        return y.to(h.dtype).reshape(h.shape[:-1] + (y.shape[-1],))
+
+    def seq_choice(self, shape, x_base):
+        """Return (choice, weight) for sequence routing, or None. choice is (batch,) expert indices.
+
+        Layers before the decision layer run the base (choice 0, weight None).
+        The decision layer takes the masked mean of the router input per
+        sequence and stores argmax and a straight-through weight (value 1,
+        gradient of the chosen prob) in the controller. Later layers reuse them.
+        """
+        ctl = self.seq
+        batch = shape[0]
+        device = x_base.device
+        if self.layer_index is not None and self.layer_index < ctl.layer:
+            return torch.zeros(batch, dtype=torch.long, device=device), None
+        if ctl.choice is None or ctl.choice.shape[0] != batch:
+            x = x_base.reshape(batch, -1, x_base.shape[-1]).to(torch.float32)
+            weights = torch.ones(x.shape[:2], dtype=torch.float32, device=device)
+            if ctl.mask is not None and tuple(ctl.mask.shape) == tuple(x.shape[:2]):
+                weights = ctl.mask.to(device=device, dtype=torch.float32)
+            mean = (x * weights.unsqueeze(-1)).sum(dim=1) / weights.sum(dim=1).clamp(min=1.0).unsqueeze(-1)
+            with torch.autocast(device_type=device.type, enabled=False):
+                logits = torch.nn.functional.linear(mean, self.router.weight) + self.router_bias
+                if self.base_margin != 0.0:
+                    logits = torch.cat([logits[:, :1] + self.base_margin, logits[:, 1:]], dim=-1)
+                probs = torch.softmax(logits, dim=-1)
+            choice = probs.argmax(dim=-1)
+            picked = probs.gather(1, choice.unsqueeze(1)).squeeze(1)
+            ctl.choice = choice.detach()
+            ctl.weight = 1.0 + picked - picked.detach()
+        return ctl.choice, ctl.weight
+
+    def fixed_route(self, choice, weight, shape, x_base):
+        """Return (probs, top_idx, top_w) that send every token of a sequence to its one choice."""
+        tokens = x_base.shape[0]
+        per = tokens // shape[0]
+        top_idx = choice.unsqueeze(1).expand(shape[0], per).reshape(-1, 1)
+        if weight is None or not torch.is_grad_enabled():
+            top_w = torch.ones(tokens, 1, dtype=torch.float32, device=x_base.device)
+        else:
+            top_w = weight.unsqueeze(1).expand(shape[0], per).reshape(-1, 1).to(torch.float32)
+        probs = torch.zeros(tokens, self.n_experts(), dtype=torch.float32, device=x_base.device)
+        probs.scatter_(1, top_idx, 1.0)
+        return probs, top_idx, top_w
+
     def forward(self, h):
         shape = h.shape
         flat_h = h.reshape(-1, shape[-1])
         x_base = self.experts[0].pre_norm(flat_h)
-        probs, top_idx, top_w = self.route(x_base)
+        if self.force is not None:
+            return self.forced_forward(h, flat_h, x_base)
+        chosen = None
+        if self.seq is not None:
+            chosen = self.seq_choice(shape, x_base)
+        if chosen is not None:
+            probs, top_idx, top_w = self.fixed_route(chosen[0], chosen[1], shape, x_base)
+        else:
+            probs, top_idx, top_w = self.route(x_base)
 
         if self.load_balance and torch.is_grad_enabled():
             self.aux_loss = self.balance_loss(probs, top_idx)
@@ -404,20 +491,34 @@ def normalize_specs(base_model, expert_models, expert_ids):
 
 def build_skill_moe(base_model, expert_models, top_k, router_init="base", base_logit=BASE_LOGIT,
                     load_balance=False, lora_rank=None, lora_alpha=None, base_id=None, expert_ids=None,
-                    router_noise=ROUTER_NOISE):
+                    router_noise=ROUTER_NOISE, whole_layer=False, keep_io=False, base_margin=0.0, seq_layer=None,
+                    expert_names=None):
     """Turn base_model (in place) into a skill MoE over expert_models. Return base_model.
 
     expert_models: a list of models of the base's family and shape (plain
     experts), or stitched(model, ...) dicts for donors of another family.
     The experts' MLP modules move into the MoE by reference, so the expert
     models can be deleted afterwards.
+
+    Run 16c options: whole_layer makes each expert a whole decoder layer
+    (plain experts only; see LayerMoE), keep_io keeps each expert's
+    embeddings, final norm, and head for force_route(own_io=True),
+    base_margin is added to the base logit, seq_layer turns on sequence
+    routing (see set_sequence_routing), expert_names are short names for
+    force_route and init_router_ridge ("base" is always expert 0).
     """
     specs = normalize_specs(base_model, expert_models, expert_ids)
+    if whole_layer:
+        for spec in specs:
+            if spec["kind"] != "plain":
+                raise ValueError("whole_layer experts must be plain (same architecture, width, and depth)")
     d_host = text_config(base_model).hidden_size
     layer_experts = []
     for index in range(len(decoder_layers(base_model))):
         experts = []
         for spec in specs:
+            if whole_layer:
+                continue
             donor_layer = spec["layer_map"][index]
             pre_norm, mlp, post_norm = layer_parts(spec["model"], donor_layer)
             if spec["kind"] == "plain":
@@ -437,13 +538,33 @@ def build_skill_moe(base_model, expert_models, top_k, router_init="base", base_l
         "load_balance": bool(load_balance),
         "router_noise": float(router_noise),
         "lora": None,
+        "granularity": "layer" if whole_layer else "mlp",
+        "keep_io": bool(keep_io),
+        "base_margin": float(base_margin),
+        "seq_layer": None,
     }
     for spec in specs:
         row = {"id": spec["id"], "kind": spec["kind"], "stitch": spec["stitch"], "layer_map": spec["layer_map"]}
         if spec["kind"] == "stitched":
             row["d_donor"] = text_config(spec["model"]).hidden_size
         info["experts"].append(row)
+    names = []
+    for position, spec in enumerate(specs):
+        if expert_names is not None:
+            names.append(expert_names[position])
+        else:
+            names.append(spec["id"] or f"expert{position + 1}")
+    info["names"] = ["base"] + names
+    if whole_layer:
+        if lora_rank is not None:
+            raise ValueError("lora_rank is not supported with whole_layer experts")
+        assemble_layers(base_model, [spec["model"] for spec in specs], info)
+        if seq_layer is not None:
+            set_sequence_routing(base_model, seq_layer)
+        return base_model
     assemble(base_model, layer_experts, info)
+    if seq_layer is not None:
+        set_sequence_routing(base_model, seq_layer)
     if lora_rank is not None:
         add_lora(base_model, lora_rank, lora_alpha)
     return base_model
@@ -468,6 +589,8 @@ def assemble(base_model, layer_experts, info):
         noise = info.get("router_noise", 0.0)
         moe = SkillMoE(experts, hidden, info["top_k"], info["base_logit"], info["router_init"], info["load_balance"],
                        noise)
+        moe.base_margin = float(info.get("base_margin", 0.0))
+        moe.layer_index = index
         for param in mlp.parameters():
             # The experts are there already; this moves the router and its buffers.
             moe.to(param.device)
@@ -631,8 +754,14 @@ def count_params(model):
     """
     seen = set()
     total = 0
+    io_ids = set()
+    io = getattr(model, "wsp_io", None)
+    if io is not None:
+        # Kept only for force_route(own_io=True); not part of the written network.
+        for param in io.parameters():
+            io_ids.add(id(param))
     for param in model.parameters():
-        if id(param) in seen:
+        if id(param) in seen or id(param) in io_ids:
             continue
         seen.add(id(param))
         total += param.numel()
@@ -657,6 +786,428 @@ def count_params(model):
         active -= sum(sizes)
         active += sum(largest[:moe.top_k])
     return {"total": total, "active": active, "router": router, "stitch": stitch, "experts": experts_total}
+
+
+# ---------------------------------------------------------------- whole-layer experts (run 16c)
+
+
+def rotary_of(model):
+    """Return the model's rotary embedding module (the donor's own rope), or None."""
+    inner = getattr(model, "base_model", model)
+    return getattr(inner, "rotary_emb", None)
+
+
+class LayerExpert(nn.Module):
+    """One whole decoder layer as an expert.
+
+    A non-base expert recomputes position_embeddings with its own model's
+    rotary module, so a donor with another rope_theta (Qwen2.5-Math has
+    10000, the others 1000000) runs with the rope it was trained under.
+    A non-base expert also keeps a private KV cache, because its keys and
+    values differ from the base layer's. The private cache restarts when
+    the main cache holds nothing for this layer (a new prefill).
+    """
+
+    def __init__(self, layer, rotary=None, private_cache=False, index=0):
+        super().__init__()
+        self.layer = layer
+        self.rotary = rotary
+        self.private_cache = bool(private_cache)
+        self.index = int(index)
+        self.cache = None
+        self.cache_owner = None
+
+    @property
+    def pre_norm(self):
+        return self.layer.input_layernorm
+
+    def forward(self, h, x_base):
+        raise RuntimeError("a LayerExpert runs through LayerExpert.run")
+
+    def run(self, h, args, kwargs):
+        kw = dict(kwargs)
+        if self.rotary is not None and kw.get("position_ids") is not None:
+            kw["position_embeddings"] = self.rotary(h, kw["position_ids"])
+        main = kw.get("past_key_values")
+        if self.private_cache and main is not None:
+            from transformers import DynamicCache
+
+            if self.cache is None or self.cache_owner != id(main) or main.get_seq_length(self.index) == 0:
+                self.cache = DynamicCache()
+                self.cache_owner = id(main)
+            kw["past_key_values"] = self.cache
+        out = self.layer(h, *args, **kw)
+        if isinstance(out, tuple):
+            out = out[0]
+        return out
+
+
+class LayerMoE(SkillMoE):
+    """Route each token between whole decoder layers of the base and the specialists.
+
+    The router reads the base layer's input norm of the layer input.
+    Attention mixes tokens, so each used expert layer runs on the whole
+    sequence and each token takes the output row of its expert. This code
+    spends the compute of every expert that gets a token (all experts while
+    a KV cache is in use, so their caches stay complete); the count_params
+    value is what a sparse kernel would run. Top-1 uses a straight-through
+    weight (value 1, gradient of the prob), so a layer output is never
+    scaled down. Other top_k mix the layer outputs with the router weights.
+    """
+
+    def __init__(self, experts, hidden_size, top_k, base_logit=BASE_LOGIT, router_init="base", load_balance=False,
+                 router_noise=ROUTER_NOISE):
+        super().__init__(experts, hidden_size, top_k, base_logit, router_init, load_balance, router_noise)
+        self.attention_type = getattr(experts[0].layer, "attention_type", "full_attention")
+
+    def forward(self, hidden_states, *args, **kwargs):
+        h = hidden_states
+        shape = h.shape
+        flat_h = h.reshape(-1, shape[-1])
+        if self.force is not None:
+            self.aux_loss = None
+            self.record_forced(flat_h.shape[0], self.force)
+            return self.experts[self.force].run(h, args, kwargs)
+        x_base = self.experts[0].pre_norm(flat_h)
+        chosen = None
+        if self.seq is not None:
+            chosen = self.seq_choice(shape, x_base)
+        if chosen is not None:
+            probs, top_idx, top_w = self.fixed_route(chosen[0], chosen[1], shape, x_base)
+        else:
+            probs, top_idx, top_w = self.route(x_base)
+            if self.top_k == 1:
+                if torch.is_grad_enabled():
+                    top_w = 1.0 + top_w - top_w.detach()
+                else:
+                    top_w = torch.ones_like(top_w)
+        if self.load_balance and torch.is_grad_enabled():
+            self.aux_loss = self.balance_loss(probs, top_idx)
+        else:
+            self.aux_loss = None
+        if self.track:
+            with torch.no_grad():
+                hits = self.assignments(probs, top_idx)
+                self.route_counts += hits.sum(dim=0).to(torch.float64)
+                self.prob_sums += probs.sum(dim=0).to(torch.float64)
+
+        cached = kwargs.get("past_key_values") is not None
+        out = torch.zeros(flat_h.shape[0], shape[-1], dtype=torch.float32, device=flat_h.device)
+        for index in range(self.n_experts()):
+            if top_idx is None:
+                rows = None
+                weight = top_w[:, index]
+            else:
+                hit = top_idx == index
+                rows = hit.any(dim=-1).nonzero().squeeze(-1)
+                weight = (top_w * hit.to(top_w.dtype)).sum(dim=-1)
+            if rows is not None and rows.numel() == 0 and not cached:
+                continue
+            y = self.experts[index].run(h, args, kwargs).reshape(-1, shape[-1]).to(torch.float32)
+            if rows is None:
+                out = out + y * weight.unsqueeze(-1)
+            elif rows.numel() > 0:
+                out = out.index_add(0, rows, y[rows] * weight[rows].unsqueeze(-1))
+        return out.to(h.dtype).reshape(shape)
+
+
+def assemble_layers(base_model, expert_models, info):
+    """Put a LayerMoE in every decoder layer, freeze everything but the routers, and store info.
+
+    expert_models are the plain specialist models. Their decoder layers move
+    into the MoE by reference. With info["keep_io"] their embeddings, final
+    norm, and head are kept (model.wsp_io) for force_route(own_io=True).
+    """
+    hidden = text_config(base_model).hidden_size
+    layers = decoder_layers(base_model)
+    for param in base_model.parameters():
+        param.requires_grad_(False)
+    rotaries = []
+    for expert in expert_models:
+        rotaries.append(rotary_of(expert))
+    for index in range(len(layers)):
+        experts = [LayerExpert(layers[index], None, False, index)]
+        for position, expert in enumerate(expert_models):
+            experts.append(LayerExpert(decoder_layers(expert)[index], rotaries[position], True, index))
+        for expert in experts:
+            for param in expert.parameters():
+                param.requires_grad_(False)
+        moe = LayerMoE(experts, hidden, info["top_k"], info["base_logit"], info["router_init"],
+                       info["load_balance"], info.get("router_noise", 0.0))
+        moe.base_margin = float(info.get("base_margin", 0.0))
+        moe.layer_index = index
+        moe.to(next(experts[0].parameters()).device)
+        layers[index] = moe
+        for param in router_parameters_of(moe):
+            param.requires_grad_(True)
+    if info.get("keep_io"):
+        io = nn.ModuleDict()
+        for position, expert in enumerate(expert_models):
+            inner = getattr(expert, "base_model", expert)
+            entry = nn.ModuleDict({"embed": expert.get_input_embeddings(), "norm": inner.norm,
+                                   "head": expert.get_output_embeddings()})
+            for param in entry.parameters():
+                param.requires_grad_(False)
+            io[str(position + 1)] = entry
+        base_model.wsp_io = io
+    base_model.wsp_skill_moe = info
+    return base_model
+
+
+# ---------------------------------------------------------------- forced routing (run 16c)
+
+
+def expert_index(model, expert):
+    """Resolve an expert (index, "base", a name, an id, or a unique part of one) to its index."""
+    info = model.wsp_skill_moe
+    ids = ["base"]
+    for row in info["experts"]:
+        ids.append(str(row["id"]).lower())
+    names = [str(name).lower() for name in info.get("names", ids)]
+    n = len(ids)
+    if isinstance(expert, int):
+        if expert < 0 or expert >= n:
+            raise ValueError(f"expert index {expert} is out of range for {n} experts")
+        return expert
+    key = str(expert).lower()
+    for pool in [names, ids]:
+        if key in pool:
+            return pool.index(key)
+    hits = []
+    for index in range(n):
+        if key in names[index] or key in ids[index]:
+            hits.append(index)
+    if len(hits) != 1:
+        raise ValueError(f"expert {expert!r} matches {len(hits)} of {names}")
+    return hits[0]
+
+
+def swap_io(model, index):
+    """Use expert index's embeddings, final norm, and head (needs build with keep_io=True)."""
+    io = getattr(model, "wsp_io", None)
+    if io is None:
+        raise ValueError("this model was built without keep_io=True, so no expert embeddings are kept")
+    inner = getattr(model, "base_model", model)
+    if getattr(model, "_wsp_saved_io", None) is None:
+        model._wsp_saved_io = {"embed": model.get_input_embeddings(), "norm": inner.norm,
+                               "head": model.get_output_embeddings()}
+    entry = io[str(index)]
+    model.set_input_embeddings(entry["embed"])
+    inner.norm = entry["norm"]
+    model.set_output_embeddings(entry["head"])
+
+
+def restore_io(model):
+    saved = getattr(model, "_wsp_saved_io", None)
+    if saved is None:
+        return
+    inner = getattr(model, "base_model", model)
+    model.set_input_embeddings(saved["embed"])
+    inner.norm = saved["norm"]
+    model.set_output_embeddings(saved["head"])
+    model._wsp_saved_io = None
+
+
+def force_route(model, expert, layers=None, own_io=False):
+    """Send every token in the chosen layers to one expert. No training, no router.
+
+    layers: None for all layers, else an iterable of layer indexes (a range
+    works). Layers outside it keep their routing. own_io swaps in that
+    expert's embeddings, final norm, and head; with every layer forced it
+    reproduces the expert model exactly (whole-layer experts, keep_io).
+    """
+    index = expert_index(model, expert)
+    mlayers = moe_layers(model)
+    if layers is None:
+        chosen = range(len(mlayers))
+    else:
+        chosen = list(layers)
+    for position in chosen:
+        mlayers[position].force = index
+    if own_io and index > 0:
+        swap_io(model, index)
+    return index
+
+
+def clear_force(model):
+    """Undo force_route: normal routing in every layer and the base's embeddings, norm, and head."""
+    for moe in moe_layers(model):
+        moe.force = None
+    restore_io(model)
+
+
+# ---------------------------------------------------------------- sequence routing (run 16c)
+
+
+class SequenceRouting:
+    """Shared state for sequence-level routing: the decision layer, the choice, and the mask."""
+
+    def __init__(self, layer):
+        self.layer = int(layer)
+        self.choice = None
+        self.weight = None
+        self.mask = None
+        self.handle = None
+
+
+def sequence_pre_hook(controller):
+    def hook(module, args, kwargs):
+        cache = kwargs.get("past_key_values")
+        fresh = cache is None or cache.get_seq_length() == 0
+        if fresh:
+            controller.choice = None
+            controller.weight = None
+            controller.mask = kwargs.get("attention_mask")
+        return None
+    return hook
+
+
+def set_sequence_routing(model, layer):
+    """One routing decision per sequence, from the mean router input at decision layer `layer`.
+
+    Layers before it run the base; it and all later layers send every token
+    of a sequence to the one expert chosen (argmax of that layer's router on
+    the masked mean state). The choice is made again at every new prefill
+    and kept during cached decoding, so uncached generation (which prefills
+    every step) can choose differently from cached generation.
+    """
+    clear_sequence_routing(model)
+    controller = SequenceRouting(layer)
+    controller.handle = model.register_forward_pre_hook(sequence_pre_hook(controller), with_kwargs=True)
+    for moe in moe_layers(model):
+        moe.seq = controller
+    model.wsp_sequence = controller
+    model.wsp_skill_moe["seq_layer"] = int(layer)
+    return controller
+
+
+def clear_sequence_routing(model):
+    controller = getattr(model, "wsp_sequence", None)
+    if controller is not None and controller.handle is not None:
+        controller.handle.remove()
+    model.wsp_sequence = None
+    for moe in moe_layers(model):
+        moe.seq = None
+    info = getattr(model, "wsp_skill_moe", None)
+    if info is not None:
+        info["seq_layer"] = None
+
+
+# ---------------------------------------------------------------- ridge router init (run 16c)
+
+
+def router_input_stats(model, tokenizer, texts_by_expert, mode, max_length, max_tokens):
+    """Run the all-base network on the texts and accumulate ridge statistics per layer.
+
+    Returns (stats, counts). stats[layer] holds n, sx, sxx, sxy, sy (float64)
+    for the router input x and the one-hot expert label y. mode "token" uses
+    every token but the first of a text (the attention sink), mode "mean"
+    one mean vector per text.
+    """
+    mlayers = moe_layers(model)
+    k = mlayers[0].n_experts()
+    device = mlayers[0].router.weight.device
+    d = mlayers[0].router.weight.shape[1]
+    stats = []
+    for _ in mlayers:
+        stats.append({"n": 0, "sx": torch.zeros(d, dtype=torch.float64, device=device),
+                      "sxx": torch.zeros(d, d, dtype=torch.float64, device=device),
+                      "sxy": torch.zeros(d, k, dtype=torch.float64, device=device),
+                      "sy": torch.zeros(k, dtype=torch.float64, device=device)})
+    current = {"label": 0}
+
+    def make_hook(layer_index):
+        def hook(module, args, kwargs):
+            h = args[0] if len(args) > 0 else kwargs["hidden_states"]
+            with torch.no_grad():
+                x = module.experts[0].pre_norm(h.reshape(-1, h.shape[-1])).to(torch.float64)
+            if mode == "mean":
+                x = x.mean(dim=0, keepdim=True)
+            elif x.shape[0] > 1:
+                x = x[1:]
+            label = current["label"]
+            entry = stats[layer_index]
+            entry["n"] += x.shape[0]
+            entry["sx"] += x.sum(dim=0)
+            entry["sxx"] += x.T @ x
+            entry["sxy"][:, label] += x.sum(dim=0)
+            entry["sy"][label] += x.shape[0]
+        return hook
+
+    handles = []
+    for index, moe in enumerate(mlayers):
+        handles.append(moe.register_forward_pre_hook(make_hook(index), with_kwargs=True))
+    counts = {}
+    model_device = next(model.parameters()).device
+    try:
+        for name in texts_by_expert:
+            label = expert_index(model, name)
+            current["label"] = label
+            used = 0
+            for text in texts_by_expert[name]:
+                if used >= max_tokens:
+                    break
+                encoded = tokenizer(text, return_tensors="pt", truncation=True, max_length=max_length,
+                                    add_special_tokens=False)
+                ids = encoded["input_ids"].to(model_device)
+                with torch.no_grad():
+                    model(input_ids=ids)
+                used += ids.shape[1]
+            counts[name] = used
+    finally:
+        for handle in handles:
+            handle.remove()
+    return stats, counts
+
+
+@torch.no_grad()
+def init_router_ridge(model, tokenizer, texts_by_expert, lam=0.01, mode="token", scale=8.0, base_margin=0.0,
+                      max_length=256, max_tokens=20000):
+    """Set every router from a ridge regression on domain texts (the DUME idea). Return a small report.
+
+    texts_by_expert maps "base" and each expert name to a list of texts.
+    Per layer the router input x (the state the router reads, taken from the
+    all-base network) is regressed on one-hot expert labels:
+    W = (C + lam_eff I)^-1 Cxy on centered data, with lam_eff = lam times the
+    mean diagonal of C (relative, since Qwen states have huge outlier dims).
+    The intercept becomes the router bias. mode "token" fits every token,
+    mode "mean" one mean vector per text (use it with sequence routing).
+    The fitted logits are multiplied by scale, so a confident token has a
+    logit gap near scale and top-1 weights are close to 1. base_margin is
+    added to the base logit. All routing options (force, sequence) are
+    switched off during the fit and restored after it.
+    """
+    mlayers = moe_layers(model)
+    if mode not in ("token", "mean"):
+        raise ValueError(f"mode must be 'token' or 'mean', got {mode!r}")
+    kept = []
+    for moe in mlayers:
+        kept.append((moe.force, moe.seq))
+        moe.force = 0
+        moe.seq = None
+    try:
+        stats, counts = router_input_stats(model, tokenizer, texts_by_expert, mode, max_length, max_tokens)
+    finally:
+        for moe, (force, seq) in zip(mlayers, kept):
+            moe.force = force
+            moe.seq = seq
+    for moe, entry in zip(mlayers, stats):
+        n = float(entry["n"])
+        if n < 2:
+            raise ValueError("too few tokens for the ridge fit")
+        mx = entry["sx"] / n
+        my = entry["sy"] / n
+        cxx = entry["sxx"] / n - torch.outer(mx, mx)
+        cxy = entry["sxy"] / n - torch.outer(mx, my)
+        d = cxx.shape[0]
+        lam_eff = lam * float(torch.diagonal(cxx).mean())
+        weight = torch.linalg.solve(cxx + lam_eff * torch.eye(d, dtype=cxx.dtype, device=cxx.device), cxy)
+        bias = my - mx @ weight
+        moe.router.weight.copy_((scale * weight.T).to(moe.router.weight.dtype))
+        moe.router_bias.copy_((scale * bias).to(moe.router_bias.dtype))
+        moe.base_margin = float(base_margin)
+    model.wsp_skill_moe["base_margin"] = float(base_margin)
+    return {"mode": mode, "lam": lam, "scale": scale, "tokens": counts, "layers": len(mlayers)}
 
 
 # ---------------------------------------------------------------- save and load
@@ -787,7 +1338,10 @@ def load_skill_moe(path, device="cpu", dtype=torch.bfloat16, cache_dir=None, bas
     layer_experts = []
     for index in range(n_layers):
         layer_experts.append([])
+    whole_layer = manifest.get("granularity", "mlp") == "layer"
     for row in manifest["experts"]:
+        if whole_layer:
+            break
         config, modules = expert_layer_modules(row["id"], row["layer_map"], dtype, cache_dir)
         for index in range(n_layers):
             # Two base layers can map to one donor layer. They share its frozen
@@ -806,8 +1360,18 @@ def load_skill_moe(path, device="cpu", dtype=torch.bfloat16, cache_dir=None, bas
     # The saved router weights replace the init, so no noise is needed here.
     info["router_noise"] = 0.0
     info["lora"] = None
-    assemble(base_model, layer_experts, info)
+    for key in ["granularity", "keep_io", "base_margin", "names"]:
+        if key in manifest:
+            info[key] = manifest[key]
+    if whole_layer:
+        expert_models = []
+        for row in manifest["experts"]:
+            expert_models.append(transformers.AutoModelForCausalLM.from_pretrained(row["id"], dtype=dtype))
+        assemble_layers(base_model, expert_models, info)
+    else:
+        assemble(base_model, layer_experts, info)
     info["router_noise"] = manifest.get("router_noise", 0.0)
+    info["seq_layer"] = None
     lora = manifest.get("lora")
     if lora is not None:
         add_lora(base_model, lora["rank"], lora["alpha"], tuple(lora["targets"]))
@@ -836,6 +1400,9 @@ def load_skill_moe(path, device="cpu", dtype=torch.bfloat16, cache_dir=None, bas
         from wsp.lora import load_lora_state
 
         load_lora_state(base_model, lora_state)
+
+    if manifest.get("seq_layer") is not None:
+        set_sequence_routing(base_model, manifest["seq_layer"])
 
     tokenizer = None
     if os.path.exists(os.path.join(path, "tokenizer_config.json")):

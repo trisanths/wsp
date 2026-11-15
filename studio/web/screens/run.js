@@ -10,6 +10,7 @@ import { useCatalog, nameOf, AgentList, bestTarget } from './run-shared.js';
 import { ActivityPage } from './run-activity.js';
 import { AgentPage } from './run-agent.js';
 import { ResultsPage } from './run-results.js';
+import { Logos, donorsOf, verdictOf, HealNote, usesHeal } from '../cmp.js';
 
 const TABS = [['overview', 'Overview', ''], ['activity', 'Activity', '/activity'], ['agents', 'Agents', '/agents'], ['results', 'Results', '/results']];
 // the order of pages sets the slide direction
@@ -60,14 +61,21 @@ function BestBlock({ snap, cat, done, busy, onBuild }) {
   const start = t ? (snap.base_scores[t.id] ?? t.base) : null;
   const dStart = v != null && start != null ? v - start : null;
   const dLora = v != null && t && t.lora != null ? v - t.lora : null;
+  const comp = snap.comparison || (snap.best && (snap.leaderboard.find((r) => r.program_hash === snap.best.program_hash) || {}).comparison) || null;
+  const lora = comp && (comp.rows || []).find((r) => r.id === 'lora' && r.measured && r.delta != null);
+  const dLoraC = lora ? lora.delta : dLora;
+  const vd = verdictOf(comp);
+  const donors = donorsOf(snap.best && snap.best.program, cat);
   const cmp = (d, label) => html`<span class=${d >= 0 ? 'up' : 'down'}>${sgn(d)}</span> ${label}`;
   return html`<section class="rsec">
     <h2 class="rh2">Best model so far</h2>
     <${SkelReveal} ready=${v != null} skeleton=${html`<div class="skeleton" style="height:20px;width:60%"></div><div class="skeleton" style="height:48px;width:140px;margin-top:14px"></div>`}>
       ${v != null && html`<div class="best">
-        <div class="bname">${nameOf(snap.best, cat)}</div>
+        <div class="bname"><${Logos} models=${donors.length ? donors : [snap.spec.host]} max=${4} size=${20} /><span>${nameOf(snap.best, cat)}</span></div>
         <div class="bscore"><span class="bnum"><${Reel} value=${pctS(v)} /></span><span class="faint">on ${t.name}</span></div>
-        <div class="bcmp">${dStart != null && html`<span>${cmp(dStart, 'vs start')}</span>`}${dLora != null && html`<span>${cmp(dLora, 'vs fine-tuning (LoRA)')}</span>`}</div>
+        <div class="bcmp">${dStart != null && html`<span>${cmp(dStart, 'vs start')}</span>`}${dLoraC != null && html`<span>${cmp(dLoraC, 'vs fine-tuning (LoRA)')}</span>`}</div>
+        <${HealNote} show=${usesHeal(snap.best && snap.best.program)} />
+        ${vd && html`<div class=${'bverdict ' + vd.kind}>${vd.text}</div>`}
         <div class="bact">${done
           ? html`<button class="btn primary" disabled=${busy} onClick=${onBuild}>Open in builder <${Icon} n="arrow" size=${14} /></button>`
           : html`<button class="linkbtn" disabled=${busy} onClick=${onBuild}>Open in builder</button>`}</div>
@@ -81,7 +89,7 @@ function TopPrograms({ snap, cat, id }) {
   const rows = snap.leaderboard.slice(0, 5);
   return html`<section class="rsec">
     <h2 class="rh2">Top programs</h2>
-    ${rows.length ? html`<div class="plist">${rows.map((r) => html`<div class="prow" key=${r.program_hash}><span class="rk num">${r.rank}</span><span class="pn ell" title=${nameOf(r, cat)}>${nameOf(r, cat)}</span><span class="ps num">${t && r.scores[t.id] != null ? html`<${SubtleNum} text=${pctS(r.scores[t.id])} />` : '-'}</span></div>`)}</div>
+    ${rows.length ? html`<div class="plist">${rows.map((r) => html`<div class="prow" key=${r.program_hash}><span class="rk num">${r.rank}</span><span class="pn"><${Logos} models=${donorsOf(r.program, cat)} max=${3} size=${16} /><span title=${nameOf(r, cat)}>${nameOf(r, cat)}</span></span><span class="ps num">${t && r.scores[t.id] != null ? html`<${SubtleNum} text=${pctS(r.scores[t.id])} />` : '-'}</span></div>`)}</div>
       <a class="linkbtn" href=${'#/run/' + id + '/results'}>See all results</a>` : html`<div class="faint">No scored programs yet.</div>`}
   </section>`;
 }
@@ -89,6 +97,7 @@ function TopPrograms({ snap, cat, id }) {
 function Overview({ snap, cat, id, done, busy, onBuild }) {
   return html`<div class="rpage"><div class="col">
     <${BestBlock} snap=${snap} cat=${cat} done=${done} busy=${busy} onBuild=${onBuild} />
+    ${snap.refused > 0 && html`<div class="refused">${snap.refused} ${snap.refused === 1 ? 'proposal' : 'proposals'} refused for going over your limits</div>`}
     <section class="rsec"><h2 class="rh2">Agents</h2><${AgentList} snap=${snap} /></section>
     <${TopPrograms} snap=${snap} cat=${cat} id=${id} />
   </div></div>`;

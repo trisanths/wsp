@@ -5,6 +5,8 @@ import { go, pct, pctS, sgn, bsize, primaryTarget } from '../util.js';
 import { BenchBar, BenchLegend, CodeView, Tag } from '../components.js';
 import { SubtleNum } from '../motion.js';
 import { nameOf } from './run-shared.js';
+import { ModelLogo } from '../logos.js';
+import { Logos, donorsOf, Compare, HealNote, usesHeal } from '../cmp.js';
 
 // a thin line chart: the best score so far, the LoRA and target bars as dashed hairlines
 export function LineChart({ curve, bench, total }) {
@@ -37,6 +39,7 @@ function Detail({ r, snap, cat, text, onBuild }) {
   const name = (aid) => (snap.agents.find((a) => a.id === aid) || { name: aid }).name;
   return html`<div class="detin">
     <div class="detgrid">${bs.map((b) => html`<div><div class="detbar"><span class="dim">${b.name}</span><b class="num">${pct(r.scores[b.id])}%</b></div><${BenchBar} b=${b} value=${r.scores[b.id]} tall /></div>`)}</div>
+    ${r.comparison && html`<div class="detcmp"><${Compare} c=${r.comparison} compact heal=${usesHeal(r.program)} /></div>`}
     ${text != null ? html`<div class="well"><${CodeView} text=${text} /></div>` : html`<div class="faint">Loading the program text.</div>`}
     <div class="detfoot"><span class="faint">Found by ${name(r.agent)}. ${r.vs_control == null ? 'The random-part control has not run yet.' : 'It scores ' + (r.vs_control * 100).toFixed(1) + ' points above its random-part control.'}</span><span class="grow"></span>
       <button class="linkbtn" onClick=${() => onBuild(r.program)}>Open in builder</button>
@@ -68,7 +71,7 @@ function Leaderboard({ snap, cat, onBuild }) {
       const body = isOpen || closing === r.program_hash;
       return html`<${Fragment} key=${r.program_hash}>
         <tr class=${'row' + (isOpen ? ' open' : '')} onClick=${() => toggle(r)}>
-          <td class="num dim3">${r.rank}</td><td><div class="desc ell" title=${nameOf(r, cat)}>${nameOf(r, cat)}</div></td>
+          <td class="num dim3">${r.rank}</td><td><div class="desc"><${Logos} models=${donorsOf(r.program, cat)} max=${3} size=${16} /><span title=${nameOf(r, cat)}>${nameOf(r, cat)}</span><${HealNote} show=${usesHeal(r.program)} mark /></div></td>
           ${bs.map((b) => { const v = r.scores[b.id]; const bad = b.kind === 'guard' && v != null && v < b.floor; return html`<td class=${'num r' + (bad ? ' down' : '')}>${v != null ? html`<${SubtleNum} text=${pct(v)} />` : '-'}</td>`; })}
           <td class="r">${!ok ? html`<${Tag} kind="r">${r.status.replace(/_/g, ' ')}<//>` : r.vs_control == null ? html`<span class="faint">pending</span>` : html`<span class=${r.vs_control > 0.02 ? 'up' : 'dim3'}>${sgn(r.vs_control)}</span>`}</td>
           <td class="num r">${bsize(r.params_b)}</td>
@@ -89,7 +92,7 @@ function Targets({ snap }) {
 
 function Sources({ snap }) {
   const mx = Math.max(1, ...snap.sources.map((s) => s.uses));
-  return html`<div>${snap.sources.map((s) => html`<div class="srcrow" key=${s.model}><span class="sm ell" title=${s.model}>${s.model}</span><span class="faint">${s.role}</span><div class="btrack"><i style=${{ width: (s.uses / mx) * 100 + '%' }}></i></div><span class="num dim ps">${s.uses}</span></div>`)}
+  return html`<div>${snap.sources.map((s) => html`<div class="srcrow" key=${s.model}><span class="sm" title=${s.model}><${ModelLogo} model=${s.model} size=${16} /><span class="ell">${s.model}</span></span><span class="faint">${s.role}</span><div class="btrack"><i style=${{ width: (s.uses / mx) * 100 + '%' }}></i></div><span class="num dim ps">${s.uses}</span></div>`)}
     ${snap.sources.length < 2 && html`<div class="faint" style="margin-top:8px">Donors appear here as agents use them.</div>`}</div>`;
 }
 

@@ -162,6 +162,25 @@ def head_counts(attn, layout):
     return n_q, n_kv, head_dim
 
 
+PROJECTIONS = ("q_proj", "k_proj", "v_proj", "qkv_proj", "o_proj")
+
+
+def check_head_params(attn, head_dim):
+    """Raise ValueError if attention holds a parameter that a head cut cannot slice.
+
+    A norm over one head (Qwen3, Gemma 3 q_norm) has head_dim weights and
+    stays as it is. A norm over all heads (OLMo 2) or one weight row per
+    head (Cohere with use_qk_norm) would keep its old size, and the model
+    would fail in forward.
+    """
+    for name, param in attn.named_parameters():
+        if name.split(".")[0] in PROJECTIONS:
+            continue
+        if param.numel() != head_dim:
+            raise ValueError(f"{type(attn).__name__}.{name} has shape {tuple(param.shape)}, which depends on the "
+                             "head count; cutting heads is not supported for this model, so keep keep_heads at 1")
+
+
 def mlp_width(mlp, layout):
     return mlp.down_proj.in_features
 
@@ -523,6 +542,11 @@ def prune_donor(donor_model, scores, keep_mlp, keep_heads, max_layer, keep_rule=
             raise ValueError(f"donor layers differ in shape ({shapes[0]} vs {shape}); "
                              "prune_donor needs uniform layers")
     n_q, n_kv, head_dim, width = shapes[0]
+    kv_keep, per_group = head_shape(n_q, n_kv, keep_heads)
+    if kv_keep * per_group < n_q:
+        for index in range(max_layer + 1):
+            attn, _ = attention_layout(layers[index])
+            check_head_params(attn, head_dim)
 
     params_before = model_params(donor_model)
     run_params_before = 0

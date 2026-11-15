@@ -5,6 +5,8 @@ import { usePresence, presenceClass, tokenMs, reduced, PopNum, SlidingBar, disso
 const ICONS = {
   plus: 'M12 5v14M5 12h14',
   x: 'M6 6l12 12M18 6L6 18',
+  warn: 'M12 4l9 16H3zM12 10v4M12 17h.01',
+  lock: 'M7 11V8a5 5 0 0110 0v3M6 11h12v9H6z',
   pause: 'M8 5v14M16 5v14',
   play: 'M7 4l13 8-13 8z',
   stop: 'M6 6h12v12H6z',

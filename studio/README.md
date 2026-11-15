@@ -18,10 +18,13 @@ Open http://localhost:8765. The server serves `studio/web/` at `/` and the API u
 | `WSP_STUDIO_BACKEND` | `stub` | `stub`, `local`, `modal` |
 | `WSP_STUDIO_LLM` | `auto` | `auto`, `none`, `openai_compat`, `anthropic`, `modal_vllm` |
 | `WSP_STUDIO_OPENAI_MODEL` | `gpt-5.4-mini` | any OpenAI chat model |
+| `EXA_API_KEY` | unset | enables Exa web search for benchmark research (read by `exa_py`, never printed) |
 | `WSP_STUDIO_PACE_S` | `0.8` | seconds of delay after each stub eval |
 | `WSP_STUDIO_OUT` | `outputs/studio` | where specs, uploads and run files go |
 
 The server reads `.env` the same way `wsp/swarm/config.py` does. `auto` uses OpenAI when `OPENAI_API_KEY` is set, Anthropic when `ANTHROPIC_API_KEY` is set, and no LLM otherwise. With no LLM, specs are drafted by rules and the agents are the scripted ones. With an LLM, the spec draft, the agents and one builder suggestion use it, and a failed LLM call falls back to the rules. `server/llm_openai.py` sends `max_completion_tokens` and the default temperature, which the GPT-5 and o-series models need.
+
+Benchmark research starts when a spec is drafted. It picks a search provider in this order: Exa when `EXA_API_KEY` is set and `exa_py` imports, the OpenAI `web_search` tool when only `OPENAI_API_KEY` is set (it reads many pages, so it uses more tokens than Exa), and no search otherwise. With `WSP_STUDIO_LLM=none` the research is skipped. `POST /api/spec/{id}/research` starts it again. The OpenAI web search is billed per search call plus tokens.
 
 Every response from the stub backend carries `"stub": true`, and the web app shows a STUB badge and a note on every page of stub numbers. The comparison rows made up by the stub are marked.
 
@@ -38,6 +41,7 @@ Every response from the stub backend carries `"stub": true`, and the web app sho
 ## Files
 
 - `server/app.py`: routes, the SSE stream and the static web app.
+- `server/bench_research.py`: the benchmark research agent (plan, search, synthesize, validate).
 - `server/specs.py`: spec drafting, upload row counts, storage.
 - `server/runs.py`: starts a swarm run in a daemon thread.
 - `server/tracking.py`: pause and stop, agent proxies and the swarm subclass.

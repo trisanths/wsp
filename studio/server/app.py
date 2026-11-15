@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
 from starlette.concurrency import run_in_threadpool
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from studio.server import bench_research
 from studio.server import builder as builder_mod
 from studio.server import catalog as catalog_mod
 from studio.server import library
@@ -91,7 +92,8 @@ async def create_spec(request: Request):
     if prompt.strip() == "" and len(uploads) == 0:
         return fail("write a prompt or add a file")
     spec = await run_in_threadpool(specs_mod.draft_spec, prompt, uploads)
-    return spec
+    await run_in_threadpool(bench_research.start, spec["id"])
+    return bench_research.snapshot(spec)
 
 
 @app.get("/api/spec/{spec_id}")
@@ -99,7 +101,25 @@ def get_spec(spec_id: str):
     spec = specs_mod.get_spec(spec_id)
     if spec is None:
         return fail("unknown spec", 404)
-    return spec
+    return bench_research.snapshot(spec)
+
+
+@app.post("/api/spec/{spec_id}/research")
+def start_research(spec_id: str):
+    outcome = bench_research.start(spec_id)
+    if outcome == "unknown":
+        return fail("unknown spec", 404)
+    if outcome == "running":
+        return fail("a research run is already going for this spec", 409)
+    return {"status": bench_research.research_of(spec_id)["status"]}
+
+
+@app.get("/api/spec/{spec_id}/research")
+def get_research(spec_id: str):
+    research = bench_research.research_of(spec_id)
+    if research is None:
+        return fail("no research for this spec", 404)
+    return research
 
 
 @app.put("/api/spec/{spec_id}")

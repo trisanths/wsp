@@ -13,6 +13,15 @@ A program file has one statement per line, and # starts a comment:
     tap_train data mmlu_aux steps 500 batch_size 8 seq_len 256 branch_lr 3e-4 gate_lr 3e-2
     heal steps 300 data gsm8k_train lr 3e-4
 
+Routed experts, inserted layers, gated grafts, a distillation heal, and a
+budget use the same syntax:
+
+    experts Qwen/Qwen2.5-Math-1.5B-Instruct,Qwen/Qwen2.5-Coder-1.5B-Instruct top_k 2
+    insert Qwen/Qwen2.5-7B-Instruct layers 8..20 at 7 stitch linear control random seed 1
+    graft qmath_block_8_19 at 5 gate on gate_bias -1.0
+    heal steps 300 data gsm8k_train distill Qwen/Qwen2.5-7B-Instruct kd_weight 0.5
+    budget total 2b active 1b heal_minutes 30
+
 A written program makes one plain model from source models:
 
     from Qwen/Qwen2.5-14B-Instruct
@@ -32,7 +41,9 @@ Command line:
     python -m wsp.lang format program.json
     python -m wsp.lang compile file.wsp out_dir --catalog catalog.jsonl
 
-docs/language.md is the reference for people.
+The `sapien` command (wsp/cli.py) wraps these and adds size checks and
+scoring. A program file is text with the .sap suffix (.wsp works too) or
+a .json file. docs/language.md is the reference for people.
 """
 
 import argparse
@@ -42,9 +53,9 @@ import os
 import re
 import sys
 
-from wsp.program import (CARVE_SELECTS, SOURCE_KEY, STITCH_KINDS, CarveSpec, Difference, GraftSpec, HealSpec,
-                         Intersect, LoraSpec, Program, Restrict, SpliceSpec, TapSpec, TapTrainSpec, TaskVector, Union,
-                         Use)
+from wsp.program import (CARVE_SELECTS, SOURCE_KEY, STITCH_KINDS, BudgetSpec, CarveSpec, Difference, ExpertsSpec,
+                         GraftSpec, HealSpec, InsertSpec, Intersect, LoraSpec, Program, Restrict, SpliceSpec, TapSpec,
+                         TapTrainSpec, TaskVector, Union, Use)
 
 # An id is a catalog id, a model name, a local path, a module name, or a
 # data name. It may start with . or / so a local path such as
@@ -53,7 +64,8 @@ ID_PATTERN = re.compile(r"^[A-Za-z0-9_./][A-Za-z0-9_./\-]*$")
 INT_PATTERN = re.compile(r"^-?[0-9]+$")
 FLOAT_PATTERN = re.compile(r"^-?([0-9]+\.[0-9]*|\.[0-9]+|[0-9]+)([eE][-+]?[0-9]+)?$")
 
-STATEMENTS = ["host", "from", "seed", "mask", "tv", "graft", "lora", "tap", "tap_train", "splice", "carve", "heal"]
+STATEMENTS = ["host", "from", "seed", "mask", "tv", "graft", "experts", "insert", "lora", "tap", "tap_train", "splice",
+              "carve", "heal", "budget"]
 
 # Options for each statement: the written name, then the field it sets.
 # Some fields have a second, longer name that matches the JSON key.
@@ -68,6 +80,45 @@ GRAFT_OPTIONS = {
     "sink": "sink",
     "rms_match": "rms_match",
     "part_lora_rank": "part_lora_rank",
+    "gate": "gate",
+    "gate_bias": "gate_bias",
+    "gate_lr": "gate_lr",
+}
+EXPERTS_OPTIONS = {
+    "top_k": "top_k",
+    "init": "router_init",
+    "router_init": "router_init",
+    "base_logit": "base_logit",
+    "balance": "load_balance",
+    "load_balance": "load_balance",
+    "balance_weight": "balance_weight",
+    "router_lr": "router_lr",
+    "stitch": "stitch",
+    "stitch_rank": "stitch_rank",
+    "stitch_hidden": "stitch_hidden",
+    "control": "control",
+    "seed": "control_seed",
+    "control_seed": "control_seed",
+}
+INSERT_OPTIONS = {
+    "layers": "layers",
+    "at": "at",
+    "stitch": "stitch",
+    "stitch_rank": "stitch_rank",
+    "stitch_hidden": "stitch_hidden",
+    "part_lora_rank": "part_lora_rank",
+    "gate_init": "gate_init",
+    "control": "control",
+    "seed": "control_seed",
+    "control_seed": "control_seed",
+}
+BUDGET_OPTIONS = {
+    "total": "max_total_params_b",
+    "max_total_params_b": "max_total_params_b",
+    "active": "max_active_params_b",
+    "max_active_params_b": "max_active_params_b",
+    "heal_minutes": "max_heal_minutes",
+    "max_heal_minutes": "max_heal_minutes",
 }
 LORA_OPTIONS = {
     "rank": "rank",
@@ -77,7 +128,8 @@ LORA_OPTIONS = {
     "alpha": "alpha",
     "layers": "layers",
 }
-HEAL_OPTIONS = {"steps": "steps", "data": "data", "lr": "lr", "batch_size": "batch_size", "seq_len": "seq_len"}
+HEAL_OPTIONS = {"steps": "steps", "data": "data", "lr": "lr", "batch_size": "batch_size", "seq_len": "seq_len",
+                "distill": "distill", "kd_weight": "kd_weight", "temperature": "temperature"}
 TAP_OPTIONS = {
     "layer": "donor_layer",
     "donor_layer": "donor_layer",
@@ -431,9 +483,90 @@ def parse_graft(tokens, line):
         options["rms_match"] = read_switch(fields["rms_match"], line, "rms_match")
     if "part_lora_rank" in fields:
         options["part_lora_rank"] = read_int(fields["part_lora_rank"], line, "part_lora_rank")
+    if "gate" in fields:
+        options["gate"] = read_switch(fields["gate"], line, "gate")
+    if "gate_bias" in fields:
+        options["gate_bias"] = read_number(fields["gate_bias"], line, "gate_bias")
+    if "gate_lr" in fields:
+        options["gate_lr"] = read_number(fields["gate_lr"], line, "gate_lr")
     if stitch_tokens is not None:
         options["stitch"] = parse_stitch(stitch_tokens, line)
     return GraftSpec(component_id, **options)
+
+
+def parse_experts(tokens, line):
+    """Read "experts DONOR,DONOR top_k N ...". The donors are a comma list of model ids."""
+    if len(tokens) == 0:
+        raise LangError(line, "experts needs donor models, as in: experts Qwen/Qwen2.5-Math-1.5B-Instruct,"
+                              "Qwen/Qwen2.5-Coder-1.5B-Instruct top_k 2")
+    donors = read_names(tokens[0], line, "an expert donor")
+    fields, rest = read_options(tokens[1:], line, "experts", EXPERTS_OPTIONS)
+    options = {}
+    for name in ["top_k", "stitch_rank", "stitch_hidden", "control_seed"]:
+        if name in fields:
+            options[name] = read_int(fields[name], line, name)
+    if "router_init" in fields:
+        options["router_init"] = read_id(fields["router_init"], line, "init")
+    for name in ["base_logit", "balance_weight", "router_lr"]:
+        if name in fields:
+            options[name] = read_number(fields[name], line, name)
+    if "load_balance" in fields:
+        options["load_balance"] = read_switch(fields["load_balance"], line, "balance")
+    if "stitch" in fields:
+        options["stitch"] = read_id(fields["stitch"], line, "stitch")
+    if "control" in fields:
+        options["control"] = read_id(fields["control"], line, "control")
+    return ExpertsSpec(donors, **options)
+
+
+def read_span(token, line, what):
+    """Read a layer span, A..B or A, as [first, last]."""
+    layers = read_layers(token, line, what)
+    for index in range(1, len(layers)):
+        if layers[index] != layers[index - 1] + 1:
+            raise LangError(line, f"{what} is one run such as 8..20, got {token!r}")
+    return [layers[0], layers[-1]]
+
+
+def parse_insert(tokens, line):
+    """Read "insert DONOR layers A..B at N ...". The donor is one model id."""
+    if len(tokens) == 0:
+        raise LangError(line, "insert needs a donor model, as in: insert Qwen/Qwen2.5-7B-Instruct layers 8..20 at 7")
+    donor = read_id(tokens[0], line, "an insert donor")
+    fields, rest = read_options(tokens[1:], line, "insert", INSERT_OPTIONS)
+    if "layers" not in fields:
+        raise LangError(line, "insert needs layers A..B, the donor layers it inserts")
+    if "at" not in fields:
+        raise LangError(line, "insert needs at N, the host layer after which the donor layers run")
+    options = {}
+    for name in ["stitch_rank", "stitch_hidden", "part_lora_rank", "control_seed"]:
+        if name in fields:
+            options[name] = read_int(fields[name], line, name)
+    if "gate_init" in fields:
+        options["gate_init"] = read_number(fields["gate_init"], line, "gate_init")
+    if "stitch" in fields:
+        options["stitch"] = read_id(fields["stitch"], line, "stitch")
+    if "control" in fields:
+        options["control"] = read_id(fields["control"], line, "control")
+    return InsertSpec(donor, read_span(fields["layers"], line, "layers"), read_int(fields["at"], line, "at"),
+                      **options)
+
+
+def parse_budget(tokens, line):
+    """Read "budget total 2b active 1b heal_minutes 30". Sizes are in billions, with or without the b."""
+    fields, rest = read_options(tokens, line, "budget", BUDGET_OPTIONS)
+    if len(fields) == 0:
+        raise LangError(line, "budget needs total S, active S, or heal_minutes M")
+    options = {}
+    for name in ["max_total_params_b", "max_active_params_b"]:
+        if name in fields:
+            options[name] = read_target(fields[name], line)
+    if "max_heal_minutes" in fields:
+        minutes = read_number(fields["max_heal_minutes"], line, "heal_minutes")
+        if minutes <= 0:
+            raise LangError(line, f"heal_minutes is a number above 0, got {fields['max_heal_minutes']!r}")
+        options["max_heal_minutes"] = minutes
+    return BudgetSpec(**options)
 
 
 def parse_lora(tokens, line):
@@ -465,6 +598,11 @@ def parse_heal(tokens, line):
         options["batch_size"] = read_int(fields["batch_size"], line, "batch_size")
     if "seq_len" in fields:
         options["seq_len"] = read_int(fields["seq_len"], line, "seq_len")
+    if "distill" in fields:
+        options["distill"] = read_id(fields["distill"], line, "distill")
+    for name in ["kd_weight", "temperature"]:
+        if name in fields:
+            options[name] = read_number(fields[name], line, name)
     return HealSpec(**options)
 
 
@@ -606,6 +744,9 @@ def parse(text):
     base_source = None
     carve = None
     splice = None
+    experts = None
+    inserts = []
+    budget = None
     # The line where each single statement first appeared.
     first_line = {}
 
@@ -620,7 +761,8 @@ def parse(text):
         rest = tokens[1:]
         if head == "base":
             head = "host"
-        if head in ("host", "from", "seed", "mask", "lora", "heal", "tap_train", "splice", "carve"):
+        if head in ("host", "from", "seed", "mask", "lora", "heal", "tap_train", "splice", "carve", "experts",
+                    "budget"):
             if head in first_line:
                 raise LangError(line, f"{head} appears twice (first on line {first_line[head]})")
             first_line[head] = line
@@ -642,6 +784,12 @@ def parse(text):
                 task_vectors.append(parse_tv(rest, line))
             elif head == "graft":
                 grafts.append(parse_graft(rest, line))
+            elif head == "experts":
+                experts = parse_experts(rest, line)
+            elif head == "insert":
+                inserts.append(parse_insert(rest, line))
+            elif head == "budget":
+                budget = parse_budget(rest, line)
             elif head == "lora":
                 lora = parse_lora(rest, line)
             elif head == "heal":
@@ -672,7 +820,7 @@ def parse(text):
     try:
         return Program(host=host, masks=masks, task_vectors=task_vectors, seed=seed, grafts=grafts, heal=heal,
                        lora=lora, taps=taps, tap_train=tap_train, base_source=base_source, carve=carve,
-                       splice=splice)
+                       splice=splice, experts=experts, inserts=inserts, budget=budget)
     except ValueError as error:
         raise LangError(None, str(error))
 
@@ -689,11 +837,17 @@ def load_program(path):
 # The keys Program.from_dict reads. A key outside these lists would be
 # dropped without a word, so program_from_dict refuses it.
 PROGRAM_KEYS = ["host", "base", "seed", "masks", "task_vectors", "grafts", "heal", "lora", "taps", "tap_train",
-                "base_source", "carve", "splice"]
+                "base_source", "carve", "splice", "experts", "inserts", "budget"]
 TV_KEYS = ["id", "weight", "layers", "modules"]
-GRAFT_KEYS = ["id", "at", "control", "control_seed", "glue_rank", "stitch", "sink", "rms_match", "part_lora_rank"]
+GRAFT_KEYS = ["id", "at", "control", "control_seed", "glue_rank", "stitch", "sink", "rms_match", "part_lora_rank",
+              "gate", "gate_bias", "gate_lr"]
+EXPERTS_KEYS = ["donors", "top_k", "router_init", "base_logit", "load_balance", "balance_weight", "router_lr",
+                "stitch", "stitch_rank", "stitch_hidden", "control", "control_seed"]
+INSERT_KEYS = ["donor", "layers", "at", "stitch", "stitch_rank", "stitch_hidden", "part_lora_rank", "gate_init",
+               "control", "control_seed"]
+BUDGET_KEYS = ["max_total_params_b", "max_active_params_b", "max_heal_minutes"]
 LORA_KEYS = ["rank", "budget_params", "targets", "alpha", "layers"]
-HEAL_KEYS = ["steps", "data", "lr", "batch_size", "seq_len"]
+HEAL_KEYS = ["steps", "data", "lr", "batch_size", "seq_len", "distill", "kd_weight", "temperature"]
 TAP_KEYS = ["donor", "donor_layer", "at", "attn_dim", "heads", "tap_id"]
 TAP_TRAIN_KEYS = ["data", "steps", "batch_size", "seq_len", "branch_lr", "gate_lr"]
 BASE_SOURCE_KEYS = ["model"]
@@ -747,6 +901,12 @@ def program_from_dict(data):
             check_keys(data["carve"]["width"], WIDTH_KEYS, "carve width")
     if data.get("splice") is not None:
         check_keys(data["splice"], SPLICE_KEYS, "splice")
+    if data.get("experts") is not None:
+        check_keys(data["experts"], EXPERTS_KEYS, "experts")
+    for item in data.get("inserts", []):
+        check_keys(item, INSERT_KEYS, "insert")
+    if data.get("budget") is not None:
+        check_keys(data["budget"], BUDGET_KEYS, "budget")
     try:
         return Program.from_dict(data)
     except KeyError as error:
@@ -926,9 +1086,79 @@ def graft_text(data):
         words.append("rms_match on")
     if data.get("part_lora_rank") is not None:
         words.append("part_lora_rank " + int_text(data["part_lora_rank"], "part_lora_rank"))
+    if data.get("gate", False) is True:
+        words.append("gate on")
+        if data.get("gate_bias", 0.0) != 0.0:
+            words.append("gate_bias " + number_text(data["gate_bias"], "gate_bias"))
+        if data.get("gate_lr", 1e-2) != 1e-2:
+            words.append("gate_lr " + number_text(data["gate_lr"], "gate_lr"))
     # stitch reads to the end of the line, so it goes last.
     if data.get("stitch") is not None:
         words.append(stitch_text(data["stitch"]))
+    return " ".join(words)
+
+
+def experts_text(data):
+    check_keys(data, EXPERTS_KEYS, "experts")
+    words = ["experts", names_text(data["donors"], "expert donors")]
+    if data.get("top_k", 1) != 1:
+        words.append("top_k " + int_text(data["top_k"], "top_k"))
+    if data.get("router_init", "base") != "base":
+        words.append("init " + id_text(data["router_init"], "init"))
+    if data.get("base_logit", 16.0) != 16.0:
+        words.append("base_logit " + number_text(data["base_logit"], "base_logit"))
+    if data.get("load_balance", False) is True:
+        words.append("balance on")
+    if data.get("balance_weight", 0.01) != 0.01:
+        words.append("balance_weight " + number_text(data["balance_weight"], "balance_weight"))
+    if data.get("router_lr", 1e-3) != 1e-3:
+        words.append("router_lr " + number_text(data["router_lr"], "router_lr"))
+    if data.get("stitch") is not None:
+        words.append("stitch " + id_text(data["stitch"], "stitch"))
+    if data.get("stitch_rank") is not None:
+        words.append("stitch_rank " + int_text(data["stitch_rank"], "stitch_rank"))
+    if data.get("stitch_hidden") is not None:
+        words.append("stitch_hidden " + int_text(data["stitch_hidden"], "stitch_hidden"))
+    if data.get("control") is not None:
+        words.append("control " + id_text(data["control"], "control"))
+    if data.get("control_seed", 0) != 0:
+        words.append("seed " + int_text(data["control_seed"], "seed"))
+    return " ".join(words)
+
+
+def insert_text(data):
+    check_keys(data, INSERT_KEYS, "insert")
+    first, last = data["layers"]
+    span = int_text(first, "layers")
+    if last != first:
+        span += ".." + int_text(last, "layers")
+    words = ["insert", id_text(data["donor"], "insert donor"), "layers " + span, "at " + int_text(data["at"], "at")]
+    if data.get("stitch") is not None:
+        words.append("stitch " + id_text(data["stitch"], "stitch"))
+    if data.get("stitch_rank") is not None:
+        words.append("stitch_rank " + int_text(data["stitch_rank"], "stitch_rank"))
+    if data.get("stitch_hidden") is not None:
+        words.append("stitch_hidden " + int_text(data["stitch_hidden"], "stitch_hidden"))
+    if data.get("part_lora_rank") is not None:
+        words.append("part_lora_rank " + int_text(data["part_lora_rank"], "part_lora_rank"))
+    if data.get("gate_init", 0.0) != 0.0:
+        words.append("gate_init " + number_text(data["gate_init"], "gate_init"))
+    if data.get("control") is not None:
+        words.append("control " + id_text(data["control"], "control"))
+    if data.get("control_seed", 0) != 0:
+        words.append("seed " + int_text(data["control_seed"], "seed"))
+    return " ".join(words)
+
+
+def budget_text(data):
+    check_keys(data, BUDGET_KEYS, "budget")
+    words = ["budget"]
+    if data.get("max_total_params_b") is not None:
+        words.append("total " + number_text(data["max_total_params_b"], "max_total_params_b") + "b")
+    if data.get("max_active_params_b") is not None:
+        words.append("active " + number_text(data["max_active_params_b"], "max_active_params_b") + "b")
+    if data.get("max_heal_minutes") is not None:
+        words.append("heal_minutes " + number_text(data["max_heal_minutes"], "max_heal_minutes"))
     return " ".join(words)
 
 
@@ -956,6 +1186,10 @@ def heal_text(data):
     words.append("lr " + number_text(data["lr"], "lr"))
     words.append("batch_size " + int_text(data["batch_size"], "batch_size"))
     words.append("seq_len " + int_text(data["seq_len"], "seq_len"))
+    if data.get("distill") is not None:
+        words.append("distill " + id_text(data["distill"], "distill"))
+        words.append("kd_weight " + number_text(data["kd_weight"], "kd_weight"))
+        words.append("temperature " + number_text(data["temperature"], "temperature"))
     return " ".join(words)
 
 
@@ -1036,7 +1270,7 @@ def format_program(program):
         program = program_from_dict(program)
     data = program.to_dict()
     check_keys(data, ["host", "seed", "masks", "task_vectors", "grafts", "heal", "lora", "taps", "tap_train",
-                      "base_source", "carve", "splice"], "program")
+                      "base_source", "carve", "splice", "experts", "inserts", "budget"], "program")
     lines = []
     if data.get("base_source") is not None:
         # The host of a written program is its source.
@@ -1054,6 +1288,10 @@ def format_program(program):
         lines.append(carve_text(data["carve"]))
     if data.get("lora") is not None:
         lines.append(lora_text(data["lora"]))
+    if data.get("experts") is not None:
+        lines.append(experts_text(data["experts"]))
+    for item in data.get("inserts", []):
+        lines.append(insert_text(item))
     for graft in data["grafts"]:
         lines.append(graft_text(graft))
     for tap in data.get("taps", []):
@@ -1062,6 +1300,8 @@ def format_program(program):
         lines.append(tap_train_text(data["tap_train"]))
     if data["heal"] is not None:
         lines.append(heal_text(data["heal"]))
+    if data.get("budget") is not None:
+        lines.append(budget_text(data["budget"]))
     return "\n".join(lines) + "\n"
 
 
@@ -1076,7 +1316,7 @@ def compile_file(program, out_dir, catalog_path, align, device):
     catalog = None
     if catalog_path is not None:
         catalog = Catalog.load(catalog_path)
-    elif not program.is_written():
+    elif program.needs_catalog():
         raise ValueError("this program needs --catalog")
     align_texts = None
     heal_texts = None
@@ -1088,7 +1328,17 @@ def compile_file(program, out_dir, catalog_path, align, device):
         # wsp.data does not know, so the align texts stay gsm8k_train.
         if program.heal_spec is not None and len(program.taps) == 0:
             name = program.heal_spec.data
-        texts = task_texts(name, seed=0)
+        from wsp.pairs import pair_names
+
+        if name != "gsm8k_train" and name in pair_names():
+            from wsp.compiler import pair_texts, pairs_by_name
+
+            import transformers
+
+            tokenizer = transformers.AutoTokenizer.from_pretrained(program.host)
+            texts = pair_texts(pairs_by_name(name, tokenizer, seed=program.seed))
+        else:
+            texts = task_texts(name, seed=program.seed)
         align_texts = texts[:align]
         if program.heal_spec is not None:
             heal_texts = texts
@@ -1148,7 +1398,7 @@ def main(argv=None):
             return 1
         sys.stdout.write(text)
         return 0
-    if args.catalog is None and not program.is_written():
+    if args.catalog is None and program.needs_catalog():
         print(f"{args.path}: this program needs --catalog", file=sys.stderr)
         return 1
     report = compile_file(program, args.out_dir, args.catalog, args.align, args.device)

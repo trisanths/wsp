@@ -59,6 +59,7 @@ const real = {
   createBuilder: (spec_id) => req('POST', '/api/builder', { spec_id }),
   builderAction: (id, program, action) => req('POST', '/api/builder/' + id + '/action', { program, action }),
   getJob: (id) => req('GET', '/api/jobs/' + id),
+  builderSize: (id, program) => req('POST', '/api/builder/' + id + '/size', { program }),
   suggest: (id, program) => req('POST', '/api/builder/' + id + '/suggest', { program }),
   handoff: (id, program) => req('POST', '/api/builder/' + id + '/handoff', { program }),
 };

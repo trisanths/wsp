@@ -3,6 +3,8 @@ import { api } from '../api.js';
 import { pct, donorColor, donorLetter, donorShort, useRecent, patchRecent, dur } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Dot, StubBadge } from '../components.js';
 import { SkelReveal } from '../motion.js';
+import { ModelLogo } from '../logos.js';
+import { StatusTag, groupByKind, lockOf } from '../cmp.js';
 
 const RUN_LABEL = { starting: 'Starting', running: 'Running', paused: 'Paused', stopping: 'Stopping', done: 'Finished', error: 'Error', gone: 'Not on the server' };
 const RUN_COLOR = { starting: 'var(--blue)', running: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)', gone: 'var(--text-4)' };
@@ -48,11 +50,12 @@ function measuredLine(m) {
   return String(m.task || '').toUpperCase() + ' ' + pct(m.score) + '%' + (m.lora != null ? ', LoRA ' + pct(m.lora) + '%' : '') + (m.host != null ? ', host ' + pct(m.host) + '%' : '');
 }
 
-function PartCard({ ic, color, title, sub, meta, measured }) {
-  return html`<div class="card pcard">
-    <div class="pic" style=${{ '--c': color }}>${ic}</div>
-    <div class="pc-main"><div class="pc-t">${title}</div><div class="pc-s">${sub}</div>
+function PartCard({ lead, title, sub, meta, measured, status, evidence, lock }) {
+  return html`<div class=${'card pcard' + (lock ? ' locked' : '')} data-tip=${lock ? lock.why : null} data-tip-side="bottom">
+    ${lead}
+    <div class="pc-main"><div class="pc-top"><div class="pc-t">${title}</div>${lock && !lock.rejected ? html`<${Icon} n="lock" size=${13} />` : html`<${StatusTag} status=${status} />`}</div><div class="pc-s">${sub}</div>
       ${meta && html`<div class="pc-m">${meta}</div>`}
+      ${evidence && html`<div class="pc-ev">${evidence}</div>`}
       ${measured && html`<div class="pc-meas"><${Icon} n="check" size=${13} sw=${2} />Measured: ${measured}</div>`}</div>
   </div>`;
 }
@@ -69,16 +72,18 @@ export function PartsScreen() {
   const adds = cat.parts.filter((x) => m(x));
   const rms = cat.masks.filter(m);
   const trs = cat.train.filter(m);
+  const grouped = cat.kinds && cat.kinds.length;
+  const partCard = (p) => html`<${PartCard} key=${p.id} lead=${html`<${ModelLogo} model=${p.donor} size=${20} />`} title=${p.label} sub=${donorShort(p.donor) + ' · ' + p.kind + ' · ' + layers(p)} meta=${'+' + p.params_m + 'M parameters, joins at L' + p.default_at} status=${p.status} evidence=${p.evidence} lock=${lockOf(p)} measured=${measuredLine(p.measured)} />`;
   const none = !adds.length && !rms.length && !trs.length;
   const layers = (p) => 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? ' to L' + p.layers[1] : '');
   return html`<${TopBar} />
   <main class="screen"><div class="doc wide"><${SkelReveal} ready=${true} skeleton=${null}>
     <div class="ph"><div><h1 class="page-title">Parts library</h1>
-      <p class="lede">Host model ${cat.host.model.split('/').pop()}, ${cat.host.layers} layers, ${cat.host.params_b.toFixed(2)}B parameters. Drag these onto it in the builder.${cat.stub ? ' ' : ''}${cat.stub && html`<${StubBadge} small />`}</p></div>
+      <p class="lede"><${ModelLogo} model=${cat.host.model} size=${16} /> Host model ${cat.host.model.split('/').pop()}, ${cat.host.layers} layers, ${cat.host.params_b.toFixed(2)}B parameters. Drag these onto it in the builder.${cat.stub ? ' ' : ''}${cat.stub && html`<${StubBadge} small />`}</p></div>
       <div class="searchbox pq"><${Icon} n="search" size=${16} /><input placeholder="Search parts" aria-label="Search parts" value=${q} onInput=${(e) => setQ(e.target.value)} /></div></div>
-    ${adds.length > 0 && html`<section class="sect"><h2 class="sec"><span>Add a skill</span><span class="faint cnt">${adds.length}</span></h2><div class="grid3">${adds.map((p) => html`<${PartCard} key=${p.id} ic=${donorLetter(p.donor, p.label)} color=${donorColor(p.donor)} title=${p.label} sub=${donorShort(p.donor) + ' · ' + p.kind + ' · ' + layers(p)} meta=${'+' + p.params_m + 'M parameters, joins at L' + p.default_at} measured=${measuredLine(p.measured)} />`)}</div></section>`}
-    ${rms.length > 0 && html`<section class="sect"><h2 class="sec"><span>Remove a skill</span><span class="faint cnt">${rms.length}</span></h2><div class="grid3">${rms.map((p) => html`<${PartCard} key=${p.id} ic="-" color="var(--red)" title=${p.label} sub=${p.summary} measured=${measuredLine(p.measured)} />`)}</div></section>`}
-    ${trs.length > 0 && html`<section class="sect"><h2 class="sec"><span>Train</span><span class="faint cnt">${trs.length}</span></h2><div class="grid3">${trs.map((p) => html`<${PartCard} key=${p.id} ic=${p.id === 'lora' ? 'R' : 'H'} color=${p.id === 'lora' ? 'var(--amber)' : 'var(--green)'} title=${p.label} sub=${p.summary} />`)}</div></section>`}
+    ${grouped ? groupByKind(adds).map((g) => html`<section class="sect" key=${g.kind}><h2 class="sec"><span>${g.name}</span><span class="faint cnt">${g.items.length}</span></h2><div class="grid3">${g.items.map(partCard)}</div></section>`) : adds.length > 0 && html`<section class="sect"><h2 class="sec"><span>Add a skill</span><span class="faint cnt">${adds.length}</span></h2><div class="grid3">${adds.map(partCard)}</div></section>`}
+    ${rms.length > 0 && html`<section class="sect"><h2 class="sec"><span>Remove a skill</span><span class="faint cnt">${rms.length}</span></h2><div class="grid3">${rms.map((p) => html`<${PartCard} key=${p.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} title=${p.label} sub=${p.summary} status=${p.status} evidence=${p.evidence} lock=${p.status === 'rejected' ? lockOf(p) : null} measured=${measuredLine(p.measured)} />`)}</div></section>`}
+    ${trs.length > 0 && html`<section class="sect"><h2 class="sec"><span>Train</span><span class="faint cnt">${trs.length}</span></h2><div class="grid3">${trs.map((p) => html`<${PartCard} key=${p.id} lead=${html`<div class="pic" style=${{ '--c': p.id === 'lora' ? 'var(--amber)' : 'var(--green)' }}>${p.id === 'lora' ? 'R' : 'H'}</div>`} title=${p.label} sub=${p.summary} />`)}</div></section>`}
     ${none && html`<div class="empty" style="margin-top:30px">Nothing matches "${q}".</div>`}
   <//></div></main>`;
 }
