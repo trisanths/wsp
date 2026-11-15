@@ -62,7 +62,7 @@ DEFAULT = {
     "mc_batch": 16, "text_batch": 6, "seq_len": 256, "w_soft": 1.0, "w_text": 1.0, "w_align": 1.0,
     "lr_glue": 3e-4, "lr_gate": 1e-4, "lr_enc2": 1e-4, "lr_lora": 2e-4, "lr_lora128": 1e-4, "lr_full": 1e-5,
     "dev": False, "full_eval": True,
-    "write": None, "graft_lora_rank": 0,
+    "write": None, "graft_lora_rank": 0, "micro": 1, "kd_stage": 0, "kd_lr_mult": 3.0, "out_frac": 0.0, "logit": False,
 }
 SMOKE = {"steps": 4, "align_steps": 3}
 
@@ -80,9 +80,19 @@ def presets():
     out["d_full_lo"] = ("fullft", 0, dict(dev, lr_full=5e-6))
     out["d_full_hi"] = ("fullft", 0, dict(dev, lr_full=2e-5))
     out["d_identity"] = ("identity", 0, dict(dev))
-    out["s_a"] = ("graft", 0, dict(dev, first=14, last=47, write=27))
-    out["s_b"] = ("graft", 0, dict(dev, first=14, last=47, write=21))
-    out["s_c"] = ("graft", 0, dict(dev, first=14, last=47, write=27, dec_rank=1024, graft_lora_rank=16))
+    out["s_a"] = ("graft", 0, dict(dev, first=14, last=47, write=27, micro=2))
+    out["s_b"] = ("graft", 0, dict(dev, first=14, last=47, write=21, micro=2))
+    out["s_c"] = ("graft", 0, dict(dev, first=14, last=47, write=27, dec_rank=1024, graft_lora_rank=16, micro=2))
+    out["s_d"] = ("graft", 0, dict(dev, first=14, last=47, write=27, micro=2, kd_stage=600, kd_lr_mult=3.0))
+    out["s_e"] = ("graft", 0, dict(dev, first=14, last=34, kd_stage=600, kd_lr_mult=3.0))
+    out["s_f"] = ("graft", 0, dict(dev, first=14, last=47, write=27, micro=2, kd_stage=600, out_frac=1.0))
+    out["s_g"] = ("graft", 0, dict(dev, first=14, last=34, out_frac=1.0))
+    out["s_h"] = ("graft", 0, dict(dev, first=14, last=47, write=21, micro=2, kd_stage=600, out_frac=1.0))
+    lg = dict(dev, logit=True, first=14, last=47, host=14, micro=2, lr_gate=1e-3)
+    out["l_a"] = ("graft", 0, dict(lg))
+    out["l_b"] = ("scrambled", 0, dict(lg))
+    out["l_c"] = ("graft", 0, dict(lg, host=20, first=24))
+    out["l_d"] = ("identity", 0, dict(lg))
     out["s_c_lora"] = ("lora", 0, dict(dev, graft_lora_rank=16, dec_rank=1024))
     out["smoke_graft"] = ("graft", 0, {})
     for arm in ["graft", "identity", "scrambled", "lora", "lora128", "fullft"]:
@@ -324,15 +334,26 @@ def ref_cell(label, smoke=False):
 
 
 def make_graft(base, donor, tok, cfg, control, texts, seed):
+    import copy
+
     from wsp import pgraft, scramble
 
+    tail = None
+    if cfg["logit"] and control == "scrambled":
+        norm, head = copy.deepcopy(donor.model.norm), copy.deepcopy(donor.get_output_embeddings())
+        scramble.scramble_module(norm, 2000 + seed, mode="permute")
+        scramble.scramble_module(head, 3000 + seed, mode="permute")
+        tail = (norm, head)
     graft = pgraft.build(base, donor, cfg["host"], cfg["first"], cfg["last"],
                          control=None if control == "scrambled" else control,
-                         enc_depth=cfg["enc_depth"], dec_rank=cfg["dec_rank"], write_layer=cfg["write"])
+                         enc_depth=cfg["enc_depth"], dec_rank=cfg["dec_rank"], write_layer=cfg["write"],
+                         logit=cfg["logit"], tail=tail)
     if control == "scrambled":
         report = scramble.scramble_module(graft.part, 1000 + seed, mode="spectrum")
         print("scrambled slice", {k: report[k] for k in ("tensors_changed", "rel_fro_error", "mean_abs_cosine", "seconds")})
-    if cfg["write"] is None:
+    if cfg["logit"]:
+        pgraft.attach_logit(base, graft)
+    elif cfg["write"] is None or cfg["write"] == cfg["host"]:
         pgraft.attach(base, [graft])
     else:
         pgraft.attach_split(base, graft)
@@ -383,7 +404,8 @@ def train_cell(name, arm, seed, over, smoke=False):
     ids4 = ids[:4]
     d_host, d_donor = pgraft.hidden_size(base), pgraft.hidden_size(donor)
     glue_budget = (pgraft.count(pgraft.Enc(d_host, d_donor, depth=cfg["enc_depth"]).parameters())
-                   + pgraft.count(pgraft.Dec(d_donor, d_host, rank=cfg["dec_rank"]).parameters()) + d_host + 1)
+                   + (0 if cfg["logit"] else
+                      pgraft.count(pgraft.Dec(d_donor, d_host, rank=cfg["dec_rank"]).parameters())) + d_host + 1)
     from wsp.lora import params_per_rank
 
     extra_lora = cfg["graft_lora_rank"] * params_per_rank(base)
@@ -406,7 +428,7 @@ def train_cell(name, arm, seed, over, smoke=False):
     else:
         control = {"graft": None, "identity": "identity", "scrambled": "scrambled"}[arm]
         graft = make_graft(base, donor, tok, cfg, control, data["texts"]["align"], seed)
-        row["trainable"] = pgraft.count(pgraft.trainable([graft], enc=True))
+        row["trainable"] = pgraft.count(pgraft.trainable([graft], enc=True, dec=not cfg["logit"]))
         if cfg["graft_lora_rank"] > 0:
             r = cfg["graft_lora_rank"]
             lora_params = apply_lora(base, r, default_alpha(r))
@@ -419,7 +441,13 @@ def train_cell(name, arm, seed, over, smoke=False):
             pgraft.align(base, tok, donor, tok, graft, data["texts"]["align"], acfg, seed=seed, log_every=100)
             row["alignment"] = pgraft.alignment_report(base, tok, donor, tok, graft, data["texts"]["align_eval"], acfg)
             print("ALIGN", name, row["alignment"], flush=True)
-        pgraft.calibrate_scale(base, tok, graft, data["texts"]["align"], dict(pgraft.DEFAULTS, seq_len=cfg["seq_len"]))
+        if not cfg["logit"]:
+            pgraft.calibrate_scale(base, tok, graft, data["texts"]["align"], dict(pgraft.DEFAULTS, seq_len=cfg["seq_len"]))
+        if cfg["out_frac"] > 0 and not cfg["logit"]:
+            wl = cfg["write"] if cfg["write"] is not None else cfg["host"]
+            row["out_rms"] = pgraft.calibrate_out_scale(base, tok, graft, data["texts"]["align"], wl, cfg["out_frac"],
+                                                        dict(pgraft.DEFAULTS, seq_len=cfg["seq_len"]))
+            print("OUT_RMS", name, row["out_rms"], flush=True)
     acfg = dict(pgraft.DEFAULTS, seq_len=cfg["seq_len"])
 
     if arm in ("lora", "lora128"):
@@ -431,6 +459,8 @@ def train_cell(name, arm, seed, over, smoke=False):
         groups = [{"params": list(graft.dec.parameters()), "lr": cfg["lr_glue"]},
                   {"params": list(graft.token_gate.parameters()), "lr": cfg["lr_gate"]},
                   {"params": list(graft.enc.parameters()), "lr": enc_lr}]
+        if cfg["logit"]:
+            groups = groups[1:]
         if lora_params is not None:
             groups.append({"params": lora_params, "lr": cfg["lr_lora"]})
         for g in groups:
@@ -440,8 +470,21 @@ def train_cell(name, arm, seed, over, smoke=False):
     opt = torch.optim.AdamW(groups, weight_decay=0.0)
     # Total optimizer steps equal across arms: the graft spends align_steps on stage 1, the others add them here.
     steps = cfg["steps"] + (0 if arm == "graft" else cfg["align_steps"])
-    sched = torch.optim.lr_scheduler.LambdaLR(
-        opt, lambda s: min(1.0, (s + 1) / 30) * 0.5 * (1 + math.cos(math.pi * s / steps)))
+    ks = cfg["kd_stage"] if graft is not None else 0
+
+    def lam(kind):
+        def f(st):
+            b = min(1.0, (st + 1) / 30) * 0.5 * (1 + math.cos(math.pi * st / steps))
+            if st < ks:
+                return 0.0 if kind in ("enc", "lora") else b * cfg["kd_lr_mult"]
+            return b
+        return f
+
+    if graft is not None:
+        kinds = (["gate", "enc"] if cfg["logit"] else ["dec", "gate", "enc"]) + (["lora"] if lora_params is not None else [])
+    else:
+        kinds = ["all"]
+    sched = torch.optim.lr_scheduler.LambdaLR(opt, [lam(k) for k in kinds])
 
     mc_rng = random.Random(seed + 31)
     order = list(range(len(data["train"])))
@@ -465,38 +508,52 @@ def train_cell(name, arm, seed, over, smoke=False):
     for step in range(steps):
         opt.zero_grad(set_to_none=True)
         info = {"step": step}
-        # answer letters with hard and soft targets
-        idx = next_idx(cfg["mc_batch"])
-        tok.padding_side = "left"
-        enc = tok([data["train"][i][0] for i in idx], return_tensors="pt", padding=True).to(device)
-        gold = torch.tensor([data["train"][i][1] for i in idx], device=device)
-        with autocast(device):
-            out = base(input_ids=enc["input_ids"], attention_mask=enc["attention_mask"], use_cache=False,
-                       logits_to_keep=1).logits
-        letters = out[:, -1, :].float()[:, ids4]
-        ce = F.cross_entropy(letters, gold)
-        kl = wi.soft_letter_loss(letters, soft_train[idx].to(device))
-        loss_mc = ce + cfg["w_soft"] * kl
-        loss_mc.backward()
-        tokens["mc"] += int(enc["attention_mask"].sum())
-        info.update(ce=float(ce), soft=float(kl), acc=float((letters.argmax(-1) == gold).float().mean()))
-        if graft is not None:
-            g = pgraft.mean_gate([graft])
-            if g is not None:
-                info["gate"] = float(g.detach())
-        # full-logit distillation on text
-        texts = next(kd_feed)
-        tenc = pgraft._tok_batch(tok, texts, cfg["seq_len"], device)
-        with torch.no_grad():
+        mu = cfg["micro"]
+        idx_all = next_idx(cfg["mc_batch"])
+        ce_sum = kl_sum = acc_sum = 0.0
+        in_kd = step < ks
+        for part_idx in ([] if in_kd else [idx_all[j::mu] for j in range(mu)]):
+            w = len(part_idx) / len(idx_all)
+            tok.padding_side = "left"
+            enc = tok([data["train"][i][0] for i in part_idx], return_tensors="pt", padding=True).to(device)
+            gold = torch.tensor([data["train"][i][1] for i in part_idx], device=device)
             with autocast(device):
-                tl = donor(input_ids=tenc["input_ids"], attention_mask=tenc["attention_mask"], use_cache=False).logits
-        with autocast(device):
-            sl_text = base(input_ids=tenc["input_ids"], attention_mask=tenc["attention_mask"], use_cache=False).logits
-        kd = wi.kd_logits_loss(sl_text[:, :-1, :VOCAB], tl[:, :-1, :VOCAB], tenc["attention_mask"][:, 1:])
-        (cfg["w_text"] * kd).backward()
-        del tl, sl_text
-        tokens["text"] += int(tenc["attention_mask"].sum())
-        info["kd"] = float(kd)
+                out = base(input_ids=enc["input_ids"], attention_mask=enc["attention_mask"], use_cache=False,
+                           logits_to_keep=1).logits
+            letters = out[:, -1, :].float()[:, ids4]
+            ce = F.cross_entropy(letters, gold)
+            kl = wi.soft_letter_loss(letters, soft_train[part_idx].to(device))
+            (w * (ce + cfg["w_soft"] * kl)).backward()
+            tokens["mc"] += int(enc["attention_mask"].sum())
+            ce_sum += w * float(ce)
+            kl_sum += w * float(kl)
+            acc_sum += w * float((letters.argmax(-1) == gold).float().mean())
+            if graft is not None and "gate" not in info:
+                g = pgraft.mean_gate([graft])
+                if g is not None:
+                    info["gate"] = float(g.detach())
+        ce, kl = ce_sum, kl_sum
+        info.update(ce=ce_sum, soft=kl_sum, acc=acc_sum)
+        # full-logit distillation on text
+        texts_all = next(kd_feed)
+        kd_sum = 0.0
+        for texts in [texts_all[j::mu] for j in range(mu)]:
+            w = len(texts) / len(texts_all)
+            tenc = pgraft._tok_batch(tok, texts, cfg["seq_len"], device)
+            with torch.no_grad():
+                with autocast(device):
+                    tl = donor(input_ids=tenc["input_ids"], attention_mask=tenc["attention_mask"],
+                               use_cache=False).logits
+            with autocast(device):
+                sl_text = base(input_ids=tenc["input_ids"], attention_mask=tenc["attention_mask"],
+                               use_cache=False).logits
+            kd = wi.kd_logits_loss(sl_text[:, :-1, :VOCAB], tl[:, :-1, :VOCAB], tenc["attention_mask"][:, 1:])
+            (w * cfg["w_text"] * kd).backward()
+            del tl, sl_text
+            tokens["text"] += int(tenc["attention_mask"].sum())
+            kd_sum += w * float(kd)
+        kd = kd_sum
+        info["kd"] = kd_sum
         if arm == "graft" and step % 2 == 0:
             aloss, _ = pgraft.functional_loss(base, tok, donor, tok, graft, next(align_feed), acfg)
             if aloss is not None:
@@ -534,6 +591,26 @@ def train_cell(name, arm, seed, over, smoke=False):
         row["alignment_end"] = pgraft.alignment_report(base, tok, donor, tok, graft, data["texts"]["align_eval"], acfg)
         print("ALIGN_END", name, row["alignment_end"], flush=True)
 
+    def kd_heldout(texts):
+        tot = 0.0
+        n = 0
+        with torch.no_grad():
+            for st in range(0, len(texts), 4):
+                tenc = pgraft._tok_batch(tok, texts[st:st + 4], cfg["seq_len"], device)
+                with autocast(device):
+                    tl = donor(input_ids=tenc["input_ids"], attention_mask=tenc["attention_mask"], use_cache=False).logits
+                    sl_ = base(input_ids=tenc["input_ids"], attention_mask=tenc["attention_mask"], use_cache=False).logits
+                tot += float(wi.kd_logits_loss(sl_[:, :-1, :VOCAB], tl[:, :-1, :VOCAB], tenc["attention_mask"][:, 1:]))
+                n += 1
+        return tot / max(1, n)
+
+    row["kd_heldout"] = kd_heldout(data["texts"]["align_eval"])
+    print(f"SCORE {name} kd_heldout={row['kd_heldout']}", flush=True)
+    if graft is not None:
+        with pgraft.grafts_off(base):
+            row["kd_heldout_graft_off"] = kd_heldout(data["texts"]["align_eval"])
+        print(f"SCORE {name} kd_heldout_graft_off={row['kd_heldout_graft_off']}", flush=True)
+
     def extra(r, put, held, ids_):
         if graft is not None:
             from modal_round6 import score_mmlu
@@ -545,7 +622,9 @@ def train_cell(name, arm, seed, over, smoke=False):
     total, run = skills_eval.model_params(base)
     if graft is not None:
         slice_params = pgraft.count(graft.part.parameters()) if arm != "identity" else 0
-        glue = pgraft.count(pgraft.trainable([graft]))
+        if cfg["logit"]:
+            slice_params += pgraft.count(graft._tail[0].parameters()) + pgraft.count(graft._tail[1].parameters())
+        glue = pgraft.count(pgraft.trainable([graft], dec=not cfg["logit"]))
         total += slice_params + glue
         run += slice_params + glue
         row["slice_params"] = slice_params

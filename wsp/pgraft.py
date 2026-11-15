@@ -168,6 +168,8 @@ class ParallelGraft(Graft):
         self.control = control
         self.token_gate = TokenGate(d_host, gate_bias)
         self.register_buffer("in_scale", torch.ones((), dtype=torch.float32))
+        # Scales Dec's output to the host residual's size at the write point (calibrate_out_scale); 1 keeps old behaviour.
+        self.register_buffer("out_scale", torch.ones((), dtype=torch.float32))
         self.forced_off = False
         self.last_gate = None
         self.last_real = None
@@ -237,7 +239,7 @@ class ParallelGraft(Graft):
             return None
         x = self.donor_input(h)
         y = self.contribution(x) * self.in_scale
-        update = self.dec(y)
+        update = self.dec(y) * self.out_scale
         real = self.real_mask(h)
         gate = self.token_gate(h, real)
         self.last_gate = gate
@@ -290,6 +292,58 @@ def attach_split(base, graft):
     return handles
 
 
+class LogitGraft(ParallelGraft):
+    """A donor tail stitched in beside the base: base layer j -> Enc -> donor layers k..last -> donor norm and head.
+
+    The donor's final norm and lm_head turn the slice's output into donor
+    logits. The base head's logits and these are mixed per token,
+    l = l_base + gate * (l_donor - l_base), so the donor's own readout is the
+    decoder. With the gate at zero the network is exactly the base. Under
+    control="identity" the slice is skipped and Enc's output goes to the
+    donor head directly. The tail holds no Dec; only Enc and the gate train.
+    """
+
+    def __init__(self, *args, norm=None, head=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._tail = [norm, head]
+        self.pending = None
+
+    def forward(self, h):
+        if self.forced_off:
+            self.pending = None
+            return h
+        x = self.donor_input(h)
+        state = x if self.control == "identity" else x + self.contribution(x)
+        real = self.real_mask(h)
+        gate = self.token_gate(h, real)
+        self.last_gate = gate
+        self.last_real = real
+        self.pending = (state, gate.masked_fill(self.first_position(h), 0.0))
+        return h
+
+
+def attach_logit(base, graft):
+    """Attach a LogitGraft: the read hook comes from attach, the mix hook sits on the base lm_head."""
+    handles = attach(base, [graft])
+
+    def mix(module, inputs, output, graft=graft):
+        pending = graft.pending
+        graft.pending = None
+        if pending is None:
+            return output
+        state, gate = pending
+        norm, head = graft._tail
+        count = output.shape[1]
+        with autocast(device_of(base)):
+            donor_logits = head(norm(state[:, -count:].to(norm.weight.dtype)))
+        donor_logits = donor_logits[..., :output.shape[-1]].float()
+        host = output.float()
+        return (host + gate[:, -count:] * (donor_logits - host)).to(output.dtype)
+
+    handles.append(base.get_output_embeddings().register_forward_hook(mix))
+    return handles
+
+
 def grafts_of(model):
     return [g for g in getattr(model, "wsp_grafts", []) if isinstance(g, ParallelGraft)]
 
@@ -323,7 +377,7 @@ def num_layers(model):
 
 
 def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_rank=64, dec_depth=1,
-          gate_bias=0.0, out_rms=1.0, d_donor=None, write_layer=None):
+          gate_bias=0.0, out_rms=1.0, d_donor=None, write_layer=None, logit=False, tail=None):
     """Make one ParallelGraft that runs donor layers first..last, and attach it after base layer host_layer.
 
     The block is the donor's own decoder layer code, built from the loaded
@@ -343,7 +397,10 @@ def build(base, donor, host_layer, first, last, control=None, enc_depth=1, dec_r
         part = nn.Identity()
     enc = Enc(d_host, d_donor, depth=enc_depth, out_rms=out_rms)
     dec = Dec(d_donor, d_host, rank=dec_rank, depth=dec_depth)
-    if write_layer is None or write_layer == host_layer:
+    if logit:
+        norm, head = tail if tail is not None else (donor.model.norm, donor.get_output_embeddings())
+        graft = LogitGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias, norm=norm, head=head)
+    elif write_layer is None or write_layer == host_layer:
         graft = ParallelGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias)
     else:
         graft = SplitGraft(d_host, d_donor, part, enc, dec, control=control, gate_bias=gate_bias,
@@ -582,6 +639,30 @@ def calibrate_scale(base, tok, graft, texts, cfg=None, batch=4):
             graft.pad_mask = None
     value = total / max(1, n)
     graft.in_scale.fill_(1.0 / max(value, 1e-6))
+    return value
+
+
+def calibrate_out_scale(base, tok, graft, texts, layer, frac=1.0, cfg=None, batch=4):
+    """Set graft.out_scale to frac times the median per-token RMS of the base residual after `layer`.
+
+    Dec's output starts near unit scale. A late base layer can hold a residual
+    stream many times larger, so Dec would need very large weights; this puts
+    its output on the host's scale. The first position (the host's sink) is left out.
+    """
+    cfg = dict(DEFAULTS, **(cfg or {}))
+    values = []
+    graft.out_scale.fill_(1.0)
+    with torch.no_grad():
+        for start in range(0, min(len(texts), 64), batch):
+            ids, mask, _, _ = encode(tok, texts[start:start + batch], cfg["seq_len"])
+            ids = ids.to(device_of(base))
+            mask = mask.to(device_of(base))
+            h = _host_state(base, ids, mask, layer)
+            keep = mask.bool().clone()
+            keep[:, 0] = False
+            values.append(h.float().pow(2).mean(-1).sqrt()[keep].cpu())
+    value = float(torch.cat(values).median())
+    graft.out_scale.fill_(frac * value)
     return value
 
 

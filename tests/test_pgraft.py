@@ -320,3 +320,69 @@ def test_split_graft_generate_with_cache_matches_no_cache():
         seq = torch.cat([seq, nxt], dim=1)
         m = torch.cat([m, torch.ones_like(nxt)], dim=1)
     assert torch.equal(cached, seq)
+
+
+def test_out_scale_calibration_scales_the_update():
+    base, tok, graft = split_setup(3)
+    pgraft.attach_split(base, graft)
+    value = pgraft.calibrate_out_scale(base, tok, graft, TEXTS, 3, frac=0.5)
+    assert value > 0 and abs(float(graft.out_scale) - 0.5 * value) < 1e-5
+    torch.nn.init.normal_(graft.dec.up.weight, std=0.05)
+    ids, mask, _, _ = encode(tok, TEXTS[:3], 32)
+    with torch.no_grad():
+        a = base(input_ids=ids, attention_mask=mask).logits
+        graft.out_scale.fill_(0.0)
+        b = base(input_ids=ids, attention_mask=mask).logits
+    plain = tiny_host()
+    with torch.no_grad():
+        c = plain(input_ids=ids, attention_mask=mask).logits
+    assert torch.allclose(b, c, atol=1e-6) and not torch.allclose(a, c, atol=1e-4)
+
+
+def logit_setup(control=None, dtype=torch.float32):
+    base = tiny_host().to(dtype)
+    for p in base.parameters():
+        p.requires_grad_(False)
+    donor = tiny_donor().to(dtype)
+    tok = tiny_tokenizer()
+    graft = pgraft.build(base, donor, host_layer=1, first=2, last=5, control=control, enc_depth=2, logit=True)
+    pgraft.attach_logit(base, graft)
+    if control != "identity":
+        pgraft.set_sink(graft, donor, tok, 2, TEXTS)
+    return base, donor, tok, graft
+
+
+def test_logit_graft_mixes_and_off_restores_base():
+    base, donor, tok, graft = logit_setup()
+    assert isinstance(graft, pgraft.LogitGraft)
+    plain = tiny_host()
+    on = logits(base, tok, TEXTS[:4])
+    assert not torch.allclose(on, logits(plain, tok, TEXTS[:4]), atol=1e-4)
+    with pgraft.grafts_off(base):
+        off = logits(base, tok, TEXTS[:4])
+    assert torch.allclose(off, logits(plain, tok, TEXTS[:4]), atol=1e-6)
+    graft.token_gate.bias.data.fill_(-30.0)
+    assert torch.allclose(logits(base, tok, TEXTS[:4]), logits(plain, tok, TEXTS[:4]), atol=1e-4)
+
+
+def test_logit_graft_trains_enc_and_gate_in_bf16_and_identity_control_runs():
+    base, donor, tok, graft = logit_setup(dtype=torch.bfloat16)
+    ids, mask, _, _ = encode(tok, TEXTS[:4], 32)
+    loss = base(input_ids=ids, attention_mask=mask).logits.float().logsumexp(-1).mean()
+    loss.backward()
+    assert graft.enc.proj.weight.grad is not None and graft.token_gate.weight.grad is not None
+    assert graft.dec.up.weight.grad is None
+    base2, _, tok2, ident = logit_setup(control="identity")
+    assert torch.isfinite(logits(base2, tok2, TEXTS[:2])).all()
+
+
+def test_logit_graft_generate_with_cache_matches_no_cache():
+    base, donor, tok, graft = logit_setup()
+    ids, mask, _, _ = encode(tok, TEXTS[:2], 12)
+    cached = base.generate(input_ids=ids, attention_mask=mask, max_new_tokens=4, do_sample=False)
+    seq, m = ids, mask
+    for _ in range(4):
+        nxt = base(input_ids=seq, attention_mask=m, use_cache=False).logits[:, -1].argmax(-1, keepdim=True)
+        seq = torch.cat([seq, nxt], dim=1)
+        m = torch.cat([m, torch.ones_like(nxt)], dim=1)
+    assert torch.equal(cached, seq)
