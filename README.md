@@ -257,7 +257,7 @@ Every GPU step runs on Modal: mining, compiling, healing, scoring and serving.
 
 ## Track 1: autoresearch
 
-Track 1 allows a new domain for the research loop. Ours is model construction: can a small model plus parts of bigger models beat the best way to train that small model on the same data?
+Track 1 allows a new domain for the research loop. Ours is model construction: can parts borrowed from a bigger model beat fine-tuning a small one?
 
 **The record.** For a fixed host and fixed training data, the strongest standard method is full fine-tuning. In a matched comparison on Llama-3.2-1B (same data, steps and selection for every arm, 2 to 3 seeds), full fine-tuning reaches 51.1 on MMLU held-out and a Qwen2.5-7B graft reaches 59.6, 8.5 points past it. The same graft with scrambled donor weights scores 50.3, so the gain comes from the donor's knowledge. The best single configuration, a Qwen2.5-14B slice, averages 59.8 over three runs (58.9, 61.0, 59.6; one of them used 1,200 alignment steps), picked on MMLU dev and confirmed on held-out. A harder bar, the best plain model at the same compute per token (Qwen2.5-3B, 66.0), is not beaten yet.
 
