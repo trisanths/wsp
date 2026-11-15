@@ -22,7 +22,7 @@ PRICE_OUT = 50.0 / 1e6
 WORKER_PRICE_IN = 0.75 / 1e6   # rough; only used for the short end-of-run lesson summary
 WORKER_PRICE_OUT = 4.5 / 1e6
 # price of the FIRST-choice GPU of each engine tier (fallback GPUs may cost more)
-GPU_PRICE_PER_HOUR = {"EngineL4": 0.80, "EngineL40S": 1.95, "EngineH100": 3.95, "EngineH200": 4.54}
+GPU_PRICE_PER_HOUR = {"EngineL4": 0.80, "EngineL40S": 1.95, "EngineH100": 3.95, "EngineH200": 4.54, "EngineH200x8": 8 * 4.54}
 
 MAX_PYTHON_RUNS = 60
 CONTEXT_RESTART_TOKENS = 60000   # when one turn's input passes this, summarise and restart the conversation

@@ -57,13 +57,17 @@ def pick_gpu(params_b):
     # bf16 weights take ~2 GB per billion params, plus room for activations / attribution.
     # Returns the engine class for that tier; each class has Modal GPU fallbacks (see engine_app.py):
     #   EngineL4: L4 | EngineL40S: L40S, then A100-40GB | EngineH100: H100, then H200 | EngineH200: H200, then B200
+    #   EngineH200x8: 8 x H200, then 8 x B200 (above 80B params)
     if params_b <= 3:
         return "EngineL4"
     if params_b <= 16:
         return "EngineL40S"
     if params_b <= 34:
         return "EngineH100"
-    return "EngineH200"
+    if params_b <= 80:
+        return "EngineH200"
+    # frontier models: 8 x H200 (or B200), layers spread over the GPUs
+    return "EngineH200x8"
 
 
 def scan_token_budget(params_b):

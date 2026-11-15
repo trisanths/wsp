@@ -20,6 +20,9 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 APP_NAME = "swarmy-mine"
 VOLUME_NAME = "swarmy-models"
 CUSTOM_CODE = ["k2horizon7b", "k2mova36b", "g9v3_39a5b"]
+# FP8 checkpoints to dequantize to bf16 at load time. Backward passes (attribution scans) need bf16
+# weights; only list a model here when its bf16 size fits the GPUs of its tier.
+DEQUANTIZE = ["glm5.3_flash"]
 SEED = 0
 
 app = modal.App(APP_NAME)
@@ -67,10 +70,22 @@ class EngineBase:
         self.config = AutoConfig.from_pretrained(self.hf_id, **kw)
         model = None
         errors = []
+        load_kw = {"device_map": "cuda"}
+        n_gpu = torch.cuda.device_count()
+        if n_gpu > 1:
+            # Multi-GPU tiers: spread the layers over all GPUs and leave room on each for activations.
+            # Inputs go to cuda:0; the scoring code moves logits back to the input device.
+            per_gpu = int(torch.cuda.get_device_properties(0).total_memory * 0.85 / 2**30)
+            load_kw = {"device_map": "auto", "max_memory": {i: str(per_gpu) + "GiB" for i in range(n_gpu)}}
+        if self.model_key in DEQUANTIZE:
+            from transformers import FineGrainedFP8Config
+            load_kw["quantization_config"] = FineGrainedFP8Config(dequantize=True)
+        print("loading on", n_gpu, "GPU(s):", {k: v for k, v in load_kw.items() if k != "quantization_config"},
+              "dequantize" if self.model_key in DEQUANTIZE else "")
         for cls_name in ["AutoModelForCausalLM", "AutoModelForImageTextToText"]:
             try:
                 cls = getattr(transformers, cls_name)
-                model = cls.from_pretrained(self.hf_id, dtype=torch.bfloat16, device_map="cuda", **kw)
+                model = cls.from_pretrained(self.hf_id, dtype=torch.bfloat16, **load_kw, **kw)
                 break
             except ValueError as e:
                 errors.append(cls_name + ": " + str(e)[:300])
@@ -195,7 +210,7 @@ class EngineBase:
         with torch.no_grad():
             for batch in self._batches(rows, 1.0e9):
                 ids, mask = self._pad(rows, batch)
-                logits = self.model(input_ids=ids, attention_mask=mask, use_cache=False).logits
+                logits = self.model(input_ids=ids, attention_mask=mask, use_cache=False).logits.to(ids.device)
                 pj, pp, tgt = self._targets(rows, batch, ids)
                 if len(tgt) == 0:
                     continue
@@ -478,7 +493,7 @@ class EngineBase:
                     for l in layer_list:
                         handles.append(self._probe_hook(kind, l, probes))
                     with torch.enable_grad():
-                        logits = self.model(input_ids=ids, attention_mask=mask, use_cache=False).logits
+                        logits = self.model(input_ids=ids, attention_mask=mask, use_cache=False).logits.to(ids.device)
                         pj, pp, tgt = self._targets(rows, batch, ids)
                         if len(tgt) == 0:
                             continue
@@ -646,3 +661,13 @@ class EngineH200(EngineBase):
     hf_id: str = modal.parameter()
     revision: str = modal.parameter()
 
+
+COMMON_MULTI = dict(COMMON, timeout=3 * 3600)
+
+
+@app.cls(gpu=["H200:8", "B200:8"], **COMMON_MULTI)
+class EngineH200x8(EngineBase):
+    # Frontier models (about 80B to 1T params): 8 GPUs, layers spread with device_map="auto".
+    model_key: str = modal.parameter()
+    hf_id: str = modal.parameter()
+    revision: str = modal.parameter()
