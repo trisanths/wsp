@@ -53,15 +53,21 @@ def memory(who, topic):
 
 
 def send(mem, rows):
-    sent = 0
+    # record() flushes by itself every few points, so count through a wrapper.
+    counts = {"sent": 0}
+    flush = mem.flush
+
+    def counting_flush():
+        out = flush()
+        counts["sent"] += out.get("sent", 0)
+        return out
+
+    mem.flush = counting_flush
     for row in rows:
         mem.record(row.get("kind", "note"), row["text"], {"topic": row.get("topic", "")})
-    while len(mem.buffer) > 0:
-        out = mem.flush()
-        sent += out.get("sent", 0)
-        if out.get("sent", 0) == 0:
-            break
-    return sent
+    if len(mem.buffer) > 0:
+        mem.flush()
+    return counts["sent"]
 
 
 def main():
