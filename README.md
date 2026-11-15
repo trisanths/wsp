@@ -1,6 +1,63 @@
-# wsp: weight-space programming
+# Sapien (wsp): weight-space programming
 
-Write a model as a program over components, then compile it into one model.
+Sapien is a language for writing a model as a program over components mined
+from existing open models, and a compiler that builds one network from it.
+A request names a base (often small), the skills wanted, and limits (total
+parameters, parameters run per token, heal time). Components are layer
+blocks, attention heads, neuron clusters, MoE experts, and MLPs. The only
+training is the stitches at the seams and a short heal (LoRA or
+distillation). Running a source model at inference, output ensembles, and
+hand-written weights are not Sapien.
+
+```bash
+sapien check prog.sap               # parse, validate, estimate size against the budget
+sapien compile prog.sap -o out      # one model directory; wsp.load(out) returns (model, tokenizer)
+sapien compile prog.sap -o ctl --control random   # random components of the same size
+sapien score out --skills gsm8k,mmlu
+```
+
+Start with [docs/quickstart.md](docs/quickstart.md) (three requests as
+programs) and [docs/language.md](docs/language.md) (every statement).
+
+## Status
+
+Built and tested on CPU with tiny models: the text syntax and the Python
+`Program` class (graft, gate, experts, insert, lora, heal with distillation,
+budget, random control on every component), one compile path and one
+directory format for all of them, the `sapien` command, and the size
+estimate in `sapien check`.
+
+Shown by the logs ([results/README.md](results/README.md)):
+
+- The mechanics work inside one tokenizer family. A trained stitch on the
+  donor's own LM loss lets a donor block compute what it computes in its own
+  model (a penalty of +0.008 and -0.02 nats; run 14, Qwen donors in a Qwen
+  base). Across tokenizers the stitch closes only a third to a half of the
+  gap (stitch study, Llama-3.2-1B host).
+- Taps, which are not Sapien, beat fine-tuning on knowledge: a Qwen2.5-7B tap
+  moved Llama-3.2-1B from 47.5 to 67.9 on MMLU against 50.3 for a LoRA
+  (run 6). They add nothing to a strong host (run 9).
+
+Not proven:
+
+- No Sapien program has beaten its controls yet. Donor blocks did not beat a
+  random block or a rank-1 LoRA (run 3). A block written into a 0.5B base
+  gained as much from a random block (run 14b). A skill MoE with specialist
+  MLPs did not clearly beat the base or the base plus LoRA on GSM8K, MBPP,
+  MMLU, or MedMCQA (differences were within the seed spread, up to about 1
+  point on MedMCQA), and its router stayed on the base MLP (run 16b). Carving a model to half its depth
+  collapses it, and a short heal recovers little (run 15).
+- Distillation heals (run 14c), gated fusion (run 16), and inserted blocks
+  against controls (run 17) were running when this file was written and are
+  not in the log.
+- The new unified compile paths (experts, inserts, gates, distill, budget)
+  have only run on tiny random models on CPU. No large-model run has used
+  them through `sapien compile`.
+- The budget's `heal_minutes` stops the heal at the limit, so two arms under
+  one limit can run different numbers of steps. The report gives `steps_run`;
+  compare arms by it. The size estimate
+  of `sapien check` is from configs and is exact only for the cases the tests
+  cover (dense hosts, plain or linear-stitched experts, inserts).
 
 This repo holds the language and compiler (part 2) and the eval harness and extraction tools (part 1b, [wsp_eval/README.md](wsp_eval/README.md)). The team split and each
 person's agent brief are in [briefs/](briefs/). Checked facts about Deletion
@@ -67,8 +124,7 @@ Tuning are in [VERIFY.md](VERIFY.md).
 - `wsp.load(path)` returns `(model, tokenizer)` for any compiled directory.
 - Stub extractors: `top_activation_neurons` and `top_routed_experts`.
 
-Not built yet: the text syntax, vLLM serving for grafted models, and a
-deletion budget rule.
+Not built yet: vLLM serving for grafted models, and a deletion budget rule.
 
 ## Example
 

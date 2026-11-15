@@ -263,7 +263,7 @@ def load(path, device="cpu", dtype=torch.bfloat16):
     import wsp
     from wsp.gate import load_gates
 
-    model, tokenizer = wsp.load(path, device=device, dtype=dtype)
+    model, tokenizer = wsp.load(path, device=device, dtype=dtype, gates=False)
     load_gates(model, path)
     model.eval()
     return model, tokenizer

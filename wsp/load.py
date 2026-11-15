@@ -1,5 +1,18 @@
 """Load a compiled model: wsp.load(path) -> (model, tokenizer).
 
+wsp.load reads every kind of compiled directory. It looks at the files:
+
+  insert.json          inserted donor layers (wsp.insert.load_inserted)
+  manifest.json        routed experts, a skill MoE (wsp.skill_moe.load_skill_moe)
+  grafts.json, taps.json, or neither
+                       the layout below. Grafts with gate on in program.json
+                       also get their token gates (gates.json), unless
+                       gates=False.
+
+Directories from wsp.fuse.compile_fusion have gates.json too, but their
+program has no gate flag, so wsp.load leaves the gates off as before and
+wsp.fuse.load adds them.
+
 A compiled directory holds program.json and a tokenizer. A program with
 grafts or taps also holds grafts.json (an empty list for a tap program
 without grafts) and graft_weights.safetensors when it has grafts, plus
@@ -22,12 +35,34 @@ import os
 import torch
 
 
-def load(path, device="cpu", dtype=torch.bfloat16, donor_dtype=torch.bfloat16):
+def load(path, device="cpu", dtype=torch.bfloat16, donor_dtype=torch.bfloat16, gates=True):
+    """Return (model, tokenizer) for any compiled directory.
+
+    The experts and inserts layouts fetch their donor tensors by donor id
+    (a Hugging Face repo or a local folder) with byte-range reads.
+    gates=False skips the token gates of gated grafts.
+    """
     import transformers
     from safetensors.torch import load_file
 
     from wsp.assemble import rebuild_graft
     from wsp.graft import attach_grafts
+
+    if os.path.exists(os.path.join(path, "insert.json")):
+        from wsp.insert import load_inserted
+
+        return load_inserted(path, device=device, dtype=dtype)
+    manifest_path = os.path.join(path, "manifest.json")
+    if os.path.exists(manifest_path):
+        with open(manifest_path) as f:
+            manifest = json.load(f)
+        if manifest.get("format") == "skill_moe/1":
+            from wsp.skill_moe import load_skill_moe
+
+            model, tokenizer = load_skill_moe(path, device=device, dtype=dtype)
+            if tokenizer is None:
+                tokenizer = transformers.AutoTokenizer.from_pretrained(path)
+            return model, tokenizer
 
     tokenizer = transformers.AutoTokenizer.from_pretrained(path)
     grafts_path = os.path.join(path, "grafts.json")
@@ -67,9 +102,22 @@ def load(path, device="cpu", dtype=torch.bfloat16, donor_dtype=torch.bfloat16):
         model.wsp_grafts.load_state_dict(state, strict=True)
 
     model = model.to(device).eval()
+    if gates and has_gated_grafts(program):
+        from wsp.gate import load_gates
+
+        load_gates(model, path)
+        model.eval()
     if os.path.exists(taps_path):
         load_tapped(model, tokenizer, path, device, donor_dtype)
     return model, tokenizer
+
+
+def has_gated_grafts(program):
+    """True when the program dict (program.json) has a graft with gate on."""
+    for graft in program.get("grafts", []):
+        if graft.get("gate", False):
+            return True
+    return False
 
 
 def load_tapped(model, tokenizer, path, device, donor_dtype):

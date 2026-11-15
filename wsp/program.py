@@ -150,6 +150,20 @@ class TaskVector:
         return {"id": self.component_id, "weight": self.weight, "layers": self.layers, "modules": self.modules}
 
 
+CONTROLS = (None, "random")
+
+
+def check_control(control):
+    """A control is None (the real components) or "random" (random same-size components of the same donor)."""
+    if control not in CONTROLS:
+        raise ValueError(f"unknown control: {control!r}; the controls are none and random")
+
+
+def check_number(value, what):
+    if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value):
+        raise ValueError(f"{what} is a number, got {value!r}")
+
+
 class GraftSpec:
     """Graft a catalog part into the host.
 
@@ -182,12 +196,21 @@ class GraftSpec:
         scalar that starts at 1.
     part_lora_rank: None, or r for a rank-r LoRA on the linears inside the
         donor part (the receiver), trained by heal with the glue.
+    gate: True puts a token gate on the graft (wsp.gate): the graft's change
+        to the host state is multiplied by sigmoid(w . rms(h) + bias) per
+        token, so several grafts can share one host (fusion). The gate
+        trains in the heal.
+    gate_bias: the gate's start bias (default 0, a gate of 0.5).
+    gate_lr: the gate's learning rate in the heal (default 1e-2).
     """
 
     def __init__(self, component_id, at=None, control=None, control_seed=0, glue_rank=None, stitch=None,
-                 sink=True, rms_match=False, part_lora_rank=None):
-        if control not in (None, "random"):
-            raise ValueError(f"unknown control: {control!r}")
+                 sink=True, rms_match=False, part_lora_rank=None, gate=False, gate_bias=0.0, gate_lr=1e-2):
+        check_control(control)
+        if gate not in (True, False):
+            raise ValueError(f"gate is True or False, got {gate!r}")
+        check_number(gate_bias, "gate_bias")
+        check_lr(gate_lr, "gate_lr")
         if sink not in (True, False):
             raise ValueError(f"sink is True or False, got {sink!r}")
         if rms_match not in (True, False):
@@ -207,6 +230,9 @@ class GraftSpec:
         self.sink = bool(sink)
         self.rms_match = bool(rms_match)
         self.part_lora_rank = part_lora_rank
+        self.gate = bool(gate)
+        self.gate_bias = gate_bias
+        self.gate_lr = gate_lr
 
     def to_dict(self):
         data = {"id": self.component_id, "at": self.at, "control": self.control,
@@ -221,13 +247,20 @@ class GraftSpec:
             data["rms_match"] = True
         if self.part_lora_rank is not None:
             data["part_lora_rank"] = self.part_lora_rank
+        if self.gate:
+            data["gate"] = True
+            if self.gate_bias != 0.0:
+                data["gate_bias"] = self.gate_bias
+            if self.gate_lr != 1e-2:
+                data["gate_lr"] = self.gate_lr
         return data
 
     @classmethod
     def from_dict(cls, data):
         return cls(data["id"], data.get("at"), data.get("control"), data.get("control_seed", 0),
                    data.get("glue_rank"), data.get("stitch"), data.get("sink", True), data.get("rms_match", False),
-                   data.get("part_lora_rank"))
+                   data.get("part_lora_rank"), data.get("gate", False), data.get("gate_bias", 0.0),
+                   data.get("gate_lr", 1e-2))
 
 
 STITCH_KINDS = ("linear", "lowrank", "mlp", "multi")
@@ -245,18 +278,49 @@ def check_stitch(stitch):
 
 
 class HealSpec:
-    """Train only the graft glue on task data after assembly."""
+    """Train only the new parts (glue, routers, stitches, gates, LoRA) on task data after assembly.
 
-    def __init__(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384):
+    distill: None, or a teacher model id. The heal then minimizes
+        kd_weight * KL(teacher || student) + the LM loss. The teacher must
+        have the student's tokenizer; the compile stops with an error
+        otherwise. The teacher runs only during the heal, not in the
+        compiled model.
+    kd_weight: the weight of the KL term (default 1.0). Needs distill.
+    temperature: the softmax temperature of the KL term (default 1.0).
+        Needs distill.
+    """
+
+    def __init__(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384, distill=None,
+                 kd_weight=1.0, temperature=1.0):
+        if distill is not None and (not isinstance(distill, str) or distill == ""):
+            raise ValueError(f"distill is None or a teacher model id, got {distill!r}")
+        check_number(kd_weight, "kd_weight")
+        check_number(temperature, "temperature")
+        if kd_weight < 0:
+            raise ValueError(f"kd_weight is a number of 0 or more, got {kd_weight!r}")
+        if temperature <= 0:
+            raise ValueError(f"temperature is a number above 0, got {temperature!r}")
+        if distill is None and (kd_weight != 1.0 or temperature != 1.0):
+            raise ValueError("kd_weight and temperature need distill: name the teacher model")
         self.steps = steps
         self.data = data
         self.lr = lr
         self.batch_size = batch_size
         self.seq_len = seq_len
+        self.distill = distill
+        self.kd_weight = kd_weight
+        self.temperature = temperature
 
     def to_dict(self):
-        return {"steps": self.steps, "data": self.data, "lr": self.lr,
+        data = {"steps": self.steps, "data": self.data, "lr": self.lr,
                 "batch_size": self.batch_size, "seq_len": self.seq_len}
+        # The distill keys are written only when used, so older programs
+        # keep the same JSON and the same hash.
+        if self.distill is not None:
+            data["distill"] = self.distill
+            data["kd_weight"] = self.kd_weight
+            data["temperature"] = self.temperature
+        return data
 
 
 class LoraSpec:
@@ -380,6 +444,215 @@ class TapTrainSpec:
     @classmethod
     def from_dict(cls, data):
         return cls(**data)
+
+
+EXPERT_STITCH_KINDS = ("linear", "lowrank", "mlp")
+ROUTER_INITS = ("base", "uniform")
+INSERT_STITCH_KINDS = ("identity", "linear", "lowrank", "mlp")
+
+
+class ExpertsSpec:
+    """Routed experts from donor models (skill MoE, wsp.skill_moe).
+
+    Every decoder layer of the host gets a router over the host's own MLP
+    and the same layer's MLP of each donor. Only the routers (and the
+    stitches of cross-family donors, and an optional attention LoRA) train.
+
+    donors: a list of model ids (or local folders). A donor of the host's
+        architecture, width, and depth is a plain expert. Any other donor is
+        a stitched expert (see stitch).
+    top_k: experts that run per token, out of the host plus the donors
+        (1 is Switch style, the number of donors plus one is a soft mixture).
+    router_init: "base" starts every token on the host's own MLP (the fresh
+        network equals the host). "uniform" starts as a soft mixture.
+    base_logit: the host's start logit under router_init "base".
+    load_balance: True adds the router balance loss to the heal.
+    balance_weight: the weight of that loss (default 0.01).
+    router_lr: the routers' learning rate in the heal (default 1e-3).
+    stitch: None, or the stitch kind ("linear", "lowrank", "mlp") of stitched
+        experts. None means linear. stitch_rank is the rank of "lowrank".
+        stitch_hidden is the width of "mlp".
+    control: None, or "random". A random control keeps the same donors and
+        the same number of experts but takes each layer's MLP from a random
+        layer of the same donor (seeded by control_seed).
+
+    The host's LoRA statement (lora rank N) puts an attention LoRA on the
+    host in the same heal.
+    """
+
+    def __init__(self, donors, top_k=1, router_init="base", base_logit=16.0, load_balance=False,
+                 balance_weight=0.01, router_lr=1e-3, stitch=None, stitch_rank=None, stitch_hidden=None,
+                 control=None, control_seed=0):
+        if isinstance(donors, str):
+            donors = [donors]
+        if not isinstance(donors, (list, tuple)) or len(donors) == 0:
+            raise ValueError("experts needs a list of donor model ids, with at least one")
+        for donor in donors:
+            if not isinstance(donor, str) or donor == "":
+                raise ValueError(f"an expert donor is a model id, got {donor!r}")
+        check_int(top_k, "top_k", 1)
+        if top_k > len(donors) + 1:
+            raise ValueError(f"top_k {top_k} is more than the {len(donors) + 1} experts (the host and "
+                             f"{len(donors)} donors)")
+        if router_init not in ROUTER_INITS:
+            raise ValueError(f"unknown router_init {router_init!r}; the choices are {', '.join(ROUTER_INITS)}")
+        check_number(base_logit, "base_logit")
+        if load_balance not in (True, False):
+            raise ValueError(f"load_balance is True or False, got {load_balance!r}")
+        check_number(balance_weight, "balance_weight")
+        if balance_weight < 0:
+            raise ValueError(f"balance_weight is a number of 0 or more, got {balance_weight!r}")
+        check_lr(router_lr, "router_lr")
+        if stitch is not None and stitch not in EXPERT_STITCH_KINDS:
+            raise ValueError(f"unknown expert stitch {stitch!r}; the kinds are {', '.join(EXPERT_STITCH_KINDS)}")
+        if stitch_rank is not None:
+            check_int(stitch_rank, "stitch_rank", 1)
+        if stitch_hidden is not None:
+            check_int(stitch_hidden, "stitch_hidden", 1)
+        if stitch == "lowrank" and stitch_rank is None:
+            raise ValueError("a lowrank expert stitch needs stitch_rank")
+        check_control(control)
+        check_int(control_seed, "control_seed", 0)
+        self.donors = list(donors)
+        self.top_k = top_k
+        self.router_init = router_init
+        self.base_logit = base_logit
+        self.load_balance = bool(load_balance)
+        self.balance_weight = balance_weight
+        self.router_lr = router_lr
+        self.stitch = stitch
+        self.stitch_rank = stitch_rank
+        self.stitch_hidden = stitch_hidden
+        self.control = control
+        self.control_seed = control_seed
+
+    def to_dict(self):
+        return {"donors": list(self.donors), "top_k": self.top_k, "router_init": self.router_init,
+                "base_logit": self.base_logit, "load_balance": self.load_balance,
+                "balance_weight": self.balance_weight, "router_lr": self.router_lr, "stitch": self.stitch,
+                "stitch_rank": self.stitch_rank, "stitch_hidden": self.stitch_hidden, "control": self.control,
+                "control_seed": self.control_seed}
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data["donors"], data.get("top_k", 1), data.get("router_init", "base"),
+                   data.get("base_logit", 16.0), data.get("load_balance", False), data.get("balance_weight", 0.01),
+                   data.get("router_lr", 1e-3), data.get("stitch"), data.get("stitch_rank"),
+                   data.get("stitch_hidden"), data.get("control"), data.get("control_seed", 0))
+
+
+class InsertSpec:
+    """Inserted donor decoder layers (wsp.insert): one network, one forward pass.
+
+    The network runs host layers 0..at-1, then the donor layers first..last
+    as a residual branch h + gate * stitch_out(block(stitch_in(h)) - x),
+    then host layers at..end. The gate starts at gate_init (default 0, so a
+    fresh network equals the host) and the heal opens it.
+
+    donor: a model id or local folder of any family.
+    layers: [first, last], inclusive donor layer indices.
+    at: the insertion goes after host layer at - 1 (1 to the host's depth).
+    stitch: None (identity when the widths match, else linear), or
+        "identity", "linear", "lowrank" (needs stitch_rank), or "mlp"
+        (stitch_hidden is its width).
+    part_lora_rank: a LoRA of this rank on the donor layers, trained by heal.
+    control: None, or "random": the same number of layers from a random
+        range of the same donor (seeded by control_seed).
+
+    The host's LoRA statement (lora rank N) puts a LoRA on the host layers
+    in the same heal, so the host can learn to read the inserted layers.
+    """
+
+    def __init__(self, donor, layers, at, stitch=None, stitch_rank=None, stitch_hidden=None,
+                 part_lora_rank=None, gate_init=0.0, control=None, control_seed=0):
+        if not isinstance(donor, str) or donor == "":
+            raise ValueError(f"an insert donor is a model id, got {donor!r}")
+        if isinstance(layers, int) and not isinstance(layers, bool):
+            layers = [layers, layers]
+        if not isinstance(layers, (list, tuple)) or len(layers) != 2:
+            raise ValueError(f"insert layers is [first, last], got {layers!r}")
+        check_int(layers[0], "the first insert layer", 0)
+        check_int(layers[1], "the last insert layer", 0)
+        if layers[1] < layers[0]:
+            raise ValueError(f"insert layers {list(layers)} ends before it starts")
+        check_int(at, "at", 1)
+        if stitch is not None and stitch not in INSERT_STITCH_KINDS:
+            raise ValueError(f"unknown insert stitch {stitch!r}; the kinds are {', '.join(INSERT_STITCH_KINDS)}")
+        if stitch_rank is not None:
+            check_int(stitch_rank, "stitch_rank", 1)
+        if stitch_hidden is not None:
+            check_int(stitch_hidden, "stitch_hidden", 1)
+        if stitch == "lowrank" and stitch_rank is None:
+            raise ValueError("a lowrank insert stitch needs stitch_rank")
+        if part_lora_rank is not None:
+            check_int(part_lora_rank, "part_lora_rank", 1)
+        check_number(gate_init, "gate_init")
+        check_control(control)
+        check_int(control_seed, "control_seed", 0)
+        self.donor = donor
+        self.layers = [int(layers[0]), int(layers[1])]
+        self.at = at
+        self.stitch = stitch
+        self.stitch_rank = stitch_rank
+        self.stitch_hidden = stitch_hidden
+        self.part_lora_rank = part_lora_rank
+        self.gate_init = gate_init
+        self.control = control
+        self.control_seed = control_seed
+
+    def to_dict(self):
+        return {"donor": self.donor, "layers": list(self.layers), "at": self.at, "stitch": self.stitch,
+                "stitch_rank": self.stitch_rank, "stitch_hidden": self.stitch_hidden,
+                "part_lora_rank": self.part_lora_rank, "gate_init": self.gate_init, "control": self.control,
+                "control_seed": self.control_seed}
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data["donor"], data["layers"], data["at"], data.get("stitch"), data.get("stitch_rank"),
+                   data.get("stitch_hidden"), data.get("part_lora_rank"), data.get("gate_init", 0.0),
+                   data.get("control"), data.get("control_seed", 0))
+
+
+class BudgetSpec:
+    """The limits a request sets. The compile checks them and reports the measured numbers.
+
+    max_total_params_b: the most parameters the compiled model may hold, in
+        billions (every distinct parameter, any LoRA that stays unmerged
+        included).
+    max_active_params_b: the most parameters one token runs, in billions.
+        The input embedding table is a lookup and does not count, unless the
+        output head shares it. A routed expert layer counts only its top_k
+        largest experts.
+    max_heal_minutes: the most minutes the heal may take. The heal stops at
+        the limit when its loop supports that. Otherwise the compile writes
+        the model and then raises an error that gives the measured time.
+
+    Give at least one limit. The compile raises CompileError when the built
+    model is over a size limit, before any heal.
+    """
+
+    def __init__(self, max_total_params_b=None, max_active_params_b=None, max_heal_minutes=None):
+        if max_total_params_b is None and max_active_params_b is None and max_heal_minutes is None:
+            raise ValueError("a budget needs max_total_params_b, max_active_params_b, or max_heal_minutes")
+        for name, value in [("max_total_params_b", max_total_params_b),
+                            ("max_active_params_b", max_active_params_b),
+                            ("max_heal_minutes", max_heal_minutes)]:
+            if value is None:
+                continue
+            check_number(value, name)
+            if value <= 0:
+                raise ValueError(f"{name} is a number above 0, got {value!r}")
+        self.max_total_params_b = max_total_params_b
+        self.max_active_params_b = max_active_params_b
+        self.max_heal_minutes = max_heal_minutes
+
+    def to_dict(self):
+        return {"max_total_params_b": self.max_total_params_b, "max_active_params_b": self.max_active_params_b,
+                "max_heal_minutes": self.max_heal_minutes}
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data.get("max_total_params_b"), data.get("max_active_params_b"), data.get("max_heal_minutes"))
 
 
 CARVE_SELECTS = ("influence", "uniform", "domain")
@@ -516,9 +789,14 @@ class SpliceSpec:
 class Program:
     """A model described as a host plus components.
 
-    Compile order: task vectors, then the mask, then the LoRA, then grafts,
-    then taps (trained first), then heal. `base` is an older name for
-    `host` and still works.
+    Compile order: task vectors, then the mask, then the LoRA, then grafts
+    (with their gates), or routed experts, or inserted layers, then taps
+    (trained first), then heal. `base` is an older name for `host` and
+    still works.
+
+    A program holds one kind of added component: grafts (optionally gated),
+    routed experts, inserted layers, or taps. The compile stops with an
+    error for a mix. budget(...) sets the limits the compile checks.
 
     A written program (base_source, carve, or splice) compiles to one plain
     model: splice, then carve (layers, then width), then a LoRA heal that
@@ -526,7 +804,8 @@ class Program:
     """
 
     def __init__(self, host=None, masks=None, task_vectors=None, seed=0, base=None, grafts=None, heal=None,
-                 lora=None, taps=None, tap_train=None, base_source=None, carve=None, splice=None):
+                 lora=None, taps=None, tap_train=None, base_source=None, carve=None, splice=None, experts=None,
+                 inserts=None, budget=None):
         if host is None:
             host = base
         if isinstance(base_source, str):
@@ -573,6 +852,18 @@ class Program:
         if taps is not None:
             self.taps = list(taps)
         self.tap_train_spec = tap_train
+        if isinstance(experts, dict):
+            experts = ExpertsSpec.from_dict(experts)
+        self.experts_spec = experts
+        self.inserts = []
+        if inserts is not None:
+            for item in inserts:
+                if isinstance(item, dict):
+                    item = InsertSpec.from_dict(item)
+                self.inserts.append(item)
+        if isinstance(budget, dict):
+            budget = BudgetSpec.from_dict(budget)
+        self.budget_spec = budget
         self.seed = seed
 
     @property
@@ -585,16 +876,89 @@ class Program:
         return self
 
     def graft(self, component_id, at=None, control=None, control_seed=0, glue_rank=None, stitch=None, sink=True,
-              rms_match=False, part_lora_rank=None):
-        """Add a graft. Returns self so calls can chain."""
+              rms_match=False, part_lora_rank=None, gate=False, gate_bias=0.0, gate_lr=1e-2):
+        """Add a graft (gate=True puts a token gate on it). Returns self so calls can chain."""
         self.grafts.append(GraftSpec(component_id, at, control, control_seed, glue_rank, stitch, sink, rms_match,
-                                     part_lora_rank))
+                                     part_lora_rank, gate, gate_bias, gate_lr))
         return self
 
-    def heal(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384):
-        """Set the heal pass. Returns self so calls can chain."""
-        self.heal_spec = HealSpec(steps, data, lr, batch_size, seq_len)
+    def experts(self, donors, top_k=1, router_init="base", base_logit=16.0, load_balance=False,
+                balance_weight=0.01, router_lr=1e-3, stitch=None, stitch_rank=None, stitch_hidden=None,
+                control=None, control_seed=0):
+        """Add routed experts from donor models (see ExpertsSpec). Returns self so calls can chain."""
+        self.experts_spec = ExpertsSpec(donors, top_k, router_init, base_logit, load_balance, balance_weight,
+                                        router_lr, stitch, stitch_rank, stitch_hidden, control, control_seed)
         return self
+
+    def insert(self, donor, layers, at, stitch=None, stitch_rank=None, stitch_hidden=None, part_lora_rank=None,
+               gate_init=0.0, control=None, control_seed=0):
+        """Insert donor layers [first, last] after host layer at - 1 (see InsertSpec). Returns self."""
+        self.inserts.append(InsertSpec(donor, layers, at, stitch, stitch_rank, stitch_hidden, part_lora_rank,
+                                       gate_init, control, control_seed))
+        return self
+
+    def budget(self, max_total_params_b=None, max_active_params_b=None, max_heal_minutes=None):
+        """Set the limits the compile checks (see BudgetSpec). Returns self so calls can chain."""
+        self.budget_spec = BudgetSpec(max_total_params_b, max_active_params_b, max_heal_minutes)
+        return self
+
+    def heal(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384, distill=None,
+             kd_weight=1.0, temperature=1.0):
+        """Set the heal pass; distill=<teacher id> adds a distillation loss. Returns self so calls can chain."""
+        self.heal_spec = HealSpec(steps, data, lr, batch_size, seq_len, distill, kd_weight, temperature)
+        return self
+
+    def with_control(self, control="random", seed=0):
+        """Return a copy whose grafts, experts, and inserts use the control (default: random).
+
+        Each component gets the control seed seed + its position (grafts
+        first, then the experts, then the inserts), so no two share a random
+        draw. The copy has the same host, LoRA, heal, and budget, so it
+        compiles to the program's own random control. A program with masks
+        or task vectors has no such control, and neither does one with taps
+        or with no graft, experts, or insert: this raises ValueError for them.
+        """
+        check_control(control)
+        if self.masks is not None or len(self.task_vectors) > 0:
+            raise ValueError("masks and task vectors have no random control: they are edits of the host, "
+                             "not components from a donor")
+        if len(self.taps) > 0:
+            raise ValueError("taps have no random control")
+        if len(self.grafts) == 0 and self.experts_spec is None and len(self.inserts) == 0:
+            raise ValueError("this program has no graft, experts, or insert, so it has no random control "
+                             "(the copy would equal the program)")
+        copy = Program.from_dict(self.to_dict())
+        number = 0
+        for graft in copy.grafts:
+            graft.control = control
+            graft.control_seed = seed + number
+            number += 1
+        if copy.experts_spec is not None:
+            copy.experts_spec.control = control
+            copy.experts_spec.control_seed = seed + number
+            number += 1
+        for spec in copy.inserts:
+            spec.control = control
+            spec.control_seed = seed + number
+            number += 1
+        return copy
+
+    def has_taps(self):
+        """True for a program with taps (not Sapien: a tap runs a source model at inference)."""
+        return len(self.taps) > 0
+
+    def needs_catalog(self):
+        """True when the command line needs --catalog for this program.
+
+        A written program, and a program of experts or inserts only, read
+        no catalog. Any other program needs one, as before.
+        """
+        if self.is_written():
+            return False
+        if self.masks is None and len(self.task_vectors) == 0 and len(self.grafts) == 0 and \
+                len(self.taps) == 0 and (self.experts_spec is not None or len(self.inserts) > 0):
+            return False
+        return True
 
     def lora(self, rank=None, budget_params=None, targets=None, alpha=None, layers=None):
         """Add a LoRA on the host. Returns self so calls can chain."""
@@ -679,6 +1043,15 @@ class Program:
             data["splice"] = self.splice_spec.to_dict()
         if self.carve_spec is not None:
             data["carve"] = self.carve_spec.to_dict()
+        # The experts, inserts, and budget keys too.
+        if self.experts_spec is not None:
+            data["experts"] = self.experts_spec.to_dict()
+        if len(self.inserts) > 0:
+            data["inserts"] = []
+            for spec in self.inserts:
+                data["inserts"].append(spec.to_dict())
+        if self.budget_spec is not None:
+            data["budget"] = self.budget_spec.to_dict()
         return data
 
     @classmethod
@@ -715,17 +1088,30 @@ class Program:
             host = data.get("base")
         if host is None and data.get("base_source") is None and splice is None:
             host = data["host"]
+        experts = None
+        if data.get("experts") is not None:
+            experts = ExpertsSpec.from_dict(data["experts"])
+        inserts = []
+        for item in data.get("inserts", []):
+            inserts.append(InsertSpec.from_dict(item))
+        budget = None
+        if data.get("budget") is not None:
+            budget = BudgetSpec.from_dict(data["budget"])
         return cls(host=host, masks=masks, task_vectors=task_vectors, seed=data.get("seed", 0),
                    grafts=grafts, heal=heal, lora=lora, taps=taps, tap_train=tap_train,
-                   base_source=data.get("base_source"), carve=carve, splice=splice)
+                   base_source=data.get("base_source"), carve=carve, splice=splice, experts=experts,
+                   inserts=inserts, budget=budget)
 
     def compile(self, output_dir, catalog, **options):
         """Build the model and save it to output_dir. Return output_dir.
 
         options pass through to wsp.compiler.compile_program
         (align_texts, heal_texts, device, cache_dir, tap_pairs, heal_pairs,
-        calib_texts, domain_texts). A written program needs no catalog, so
-        catalog may be None.
+        calib_texts, domain_texts). A written program, and a program with
+        only experts or inserts, needs no catalog, so catalog may be None.
+        The directory has one format for every kind of program (see
+        wsp.load), and compile_report.json always has params_total,
+        params_active, and heal_seconds.
         """
         from wsp.compiler import compile_program
 
@@ -734,7 +1120,8 @@ class Program:
     def __repr__(self):
         return (f"Program(host={self.host!r}, masks={self.masks!r}, "
                 f"task_vectors={len(self.task_vectors)}, grafts={len(self.grafts)}, "
-                f"lora={self.lora_spec is not None}, taps={len(self.taps)})")
+                f"lora={self.lora_spec is not None}, taps={len(self.taps)}, "
+                f"experts={self.experts_spec is not None}, inserts={len(self.inserts)})")
 
 
 def collect_ids(expr, ids):
