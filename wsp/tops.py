@@ -153,6 +153,24 @@ def lm_token_losses(logits, ids, mask, drop_first):
     return ce, valid
 
 
+def kd_loss_value(student_logits, teacher_logits, mask, drop_first):
+    """Mean KL(teacher || student) per token over the shared vocabulary, on real tokens.
+
+    The last position predicts past the text and is kept; the first real
+    token's prediction is dropped when drop_first is set (the sink row).
+    """
+    rows = min(student_logits.shape[-1], teacher_logits.shape[-1])
+    s = torch.log_softmax(student_logits[..., :rows].float(), dim=-1)
+    t = torch.log_softmax(teacher_logits[..., :rows].float(), dim=-1)
+    kl = (t.exp() * (t - s)).sum(-1)
+    weight = mask.to(kl.device).float()
+    if drop_first:
+        first = first_index(mask).to(kl.device)
+        weight = weight.clone()
+        weight[torch.arange(weight.shape[0], device=kl.device), first] = 0.0
+    return (kl * weight).sum() / weight.sum().clamp(min=1.0)
+
+
 def lm_loss_value(logits, ids, mask, drop_first):
     ce, valid = lm_token_losses(logits, ids, mask, drop_first)
     weight = valid.to(ce.dtype)
@@ -939,7 +957,7 @@ class SkillTops(nn.Module):
 
     def fit_stitch(self, top, texts, steps=800, lr=None, batch_size=8, seq_len=256, seed=0, eval_texts=None,
                    donor_model=None, ridge_texts=None, max_penalty=DEFAULT_MAX_PENALTY, lora_rank=0,
-                   lora_alpha=None, log_every=0, log_name="stitch"):
+                   lora_alpha=None, log_every=0, log_name="stitch", objective="kd", lm_weight=0.0):
         """Ridge init, then train the stitch (and an optional top LoRA) on the donor's own LM loss.
 
         Reports the penalty against the donor run natively on the same eval
@@ -991,6 +1009,8 @@ class SkillTops(nn.Module):
         for param in params:
             param.requires_grad_(True)
         report["lr"] = lr
+        report["objective"] = objective
+        report["lm_weight"] = lm_weight
         report["trainable_params"] = count(params)
         start_state = [p.detach().clone() for p in params]
         optimizer = torch.optim.AdamW(params, lr=lr, weight_decay=0.0)
@@ -1005,7 +1025,22 @@ class SkillTops(nn.Module):
                 h = self.run_trunk(ids, mask, pos, top.cut_host, None, 0)
             x = top.run(h, mask, pos, None, 0, first_index(mask))
             logits = top.logits(x)
-            loss = lm_loss_value(logits, ids, mask, top.has_sink)
+            if objective == "kd":
+                # Match the donor's own next-token distribution, so the top
+                # reproduces what the donor would say. Training on text alone
+                # (objective "lm") rewards a better language model, which can
+                # move the top away from the donor's skill: round 24's smoke
+                # beat the donor's loss by 0.7 nats and lost 26 GSM8K points.
+                with torch.no_grad():
+                    teacher = donor_model(input_ids=ids.to(model_device(donor_model)),
+                                          attention_mask=mask.to(model_device(donor_model))).logits
+                loss = kd_loss_value(logits, teacher.to(logits.device), mask, top.has_sink)
+                if lm_weight > 0:
+                    loss = loss + lm_weight * lm_loss_value(logits, ids, mask, top.has_sink)
+            elif objective == "lm":
+                loss = lm_loss_value(logits, ids, mask, top.has_sink)
+            else:
+                raise ValueError("objective must be 'kd' or 'lm'")
             optimizer.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(params, 1.0)

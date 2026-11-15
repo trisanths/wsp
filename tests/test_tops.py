@@ -784,3 +784,36 @@ def test_logits_cast_the_normed_state_to_the_head_dtype():
     out = TopModule.logits(top, torch.randn(2, 3, 8, dtype=torch.float32))
     assert out.dtype == torch.bfloat16
     assert out.shape == (2, 3, 5)
+
+
+def test_kd_stitch_moves_the_top_toward_the_donor_distribution(trained_donor):
+    # The default objective matches the donor's distribution, not the text.
+    from wsp import probe
+    from wsp.tops import kd_loss_value
+
+    donor = trained_donor
+    base = perturbed(donor, 1.0, 5)
+    net = SkillTops(base, tiny_tokenizer())
+    top = net.add_top("d", donor, 2, 2, stitch_kind="linear", donor_tokenizer=tiny_tokenizer())
+    held = cycle_texts(24, 2)
+    ids, mask = encode(held, left=False)
+
+    def kl_now():
+        with torch.no_grad():
+            # Leave out the first real token: after the fit it carries the sink, which no stitch can match.
+            return float(kd_loss_value(net.forward_group("d", ids, mask, 0), donor(input_ids=ids, attention_mask=mask).logits,
+                                       mask, True))
+
+    before = kl_now()
+    report = fit_stitch(top, cycle_texts(80, 1), steps=120, lr=3e-3, batch_size=8, seq_len=24, eval_texts=held,
+                        donor_model=donor, max_penalty=5.0)
+    assert report["objective"] == "kd"
+    assert kl_now() < before
+
+
+def test_kd_loss_is_zero_for_identical_logits():
+    from wsp.tops import kd_loss_value
+
+    logits = torch.randn(2, 5, 11)
+    mask = torch.ones(2, 5, dtype=torch.long)
+    assert float(kd_loss_value(logits, logits.clone(), mask, True)) == pytest.approx(0.0, abs=1e-6)
