@@ -19,7 +19,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 WEB = os.path.join(ROOT, "studio", "web")
-DIST = os.path.join(HERE, "dist")
+DIST = os.path.join(HERE, "dist")  # override with --out <dir>
 
 # The API paths that demo mode reads from a server, and the file that holds each one.
 SNAPSHOTS = {
@@ -64,6 +64,9 @@ def vercel_config():
 
 
 def main():
+    global DIST
+    if "--out" in sys.argv:
+        DIST = os.path.abspath(sys.argv[sys.argv.index("--out") + 1])
     sys.path.insert(0, ROOT)
     # The offline backend: the snapshot must never start a GPU job or reach Modal.
     os.environ["WSP_STUDIO_BACKEND"] = "stub"
