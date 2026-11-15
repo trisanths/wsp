@@ -1,8 +1,9 @@
 // Small shared parts for the comparison set, part status and model logos.
 import { html } from './lib.js';
-import { sgn, pct, useHealth } from './util.js';
+import { sgn, pct, useHealth, showStub } from './util.js';
 import { Icon, StubBadge } from './components.js';
 import { ModelLogo } from './logos.js';
+import { DEMO } from './demo-flag.js';
 
 /** The models a program takes parts from (unique, in order), read through the catalog. */
 export function donorsOf(program, cat) {
@@ -49,7 +50,7 @@ export function Compare({ c, compact, heal, note }) {
   return html`<div class=${'cmp' + (compact ? ' compact' : '')}>
     <${HealNote} show=${!!heal} note=${note} />
     ${v && html`<div class=${'cmp-verdict ' + v.kind}>${v.text}</div>`}
-    <div class="cmp-list">${c.rows.map((r) => html`<div class="cmp-row" key=${r.id} title=${r.note || null}>
+    <div class="cmp-list">${c.rows.map((r) => html`<div class="cmp-row" key=${r.id} title=${r.stub && DEMO ? null : r.note || null}>
       <span class="cl">${r.label}${r.stub && html` <${StubBadge} small />`}</span>
       <span class="cv num">${r.measured && r.value != null ? pct(r.value) + '%' : ''}</span>
       <span class=${'cd num ' + (!r.measured || r.delta == null ? 'faint' : r.beaten == null ? 'faint' : r.beaten ? 'up' : r.within_margin === true ? 'warn' : 'down')}>${!r.measured || r.delta == null ? 'not measured' : r.beaten == null ? html`${sgn(r.delta)} <span class="cref">reference</span>` : r.beaten === false && r.within_margin === true ? html`${sgn(r.delta)} <span class="wmark">within margin</span>` : html`${sgn(r.delta)} <${Icon} n=${r.beaten ? 'check' : 'x'} size=${13} sw=${2.25} />`}</span>
@@ -233,7 +234,7 @@ export function mainNumber(c) {
 /** Every number a component has, one per line, for a tooltip. */
 export function partTip(c) {
   const d = (c && c.detail) || {};
-  const out = [c.label + ': ' + c.verdict + (c.stub ? ' (stub, not measured)' : '')];
+  const out = [c.label + ': ' + c.verdict + (showStub(c) ? ' (stub, not measured)' : '')];
   if (d.transfer != null) out.push('Transfer: ' + Math.round(d.transfer * 100) + '% of the gap from the host to the donor on held-out skill text');
   if (d.contribution != null) out.push('Practice change with the part on: ' + fpts(d.contribution));
   if (d.content_gain != null) out.push('Gain over a random part of the same size: ' + fpts(d.content_gain));
@@ -265,7 +266,7 @@ export function PartsList({ components, compact }) {
     <${ModelLogo} model=${c.donor || ''} size=${16} alt="" />
     <span class="pl">${c.label}</span>
     <span class="pmeta"><${VerdictTag} c=${c} />${mainNumber(c) && html`<span class="pn2 num faint">${mainNumber(c)}</span>`}</span>
-  </div>`)}${components.some((c) => c.stub) && html`<div class="part-stub faint"><${StubBadge} small /> Made-up verdicts, not measured.</div>`}</div>`;
+  </div>`)}${components.some((c) => showStub(c)) && html`<div class="part-stub faint"><${StubBadge} small /> Made-up verdicts, not measured.</div>`}</div>`;
 }
 
 const STAGE_NAMES = { place: 'Place', 'translate in': 'Translate in', 'translate out': 'Translate out', 'heal 1': 'Heal 1', 'heal 2': 'Heal 2', verify: 'Verify' };

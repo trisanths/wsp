@@ -29,6 +29,14 @@ Benchmark research starts when a spec is drafted. It picks a search provider in 
 
 Every response from the stub backend carries `"stub": true`, and the web app shows a STUB badge and a note on every page of stub numbers. The comparison rows made up by the stub are marked.
 
+## Demo mode
+
+Demo mode runs the whole web app on sample data in the browser, with no server calls, so a demo works with no backend or GPU. Turn it on with the Demo mode switch at the bottom of the sidebar, with `?demo=1` in the URL, or with Ctrl+Shift+D (Cmd+Shift+D on a Mac). `?demo=0` or the same switch turns it off. Demo runs, specs and recents use their own browser storage keys, so they never mix with real ones.
+
+`#/demo` lists every scene in presenting order: the prompt typed out, research working, a ready spec, a live agent run (overview, activity, one agent), a finished run and its results, a run that scored nothing, the builder (canvas and code), a shrink spec and result, the parts library, deletions, measured results, and the runs page. A small control at the bottom right moves between scenes (Alt+Right and Alt+Left), lists them, sets the live run speed (1x, 2x, 4x) and the theme, and hides itself (Alt+H) for a clean screen share.
+
+In demo mode one "Demo" pill in the top bar takes the place of the STUB badges, so sample numbers are never shown as measured. The measured results card keeps its real numbers. `?mock=1` without demo mode is unchanged: same mock data, with the STUB labels. Files: `web/demo-flag.js`, `web/demo-data.js`, `web/screens/demo.js`, `web/demo.css`; the seeding is in `web/mock.js`.
+
 ## Real GPUs (Modal)
 
     MODAL_PROFILE=trisanth .venv/bin/modal deploy studio/modal_studio.py

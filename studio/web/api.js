@@ -1,6 +1,9 @@
 import { markStub } from './util.js';
+import { DEMO } from './demo-flag.js';
 
-export const MOCK = new URLSearchParams(location.search).get('mock') === '1';
+export const MOCK = new URLSearchParams(location.search).get('mock') === '1' || DEMO;
+// demo mode never turns the STUB marker on: one "Demo" pill covers every screen
+const stubMark = (v) => { if (!DEMO) markStub(v); };
 
 async function req(method, path, body, isForm) {
   const opt = { method, headers: {} };
@@ -18,7 +21,7 @@ async function req(method, path, body, isForm) {
     err.status = res.status;
     throw err;
   }
-  if (data && data.stub) markStub(true);
+  if (data && data.stub) stubMark(true);
   return data;
 }
 
@@ -39,7 +42,7 @@ const real = {
   openStream(id, onSnap, onErr, onNote) {
     const es = new EventSource('/api/runs/' + id + '/stream');
     es.addEventListener('snapshot', (e) => {
-      try { const s = JSON.parse(e.data); if (s && s.stub) markStub(true); onSnap(s); } catch (x) { /* skip bad frame */ }
+      try { const s = JSON.parse(e.data); if (s && s.stub) stubMark(true); onSnap(s); } catch (x) { /* skip bad frame */ }
     });
     // "event: error" with {"error": "..."} is a server message. A bare error is a dropped connection.
     es.addEventListener('error', (e) => {
@@ -91,7 +94,7 @@ const wrapped = {};
 for (const k of Object.keys(real)) {
   wrapped[k] = async (...a) => {
     const r = await impl[k](...a);
-    if (r && r.stub && k !== 'openStream') markStub(true);
+    if (r && r.stub && k !== 'openStream') stubMark(true);
     return r;
   };
 }

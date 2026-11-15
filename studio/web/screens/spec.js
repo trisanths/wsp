@@ -1,6 +1,7 @@
 import { html, useState, useEffect, useRef } from '../lib.js';
 import { api } from '../api.js';
-import { go, toast, pct, clamp, donorColor, donorLetter, useDebouncedCallback, clone, addRecent, patchRecent, setLastBuild } from '../util.js';
+import { go, toast, pct, clamp, donorColor, donorLetter, useDebouncedCallback, clone, addRecent, patchRecent, setLastBuild, showStub } from '../util.js';
+import { storageKey } from '../demo-flag.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, StubBadge } from '../components.js';
 import { SubtleNum, AutoHeight, SkelReveal, reduced } from '../motion.js';
 import { ModelLogo } from '../logos.js';
@@ -191,7 +192,7 @@ export function SpecScreen({ id }) {
   };
   const startBuilder = async () => {
     setBusy('build');
-    try { await flush(); const r = await api.createBuilder(id); try { sessionStorage.setItem('wsp.budget.' + r.builder_id, JSON.stringify(r.budget)); } catch (e) { /* storage can be off */ } setLastBuild({ id: r.builder_id, specId: id }); go('/build/' + r.builder_id + '?spec=' + id); } catch (e) { toast(e.message, 'err'); setBusy(null); }
+    try { await flush(); const r = await api.createBuilder(id); try { sessionStorage.setItem(storageKey('wsp.budget.' + r.builder_id), JSON.stringify(r.budget)); } catch (e) { /* storage can be off */ } setLastBuild({ id: r.builder_id, specId: id }); go('/build/' + r.builder_id + '?spec=' + id); } catch (e) { toast(e.message, 'err'); setBusy(null); }
   };
 
   const hostB = spec.size.host_params_b;
@@ -307,10 +308,10 @@ export function SpecScreen({ id }) {
     <${CompilerPlan} spec=${spec} />
 
     ${isShrink ? html`<div class="buildcard shrinkcard">
-      <div class="bc-head"><span class="bc-title">Ready to plan the shrink?</span><span class="faint bc-meta">Drafted by ${spec.drafted_by || 'rules'}.${spec.stub ? ' Stub numbers are not real results.' : ''}</span></div>
+      <div class="bc-head"><span class="bc-title">Ready to plan the shrink?</span><span class="faint bc-meta">Drafted by ${spec.drafted_by || 'rules'}.${showStub(spec) ? ' Stub numbers are not real results.' : ''}</span></div>
       <div class="bc-row one"><button class="btn primary big" disabled=${!!busy} onClick=${startShrink}><span class="bt"><b>Plan the shrink</b><small>See the size and cost before anything runs</small></span>${busy === 'shrink' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button></div>
     </div>` : html`<div class="buildcard">
-      <div class="bc-head"><span class="bc-title">How do you want to build it?</span><span class="faint bc-meta">Drafted by ${spec.drafted_by || 'rules'}.${spec.stub ? ' Stub numbers are not real results.' : ''}</span></div>
+      <div class="bc-head"><span class="bc-title">How do you want to build it?</span><span class="faint bc-meta">Drafted by ${spec.drafted_by || 'rules'}.${showStub(spec) ? ' Stub numbers are not real results.' : ''}</span></div>
       <div class="bc-row">
         <button class="btn primary big" disabled=${!!busy} onClick=${startRun}><span class="bt"><b>Let agents build it</b><small>A swarm searches and you watch</small></span>${busy === 'run' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>
         <button class="btn big" disabled=${!!busy} onClick=${startBuilder}><span class="bt"><b>Build it myself</b><small>Drag parts onto the host model</small></span>${busy === 'build' ? html`<${Spinner} />` : html`<${Icon} n="arrow" />`}</button>

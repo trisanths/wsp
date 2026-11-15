@@ -1,6 +1,6 @@
 import { html, useState, useEffect, useMemo, useRef } from '../lib.js';
 import { api } from '../api.js';
-import { pct, donorColor, donorLetter, donorShort, useRecent, patchRecent, dur, ago, rowSuffixes, recentStatus, go, toast } from '../util.js';
+import { pct, donorColor, donorLetter, donorShort, useRecent, patchRecent, dur, ago, rowSuffixes, recentStatus, go, toast, parseHash, showStub } from '../util.js';
 import { TopBar, Icon, Spinner, ErrorBox, Dot, StubBadge } from '../components.js';
 import { SkelReveal } from '../motion.js';
 import { ModelLogo } from '../logos.js';
@@ -69,7 +69,7 @@ const KIND_ONE = { block: 'block', attn_heads: 'attention heads', mlp_cluster: '
 const layerText =(p) => (p.layers ? 'L' + p.layers[0] + (p.layers[1] !== p.layers[0] ? ' to L' + p.layers[1] : '') : '');
 
 function PartsTab({ cat, q, onFinding }) {
-  const [f, setF] = useState(NO_FILTER);
+  const [f, setF] = useState(() => (parseHash().q.get('kind') === DELETION ? { ...NO_FILTER, kind: DELETION } : NO_FILTER));
   const [page, setPage] = useState(1);
   const top = useRef(null);
   const all = useMemo(() => [...cat.parts, ...cat.masks], [cat]);
@@ -177,7 +177,7 @@ const TABS = [['parts', 'Parts', 'Search parts'], ['recipes', 'Recipes', 'Search
 export function PartsScreen() {
   const [cat, setCat] = useState(null);
   const [err, setErr] = useState(null);
-  const [tab, setTab] = useState('parts');
+  const [tab, setTab] = useState(() => { const t = parseHash().q.get('tab'); return TABS.some((x) => x[0] === t) ? t : 'parts'; });
   const [qs, setQs] = useState({ parts: '', recipes: '', findings: '' });
   const [focus, setFocus] = useState(null);
   const [tabCounts, setTabCounts] = useState({});
@@ -197,7 +197,7 @@ export function PartsScreen() {
   return html`<${TopBar} />
   <main class="screen"><div class="doc wide"><${SkelReveal} ready=${true} skeleton=${null}>
     <div class="ph"><div><h1 class="page-title">Parts library</h1>
-      <p class="lede"><${ModelLogo} model=${cat.host.model} size=${16} /> Host model ${cat.host.model.split('/').pop()}, ${cat.host.layers} layers, ${cat.host.params_b.toFixed(2)}B parameters. Drag these onto it in the builder.${cat.stub ? ' ' : ''}${cat.stub && html`<${StubBadge} small />`}</p></div>
+      <p class="lede"><${ModelLogo} model=${cat.host.model} size=${16} /> Host model ${cat.host.model.split('/').pop()}, ${cat.host.layers} layers, ${cat.host.params_b.toFixed(2)}B parameters. Drag these onto it in the builder.${showStub(cat) ? ' ' : ''}${showStub(cat) && html`<${StubBadge} small />`}</p></div>
       <div class="searchbox pq"><${Icon} n="search" size=${16} /><input placeholder=${place} aria-label=${place} value=${q} onInput=${(e) => setQ(e.target.value)} /></div></div>
     <div class="ptabs" role="tablist">${TABS.map(([id, name]) => html`<button key=${id} class=${'ptab' + (tab === id ? ' on' : '')} role="tab" aria-selected=${tab === id ? 'true' : 'false'} onClick=${() => { setFocus(null); setTab(id); }}>${name}<span class="n">${id === 'parts' ? cat.parts.length + cat.masks.length : tabCounts[id] != null ? tabCounts[id] : ''}</span></button>`)}</div>
     ${tab === 'parts' && html`<${PartsTab} cat=${cat} q=${q} onFinding=${openFinding} />`}

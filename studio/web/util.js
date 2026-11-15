@@ -1,4 +1,8 @@
 import { useState, useEffect, useRef } from './lib.js';
+import { DEMO, storageKey } from './demo-flag.js';
+
+/** True when data carries stub: true and the app is not in demo mode (demo shows sample data as real). */
+export const showStub = (x) => !!(x && x.stub) && !DEMO;
 
 /* ---------- formatting ---------- */
 export const pct = (x, d = 1) => (x == null || isNaN(x) ? '-' : (x * 100).toFixed(d));
@@ -202,6 +206,7 @@ export function parseHash() {
   if (parts[0] === 'shrink' && parts[1]) return { name: 'shrink', id: parts[1], q };
   if (parts[0] === 'runs') return { name: 'runs', q };
   if (parts[0] === 'parts') return { name: 'parts', q };
+  if (parts[0] === 'demo') return { name: 'demo', q };
   return { name: 'prompt', q };
 }
 export function go(path) { location.hash = '#' + path; }
@@ -228,6 +233,7 @@ export function useHealth() {
 const stubListeners = new Set();
 let stubFlag = false;
 export function markStub(v) {
+  if (DEMO) return;
   if (v && !stubFlag) { stubFlag = true; stubListeners.forEach((f) => f(true)); }
 }
 export function useStubFlag() {
@@ -305,7 +311,7 @@ export function useTheme() {
 /* ---------- recent specs, runs and the last builder ---------- */
 const recentListeners = new Set();
 export function getRecent() {
-  try { const a = JSON.parse(localStorage.getItem('wsp.recent') || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
+  try { const a = JSON.parse(localStorage.getItem(storageKey('wsp.recent')) || '[]'); return Array.isArray(a) ? a : []; } catch (e) { return []; }
 }
 export function addRecent(item) {
   const list = getRecent();
@@ -313,7 +319,7 @@ export function addRecent(item) {
   const next = { ...(old || {}), ...item, ts: old && !item.touch ? old.ts : Date.now() };
   delete next.touch;
   const out = [next, ...list.filter((x) => !(x.kind === item.kind && x.id === item.id))].slice(0, 16);
-  try { localStorage.setItem('wsp.recent', JSON.stringify(out)); } catch (e) { /* storage can be off */ }
+  try { localStorage.setItem(storageKey('wsp.recent'), JSON.stringify(out)); } catch (e) { /* storage can be off */ }
   recentListeners.forEach((f) => f(out));
 }
 export function patchRecent(kind, id, patch) {
@@ -321,7 +327,7 @@ export function patchRecent(kind, id, patch) {
   const i = list.findIndex((x) => x.kind === kind && x.id === id);
   if (i < 0) return;
   list[i] = { ...list[i], ...patch };
-  try { localStorage.setItem('wsp.recent', JSON.stringify(list)); } catch (e) { /* ignore */ }
+  try { localStorage.setItem(storageKey('wsp.recent'), JSON.stringify(list)); } catch (e) { /* ignore */ }
   recentListeners.forEach((f) => f(list));
 }
 export function useRecent() {
@@ -329,5 +335,5 @@ export function useRecent() {
   useEffect(() => { recentListeners.add(setL); setL(getRecent()); return () => recentListeners.delete(setL); }, []);
   return l;
 }
-export function getLastBuild() { try { return JSON.parse(localStorage.getItem('wsp.lastBuild')); } catch (e) { return null; } }
-export function setLastBuild(v) { try { localStorage.setItem('wsp.lastBuild', JSON.stringify(v)); } catch (e) { /* ignore */ } }
+export function getLastBuild() { try { return JSON.parse(localStorage.getItem(storageKey('wsp.lastBuild'))); } catch (e) { return null; } }
+export function setLastBuild(v) { try { localStorage.setItem(storageKey('wsp.lastBuild'), JSON.stringify(v)); } catch (e) { /* ignore */ } }

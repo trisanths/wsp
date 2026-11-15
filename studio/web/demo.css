@@ -1,0 +1,58 @@
+/* Demo tour page and the floating demo control. Tokens come from styles.css. */
+.demo-page { width: min(880px, 100%); margin: 0 auto; padding: 24px 16px 96px; }
+.demo-lede { font-size: 15px; line-height: 24px; color: var(--text-2); margin: 12px 0 0; max-width: 620px; }
+.demo-cta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.demo-note { font-size: 13px; line-height: 20px; color: var(--text-3); margin: 16px 0 0; max-width: 620px; }
+.demo-sec { margin-top: 32px; }
+.demo-h { font-size: 14px; line-height: 20px; font-weight: 500; color: var(--text-2); margin: 0 0 10px; }
+.demo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.demo-card { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px 12px; transition: box-shadow .15s var(--page-fade-ease), transform .15s var(--page-fade-ease); }
+.demo-card:hover { box-shadow: var(--shadow-card), var(--shadow-float); transform: translateY(-1px); }
+.demo-ct { font-size: 14px; line-height: 20px; font-weight: 500; }
+.demo-cl { font-size: 13px; line-height: 19px; color: var(--text-3); flex: 1; }
+.demo-open { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; font-size: 13px; line-height: 18px; font-weight: 500; color: var(--text-1); text-decoration: none; align-self: flex-start; }
+.demo-open svg { transition: transform .15s var(--page-fade-ease); }
+.demo-open:hover svg { transform: translateX(2px); }
+
+.demo-ctl { position: fixed; right: 12px; bottom: 12px; z-index: 350; font-size: 13px; line-height: 18px; animation: demo-in var(--modal-open-dur) var(--modal-ease); }
+@keyframes demo-in { from { opacity: 0; transform: translateY(6px) scale(.97); } to { opacity: 1; transform: none; } }
+.demo-bar { display: flex; align-items: center; gap: 2px; padding: 3px; background: var(--bg-raised); border: 1px solid var(--line-2); border-radius: 999px; box-shadow: var(--shadow-float); }
+.demo-b, .demo-title { border: 0; background: transparent; color: var(--text-1); cursor: pointer; font: inherit; border-radius: 999px; transition: background .12s, opacity .12s; }
+.demo-b { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 30px; padding: 0 6px; }
+.demo-mb { font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.demo-title { height: 30px; padding: 0 10px; max-width: 280px; min-width: 0; }
+.demo-lab { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.demo-b:hover:not(:disabled), .demo-title:hover { background: var(--fill-2); }
+.demo-b:disabled { opacity: .35; cursor: default; }
+.demo-pop { position: absolute; right: 0; bottom: calc(100% + 8px); min-width: 240px; max-height: min(420px, 60vh); overflow: auto; background: var(--bg-raised); border: 1px solid var(--line-2); border-radius: 12px; padding: 6px; box-shadow: var(--shadow-float); transform-origin: bottom right; animation: demo-in var(--dropdown-open-dur) var(--dropdown-ease); }
+.demo-pop-h { padding: 8px 8px 4px; font-size: 12px; line-height: 16px; color: var(--text-3); }
+.demo-item { display: flex; gap: 8px; align-items: baseline; width: 100%; padding: 6px 8px; border: 0; border-radius: 8px; background: transparent; color: var(--text-1); font: inherit; text-align: left; cursor: pointer; transition: background .12s; }
+.demo-item:hover { background: var(--fill-2); }
+.demo-item.on { background: var(--fill-3); font-weight: 500; }
+.demo-n { flex: none; width: 18px; color: var(--text-3); font-size: 12px; }
+.demo-more { min-width: 220px; padding: 8px; }
+.demo-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 5px 4px; }
+.demo-rl { color: var(--text-3); }
+.demo-rn { padding: 0 4px 4px; font-size: 12px; line-height: 16px; color: var(--text-3); }
+.demo-seg { display: inline-flex; gap: 2px; padding: 2px; background: var(--fill-2); border-radius: 8px; }
+.demo-seg button { border: 0; background: transparent; color: var(--text-2); font: inherit; padding: 2px 10px; border-radius: 6px; cursor: pointer; transition: background .12s, color .12s; }
+.demo-seg button.on { background: var(--bg-raised); color: var(--text-1); box-shadow: var(--shadow-card); }
+.demo-link { border: 0; background: transparent; padding: 2px 6px; border-radius: 6px; color: var(--text-1); font: inherit; cursor: pointer; }
+.demo-link:hover { background: var(--fill-2); }
+.demo-b:focus-visible, .demo-title:focus-visible, .demo-item:focus-visible, .demo-link:focus-visible, .demo-seg button:focus-visible { outline: 2px solid var(--line-focus); outline-offset: 1px; }
+
+@media (max-width: 640px) {
+  .demo-ctl { right: 8px; bottom: 8px; }
+  .demo-title { max-width: 150px; }
+  .demo-lab { font-size: 12px; }
+  .demo-pop { position: fixed; left: 8px; right: 8px; bottom: 52px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .demo-ctl, .demo-pop { animation: none; }
+  .demo-card, .demo-open svg { transition: none; }
+}
+.demo-type .dock { position: sticky; bottom: 0; z-index: 5; background: var(--bg); padding-top: 12px; }
+.demo-type .dock-note { padding-right: 150px; padding-left: 150px; }
+body:has(.demo-ctl) .buildcard { bottom: 56px; }
+/* the builder side panel and palette scroll to their end above the control */
+body:has(.demo-ctl) .builder .side, body:has(.demo-ctl) .builder .palette { padding-bottom: 64px; }

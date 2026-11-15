@@ -82,7 +82,7 @@ function Leaderboard({ snap, cat, onBuild }) {
         <tr class=${'row' + (isOpen ? ' open' : '')} onClick=${() => toggle(r)}>
           <td class="num dim3">${r.rank}</td><td><div class="desc"><${Logos} models=${donorsOf(r.program, cat)} max=${3} size=${16} /><span title=${label(r)}>${label(r)}</span><${HealNote} show=${usesHeal(r.program)} mark note=${healNoteOf(r)} /></div></td>
           ${bs.map((b) => { const v = r.scores[b.id]; const bad = b.kind === 'guard' && v != null && v < b.floor; return html`<td class=${'num r' + (bad ? ' down' : '')}>${v != null ? html`<${SubtleNum} text=${pct(v)} />` : '-'}</td>`; })}
-          <td class="r">${!ok ? html`<${Tag} kind="r">${r.status.replace(/_/g, ' ')}<//>` : r.vs_control == null ? html`<span class="faint">pending</span>` : html`<span class=${r.vs_control > 0.02 ? 'up' : 'dim3'}>${sgn(r.vs_control)}</span>`}</td>
+          <td class="r">${!ok ? html`<${Tag} kind="r">${r.status.replace(/_/g, ' ')}<//>` : r.vs_control == null && !(r.program && r.program.grafts && r.program.grafts.length) ? html`<span class="faint" title="No parts, so there is no random-parts control">-</span>` : r.vs_control == null ? html`<span class="faint">pending</span>` : html`<span class=${r.vs_control > 0.02 ? 'up' : 'dim3'}>${sgn(r.vs_control)}</span>`}</td>
           <td class="num r">${bsize(r.params_b)}</td>
           <td><span class="t-acc faint" data-open=${isOpen ? 'true' : 'false'}><span class="t-acc-chevron"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5L8 10.5L12 6.5"/></svg></span></span></td>
         </tr>

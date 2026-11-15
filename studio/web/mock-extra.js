@@ -1,6 +1,8 @@
 // Mock data for ?mock=1: measured results and the compiler front door. Same shapes as the server (CONTRACT.md).
 // The measured numbers are the ones in studio/server/measured.py. A test keeps the two in step.
 
+import { DEMO } from './demo-flag.js';
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const clone = (x) => JSON.parse(JSON.stringify(x));
 
@@ -97,7 +99,7 @@ export function makeExtra({ getSpec }) {
     async specPlan(id) {
       await sleep(900);
       const { request, unmapped } = requestOf(getSpec(id));
-      return { plan: planOf(request), seconds: 0.9, offline: true, offline_reason: 'mock data', verified: false, unmapped,
+      return { plan: planOf(request), seconds: 0.9, offline: !DEMO, offline_reason: DEMO ? null : 'mock data', verified: false, unmapped,
         note: "The compiler's plan is new and its lineage check is still being fixed. Treat it as a draft." };
     },
   };

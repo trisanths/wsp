@@ -1,6 +1,7 @@
 import { html, useState, useEffect, useLayoutEffect, useRef, useMemo } from '../lib.js';
 import { api } from '../api.js';
-import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, hasTaps, donorShort, maskIds, buildMask, donorColor, donorLetter, benchProgress, primaryTarget, tokenizeLine, setLastBuild, healPool } from '../util.js';
+import { go, toast, pct, pctS, sgn, bsize, clamp, clone, emptyProgram, normProgram, hasTaps, donorShort, maskIds, buildMask, donorColor, donorLetter, benchProgress, primaryTarget, tokenizeLine, setLastBuild, healPool, parseHash } from '../util.js';
+import { storageKey, DEMO } from '../demo-flag.js';
 import { TopBar, Icon, Spinner, ErrorBox, Menu, BenchBar, BenchLegend, Ring, Tag, StubBadge } from '../components.js';
 import { PopNum, SlidingBar, SkelReveal, Matrix, SuccessCheck, useShake, shake, SwapText } from '../motion.js';
 import { ModelLogo } from '../logos.js';
@@ -33,8 +34,8 @@ function measuredLine(m) {
 let DRAG = null; // what is being dragged right now
 
 const ls = {
-  get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } },
-  set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { /* storage can be off */ } },
+  get(k) { try { return sessionStorage.getItem(storageKey(k)); } catch (e) { return null; } },
+  set(k, v) { try { sessionStorage.setItem(storageKey(k), v); } catch (e) { /* storage can be off */ } },
 };
 
 function dragImage(e) {
@@ -72,7 +73,7 @@ export function BuilderScreen({ id, specId }) {
   const [err, setErr] = useState(null);
   const [program, setProgramRaw] = useState(null);
   const [undo, setUndo] = useState([]);
-  const [view, setView] = useState('canvas');
+  const [view, setView] = useState(() => { const v = parseHash().q.get('view'); return v === 'code' || v === 'split' ? v : 'canvas'; });
   const [layerMode, setLayerMode] = useState('simple');
   const [q, setQ] = useState('');
   const [pf, setPf] = useState(NO_FILTER);
@@ -438,7 +439,7 @@ export function BuilderScreen({ id, specId }) {
   };
 
   return html`<${TopBar} right=${html`<span class="pill hide-sm">evals left <b class="num">${budget ? budget.evals_total - budget.evals_used + ' / ' + budget.evals_total : '-'}</b></span>
-      <span class="pill hide-md" title=${budget && budget.compute_raised ? 'The spec says ' + budget.spec_compute_min + ' min. The stub backend raises the compute cap so the evals run out first.' : null}>compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
+      <span class="pill hide-md" title=${budget && budget.compute_raised && !DEMO ? 'The spec says ' + budget.spec_compute_min + ' min. The stub backend raises the compute cap so the evals run out first.' : null}>compute <b class="num">${budget ? (budget.compute_used_s / 60).toFixed(budget.compute_used_s < 600 ? 1 : 0) + ' / ' + Math.round(budget.compute_total_s / 60) + ' min' : '-'}</b>${budget && budget.compute_raised ? html` <${StubBadge} small />` : null}</span>
       <button class="btn ghost sm" disabled=${!undo.length} onClick=${doUndo} title="Undo (Ctrl or Cmd + Z)"><${Icon} n="undo" size=${14} /> Undo</button><button class="btn sm" disabled=${handing} onClick=${handoff}>${handing ? html`<${Spinner} size=${12} />` : null} Hand to agents</button>`}>
       <h1 class="page-title bt-title ell" title=${spec ? spec.title : 'Builder'}>${spec ? spec.title : 'Builder'}</h1><span class="tag">draft ${attempts.length + 1}</span>
     <//>
