@@ -125,16 +125,18 @@ def test_a_broken_row_is_reported_and_the_rest_load(tmp_path, monkeypatch, real_
 
 def test_incomplete_models_are_listed_and_flagged(stub_client, real_library):
     expected = []
+    model_rows = 0
     for row in read_rows(os.path.join(REAL_LIBRARY, "index.jsonl")):
         if row["kind"] != "model":
             continue
+        model_rows += 1
         with open(os.path.join(REAL_LIBRARY, row["path"]), encoding="utf-8") as handle:
             data = json.load(handle)
         if not data.get("hf_id") or not data.get("params_b"):
             expected.append(row["id"])
-    assert len(expected) == 5
+    # The library grows, so the counts come from the index, not fixed numbers.
     models = stub_client.get("/api/library/models").json()["models"]
-    assert len(models) == 66
+    assert len(models) == model_rows
     flagged = sorted(item["id"] for item in models if item["incomplete"])
     assert flagged == sorted(expected)
     for item in models:
