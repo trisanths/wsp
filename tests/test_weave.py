@@ -704,3 +704,117 @@ def test_probe_guard_is_harm_on_general_text_not_distance_from_the_host():
     assert detail_kl["penalty"] > 0.0
     assert detail_nll["penalty"] == pytest.approx(10.0 * max(0.0, own["harm"]))
     assert detail_nll["guard"] == "nll" and detail_kl["guard"] == "kl"
+
+
+def test_kl_and_nll_in_chunks_equal_the_unchunked_value():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    for chunk in (1, 3, 7, 1000):
+        whole = weave.kl_to_cache(host, cache, batch_size=4, seq_chunk=None)
+        part = weave.kl_to_cache(host, cache, batch_size=4, seq_chunk=chunk)
+        assert part["tokens"] == whole["tokens"]
+        assert abs(part["kl"] - whole["kl"]) < 1e-6
+        whole_n = weave.nll_on_cache(host, cache, batch_size=4, seq_chunk=None)
+        part_n = weave.nll_on_cache(host, cache, batch_size=4, seq_chunk=chunk)
+        assert part_n["tokens"] == whole_n["tokens"]
+        assert abs(part_n["nll"] - whole_n["nll"]) < 1e-6
+
+
+def test_nll_matches_log_softmax_reference():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    got = weave.nll_on_cache(host, cache, batch_size=4, seq_chunk=2)
+    offsets = np.concatenate([[0], np.cumsum(cache["lengths"])])
+    total = 0.0
+    count = 0
+    with torch.no_grad():
+        for i in range(len(cache["lengths"])):
+            ids = torch.from_numpy(cache["ids"][offsets[i]:offsets[i + 1]].astype(np.int64))[None]
+            logp = torch.log_softmax(host(input_ids=ids).logits.float()[:, :-1], dim=-1)
+            total += float(-logp.gather(-1, ids[:, 1:, None]).sum())
+            count += ids.shape[1] - 1
+    assert got["tokens"] == count
+    assert abs(got["nll"] - total / count) < 1e-5
+
+
+def test_nll_and_kl_build_no_autograd_graph():
+    host, member, tokenizer, cache, general, objective = probe_setup()
+    assert all(p.requires_grad for p in host.parameters())
+    seen = []
+    original = host.forward
+
+    def spy(*args, **kwargs):
+        out = original(*args, **kwargs)
+        seen.append(out.logits.requires_grad)
+        return out
+
+    host.forward = spy
+    weave.nll_on_cache(host, cache, batch_size=4)
+    weave.kl_to_cache(host, cache, batch_size=4)
+    assert len(seen) > 0
+    assert not any(seen)
+
+
+def test_teacher_cache_chunks_equal_unchunked():
+    host = tiny(0, torch.float32)
+    tokenizer = ProbeTokenizer()
+    a = weave.build_teacher_cache(host, tokenizer, PROBE_TEXTS, top_k=8, max_length=32, batch_size=4, seq_chunk=1000)
+    b = weave.build_teacher_cache(host, tokenizer, PROBE_TEXTS, top_k=8, max_length=32, batch_size=4, seq_chunk=3)
+    assert np.array_equal(a["top_ids"], b["top_ids"])
+    assert np.allclose(a["top_logp"].astype(np.float32), b["top_logp"].astype(np.float32), atol=1e-3)
+    assert np.allclose(a["tail"].astype(np.float32), b["tail"].astype(np.float32), atol=1e-3)
+
+
+def test_cache_stage_frees_every_member(tmp_path):
+    import gc
+    import weakref
+
+    tokenizer = ProbeTokenizer()
+    refs = []
+
+    def make(seed):
+        def load():
+            model = perturbed(tiny(0, torch.float32), seed, scale=0.05)
+            refs.append(weakref.ref(model))
+            return model
+        return load
+
+    for seed in (1, 2, 3):
+        key = "split:m%d" % seed
+        wanted = {key: PROBE_TEXTS}
+        paths = {key: str(tmp_path / ("m%d.npz" % seed))}
+        got = weave.fill_caches(make(seed), wanted, paths, tokenizer, top_k=8, max_length=32, batch_size=4)
+        assert got[key]["top_k"] == 8
+        gc.collect()
+        assert refs[-1]() is None
+    assert len(refs) == 3
+    assert all(r() is None for r in refs)
+    again = weave.fill_caches(lambda: pytest.fail("loaded a model for an existing cache"), wanted, paths, tokenizer)
+    assert len(again) == 1
+
+
+def test_cache_stage_frees_the_member_after_an_error(tmp_path):
+    import gc
+    import weakref
+
+    refs = []
+
+    def load():
+        model = tiny(0, torch.float32)
+        refs.append(weakref.ref(model))
+        return model
+
+    class Broken:
+        pad_token = "x"
+        padding_side = "right"
+
+        def __call__(self, *args, **kwargs):
+            raise RuntimeError("tokenizer failed")
+
+    with pytest.raises(RuntimeError):
+        weave.fill_caches(load, {"k": PROBE_TEXTS}, {"k": str(tmp_path / "k.npz")}, Broken(), top_k=8)
+    gc.collect()
+    assert refs[0]() is None
+
+
+def test_memory_report_runs_without_cuda():
+    out = weave.memory_report("test", log=lambda *_: None)
+    assert out["stage"] == "test"

@@ -132,7 +132,7 @@ image = (
         "torch==2.7.1", "transformers==4.57.1", "accelerate", "huggingface_hub", "requests",
         "safetensors", "zstandard", "numpy", "datasets", "sentencepiece", "protobuf", "tiktoken",
     )
-    .env({"HF_HOME": "/vol/hf"})
+    .env({"HF_HOME": "/vol/hf", "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"})
     .add_local_python_source("wsp")
 )
 
@@ -659,8 +659,6 @@ def fill_caches(repo, label, revision, wanted, tokenizer, vocab):
     The model is freed before the function returns. Files live in CACHE_DIR,
     named by label, repo revision, and a hash of the texts.
     """
-    import gc
-
     import torch
     import transformers
 
@@ -669,21 +667,15 @@ def fill_caches(repo, label, revision, wanted, tokenizer, vocab):
     paths = {}
     for key, texts in wanted.items():
         paths[key] = weave.cache_path(CACHE_DIR, label, revision, weave.text_hash(texts, PROBE_LEN, PROBE_TOP_K))
-    missing = [key for key in wanted if not os.path.exists(paths[key])]
-    if len(missing) > 0:
-        directory = download(repo)
-        model = transformers.AutoModelForCausalLM.from_pretrained(directory, dtype=torch.bfloat16, device_map="cuda")
-        model.eval()
-        for key in missing:
-            cache = weave.build_teacher_cache(model, tokenizer, wanted[key], top_k=PROBE_TOP_K, max_length=PROBE_LEN,
-                                              batch_size=PROBE_BATCH, vocab=vocab)
-            weave.save_cache(cache, paths[key])
-            print(f"cache {label} {key}: {len(wanted[key])} texts, {int(cache['lengths'].sum())} tokens")
-        del model
-        gc.collect()
-        torch.cuda.empty_cache()
-        volume.commit()
-    return {key: weave.load_cache(paths[key]) for key in wanted}
+    def load():
+        return transformers.AutoModelForCausalLM.from_pretrained(download(repo), dtype=torch.bfloat16,
+                                                                 device_map="cuda")
+
+    got = weave.fill_caches(load, wanted, paths, tokenizer, vocab=vocab, top_k=PROBE_TOP_K, max_length=PROBE_LEN,
+                            batch_size=PROBE_BATCH, label=label)
+    volume.commit()
+    weave.memory_report(f"teacher cache {label}")
+    return got
 
 
 def build_probe_caches(fam, tokenizer, revisions, data):
@@ -728,6 +720,7 @@ def setup_probe_selection(weave, model, members, caches, row):
         po[split] = weave.ProbeObjective([m.name for m in members], member_caches, caches["host"][split]["general"],
                                          DRIFT_TOLERANCE, DRIFT_WEIGHT, PROBE_BATCH, host_pool_caches=host_pool)
         baseline[split] = po[split].calibrate(model)
+        weave.memory_report(f"calibrate split {split}")
     row["probe"]["baseline"] = baseline
     return {"score_a": po["a"].scores, "score_b": po["b"].scores, "objective_a": po["a"], "objective_b": po["b"],
             "init": None, "po": po, "denom_clipped": {}}
@@ -876,6 +869,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
                         "max_length": PROBE_LEN, "top_k": PROBE_TOP_K, "drift_tolerance": DRIFT_TOLERANCE,
                         "drift_weight": DRIFT_WEIGHT, "splits": list(PROBE_SPLITS)}
         caches = build_probe_caches(fam, tokenizer, row["revisions"], data)
+        weave.memory_report("stage 1 teacher caches done")
         row["probe"]["cache_dir"] = CACHE_DIR
         row["practice_contaminated"] = False
         if use_layer_map:
@@ -884,6 +878,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
     model = transformers.AutoModelForCausalLM.from_pretrained(host_dir, dtype=torch.bfloat16, device_map="cuda")
     model.eval()
     row["params_host"] = ev.model_params(model)[0]
+    weave.memory_report("host loaded")
     host_config = model.config
 
     # References shared between members, then members.
@@ -896,11 +891,12 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
     for spec in fam["members"]:
         directory = download(spec["id"])
         config = transformers.AutoConfig.from_pretrained(directory)
-        mlp_only = weave.positional_differs(host_config, config)
+        forced_mlp = bool(spec.get("mlp_only"))
+        mlp_only = forced_mlp or weave.positional_differs(host_config, config)
         ref = refs[spec["ref"]] if spec["ref"] is not None else None
         member = weave.member_from_directory(spec["name"], spec["skill"], directory, model, ref=ref,
                                              ref_name=spec["ref"] or "host", mlp_only=mlp_only,
-                                             groups=("attn", "mlp", "norm"),
+                                             groups=("mlp", "norm") if forced_mlp else ("attn", "mlp", "norm"),
                                              meta={"id": spec["id"], "reference_repo": fam["refs"].get(spec["ref"])})
         gate = weave.gate_member(member, model, max_rel=GATE_MAX_REL, min_cos=GATE_MIN_COS)
         gate["mlp_only"] = mlp_only
@@ -909,6 +905,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
         print(f"member {spec['name']}: gate {gate}")
         if gate["passed"] or ignore_gate:
             members.append(member)
+    weave.memory_report("members read (CPU only, GPU unchanged)")
     row["gate"] = gates
     row["members_used"] = [m.name for m in members]
     if len(members) == 0:
@@ -917,6 +914,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
         return row
 
     weaver = weave.Weaver(model, members, n_buckets=N_BUCKETS, density_step=DENSITY_STEP)
+    weave.memory_report("weaver built")
     count = len(members)
     names = [m.name for m in members]
     skills = fam["targets"] + fam["guards"]
@@ -948,6 +946,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
                           popsize=plan["population"], generations=plan["generations"], seed=SEARCH_SEED,
                           init=selection["init"], search_density=True, density_range=(0.5, 1.0), progress=progress)
     volume.commit()
+    weave.memory_report("search")
     best = result["best_genome"]
     row["search"] = result["summary"]
     row["best_genome"] = best.to_dict()
@@ -1003,6 +1002,7 @@ def run_family(name, budget_hours=10.0, ignore_gate=False, use_layer_map=False, 
         row["probe"]["content_z_by_member"] = row["probe"]["go"]["content_z_by_member"]
         row["probe"]["control_seeds"] = [CONTROL_SEED + i for i in range(N_CONTROLS)]
         row["cast_survival_best"] = weaver.cast_survival(best)
+        weave.memory_report("probe arms and controls")
 
     # Benchmarks, scored once: host, members, best mix, fixed recipes, one random control.
     finals = final_items_for(ev, final_skills)
