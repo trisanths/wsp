@@ -303,23 +303,57 @@ class EngineBase:
         return {"drops": drops, "ablated": self._as_dict(abl), "seconds": round(time.time() - start, 1)}
 
     @modal.method()
-    def skill_maps(self, payload, routing_items=64):
+    def skill_maps(self, payload, routing_items=64, modules=False, layers=None, plain=True):
         # Model-level maps for the compiler, measured only on the payload's skill sets:
         # - layer_lp: mean answer log-prob of each skill when one whole layer is skipped
         # - expert_freq: for layers with fused experts, how often the router picks each expert
         #   (picks per scored token) on each skill's text
+        # - with modules=True also attn_lp and mlp_lp: the same as layer_lp, but with only the
+        #   attention output, or only the feed-forward output, of the layer zeroed (null for a layer
+        #   that lacks the module), and module_parts: the part kinds used per layer. This adds up to
+        #   two scoring passes per layer to the one pass that layer_lp takes.
+        # A call that reaches its timeout returns nothing, and a deep model with modules=True can
+        # need more passes than one call may run. Two arguments let the caller split the work:
+        # - layers: a list of layer numbers. Only these layers are measured. Every per-layer list
+        #   keeps one entry per layer of the model, null for a layer that was not asked for, and
+        #   the result names the measured layers in "layers".
+        # - plain=False: no whole-layer passes and no router counts (layer_lp and expert_freq are
+        #   null), for a caller that has them from an earlier call.
         import torch
 
         start = time.time()
+        n_layers = self.info["n_layers"]
+        wanted = list(range(n_layers))
+        if layers is not None:
+            wanted = sorted(set(int(l) for l in layers))
+            if any(l < 0 or l >= n_layers for l in wanted):
+                raise ValueError("layers must be in 0.." + str(n_layers - 1) + ", got " + str(layers))
         base = self._score(payload, None)
-        layer_lp = {}
-        for l in range(self.info["n_layers"]):
-            abl = self._score(payload, {"kind": "block", "layers": [l]})
-            for key in abl:
-                layer_lp.setdefault(key[0] + "|" + key[1], []).append(abl[key]["lp"])
+        layer_lp = None
+        if plain:
+            layer_lp = {}
+            for l in range(n_layers):
+                abl = None
+                if l in wanted:
+                    abl = self._score(payload, {"kind": "block", "layers": [l]})
+                for key in base:
+                    layer_lp.setdefault(key[0] + "|" + key[1], []).append(None if abl is None else abl[key]["lp"])
+        module_out = None
+        if modules:
+            all_sets = self._skill_sets(payload)
+
+            def score_all():
+                # one scoring pass over every skill set, with whatever hooks are installed now
+                lps = {}
+                for key in all_sets:
+                    rows = self._tokenized(all_sets[key][0], all_sets[key][1])
+                    lps[key[0] + "|" + key[1]] = self._score_rows(rows)["lp"]
+                return lps
+            names = [key[0] + "|" + key[1] for key in all_sets]
+            module_out = self.adapter.module_ablation_maps(self.info, self.layers, names, score_all, wanted)
         exp_layers = []
         for e in self.info["layers"]:
-            if "experts" in e and e["experts"].get("style") != "module_list":
+            if plain and "experts" in e and e["experts"].get("style") != "module_list":
                 exp_layers.append(e["layer"])
         expert_freq = None
         if exp_layers:
@@ -351,8 +385,16 @@ class EngineBase:
         base_out = {}
         for key in base:
             base_out[key[0] + "|" + key[1]] = {"lp": base[key]["lp"], "score": base[key]["score"]}
-        return {"base": base_out, "layer_lp": layer_lp, "expert_freq": expert_freq, "info": self.info_summary_local(),
-                "seconds": round(time.time() - start, 1)}
+        out = {"base": base_out, "layer_lp": layer_lp, "expert_freq": expert_freq, "info": self.info_summary_local(),
+               "seconds": round(time.time() - start, 1)}
+        if module_out is not None:
+            # only present when asked for, so the result of a plain call keeps its old keys
+            out["attn_lp"] = module_out["attn"]
+            out["mlp_lp"] = module_out["mlp"]
+            out["module_parts"] = module_out["parts"]
+        if layers is not None:
+            out["layers"] = wanted
+        return out
 
     def info_summary_local(self):
         s = self.adapter.summarize(self.info)
@@ -632,6 +674,72 @@ class EngineBase:
             flat = flat.reshape(entry["n_heads"], entry["head_dim"]).sum(dim=-1)
         return flat
 
+    # ---------------- evidence for catalog rows ----------------
+
+    @modal.method()
+    def builtin_info(self):
+        # What the built-in skill sets of THIS deployment are. The image holds the built-in file from
+        # deploy time, which can be older than the caller's local file, so a catalog row asks here to
+        # name the data it was selected on.
+        import hashlib
+
+        out = {}
+        for name in self.builtin:
+            spec = self.builtin[name]
+            digest = hashlib.sha256(json.dumps(spec["items"], sort_keys=True).encode()).hexdigest()[:16]
+            out[name] = {"description": spec.get("description"), "dataset": spec.get("dataset"),
+                         "n_search": len(spec["items"]["search"]), "n_heldout": len(spec["items"]["heldout"]),
+                         "items_sha": digest}
+        return out
+
+    @modal.method()
+    def expert_pick_rates(self, payload, names, layers, n_items=64):
+        # For expert parts: how often the router picks each expert of the given layers on the text of
+        # each named skill, for the search half and the held-out half. A rate is picks per counted
+        # token (padding and the first position are left out), so the rates of one layer add up to the
+        # router's top-k, which comes back as "top_k" next to the rates. Only fused experts can be
+        # counted; other layers come back in "unsupported" with the reason (see
+        # adapter.expert_count_layers), and so does a layer whose router indices do not fit the batch.
+        # The hook is adapter.install_pick_counter, not _stat_hook: it moves the mask to the device of
+        # the indices (a large model has its layers on several GPUs and the mask is on the first),
+        # and it reads indices that a model passes unflattened.
+        import torch
+
+        start = time.time()
+        counted, unsupported = self.adapter.expert_count_layers(self.info, layers)
+        sets = self._skill_sets(payload)
+        rates = {}
+        missing = []
+        bad = {}
+        for name in names:
+            for split in ["search", "heldout"]:
+                key = (name, split)
+                if key not in sets:
+                    missing.append(name + "|" + split)
+                    continue
+                if not counted:
+                    continue
+                rows = self._tokenized(sets[key][0], sets[key][1])[:n_items]
+                sums = {}
+                state = {"mask": None}
+                handles = []
+                try:
+                    for l in counted:
+                        self.adapter.install_pick_counter(self.info, self.layers, l, sums, state, bad, handles)
+                    with torch.no_grad():
+                        for batch in self._batches(rows, 4.0e8):
+                            ids, mask = self._pad(rows, batch)
+                            m = mask.clone()
+                            m[:, 0] = 0
+                            state["mask"] = m
+                            self.model(input_ids=ids, attention_mask=mask, use_cache=False)
+                finally:
+                    self.adapter.remove_all(handles)
+                rates[name + "|" + split] = {"n_items": len(rows), "layers": self.adapter.pick_rates(sums)}
+        counted = self.adapter.drop_uncounted(rates, counted, unsupported, bad)
+        return {"rates": rates, "counted_layers": counted, "unsupported": unsupported, "missing": missing,
+                "seconds": round(time.time() - start, 1)}
+
     # ---------------- optional confirmation ----------------
 
     @modal.method()
@@ -680,6 +788,200 @@ class EngineBase:
             self.adapter.remove_all(handles)
         return {"base_accuracy": round(base, 4), "ablated_accuracy": round(abl, 4),
                 "drop": rel_drop(base, abl), "n": len(prompts), "seconds": round(time.time() - start, 1)}
+
+    # ---------------- per-layer unit rankings (mine/sweep.py) ----------------
+    # attribution_scan and activation_scan return a short global list for an agent to read. The sweep
+    # miner builds parts of 64 to 1024 units, so it needs the best units of EVERY layer. These methods
+    # return that, for one skill, next to the same statistic on general_text.
+
+    def _expert_list(self, kind, l):
+        # True when the experts of layer l are a ModuleList of per-expert MLPs (adapter style "module_list")
+        return kind == "expert" and self.info["layers"][l]["experts"].get("style") == "module_list"
+
+    def _unit_layers(self, kind, layers, method="attribution"):
+        # Fused experts are read at their call (hidden, top_k_index, top_k_weights). Experts kept as a
+        # ModuleList have no such call. Attribution ranks them with a probe on each expert's output
+        # (_expert_list_probes). The activation ranking counts router picks, which a ModuleList does not
+        # show, so it leaves those layers out.
+        out = []
+        for l in self._layer_list(kind, layers):
+            if method != "attribution" and self._expert_list(kind, l):
+                continue
+            out.append(l)
+        return out
+
+    def _expert_list_probes(self, l, probes, handles):
+        # Probes for experts kept as a ModuleList. adapter.install removes such an expert by zeroing its
+        # output, so the probe is added to the output of every expert module. An expert that gets no token
+        # in a batch is not called and gets no record. One record per call, in case a block calls an
+        # expert more than once.
+        import torch
+
+        experts = self.adapter.get_module(self.layers[l], self.info["layers"][l]["experts"]["path"])
+        records = {}
+        probes[l] = {"list": records}
+
+        def hook_for(i):
+            def hook(module, args, output):
+                probe = torch.zeros_like(output, requires_grad=True)
+                records.setdefault(i, []).append({"probe": probe, "x": output.detach()})
+                return output + probe
+            return hook
+        for i in range(len(experts)):
+            handles.append(experts[i].register_forward_hook(hook_for(i)))
+
+    def _attribution_effects(self, payload, kind, skill, layer_list, n_items, token_budget):
+        # One tensor per layer: the estimated rise in the skill's mean answer NLL (nats per scored token)
+        # when a unit is zeroed. The first-order estimate of attribution_scan, with one difference: the
+        # loss is summed over the scored tokens and divided by their count at the end, so every token has
+        # the same weight (attribution_scan averages the batch means).
+        import torch
+
+        rows = self._scan_rows(payload, skill, n_items)
+        acc = {}
+        n_tokens = 0
+        for batch in self._batches(rows, token_budget * self.vocab):
+            ids, mask = self._pad(rows, batch)
+            probes = {}
+            handles = []
+            try:
+                for l in layer_list:
+                    if self._expert_list(kind, l):
+                        self._expert_list_probes(l, probes, handles)
+                    else:
+                        handles.append(self._probe_hook(kind, l, probes))
+                with torch.enable_grad():
+                    logits = self.model(input_ids=ids, attention_mask=mask, use_cache=False).logits.to(ids.device)
+                    pj, pp, tgt = self._targets(rows, batch, ids)
+                    if len(tgt) == 0:
+                        continue
+                    lp = torch.log_softmax(logits[pj, pp].float(), dim=-1).gather(1, tgt[:, None])
+                    loss = -lp.sum()
+                    # one entry per probe: (layer, expert index or None, record)
+                    hooked = []
+                    for l in probes:
+                        if "list" in probes[l]:
+                            for i in probes[l]["list"]:
+                                for rec in probes[l]["list"][i]:
+                                    hooked.append((l, i, rec))
+                        else:
+                            hooked.append((l, None, probes[l]))
+                    grads = []
+                    if hooked:
+                        grads = torch.autograd.grad(loss, [h[2]["probe"] for h in hooked], allow_unused=True)
+                for ((l, i, rec), g) in zip(hooked, grads):
+                    if g is None:
+                        continue
+                    if i is None:
+                        eff = self._effect(kind, l, rec, g).float().cpu()
+                    else:
+                        # the whole output of expert i goes to 0: first-order change in the loss
+                        eff = torch.zeros(self.info["layers"][l]["experts"]["n_experts"])
+                        eff[i] = float(-(g.float() * rec["x"].float()).sum())
+                    if l not in acc:
+                        acc[l] = torch.zeros_like(eff)
+                    acc[l] += eff
+                n_tokens += int(len(tgt))
+            finally:
+                self.adapter.remove_all(handles)
+                del probes
+        out = {}
+        for l in acc:
+            out[l] = acc[l] / max(n_tokens, 1)
+        return out, n_tokens
+
+    def _mask_hook(self, kind, l, state):
+        # _stat_hook multiplies a layer's activation by state["mask"] (experts: it indexes the router
+        # picks with it). The mask is made next to the input ids, on cuda:0. On a multi-GPU tier
+        # (device_map "auto") most layers are on other GPUs, and there the stat hook would raise a device
+        # error. This hook goes on the same module BEFORE the stat hook (pre-hooks run in the order they
+        # were registered) and puts the mask on the device of the module's input.
+        entry = self.info["layers"][l]
+        key = {"mlp_cluster": "mlp", "attn_heads": "attn", "expert": "experts"}[kind]
+        mod = self.adapter.get_module(self.layers[l], entry[key]["path"])
+
+        def pre(module, args, kwargs):
+            if kind == "expert":
+                x = args[1] if len(args) >= 3 else kwargs["top_k_index"]
+            else:
+                x = args[0]
+            state["mask"] = state["home_mask"].to(x.device)
+        return mod.register_forward_pre_hook(pre, with_kwargs=True)
+
+    def _activation_means(self, payload, kind, skill, layer_list, n_items):
+        # One tensor per layer: mean |activation| per unit (experts: router picks per token) on the
+        # skill's search items. Same statistic as activation_scan.
+        import torch
+
+        rows = self._scan_rows(payload, skill, n_items)
+        sums = {}
+        state = {"mask": None, "home_mask": None}
+        handles = []
+        n_tokens = 0
+        try:
+            for l in layer_list:
+                handles.append(self._mask_hook(kind, l, state))
+                handles.append(self._stat_hook(kind, l, sums, state))
+            with torch.no_grad():
+                for batch in self._batches(rows, 4.0e8):
+                    ids, mask = self._pad(rows, batch)
+                    m = mask.clone()
+                    m[:, 0] = 0
+                    state["home_mask"] = m
+                    n_tokens += int(m.sum())
+                    self.model(input_ids=ids, attention_mask=mask, use_cache=False)
+        finally:
+            self.adapter.remove_all(handles)
+        out = {}
+        for l in sums:
+            out[l] = (sums[l]["sum"] / max(sums[l]["n"], 1.0)).float().cpu()
+        return out, n_tokens
+
+    def _unit_ranking(self, payload, method, kind, skill, layers, top_n, n_items, token_budget):
+        start = time.time()
+        reference = "general_text"
+        sets = self._skill_sets(payload)
+        for name in [skill, reference]:
+            if (name, "search") not in sets:
+                raise ValueError("skill '" + name + "' is not in the payload")
+        layer_list = self._unit_layers(kind, layers, method)
+
+        def measure(name):
+            if method == "attribution":
+                return self._attribution_effects(payload, kind, name, layer_list, n_items, token_budget)
+            return self._activation_means(payload, kind, name, layer_list, n_items)
+
+        # the reference does not depend on the skill: keep it for the next skills of the same sweep
+        cache = self.__dict__.setdefault("unit_ref_cache", {})
+        ref_key = (method, kind, tuple(layer_list), n_items, token_budget, sets[(reference, "search")][0])
+        if ref_key not in cache:
+            cache[ref_key] = measure(reference)
+        ref, ref_tokens = cache[ref_key]
+        mine, n_tokens = measure(skill)
+        how = "selective" if method == "attribution" else "ratio"
+        per_layer = {}
+        for l in layer_list:
+            if l in mine:
+                per_layer[str(l)] = self.adapter.top_units(mine[l], ref.get(l), top_n, how)
+        return {"method": method, "kind": kind, "skill": skill, "reference": reference, "how": how,
+                "n_items": n_items, "n_tokens": n_tokens, "reference_tokens": ref_tokens, "top_n": top_n,
+                "layers": per_layer, "seconds": round(time.time() - start, 1)}
+
+    @modal.method()
+    def attribution_units(self, payload, kind, skill, layers, top_n=1024, n_items=24, token_budget=2048):
+        # For every requested layer (empty list = all): the top_n units by attribution on `skill` minus
+        # attribution on general_text, with both values. Format: adapter.top_units, keyed by layer.
+        if getattr(self.model.config, "quantization_config", None) is not None and self.model_key not in DEQUANTIZE:
+            raise RuntimeError("attribution_units needs bf16 weights, but this model is loaded quantized (FP8); "
+                               "use activation_units instead")
+        return self._unit_ranking(payload, "attribution", kind, skill, layers, top_n, n_items, token_budget)
+
+    @modal.method()
+    def activation_units(self, payload, kind, skill, layers, top_n=1024, n_items=32):
+        # The same per-layer ranking from forward passes only (mean |activation|, or router pick rate for
+        # experts, as a ratio to general_text). For quantized models, where attribution_units refuses.
+        # Experts kept as a ModuleList are not ranked here (see _unit_layers).
+        return self._unit_ranking(payload, "activation", kind, skill, layers, top_n, n_items, None)
 
 
 COMMON = {"image": image, "volumes": {"/models": volume}, "secrets": [modal.Secret.from_name("hf-token")],
