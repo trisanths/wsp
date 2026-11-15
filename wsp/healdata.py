@@ -79,7 +79,6 @@ SOURCES = {
                  ("medalpaca/medical_meadow_medical_flashcards", None, "train", "alpaca"),
                  ("qiaojin/PubMedQA", "pqa_artificial", "train", "pubmedqa"),
                  ("lavita/MedQuAD", None, "train", "medquad"),
-                 ("FreedomIntelligence/medical-o1-reasoning-SFT", "en", "train", "o1med"),
                  ("ccdv/pubmed-summarization", "document", "train", "abstract")],
     "law": [("coastalcph/lex_glue", "ecthr_a", "train", "legal_text"),
             ("coastalcph/lex_glue", "scotus", "train", "legal_text"),
@@ -111,6 +110,7 @@ SOURCES = {
 # not in SOURCES because the default reported set excludes them.
 EXTRA_SOURCES = {
     "math": [("nvidia/OpenMathInstruct-2", None, "train_1M", "openmath")],
+    "medicine": [("FreedomIntelligence/medical-o1-reasoning-SFT", "en", "train", "o1med")],
 }
 
 # dataset id (lower case) -> benchmarks the set was built from. A source is excluded whenever any of them is reported.
@@ -118,6 +118,8 @@ DERIVED_FROM = {
     "nvidia/openmathinstruct-2": ["gsm8k", "math"],
     "meta-math/metamathqa": ["gsm8k", "math"],
     "tiger-lab/mathinstruct": ["gsm8k", "math"],
+    # Built from MedQA-USMLE and MedMCQA questions (its dataset card), so it leaks into either benchmark.
+    "freedomintelligence/medical-o1-reasoning-sft": ["medmcqa", "medqa"],
 }
 
 # (dataset id, config, split) -> row count read from the datasets-server /size endpoint on 2026-11-14.
