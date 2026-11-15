@@ -6,6 +6,7 @@ import { SubtleNum, SkelReveal, Matrix, SuccessCheck, shake, AutoHeight } from '
 import { ModelLogo } from '../logos.js';
 import { Compare } from '../cmp.js';
 import { Slider } from './spec.js';
+import { MeasuredForPlan } from './measured.js';
 import { RULES, METHOD_TEXT, skillName, ruleName, modelName, fmtB, Pick } from './shrink-spec.js';
 
 const fmtMin = (m) => (m == null ? '-' : m < 1 ? Math.round(m * 60) + ' s' : m < 10 ? m.toFixed(1) + ' min' : Math.round(m) + ' min');
@@ -234,6 +235,8 @@ export function ShrinkScreen({ id, specId }) {
       ${runErr && html`<div class="prob run-err" role="alert"><${Icon} n="warn" size=${14} /><span>${runErr}</span></div>`}
       ${running && html`<div class="jobline2"><span>${job.status === 'queued' ? 'Queued' : 'Running'}</span>${job.log && job.log.length > 0 && html`<${LogLines} lines=${job.log} />`}</div>`}
     </section>
+
+    <${MeasuredForPlan} plan=${plan} />
 
     ${done && html`<${Result} job=${job} spec=${spec} plan=${plan} />`}
   <//></div></main>`;

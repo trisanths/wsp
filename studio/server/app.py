@@ -20,6 +20,7 @@ from studio.server import programs
 from studio.server import runs as runs_mod
 from studio.server import settings
 from studio.server import shrink as shrink_mod
+from studio.server import routes_extra
 from studio.server import specs as specs_mod
 
 settings.load_env()
@@ -491,6 +492,9 @@ async def shrink_run(shrink_id: str, request: Request):
     except (shrink_mod.ShrinkError, ValueError) as error:
         return fail(str(error))
     return {"job_id": job_id}
+
+
+routes_extra.register(app)
 
 
 # The web app.

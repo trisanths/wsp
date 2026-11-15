@@ -5,6 +5,7 @@ import { TopBar, Icon, Spinner, ErrorBox, Dot, StubBadge } from '../components.j
 import { SkelReveal } from '../motion.js';
 import { ModelLogo } from '../logos.js';
 import { StatusTag, groupByKind, lockOf } from '../cmp.js';
+import { MeasuredResults } from './measured.js';
 
 const RUN_LABEL = { planned: 'Planned', starting: 'Starting', running: 'Running', paused: 'Paused', stopping: 'Stopping', done: 'Finished', error: 'Error', gone: 'Not on the server' };
 const RUN_COLOR = { planned: 'var(--text-4)', starting: 'var(--blue)', running: 'var(--blue)', paused: 'var(--amber)', stopping: 'var(--amber)', done: 'var(--green)', error: 'var(--red)', gone: 'var(--text-4)' };
@@ -88,5 +89,6 @@ export function PartsScreen() {
     ${rms.length > 0 && html`<section class="sect"><h2 class="sec"><span>Remove a skill</span><span class="faint cnt">${rms.length}</span></h2><div class="grid3">${rms.map((p) => html`<${PartCard} key=${p.id} lead=${html`<div class="pic" style=${{ '--c': 'var(--red)' }}>-</div>`} title=${p.label} sub=${p.summary} status=${p.status} evidence=${p.evidence} lock=${p.status === 'rejected' ? lockOf(p) : null} measured=${measuredLine(p.measured)} />`)}</div></section>`}
     ${trs.length > 0 && html`<section class="sect"><h2 class="sec"><span>Train</span><span class="faint cnt">${trs.length}</span></h2><div class="grid3">${trs.map((p) => html`<${PartCard} key=${p.id} lead=${html`<div class="pic" style=${{ '--c': p.id === 'lora' ? 'var(--amber)' : 'var(--green)' }}>${p.id === 'lora' ? 'R' : 'H'}</div>`} title=${p.label} sub=${p.summary} />`)}</div></section>`}
     ${none && html`<div class="empty" style="margin-top:30px">Nothing matches "${q}".</div>`}
+    <${MeasuredResults} />
   <//></div></main>`;
 }

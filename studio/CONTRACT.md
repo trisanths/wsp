@@ -410,3 +410,33 @@ Each row has `id, label, split, per_task, value, measured, note, stub, result_va
 ### Shrink result limit check
 
 On a real (not stub) shrink, the server checks the measured parameters against the spec limits. Over a limit, `result.comparison.verdict` is `failed`, its `headline` starts with "Failed attempt." and lists the problems, and `result.limit_problems` is the list of messages. The result has no `limit_problems` key when it fits. A shrink run checks the heal limit against the heal time of every model it heals (the shrunk model and each control). `POST /api/shrink/{id}/plan` and `/run` read the current spec, so edits made with `PUT /api/spec/{id}` apply at once.
+
+## Measured results and the compiler front door
+
+New files: `server/measured.py`, `server/frontdoor.py`, `server/routes_extra.py` (routes), `server/offline_facts.json`. Web: `web/screens/measured.js`, `web/screens/frontdoor.js`, `web/mock-extra.js`, `web/extras.css`.
+
+### GET /api/measured
+
+A list of measured results. Every row was scored by the compiler, so the web app shows a small "measured" tag, never the STUB badge. Scores are percent points (0 to 100), not fractions.
+
+```
+[{ "id", "title", "kind": "skill_removal", "skill": "code", "model": "<hf id>", "experts_per_layer": 128,
+   "params_run_per_token_b": 3.03, "date", "scorer": "wsp.skills_eval", "runs_per_cell": 1, "heal": "none",
+   "source", "caveats": ["plain sentence", ...],
+   "rows": [{ "label", "experts_kept", "rule", "total_params_b", "scores": {"humaneval", "mbpp", "gsm8k", "mmlu"},
+              "is_control", "is_full" }] }]
+```
+
+A score a row did not measure is absent from `scores`. A control row picks experts by a rule that should not work (random, skill-to-general ratio).
+
+### GET /api/spec/{id}/request
+
+`{ "request": {...}, "unmapped": ["bench id", ...], "errors": ["plain message", ...] }`. The request has the format of `docs/auto.md` (name, base, add, remove, keep, limits, reported, seed). `unmapped` lists benchmark ids with no known Hugging Face dataset id. `errors` is the front door's own validation (`wsp.auto.validate_request`), empty when the request is valid. 404 for an unknown spec.
+
+### POST /api/spec/{id}/plan
+
+Runs `wsp.auto.plan()` on that request in a worker thread with a 90 second timeout. No GPU and no weights: it reads the Hub by range reads, and falls back to `server/offline_facts.json` when the Hub fails.
+
+`{ "plan": {...as the front door returns it}, "seconds", "offline": bool, "offline_reason"?: str, "verified": false, "note": "...", "unmapped": [...] }`
+
+The plan is cached per spec and request. A front door failure never gives a 500: the body is `{"error": "..."}` with 400 (invalid request), 408 (timeout), 422 (the compiler could not plan) or 404 (unknown spec). The traceback goes to the server log.

@@ -67,6 +67,9 @@ const real = {
   createShrink: (spec_id) => req('POST', '/api/shrink', { spec_id }),
   shrinkPlan: (id, fields = {}) => req('POST', '/api/shrink/' + id + '/plan', fields),
   shrinkRun: (id, options = {}) => req('POST', '/api/shrink/' + id + '/run', options),
+  measured: () => req('GET', '/api/measured'),
+  specRequest: (id) => req('GET', '/api/spec/' + id + '/request'),
+  specPlan: (id) => req('POST', '/api/spec/' + id + '/plan', {}),
 };
 
 let impl = real;
