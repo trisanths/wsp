@@ -3,7 +3,7 @@
   <img src="docs/img/banner-light.png" alt="Sapien: build models from the parts of open models">
 </picture>
 
-Sapien builds custom models from the parts of existing open models. Agents read the weights of open models and file the pieces that hold a skill into a parts library. A compiler then joins those parts into a base model, or cuts a large model down to the parts one skill needs, and trains only small connectors at the seams. Grafting a slice of Qwen2.5-14B into Llama-3.2-1B lifts its MMLU score from 44.6 to 59.8, where fine-tuning with the same trainable budget reaches 45.6. Cutting Qwen3-30B-A3B to half its experts keeps its HumanEval score within 4 points at half the memory.
+Sapien is an autoresearch system for a new domain: building models. Agents read the weights of open models, guess which parts hold a skill, test each guess against random controls, and file the parts that pass into a library. A compiler then joins parts into a base model, or cuts a large model down to the parts one skill needs, and trains only small connectors at the seams. Every attempt, pass or fail, is logged and shared through past.dev. Grafting a slice of Qwen2.5-14B into Llama-3.2-1B lifts its MMLU score from 44.6 to 59.8. In a matched comparison (same data, steps and selection for every arm), a Qwen2.5-7B graft reaches 59.6 against 51.1 for full fine-tuning of the host. Cutting Qwen3-30B-A3B to half its experts keeps its HumanEval score within 4 points at half the memory.
 
 Built at the SF AI Research Hackathon, hosted by Iterate at Wefunder, San Francisco, 14 to 15 November 2026.
 
@@ -16,12 +16,13 @@ Built at the SF AI Research Hackathon, hosted by Iterate at Wefunder, San Franci
 | Result | Slice grafted | Number |
 |---|---|---|
 | Llama-3.2-1B + grafted slice, MMLU held-out | Qwen2.5-14B L7-34 | **59.8** (base 44.6, LoRA 45.6) |
+| Same host, matched comparison against full fine-tuning | Qwen2.5-7B L4-20 | **59.6** (full FT 51.1, scrambled donor 50.3) |
+| Same graft vs the best plain model at the same compute per token | Qwen2.5-14B L7-34 | **59.8** vs **66.0** for Qwen2.5-3B: not beaten yet |
 | Math graft on AQuA, Llama-3.2-1B host | Qwen2.5-Math-7B L4-20 | **52.0** (LoRA 34.5) |
 | MMLU in Spanish after English-only training, Llama-3.2-1B host | Qwen2.5-14B L7-34 | **52.8** (base 37.8, LoRA 38.0) |
 | Cross-family part, share of its own skill kept inside Llama-3.2-1B | Qwen2.5-7B L10-20 | **89.6%** (1.1% before alignment) |
 | Qwen3-30B-A3B cut to 64 of 128 experts: HumanEval, weight memory | none (experts removed) | **88.4** at **29.9 GiB** (full: 90.2 at 56.9 GiB) |
-| Parts mined | | **1,369** from **76** models, 0.35B to 235B |
-| Shared memories written by the agents on past.dev | | **42,338** |
+| Parts that passed the mining gate | | **1,369** from **35** models (another 20 rejected) |
 
 ## Motivation
 
@@ -37,7 +38,7 @@ Fine-tuning changes every weight of one model to teach it a skill that some othe
 
 Sapien turns a plain-language request ("a coding model at half the memory", "a 2B model that reads contracts") into one model built from the parts of existing models.
 
-1. **Mine.** Agents read the weights of open models and name the parts that hold a skill. So far: 1,369 parts from 76 models (0.35B to 235B), with 42,338 shared memories on past.dev.
+1. **Mine.** Agents read the weights of open models and name the parts that hold a skill. So far: 1,369 parts from 35 models pass the gate, and the library profiles 76 models from 0.35B to 235B.
 2. **Test.** Each part is switched off and every skill rescored. It is kept only if its own skill drops at least 15% on held-out text and more than for five random parts of the same size.
 3. **Plan.** Sapien drafts a "Frankenstein" model for the task: a base plus parts, under limits on size, compute per token and heal time. An Exa agent picks the benchmarks to target.
 
@@ -61,7 +62,7 @@ The output is one standard model that loads in Hugging Face Transformers and ser
 
 ```mermaid
 flowchart LR
-    HF["Open models<br/>76 mined"] --> MINE["Mine<br/>on Modal"]
+    HF["Open models<br/>76 profiled"] --> MINE["Mine<br/>on Modal"]
     MINE --> LIB[("Parts library<br/>1,369 parts")]
     LIB --> BUILD["Swarm or<br/>canvas"]
     REQ["Request"] --> SPEC["Spec"]
@@ -79,7 +80,7 @@ flowchart LR
 
 ### 1. Grafting beats fine-tuning
 
-A frozen slice of a larger model, grafted into a small host, beats every fine-tuning arm on every benchmark we ran.
+A frozen slice of a larger model, grafted into a small host, beats LoRA and full fine-tuning on every benchmark in the tables below. The exception is math with a general donor: a Qwen2.5-7B graft trained on all four domains scores 35.8 on AQuA against 41.5 for LoRA, so math needs a math donor (Qwen2.5-Math-7B, 52.0) ([docs/research/2026-11-15-parallel-graft.md](docs/research/2026-11-15-parallel-graft.md)).
 
 - **Slice grafted:** the donor model and the layers taken from it.
 - **Base:** the host model untouched.
@@ -97,7 +98,7 @@ A frozen slice of a larger model, grafted into a small host, beats every fine-tu
 | SciQ | Qwen2.5-7B L4-20 | 85.8 | 87.5 | 88.2 | **89.8** |
 | MMLU | Qwen2.5-7B L4-20 | 44.6 | 47.1 | 45.6 | **53.1** |
 
-**One general graft** (Llama-3.2-1B host, trained on English only)
+**One general graft** (Llama-3.2-1B host, trained on English only; one seed, raw rows not yet in `results/`)
 
 | Benchmark | Slice grafted | Base | LoRA | Graft |
 |---|---|---|---|---|
@@ -108,7 +109,7 @@ A frozen slice of a larger model, grafted into a small host, beats every fine-tu
 | MMLU Spanish | Qwen2.5-14B L7-34 | 37.8 | 38.0 | **52.8** |
 | MMLU Chinese | Qwen2.5-14B L7-34 | 40.0 | 38.0 | **49.8** |
 
-**Against a full fine-tune** (same data, steps and selection for every arm; mean over 2 to 3 seeds)
+**Against a full fine-tune** (same data, steps and selection for every arm; mean over 2 to 3 seeds; rows in `results/wi_xfam/table.md`). Here the graft arm also trains a LoRA on the host and runs a longer schedule, which is why the same Qwen2.5-7B slice scores 59.6 here and 53.1 in the domain table.
 
 | Host + slice grafted | Benchmark | Base | Full FT | LoRA | Scrambled | Graft |
 |---|---|---|---|---|---|---|
@@ -119,7 +120,7 @@ A frozen slice of a larger model, grafted into a small host, beats every fine-tu
 - **The graft carries the donor's languages.** Trained only on English, it lifts MMLU Spanish by 15 points and Chinese by 10; LoRA on the same data moves neither.
 - **The gain is the donor's knowledge.** Scrambled donor weights score at the fine-tuning level, and a full fine-tune of every host weight trails the graft by 8.5 MMLU points and 14 GSM8K points.
 - **Bigger donors give more.** On the 1B host, a 7B slice adds 8 to 10 MMLU points, a 14B slice 15, a 32B slice 18.
-- **The cost is compute per token.** Llama-1B with a 7B slice runs 5.2B parameters per token, so the next test is a host that is already the best at that size.
+- **It does not yet beat the best plain model at the same compute.** Llama-1B with a 7B slice runs 5.2B parameters per token, and with the 14B slice more. Plain Qwen2.5-3B scores 66.0 at that budget, above the graft's 59.8. The planner now checks every graft plan against this bar before spending GPU time (`wsp/native_bar.py`).
 
 ### 2. Mining: from toy skills to domain skills
 
@@ -137,7 +138,7 @@ The library now holds parts for:
 | Natural languages (Chinese, Hindi, Russian, French, Japanese, Arabic, Spanish) | 18 to 20 each |
 | Tool calling and instruction following | 19 to 20 each |
 
-Qwen2.5-Math-7B alone gave 63 math parts. Gemma-4-26B-A4B gave expert sets that each write output in one language (Russian, German, Chinese, French, Italian, Japanese, Spanish) in layers 20 to 29. In all, 1,606 library entries cover 76 models from 0.35B to 235B parameters.
+Qwen2.5-Math-7B alone gave 63 math parts. Gemma-4-26B-A4B gave expert sets that each write output in one language (Russian, German, Chinese, French, Italian, Japanese, Spanish) in layers 20 to 29. In all, the library has 1,606 entries: 1,369 parts from 35 models, 75 model profiles, and 162 stitch recipes, deletion masks, findings and run recipes.
 
 ### 3. Compiling: a part from another model family keeps 90% of its skill inside the host
 
@@ -208,7 +209,7 @@ A part is kept only if:
 
 A separate sweep, with no LLM involved, ranks every unit of every layer and builds a skill map of each model. The Qwen3-30B-A3B map covers 48 layers and 38 skills, with a median split-half correlation of 0.98.
 
-The library holds 584 expert sets, 430 MLP clusters, 264 blocks, 91 head groups, 58 measured stitch recipes, 37 deletion masks, 44 findings and 23 run recipes across 76 models from 0.35B to 235B parameters (Qwen, Llama, Gemma, LFM, Phi, Granite and domain fine-tunes).
+The 1,369 parts that passed are 584 expert sets, 430 MLP clusters, 264 blocks and 91 head groups from 35 models (Qwen, Llama, Gemma, LFM, Phi, Granite and domain fine-tunes). The library marks them `candidate`: none has the stricter `validated` status yet, and the headline grafts use whole donor blocks, not these parts.
 
 ### Compiler
 
@@ -256,15 +257,19 @@ Every GPU step runs on Modal: mining, compiling, healing, scoring and serving.
 
 ## Track 1: autoresearch
 
-Sapien runs the research loop on model construction. The mining agents loop over parts and the swarm loops over programs, and both work the same way: propose a hypothesis, test it on Modal against controls, record the result to past.dev, pick the next one.
+Track 1 allows a new domain for the research loop. Ours is model construction: can a small model plus parts of bigger models beat the best way to train that small model on the same data?
 
-The record Sapien targets is the best existing open model at the same size. That bar is in every comparison table above, and the compiler's latest change checks each graft plan against it before spending GPU time. The 1B host with a grafted 14B slice reaches 59.8 on MMLU held-out (three-seed mean), against 45.6 for fine-tuning the same host.
+**The record.** For a fixed host and fixed training data, the strongest standard method is full fine-tuning. In a matched comparison on Llama-3.2-1B (same data, steps and selection for every arm, 2 to 3 seeds), full fine-tuning reaches 51.1 on MMLU held-out and a Qwen2.5-7B graft reaches 59.6, 8.5 points past it. The same graft with scrambled donor weights scores 50.3, so the gain comes from the donor's knowledge. The best single configuration, a Qwen2.5-14B slice, averages 59.8 over three runs (58.9, 61.0, 59.6; one of them used 1,200 alignment steps), picked on MMLU dev and confirmed on held-out. A harder bar, the best plain model at the same compute per token (Qwen2.5-3B, 66.0), is not beaten yet.
+
+**The loop.** Mining runs without a human: an agent picks a skill and a layer, writes a frozen test, runs the ablation on Modal, reads the gate against random controls, records the result to past.dev, and picks the next guess. The graft search ran in rounds, each planned from the last round's logs with a person in the loop. The swarm automates that step (propose, compile, score at a fixed eval budget, rank, record lessons); so far it has run end to end only on a stub calibrated to real sweeps.
+
+**What failed, and what the loop learned from it.** Rounds 1 to 21 failed. A random part of the same size from the same donor matched almost every grafted part, so the part's own skill never transferred. The logs traced this to the input stitch: a broken attention sink and a linear map that lost 1.4 to 2.2 nats of the donor's loss. That finding led to the alignment encoder and gated branch of rounds 22 and 23, which produced every graft result above.
 
 Each decision is logged: `experiments.jsonl` for swarm steps, `results/README.md` for every run with its controls and reading, `library/index.jsonl` with `added_by`, `source` and evidence on every entry, and the past.dev audiences for the reasoning between steps.
 
 ## Challenges we ran into
 
-- **Mining takes time.** Users will ask for models in many domains: legal, literature, biology, medicine. Each domain needs its donor models mined and its parts tested before anything can be compiled from them. The skill map of Qwen3-30B-A3B alone took 1,352 GPU-seconds, every candidate part then needs an ablation pass plus five random-part controls, and our mining agents ran with 3-hour caps. Even with twelve agents running in parallel, the library covers 76 models. Mining has to run ahead of demand, so the parts already exist when a request arrives.
+- **Mining takes time.** Users will ask for models in many domains: legal, literature, biology, medicine. Each domain needs its donor models mined and its parts tested before anything can be compiled from them. The skill map of Qwen3-30B-A3B alone took 1,352 GPU-seconds, every candidate part then needs an ablation pass plus five random-part controls, and our mining agents ran with 3-hour caps. Even with twelve agents running in parallel, 35 models have parts in the library. Mining has to run ahead of demand, so the parts already exist when a request arrives.
 - **Models are built differently.** A donor and a host rarely match. Llama-3.2-1B has 16 layers and a 2,048-wide hidden state; Qwen2.5-7B has 28 layers and a 3,584-wide one. They split text into different tokens, use different numbers of attention heads, scale their hidden states differently, and park attention on the first token in different ways. Some models route tokens to MoE experts and some (Liquid's LFM) mix in convolution or linear-attention layers. A donor slice fed the host's raw states keeps 1.1% of its own accuracy. The compiler bridges this with a learned encoder and decoder between the two hidden sizes, positions matched across tokenizers by character offsets, the donor's own first-token state fed at position 0, and inputs rescaled to the size the donor expects. That brings the donor back to 89.6%.
 - **Choosing benchmarks.** At first we picked benchmarks by hand, and the right ones for a request were hard to find: domains do not map neatly to benchmarks. A telecom support model needs tau-bench's telecom split; a legal helper needs LegalBench and CaseHOLD. Exa turned out to be good at scanning the web for the benchmarks that fit a request and the published scores to compare against. The first version still pulled the wrong number from a results table half the time (29 of 59 checked scores fully right), so we added a checker that opens every cited page and keeps a score only when it appears there for that benchmark and that model: 24 of 24 after the fix.
 - **Domains with no right answer.** Sapien's mining gate and its evaluations both need an answer that can be checked: a multiple-choice letter, a unit test, a final number. Creative writing has none. The closest signals are likelihood on held-out text or a judge model's opinion, and neither shows that the writing got better. A request like "a model that is great at creative writing" is the hardest one Sapien gets, and we do not yet have a score for it we would stand behind.
