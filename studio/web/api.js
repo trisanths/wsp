@@ -32,6 +32,8 @@ const real = {
   },
   getSpec: (id) => req('GET', '/api/spec/' + id),
   putSpec: (id, spec) => req('PUT', '/api/spec/' + id, spec),
+  getResearch: (id) => req('GET', '/api/spec/' + id + '/research'),
+  startResearch: (id) => req('POST', '/api/spec/' + id + '/research', {}),
   createRun: (spec_id, program = null) => req('POST', '/api/runs', { spec_id, program }),
   getRun: (id) => req('GET', '/api/runs/' + id),
   openStream(id, onSnap, onErr) {

@@ -279,6 +279,73 @@ function getSpec(id) {
   return specs.get(id);
 }
 
+/* ---------- benchmark research (simulated over about 7 seconds) ---------- */
+const researchOf = new Map();
+const RS_TOPIC = { math: 'math word problems', code: 'Python code generation', legal: 'legal reasoning', general: 'general reasoning' };
+const RS_REFONLY = { math: ['MATH-500', 'Competition problems, much harder than grade school.'], code: ['MBPP+', 'Short Python tasks with extra tests.'], legal: ['LegalBench', 'Legal reasoning across 162 tasks.'], general: ['BIG-Bench Hard', 'Hard multi-step reasoning tasks.'] };
+function researchPlan(spec) {
+  const topic = RS_TOPIC[spec.task_type] || RS_TOPIC.math;
+  const main = spec.benchmarks.find((b) => b.kind === 'target') || spec.benchmarks[0];
+  const extra = BENCH_LIB.arc;
+  const ref = RS_REFONLY[spec.task_type] || RS_REFONLY.math;
+  const steps = [
+    { t: 0.6, kind: 'think', text: 'I will look for benchmarks that match this request and check how small models score on them.' },
+    { t: 1.4, kind: 'search', text: 'Searched: ' + topic + ' benchmark for small models', provider: 'exa' },
+    { t: 2.4, kind: 'read', text: 'Open LLM Leaderboard, ' + topic, url: 'https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard', provider: 'exa' },
+    { t: 3.1, kind: 'search', text: 'Searched: ' + ref[0] + ' scores for models under 4B parameters', provider: 'exa' },
+    { t: 4.0, kind: 'read', text: ref[0] + ' results table', url: 'https://paperswithcode.com/sota/' + ref[0].toLowerCase().replace(/[^a-z0-9]+/g, '-'), provider: 'exa' },
+    { t: 4.9, kind: 'read', text: 'Qwen3 technical report', url: 'https://arxiv.org/abs/2505.09388', provider: 'exa' },
+    { t: 5.7, kind: 'think', text: 'The first two are a fair fit for a small model. ' + ref[0] + ' is too hard for the size limit and Sapien cannot run it yet.' },
+    { t: 6.3, kind: 'pick', text: 'Picked ' + main.name + ': it matches the request directly' },
+    { t: 6.6, kind: 'pick', text: 'Picked ' + extra.name + ': checks the model still reasons in general' },
+  ];
+  const sc = (model, params_b, score, sourced, url) => ({ model, params_b, score, sourced, source_url: sourced ? url : null });
+  const proposals = [
+    { name: main.name, measures: 'The skill the request names.', why: 'The closest runnable test of what you asked for.', runnable_id: main.id, kind: 'target', suggested_target: main.target || 0.5, in_spec: true,
+      reference_scores: [sc('Qwen3-1.7B', 1.7, 0.62, true, 'https://arxiv.org/abs/2505.09388'), sc('Llama-3.2-3B', 3, 0.44, true, 'https://huggingface.co/meta-llama/Llama-3.2-3B'), sc('Gemma-3-1B', 1, 0.38, false), sc('Phi-4-mini', 3.8, 0.8, true, 'https://huggingface.co/microsoft/Phi-4-mini-instruct')] },
+    { name: extra.name, measures: 'Grade-school science questions that need a short chain of reasoning.', why: 'Small models trade general reasoning for a narrow skill. This shows if that happened.', runnable_id: extra.id, kind: 'target', suggested_target: 0.5, in_spec: true,
+      reference_scores: [sc('Qwen3-1.7B', 1.7, 0.55, true, 'https://arxiv.org/abs/2505.09388'), sc('SmolLM3-3B', 3, 0.5, false), sc('Mistral-7B-v0.3', 7, 0.6, false)] },
+    { name: ref[0], measures: ref[1], why: 'Used in most papers on this skill, but Sapien has no runner for it.', runnable_id: null, kind: 'target', suggested_target: null, in_spec: false,
+      reference_scores: [sc('Qwen3-1.7B', 1.7, 0.4, true, 'https://arxiv.org/abs/2505.09388'), sc('DeepSeek-R1-Distill-Qwen-1.5B', 1.5, 0.83, false)] },
+  ];
+  const sources = steps.filter((x) => x.kind === 'read').map((x) => ({ title: x.text, url: x.url }));
+  return { steps, proposals, sources, reasoning: 'The request is about ' + topic + ', so the main benchmark should test that skill directly. ' + main.name + ' does, and public scores exist for small models, which gives a fair target.\n\nA narrow tune can cost general reasoning, so ' + extra.name + ' goes in as a second target. ' + ref[0] + ' is the usual paper benchmark, but it is too hard at this size and has no runner yet, so it stays as reference.' };
+}
+function startMockResearch(spec) {
+  const mode = new URLSearchParams(location.search).get('rs');
+  researchOf.set(spec.id, { started: Date.now(), plan: researchPlan(spec), mode, applied: false });
+}
+function researchNow(id) {
+  const r = researchOf.get(id);
+  if (!r) return null;
+  const el = (Date.now() - r.started) / 1000;
+  const base = { provider: 'exa', usage: { input_tokens: 0, output_tokens: 0, web_searches: 3 }, started_at: r.started / 1000 };
+  if (r.mode === 'skipped') return { ...base, status: 'skipped', provider: 'none', steps: [], reasoning: '', proposals: [], sources: [], error: 'No LLM is configured, so the rule-drafted benchmarks stay.' };
+  const steps = r.plan.steps.filter((x) => x.t <= el);
+  if (r.mode === 'error' && el > 3) return { ...base, status: 'error', steps, reasoning: '', proposals: [], sources: [], error: 'The search took too long. Try again.' };
+  if (el < 7) return { ...base, status: 'running', steps, reasoning: '', proposals: [], sources: [], error: null };
+  return { ...base, status: 'done', steps: r.plan.steps, reasoning: r.plan.reasoning, proposals: r.plan.proposals, sources: r.plan.sources, error: null, finished_at: base.started_at + 7 };
+}
+function applyResearch(spec) {
+  const r = researchOf.get(spec.id);
+  const now = researchNow(spec.id);
+  if (!r) return spec;
+  if (now && now.status === 'done' && !r.applied) {
+    r.applied = true;
+    for (const p of now.proposals) {
+      if (!p.runnable_id) continue;
+      const have = spec.benchmarks.find((b) => b.id === p.runnable_id);
+      if (have) { have.research = true; have.reference_scores = p.reference_scores; continue; }
+      const nb = clone(BENCH_LIB[p.runnable_id]);
+      nb.target = p.suggested_target; nb.research = true; nb.reference_scores = p.reference_scores; delete nb.recommended;
+      spec.benchmarks.push(nb);
+      spec.available_benchmarks = spec.available_benchmarks.filter((a) => a.id !== nb.id);
+    }
+  }
+  spec.benchmark_research = now;
+  return spec;
+}
+
 /* ---------- run simulation ---------- */
 const runs = new Map();
 const PHASES = [['thinking', 1], ['probing', 1], ['compiling', 1], ['scoring', 3]];
@@ -537,10 +604,19 @@ export const mockApi = {
     if (!prompt || !prompt.trim()) { const e = new Error('Say what the model should do first.'); throw e; }
     const s = makeSpec(prompt, files);
     specs.set(s.id, s);
-    return clone(s);
+    startMockResearch(s);
+    return clone(applyResearch(s));
   },
-  async getSpec(id) { await lat(); return clone(getSpec(id)); },
-  async putSpec(id, spec) { await lat(); specs.set(id, clone({ ...spec, stub: true })); return clone(specs.get(id)); },
+  async getSpec(id) { await lat(); return clone(applyResearch(getSpec(id))); },
+  async getResearch(id) { await lat(); const r = researchNow(id); if (!r) { const e = new Error('no research for this spec'); e.status = 404; throw e; } applyResearch(getSpec(id)); return clone(r); },
+  async startResearch(id) {
+    await lat();
+    const cur = researchNow(id);
+    if (cur && cur.status === 'running') { const e = new Error('a research run is already going for this spec'); e.status = 409; throw e; }
+    startMockResearch(getSpec(id));
+    return { status: 'running' };
+  },
+  async putSpec(id, spec) { await lat(); const old = getSpec(id); specs.set(id, clone({ ...spec, benchmark_research: old.benchmark_research, stub: true })); return clone(specs.get(id)); },
   async createRun(spec_id, program) { await lat(); const r = newRun(getSpec(spec_id), program); return { run_id: r.id }; },
   async getRun(id) { await lat(); return snapshot(getRunObj(id)); },
   openStream(id, onSnap) {

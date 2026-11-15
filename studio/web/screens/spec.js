@@ -4,6 +4,7 @@ import { go, toast, pct, clamp, donorColor, donorLetter, useDebouncedCallback, c
 import { TopBar, Icon, Spinner, ErrorBox, Menu, StubBadge } from '../components.js';
 import { SubtleNum, AutoHeight, SkelReveal, reduced } from '../motion.js';
 import { ModelLogo } from '../logos.js';
+import { ResearchBlock, RefList, AlsoConsidered, refTicks } from './research.js';
 
 // slider with optional tick marks (fractions of the range are given as values)
 export function Slider({ value, min, max, step, onChange, ticks = [], color, ariaLabel }) {
@@ -15,23 +16,28 @@ export function Slider({ value, min, max, step, onChange, ticks = [], color, ari
   </div>`;
 }
 
-function BenchRow({ b, onChange, onRemove, late, leaving }) {
+function BenchRow({ b, why, onChange, onRemove, late, leaving }) {
   const born = useRef(late);
   const isT = b.kind === 'target';
   const key = isT ? 'target' : 'floor';
   const ticks = [];
   if (b.base != null) ticks.push({ v: b.base, kind: 'base', label: 'host ' + pct(b.base, 0) });
   if (b.lora != null) ticks.push({ v: b.lora, kind: 'lora', label: 'LoRA ' + pct(b.lora) });
+  ticks.push(...refTicks(b.reference_scores));
   const val = b[key] ?? b.base ?? 0.3;
   return html`<div class=${'srow' + (born.current ? ' t-row-in' : '') + (leaving ? ' t-row-out' : '')}>
     <div class="top">
       <span class="nm">${b.name}${b.recommended && html`<span class="tag b">recommended</span>`}</span>
       <span class="vwrap"><span class=${'val' + (isT ? '' : ' guard')}>${isT ? 'aim for ' : 'stay above '}<${SubtleNum} text=${pct(val, 0)} />%</span><button class="xbtn" data-tip="Remove" aria-label=${'Remove ' + b.name} onClick=${onRemove}><${Icon} n="x" size=${14} /></button></span>
     </div>
+    ${why && html`<div class="rs-why">${why}</div>`}
     <${Slider} value=${val} min=${0} max=${1} step=${0.01} ticks=${ticks} color=${isT ? 'var(--text-1)' : 'var(--red)'} ariaLabel=${b.name} onChange=${(v) => onChange({ [key]: Math.round(v * 100) / 100 })} />
     <div class="note"><span>${b.base == null ? 'Host score not measured yet. The first run measures it' + (isT ? '.' : '. A guard keeps the model from losing this skill.') : isT ? 'Host starts at ' + pct(b.base) + '%' : 'Host starts at ' + pct(b.base) + '%. A guard keeps the model from losing this skill.'}${b.lora != null ? '. Fine-tuning (LoRA) reaches ' + pct(b.lora) + '%.' : ''}</span></div>
+    <${RefList} scores=${b.reference_scores} />
   </div>`;
 }
+
+const withoutResearch = (s) => { const { benchmark_research, ...rest } = s; return rest; };
 
 export function SpecScreen({ id }) {
   const [spec, setSpec] = useState(null);
@@ -52,7 +58,7 @@ export function SpecScreen({ id }) {
     if (!dirty.current) return;
     dirty.current = false;
     setSave('saving');
-    try { await api.putSpec(id, latest.current); patchRecent('spec', id, { title: latest.current.title }); setSave(dirty.current ? 'dirty' : 'saved'); } catch (e) { setSave('error'); toast('Could not save: ' + e.message, 'err'); dirty.current = true; }
+    try { await api.putSpec(id, withoutResearch(latest.current)); patchRecent('spec', id, { title: latest.current.title }); setSave(dirty.current ? 'dirty' : 'saved'); } catch (e) { setSave('error'); toast('Could not save: ' + e.message, 'err'); dirty.current = true; }
   };
   const debounced = useDebouncedCallback(doSave, 700);
   const edit = (fn) => {
@@ -64,13 +70,70 @@ export function SpecScreen({ id }) {
     setSave('dirty');
     debounced();
   };
-  useEffect(() => () => { debounced.cancel(); if (dirty.current && latest.current) api.putSpec(id, latest.current).catch(() => {}); }, []);
+  useEffect(() => () => { debounced.cancel(); if (dirty.current && latest.current) api.putSpec(id, withoutResearch(latest.current)).catch(() => {}); }, []);
+
+  // benchmark research: shown from the spec, polled while it runs
+  const [res, setRes] = useState(undefined);
+  const [starting, setStarting] = useState(false);
+  const alive = useRef(true);
+  useEffect(() => { alive.current = true; return () => { alive.current = false; }; }, []);
+  useEffect(() => { if (spec && res === undefined) setRes(spec.benchmark_research || null); }, [!!spec]);
+  const adopt = async () => {
+    // save pending edits first, then take the benchmarks the research added without touching other fields
+    debounced.cancel();
+    await doSave();
+    let fresh;
+    try { fresh = await api.getSpec(id); } catch (e) { return; }
+    const cur = latest.current;
+    if (!alive.current || !cur) return;
+    const seen = new Set(cur.benchmarks.map((x) => x.id));
+    const benchmarks = cur.benchmarks.map((x) => {
+      const f = fresh.benchmarks.find((y) => y.id === x.id);
+      return f ? { ...x, ...(f.research ? { research: true } : {}), ...(f.reference_scores ? { reference_scores: f.reference_scores } : {}) } : x;
+    });
+    for (const f of fresh.benchmarks) if (!seen.has(f.id)) benchmarks.push(f);
+    const have = new Set(benchmarks.map((x) => x.id));
+    const avail = [...(cur.available_benchmarks || []), ...(fresh.available_benchmarks || [])].filter((a, i, all) => !have.has(a.id) && all.findIndex((z) => z.id === a.id) === i);
+    latest.current = { ...cur, benchmarks, available_benchmarks: avail, benchmark_research: fresh.benchmark_research };
+    setSpec(latest.current);
+  };
+  const running = !!res && res.status === 'running';
+  useEffect(() => {
+    if (!running) return;
+    let stop = false, busy = false;
+    const tick = async () => {
+      if (busy || stop) return;
+      busy = true;
+      try {
+        const r = await api.getResearch(id);
+        if (stop || !r) return;
+        setRes(r);
+        if (r.status !== 'running') { stop = true; clearInterval(timer); if (r.status === 'done') adopt(); }
+      } catch (e) { /* keep polling; a 404 or a dropped request is not the end */ }
+      busy = false;
+    };
+    const timer = setInterval(tick, 1000);
+    return () => { stop = true; clearInterval(timer); };
+  }, [running, id]);
+  const startResearch = async () => {
+    setStarting(true);
+    try {
+      await api.startResearch(id);
+      const r = await api.getResearch(id).catch(() => null);
+      setRes(r && r.status ? r : { status: 'running', provider: 'none', steps: [] });
+    } catch (e) {
+      if (e.status === 409) { toast('Research is already running'); api.getResearch(id).then((r) => alive.current && r && setRes(r)).catch(() => {}); }
+      else toast(e.message, 'err');
+    }
+    setStarting(false);
+  };
 
   if (err) return html`<${TopBar} /><${ErrorBox} error=${err} onRetry=${load} />`;
   if (!spec) return html`<${TopBar} /><main class="screen"><div class="doc"><${SkelReveal} ready=${false} skeleton=${html`<div class="skeleton" style="height:48px"></div><div class="skeleton" style="height:420px;margin-top:20px"></div>`} /></div></main>`;
 
   const targets = spec.benchmarks.filter((b) => b.kind === 'target');
   const guards = spec.benchmarks.filter((b) => b.kind === 'guard');
+  const whyOf = (bid) => { const p = res && (res.proposals || []).find((x) => x.runnable_id === bid); return p && p.why; };
   const upd = (bid, patch) => edit((s) => { Object.assign(s.benchmarks.find((b) => b.id === bid), patch); });
   const remove = (bid) => edit((s) => {
     const b = s.benchmarks.find((x) => x.id === bid);
@@ -116,6 +179,8 @@ export function SpecScreen({ id }) {
     <input class="doc-title" value=${spec.title} aria-label="Title" onInput=${(e) => edit((s) => { s.title = e.target.value; })} />
     <textarea class="doc-sum" rows="2" ref=${(el) => { if (el) { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; } }} value=${spec.summary} aria-label="Summary" onInput=${(e) => edit((s) => { s.summary = e.target.value; })}></textarea>
 
+    <${ResearchBlock} r=${res} starting=${starting} onStart=${startResearch} />
+
     <section class="sect"><h2 class="sec">Limits</h2>
       <div class="srow">
         <div class="top"><span class="nm">Total size</span><span class="val">up to <${SubtleNum} text=${lim.max_total_params_b.toFixed(1)} />B parameters</span></div>
@@ -147,13 +212,16 @@ export function SpecScreen({ id }) {
       </div>
     </section>
 
-    <section class="sect"><h2 class="sec"><span>Targets</span><span class="legend"><span class="lg base">host</span><span class="lg lora">LoRA</span></span></h2>
-      <${AutoHeight}>${targets.length ? targets.map((x) => html`<${BenchRow} key=${x.id} b=${x} late=${!first.current} leaving=${gone === x.id} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`) : html`<div class="empty">No targets. Add one below.</div>`}<//>
+    <section class="sect"><h2 class="sec"><span>Targets</span><span class="legend"><span class="lg base">host</span><span class="lg lora">LoRA</span>${spec.benchmarks.some((x) => x.reference_scores && x.reference_scores.length) && html`<span class="lg ref">other models</span>`}</span></h2>
+      ${running && html`<div class="rs-pending">More benchmarks arrive when research finishes.</div>`}
+      <${AutoHeight}>${targets.length ? targets.map((x) => html`<${BenchRow} key=${x.id} b=${x} why=${whyOf(x.id)} late=${!first.current} leaving=${gone === x.id} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`) : html`<div class="empty">No targets. Add one below.</div>`}<//>
     </section>
     <section class="sect"><h2 class="sec"><span>Guards</span></h2>
-      <${AutoHeight}>${guards.map((x) => html`<${BenchRow} key=${x.id} b=${x} late=${!first.current} leaving=${gone === x.id} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`)}
+      <${AutoHeight}>${guards.map((x) => html`<${BenchRow} key=${x.id} b=${x} why=${whyOf(x.id)} late=${!first.current} leaving=${gone === x.id} onChange=${(p) => upd(x.id, p)} onRemove=${() => drop(x.id)} />`)}
       ${!guards.length && html`<div class="empty">No guards. A guard stops the model from losing a skill you want to keep.</div>`}<//>
     </section>
+
+    ${res && res.status === 'done' && html`<${AlsoConsidered} proposals=${res.proposals} />`}
 
     <div class="addwrap">
       <button class="btn" onClick=${() => setMenu(!menu)} disabled=${!addable.length}><${Icon} n="plus" size=${16} /> Add benchmark</button>
