@@ -557,7 +557,7 @@ def print_verdict(path):
 
 
 @app.local_entrypoint()
-def main(shard: int = 0, nshards: int = 1, verdict: str = "", stage: str = "all"):
+def main(shard: int = 0, nshards: int = 1, verdict: str = "", stage: str = "all", only: str = ""):
     if verdict:
         print_verdict(verdict)
         return
@@ -567,6 +567,10 @@ def main(shard: int = 0, nshards: int = 1, verdict: str = "", stage: str = "all"
         chosen = [cell for cell in chosen if cell[0] == "base" or cell[0] in NOHEAL]
     elif stage != "all":
         raise SystemExit("stage must be all or gate")
+    if only:
+        # "arm:seed,arm:seed" runs chosen cells.
+        wanted = set(only.split(","))
+        chosen = [cell for cell in chosen if f"{cell[0]}:{cell[1]}" in wanted]
     for index, cell in enumerate(chosen):
         if index % nshards == shard:
             mine.append(cell)
