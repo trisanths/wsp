@@ -443,6 +443,54 @@ class HumanEvalTask(Task):
         return 0.0
 
 
+class IFGuardTask(Task):
+    """`if_guard`: IFEval strict prompt-level accuracy, a guard against grafts that break the host.
+
+    IFEval has one split (541 prompts); the 31 that need a language detector
+    are left out. Search: 100 prompts (seeded shuffle). Held-out: the other 410.
+    No heal split. Prompts go through the model's chat template; 512 new tokens.
+    """
+    name = "if_guard"
+    max_new_tokens = 512
+    search_size = 100
+
+    def load_items(self):
+        from wsp_eval import ifeval
+        data = _load_dataset("google/IFEval", split="train")
+        items = []
+        for row in data:
+            skip = False
+            for instruction_id in row["instruction_id_list"]:
+                if instruction_id in ifeval.UNSUPPORTED:
+                    skip = True
+            if skip:
+                continue
+            items.append({
+                "id": "ifeval-" + str(row["key"]),
+                "messages": _user(row["prompt"]),
+                "prompt_text": row["prompt"],
+                "instruction_id_list": list(row["instruction_id_list"]),
+                "kwargs": list(row["kwargs"]),
+                "answer": None,
+            })
+        return items
+
+    def split_items(self, split, seed):
+        if split == "heal":
+            raise ValueError("if_guard has no heal split")
+        items = sorted(self.load_items(), key=lambda item: item["id"])
+        random.Random(str(seed) + ":if_guard").shuffle(items)
+        if split == "search":
+            return items[:self.search_size]
+        return items[self.search_size:]
+
+    def score(self, output, item):
+        from wsp_eval import ifeval
+        if ifeval.follows_all(item, output):
+            return 1.0
+        return 0.0
+
+
 _registered = {}
 
 
@@ -478,8 +526,8 @@ def get_task(name):
         return MMLUTask(name.split(":", 1)[1])
     if name == "humaneval":
         return HumanEvalTask()
-    if name == "ifeval":
-        raise NotImplementedError("ifeval needs the instruction checkers from lm-eval; not wired in yet")
+    if name == "if_guard" or name == "ifeval":
+        return IFGuardTask()
     raise ValueError("unknown task: " + name)
 
 

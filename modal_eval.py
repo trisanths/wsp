@@ -171,6 +171,15 @@ def mask_signatures_remote():
         return {"count": count, "catalog": f.read()}
 
 
+@app.function(image=image, volumes={"/vol": volume}, gpu="L40S", memory=65536, timeout=3600)
+def base_scores_remote(host, tasks):
+    from wsp_eval import harness
+    _prepare_catalog()
+    result = harness.evaluate(host, "search", tasks, namespace="reference", backend="hf", note="host base scores")
+    volume.commit()
+    return result
+
+
 def _save(name, data):
     os.makedirs("outputs", exist_ok=True)
     path = os.path.join("outputs", name)
@@ -269,3 +278,15 @@ def mask_signatures():
     with open("catalog.jsonl", "w") as f:
         f.write("\n".join(lines) + "\n")
     print("signatures merged into catalog.jsonl for", result["count"], "masks")
+
+
+@app.local_entrypoint()
+def base_scores(host: str = "unsloth/Llama-3.2-1B-Instruct", tasks: str = "gsm8k if_guard"):
+    """Host scores on the search split, in the form wsp/swarm config base_scores expects."""
+    result = base_scores_remote.remote(host, tasks.split())
+    table = {"search": {}}
+    for task, entry in result["tasks"].items():
+        table["search"][task] = entry["score"]
+        print("%-10s %.3f  (n=%d) [%s]" % (task, entry["score"], entry["n"], result["label"]))
+    print('config "base_scores":', json.dumps(table))
+    _save("base_scores.json", table)
