@@ -163,6 +163,29 @@ For agents:
 
 The full rules are in `CONTRIBUTING.md`.
 
+## Skill-map entries (`map_block_*`, `map_expert_*`)
+
+`person_a/mine/maps.py` measures one model at a time. It skips each decoder layer and records how much
+the loss rises on a skill's text, minus the rise on general text (nats). On MoE layers it counts how
+often the router picks each expert on the skill's text and on general text. The text is plain
+non-benchmark text, and its description is stored in `selection_data` on each entry.
+`scripts/library_from_maps.py` turns the map files in `atlas/pool_entries/` into entries:
+
+- `block`: one per model, skill, and block (a run of layers chosen on the search half). `layers` lists them.
+- `expert`: one per model, skill, and MoE layer. The `.pt` file holds `{kind, model, layer, indices}`.
+- Each entry has `params_b`, `n_layers`, `hidden`, `family`, `architecture`, `license`, and `revision` at top level.
+- All are `candidate`. The numbers come from the donor alone and say where a skill lives, not that a part helps a host.
+- Blocks need `split_half_r` of at least 0.5 and a held-out `check_mass` of at least 0.2. Expert layers need 2 experts.
+
+```bash
+.venv/bin/python scripts/library_from_maps.py write --entries-dir atlas/pool_entries   # safe to rerun
+.venv/bin/python scripts/library.py query --kind block --skill law --model qwen
+.venv/bin/python scripts/library_from_maps.py find --kind block --skill law --max-params 8
+.venv/bin/python scripts/library_from_maps.py find --kind expert --skill code --max-hidden 3072 --license apache
+```
+
+`find` also takes `--family`, `--min-params`, and `--status`. Entry ids start with `map_`.
+
 ## Regenerating the generated entries
 
 ```bash
