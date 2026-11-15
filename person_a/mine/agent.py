@@ -365,6 +365,9 @@ class Session:
             target = args.get("target_skill")
             if target not in m.target_skills():
                 return {"error": "target_skill must be one of " + ", ".join(m.target_skills())}
+            if m.state.get("open_domain") and args.get("target_skill") in common.BUILTIN_TARGETS:
+                return {"error": "benchmark-agnostic mode: built-in skills are controls only; define_skill for the "
+                                 "domain you found and screen against that"}
             if not args.get("label"):
                 return {"error": "label is required"}
             self.weight_proposals += 1
@@ -421,8 +424,22 @@ class Session:
         return {"error": "unknown tool " + name}
 
 
+OPEN_DOMAIN_TEXT = (
+    "\nBENCHMARK-AGNOSTIC MODE. The built-in skills (math, code, facts, multilingual, general_text) are only controls "
+    "here: do not use them as screen targets. Do NOT target arithmetic, fractions, signs, parity, counting or date "
+    "arithmetic: the team library already has many such parts. Your job is to discover what ELSE this model's weights "
+    "encode, across as many different domains as possible: e.g. medicine and anatomy, law and legal terms, chemistry, "
+    "biology, physics, geography and places, history, people and organisations, finance, food, music, sports, "
+    "emotions and sentiment, politeness/refusals, grammar (tense, plurals, agreement), morphology, named entities, "
+    "specific languages and scripts, code syntax in specific languages, markup/JSON/URLs, units and measurements. "
+    "Read the weights to see which domain vocabulary a part promotes or reads, name the domain, write a skill test for "
+    "it (generator code when answers can be computed; otherwise hand-written items with a matched control), and "
+    "screen it. Prefer breadth: one good part each in many domains beats many parts in one domain. Check "
+    "recall_shared first and avoid domains teammates already covered.\n")
+
+
 def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, effort=REASONING_EFFORT,
-        person=None, focus=None):
+        person=None, focus=None, open_domain=False):
     load_dotenv(os.path.join(common.ROOT, ".env"), override=True)
     run_id = "run-" + time.strftime("%Y%m%d-%H%M%S")
     lane = os.environ.get("WSP_LANE", "")
@@ -439,6 +456,10 @@ def run(short, budget_usd=25.0, max_hours=3.0, max_screens=60, use_notes=True, e
     # a hung request must not freeze the run: 3 minutes per request, then retry (max 2 retries)
     llm = OpenAI(timeout=180, max_retries=2)
     system_text = instructions(miner, use_notes)
+    if open_domain:
+        system_text = system_text + OPEN_DOMAIN_TEXT
+        miner.state["max_agent_skills"] = 16  # breadth needs more agent-defined skills
+        miner.state["open_domain"] = True
     if focus:
         system_text = system_text + ("\nYour focus in this run (other agents are covering the rest in parallel "
                                      "and sharing results through memory): " + focus + "\n")
