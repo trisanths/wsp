@@ -31,7 +31,7 @@ def skip_fit(monkeypatch):
     calls = []
 
     def fake_fit(host_model, host_tokenizer, host_layer, donor_id, donor_layer, align_texts, device,
-                 norm_prefix=None, layer_input=False):
+                 norm_prefix=None, layer_input=False, stats=None):
         calls.append(host_layer)
         d_host = host_hidden_size(host_model)
         d_donor = wsp.assemble._text_config(wsp.assemble.fetch_config(donor_id)).hidden_size

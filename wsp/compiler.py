@@ -275,7 +275,7 @@ def compile_grafts(program, catalog, model, tokenizer, output_dir, report, align
     from safetensors.torch import save_file
 
     from wsp.assemble import build_graft
-    from wsp.graft import attach_grafts, freeze_all_but_glue, glue_parameters
+    from wsp.graft import attach_grafts, freeze_all_but_glue, glue_parameters, part_lora_parameters
 
     model.to(device)
     model.eval()
@@ -292,11 +292,19 @@ def compile_grafts(program, catalog, model, tokenizer, output_dir, report, align
     if program.heal_spec is not None:
         freeze_all_but_glue(model)
         params = glue_parameters(model)
+        # A part LoRA (the receiver) trains with the glue.
+        part_lora = part_lora_parameters(model)
+        for param in part_lora:
+            params.append(param)
         if lora_params is not None:
             for param in lora_params:
                 param.requires_grad_(True)
                 params.append(param)
         run_heal(program, model, tokenizer, heal_texts, params, report)
+        count = 0
+        for param in part_lora:
+            count += param.numel()
+        report["heal"]["part_lora_params"] = count
 
     state = {}
     for key, value in model.wsp_grafts.state_dict().items():

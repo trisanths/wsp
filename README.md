@@ -30,8 +30,23 @@ Tuning are in [VERIFY.md](VERIFY.md).
   next-token loss, same tokenizer only), and `downstream` (match the
   donor's own states a few layers later, any tokenizers). The compile
   report records the stitch penalty or loss before and after.
-- A heal pass trains only the glue. `control="random"` swaps in a random part
-  of the same size from the same donor layer.
+- The ridge fit's default regularizer is relative 1e-6, so an exact linear
+  map comes back exactly. The first position never enters the fit.
+- `sink=True` (the default) on a graft: the compiler records the donor's
+  mean state at position 0 at the part's input point over the align texts.
+  Position 0 is the donor's attention sink (the BOS, or the first text
+  token when there is no BOS). The graft feeds that state to the part at
+  each sequence's first real token, also under left padding, and not again
+  on cached decode steps. The stitch trains with the same sink.
+  `sink=False` turns it off. Without align texts the sink stays off.
+- `rms_match=True` on a graft scales each mapped vector to the donor's mean
+  RMS at the input point, times a trained scalar that starts at 1.
+- `part_lora_rank=r` on a graft puts a rank-r LoRA on the linears inside the
+  donor part (the receiver). Heal trains it with the glue, and the compile
+  report counts it as `part_lora_params`.
+- A heal pass trains only the glue (and a part LoRA). `control="random"`
+  swaps in a random part of the same size from the same donor layer, with
+  the same options.
 - Mask algebra and task vectors on the host, as before.
 - `wsp.load(path)` returns `(model, tokenizer)` for any compiled directory.
 - Stub extractors: `top_activation_neurons` and `top_routed_experts`.

@@ -169,11 +169,29 @@ class GraftSpec:
                    layer, all 0 or less (default [-2, 0]).
         end_layer  downstream only (default min(donor_layer + 4, last)).
         The compiler trains the stitch on the align texts.
+    sink: True feeds the part the donor's mean state at its first position
+        (the attention sink) in place of the mapped vector at each
+        sequence's first real position. The compiler measures it on the
+        align texts, so without align texts the sink stays off. The stitch
+        trains with the same sink. False turns it off.
+    rms_match: True scales each other mapped vector to the donor's mean RMS
+        at the input point (measured on the align texts) times a trained
+        scalar that starts at 1.
+    part_lora_rank: None, or r for a rank-r LoRA on the linears inside the
+        donor part (the receiver), trained by heal with the glue.
     """
 
-    def __init__(self, component_id, at=None, control=None, control_seed=0, glue_rank=None, stitch=None):
+    def __init__(self, component_id, at=None, control=None, control_seed=0, glue_rank=None, stitch=None,
+                 sink=True, rms_match=False, part_lora_rank=None):
         if control not in (None, "random"):
             raise ValueError(f"unknown control: {control!r}")
+        if sink not in (True, False):
+            raise ValueError(f"sink is True or False, got {sink!r}")
+        if rms_match not in (True, False):
+            raise ValueError(f"rms_match is True or False, got {rms_match!r}")
+        if part_lora_rank is not None:
+            if isinstance(part_lora_rank, bool) or not isinstance(part_lora_rank, int) or part_lora_rank < 1:
+                raise ValueError(f"part_lora_rank is None or an integer of 1 or more, got {part_lora_rank!r}")
         self.component_id = component_id
         self.at = at
         self.control = control
@@ -183,15 +201,30 @@ class GraftSpec:
         if stitch is not None:
             check_stitch(stitch)
             self.stitch = dict(stitch)
+        self.sink = bool(sink)
+        self.rms_match = bool(rms_match)
+        self.part_lora_rank = part_lora_rank
 
     def to_dict(self):
         data = {"id": self.component_id, "at": self.at, "control": self.control,
                 "control_seed": self.control_seed, "glue_rank": self.glue_rank}
-        # Only a graft with a stitch writes the key, so older programs keep
-        # the same JSON.
+        # The newer keys are written only when they differ from the default,
+        # so older programs keep the same JSON and the same hash.
         if self.stitch is not None:
             data["stitch"] = dict(self.stitch)
+        if not self.sink:
+            data["sink"] = False
+        if self.rms_match:
+            data["rms_match"] = True
+        if self.part_lora_rank is not None:
+            data["part_lora_rank"] = self.part_lora_rank
         return data
+
+    @classmethod
+    def from_dict(cls, data):
+        return cls(data["id"], data.get("at"), data.get("control"), data.get("control_seed", 0),
+                   data.get("glue_rank"), data.get("stitch"), data.get("sink", True), data.get("rms_match", False),
+                   data.get("part_lora_rank"))
 
 
 STITCH_KINDS = ("linear", "lowrank", "mlp", "multi")
@@ -292,9 +325,11 @@ class Program:
         self.task_vectors.append(TaskVector(component_id, weight, layers, modules))
         return self
 
-    def graft(self, component_id, at=None, control=None, control_seed=0, glue_rank=None, stitch=None):
+    def graft(self, component_id, at=None, control=None, control_seed=0, glue_rank=None, stitch=None, sink=True,
+              rms_match=False, part_lora_rank=None):
         """Add a graft. Returns self so calls can chain."""
-        self.grafts.append(GraftSpec(component_id, at, control, control_seed, glue_rank, stitch))
+        self.grafts.append(GraftSpec(component_id, at, control, control_seed, glue_rank, stitch, sink, rms_match,
+                                     part_lora_rank))
         return self
 
     def heal(self, steps=300, data="gsm8k_train", lr=3e-4, batch_size=8, seq_len=384):
@@ -351,8 +386,7 @@ class Program:
             task_vectors.append(TaskVector(tv["id"], tv["weight"], tv["layers"], tv["modules"]))
         grafts = []
         for graft in data.get("grafts", []):
-            grafts.append(GraftSpec(graft["id"], graft.get("at"), graft.get("control"), graft.get("control_seed", 0),
-                                   graft.get("glue_rank"), graft.get("stitch")))
+            grafts.append(GraftSpec.from_dict(graft))
         heal = None
         if data.get("heal") is not None:
             heal = HealSpec(**data["heal"])

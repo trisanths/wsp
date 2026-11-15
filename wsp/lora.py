@@ -175,21 +175,72 @@ def rank_for_budget(model, target_params, targets=DEFAULT_TARGETS, layers=None):
 
 
 def graft_budget(grafts):
-    """Return the glue plus part parameter count of a list of graft metas.
+    """Return the glue, part, and part LoRA parameter count of a list of graft metas.
 
     grafts is report["grafts"] from compile_report.json, or the list in
     grafts.json. A LoRA control with this budget matches the graft run.
     """
     total = 0
     for meta in grafts:
-        total += meta["glue_params"] + meta["part_params"]
+        total += meta["glue_params"] + meta["part_params"] + meta.get("part_lora_params", 0)
     return total
 
 
+# Linear names inside a donor part that get a part LoRA: the host targets
+# plus the Phi-2 names (dense, fc1, fc2). Every linear inside an experts
+# list also gets one, whatever its name (Mixtral uses w1, w2, w3). Routers
+# (gate, shared_expert_gate) do not.
+PART_TARGETS = DEFAULT_TARGETS + ("dense", "fc1", "fc2")
+
+
+def part_linears(part):
+    """Return (parent, child_name, module) for each nn.Linear in a donor part that takes a part LoRA."""
+    found = []
+    for name, module in part.named_modules():
+        if name == "" or not isinstance(module, nn.Linear):
+            continue
+        parts = name.split(".")
+        parent = part
+        for piece in parts[:-1]:
+            parent = getattr(parent, piece)
+        if isinstance(parent, LoRALinear):
+            # The base of a LoRA that is already there.
+            continue
+        in_experts = "experts" in parts[:-1]
+        if parts[-1] not in PART_TARGETS and not in_experts:
+            continue
+        found.append((parent, parts[-1], module))
+    return found
+
+
+def apply_part_lora(part, rank, alpha=None):
+    """Wrap the linears of a donor part in LoRALinear. Return the new LoRA parameters.
+
+    B starts at zero, so the part gives the same output as before. The
+    donor weights stay frozen.
+    """
+    found = part_linears(part)
+    if len(found) == 0:
+        raise ValueError(f"no linear layers for a part LoRA found in {type(part).__name__}")
+    params = []
+    for parent, child_name, module in found:
+        wrapped = LoRALinear(module, rank, alpha)
+        setattr(parent, child_name, wrapped)
+        params.append(wrapped.lora_A)
+        params.append(wrapped.lora_B)
+    return params
+
+
 def lora_modules(model):
-    """Return (name, module) for every LoRALinear in the model."""
+    """Return (name, module) for every LoRALinear on the host.
+
+    Part LoRAs inside grafts (under wsp_grafts) are left out. They are saved
+    with the graft weights, not with the host LoRA.
+    """
     found = []
     for name, module in model.named_modules():
+        if name == "wsp_grafts" or name.startswith("wsp_grafts."):
+            continue
         if isinstance(module, LoRALinear):
             found.append((name, module))
     return found
