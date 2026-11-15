@@ -73,7 +73,7 @@ def mmlu_prompt(question, choices):
     return "\n".join(lines) + "\nAnswer:"
 
 
-def mmlu_data(seed=0, train_count=8000, eval_count=1000):
+def mmlu_data(seed=0, train_count=8000, eval_count=1000, tokenizer=None, max_prompt_tokens=240):
     from datasets import load_dataset
 
     test = load_dataset("cais/mmlu", "all", split="test")
@@ -93,6 +93,9 @@ def mmlu_data(seed=0, train_count=8000, eval_count=1000):
         if "train" in row and isinstance(row["train"], dict):
             row = row["train"]
         if len(row["choices"]) != 4:
+            continue
+        prompt = mmlu_prompt(row["question"], row["choices"])
+        if tokenizer is not None and len(tokenizer(prompt).input_ids) > max_prompt_tokens:
             continue
         pairs.append((mmlu_prompt(row["question"], row["choices"]), " " + LETTERS[int(row["answer"])]))
         if len(pairs) >= train_count:
@@ -207,7 +210,7 @@ def run_cell(part, arm, seed):
 
     start = time.time()
     if part == "mmlu":
-        pairs, items = mmlu_data()
+        pairs, items = mmlu_data(tokenizer=transformers.AutoTokenizer.from_pretrained(HOST))
         if arm == "host":
             model = transformers.AutoModelForCausalLM.from_pretrained(HOST, dtype=torch.bfloat16).to("cuda").eval()
             tokenizer = transformers.AutoTokenizer.from_pretrained(HOST)
@@ -250,14 +253,18 @@ def run_cell(part, arm, seed):
 
 
 @app.local_entrypoint()
-def main():
-    cells = [("mmlu", "host", 0), ("mmlu", "donor", 0)]
-    for arm in MMLU_ARMS:
-        for seed in SEEDS:
-            cells.append(("mmlu", arm, seed))
-    for arm in GSM_ARMS:
-        for seed in SEEDS:
-            cells.append(("gsm8k", arm, seed))
+def main(parts: str = "mmlu,gsm8k"):
+    cells = []
+    if "mmlu" in parts:
+        cells.append(("mmlu", "host", 0))
+        cells.append(("mmlu", "donor", 0))
+        for arm in MMLU_ARMS:
+            for seed in SEEDS:
+                cells.append(("mmlu", arm, seed))
+    if "gsm8k" in parts:
+        for arm in GSM_ARMS:
+            for seed in SEEDS:
+                cells.append(("gsm8k", arm, seed))
     print(f"{len(cells)} cells")
     rows = []
     for row in run_cell.starmap(cells, return_exceptions=True):
@@ -267,5 +274,5 @@ def main():
         rows.append(row)
         print(json.dumps(row))
     os.makedirs("results", exist_ok=True)
-    with open("results/round6_rows.json", "w") as f:
+    with open(f"results/round6_{parts.replace(',', '_')}_rows.json", "w") as f:
         json.dump(rows, f, indent=2)
