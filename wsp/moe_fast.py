@@ -332,9 +332,10 @@ def fast_grafted_final(donor, layer, x, mask):
     part = cache[layer]
     from wsp.stitch import autocast
 
+    x = x.to(donor.model.norm.weight.dtype)
     with autocast(x.device):
         out = x + part(x, attention_mask=mask)
-        return donor.model.norm(out)
+        return donor.model.norm(out).to(x.dtype)
 
 
 def install_fast_alignment():

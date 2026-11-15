@@ -145,3 +145,12 @@ def test_checkpoint_matches_plain_gradient():
     fast.ckpt = True
     fast(x)[0].sum().backward()
     assert (x.grad - plain).abs().max() < 1e-5
+
+
+def test_fast_grafted_final_takes_float32_input_for_bf16_donor():
+    donor = model_with_fast(tiny_model(torch.bfloat16))
+    x = torch.randn(2, 6, 48)
+    mask = torch.ones(2, 6, dtype=torch.long)
+    out = moe_fast.fast_grafted_final(donor, 2, x, mask)
+    head = donor.get_output_embeddings()
+    assert head(out).shape[-1] == 300
