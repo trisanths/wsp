@@ -1,0 +1,95 @@
+{
+  "id": "map_block_qwen__qwen3.5-35b-a3b_biology_l0_0",
+  "kind": "block",
+  "title": "Qwen3.5-35B-A3B layer 0, biology block (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "biology"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-35B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "skipping layer 0 of Qwen3.5-35B-A3B raises the loss on 'biology' text more than on general text; measured inside the donor only, not a gain on a host",
+      "metric": "summed layer score over the block, nats (skill loss increase minus general loss increase)",
+      "value": 1.43528,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "general_text loss increase, subtracted layer by layer"
+    },
+    {
+      "claim": "share of the positive layer score that falls inside the block (layer 0)",
+      "metric": "block_mass, fraction of the model's positive layer score",
+      "value": 0.8099,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same share, recomputed on the other half of the skill text for the same layers",
+      "metric": "check_mass, fraction of the positive layer score",
+      "value": 0.2526,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the per-layer score map from one half of the text agrees with the map from the other half",
+      "metric": "split_half_r, Pearson r over layers (whole map, same value for every block of the skill)",
+      "value": 0.8736,
+      "control_value": null,
+      "split": "search half against held-out half",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3.5-35B-A3B",
+  "layer": 0,
+  "layers": [
+    0
+  ],
+  "units_file": null,
+  "units_remote": null,
+  "signature": {
+    "method": "skip-layer map: loss increase on skill text when a decoder layer is skipped, minus the same on general_text (nats); the block is the shortest window that holds 60% of the positive score on the search half",
+    "skill": "biology",
+    "data": "cais/mmlu all test (subjects: high_school_biology, college_biology, anatomy, virology, medical_genetics): biology questions, correct answer text",
+    "first_layer": 0,
+    "last_layer": 0,
+    "n_layers_in_block": 1,
+    "block_rank_in_skill": 1,
+    "block_mass": 0.8099,
+    "check_mass": 0.2526,
+    "split_half_r": 0.8736,
+    "summed_layer_score": 1.43528,
+    "layer_scores": [
+      1.43528
+    ],
+    "layer_influence": [
+      11.41375
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: high_school_biology, college_biology, anatomy, virology, medical_genetics): biology questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 35.95,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "qwen3_5_moe",
+  "architecture": "Qwen3_5MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "59d61f3ce65a6d9863b86d2e96597125219dc754"
+}

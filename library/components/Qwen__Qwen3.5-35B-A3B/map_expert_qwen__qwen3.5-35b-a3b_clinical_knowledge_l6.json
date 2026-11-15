@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3.5-35b-a3b_clinical_knowledge_l6",
+  "kind": "expert",
+  "title": "Qwen3.5-35B-A3B layer 6, 8 experts for clinical_knowledge (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "clinical_knowledge"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-35B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 6 of Qwen3.5-35B-A3B on 'clinical_knowledge' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.24783,
+      "control_value": 0.00437,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 6 of Qwen3.5-35B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 4.02612,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 4.71828,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3.5-35B-A3B",
+  "layer": 6,
+  "layers": [
+    6
+  ],
+  "units_file": "components/Qwen__Qwen3.5-35B-A3B/map_expert_qwen__qwen3.5-35b-a3b_clinical_knowledge_l6.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "clinical_knowledge",
+    "data": "cais/mmlu all test (subjects: clinical_knowledge, college_medicine, professional_medicine, nutrition, human_aging): clinical knowledge questions, correct answer text",
+    "n_units": 8,
+    "experts": [
+      36,
+      13,
+      14,
+      116,
+      150,
+      244,
+      35,
+      79
+    ],
+    "details": [
+      {
+        "expert": 36,
+        "skill_freq": 0.182123,
+        "general_freq": 0.001392,
+        "log_ratio": 4.8051,
+        "heldout_log_ratio": 5.2126
+      },
+      {
+        "expert": 13,
+        "skill_freq": 0.343547,
+        "general_freq": 0.003711,
+        "log_ratio": 4.5017,
+        "heldout_log_ratio": 8.1375
+      },
+      {
+        "expert": 14,
+        "skill_freq": 0.01735,
+        "general_freq": 0.000155,
+        "log_ratio": 4.2258,
+        "heldout_log_ratio": 5.0768
+      },
+      {
+        "expert": 116,
+        "skill_freq": 0.526481,
+        "general_freq": 0.009123,
+        "log_ratio": 4.0447,
+        "heldout_log_ratio": 3.8766
+      },
+      {
+        "expert": 150,
+        "skill_freq": 0.541498,
+        "general_freq": 0.010824,
+        "log_ratio": 3.9036,
+        "heldout_log_ratio": 3.5201
+      },
+      {
+        "expert": 244,
+        "skill_freq": 0.172991,
+        "general_freq": 0.00433,
+        "log_ratio": 3.6654,
+        "heldout_log_ratio": 3.5346
+      },
+      {
+        "expert": 35,
+        "skill_freq": 0.15138,
+        "general_freq": 0.00402,
+        "log_ratio": 3.6046,
+        "heldout_log_ratio": 3.6685
+      },
+      {
+        "expert": 79,
+        "skill_freq": 0.047281,
+        "general_freq": 0.001392,
+        "log_ratio": 3.4581,
+        "heldout_log_ratio": 4.7195
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "cais/mmlu all test (subjects: clinical_knowledge, college_medicine, professional_medicine, nutrition, human_aging): clinical knowledge questions, correct answer text",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 35.95,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "qwen3_5_moe",
+  "architecture": "Qwen3_5MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "59d61f3ce65a6d9863b86d2e96597125219dc754"
+}

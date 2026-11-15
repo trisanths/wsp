@@ -1,0 +1,140 @@
+{
+  "id": "map_expert_qwen__qwen3.5-35b-a3b_math_l17",
+  "kind": "expert",
+  "title": "Qwen3.5-35B-A3B layer 17, 8 experts for math (donor skill map)",
+  "status": "candidate",
+  "added_by": "agent: Trisanth-libmaps",
+  "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+  "updated": null,
+  "skills": [
+    "math"
+  ],
+  "models": [
+    "Qwen/Qwen3.5-35B-A3B"
+  ],
+  "evidence": [
+    {
+      "claim": "router pick rate of 8 experts at layer 17 of Qwen3.5-35B-A3B on 'math' text against general text; measured inside the donor only, not a gain on a host",
+      "metric": "mean pick rate over the listed experts, as recorded by maps.py",
+      "value": 0.06077,
+      "control_value": 0.00021,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps",
+      "control": "the same experts on general_text"
+    },
+    {
+      "claim": "log of the ratio of skill pick rate to general pick rate for 8 experts at layer 17 of Qwen3.5-35B-A3B",
+      "metric": "mean log ratio over the listed experts, nats",
+      "value": 5.40484,
+      "control_value": null,
+      "split": "search half of the skill text (the half that chose the part)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    },
+    {
+      "claim": "the same log ratio on the other half of the text; every listed expert is positive on both halves",
+      "metric": "mean held-out log ratio over the listed experts, nats",
+      "value": 5.10142,
+      "control_value": null,
+      "split": "held-out half of the skill text (checks the choice)",
+      "seeds": null,
+      "source": "atlas/pool_entries/Qwen__Qwen3.5-35B-A3B.json (person_a/mine/maps.py)",
+      "added_by": "agent: Trisanth-libmaps"
+    }
+  ],
+  "generated": false,
+  "model": "Qwen/Qwen3.5-35B-A3B",
+  "layer": 17,
+  "layers": [
+    17
+  ],
+  "units_file": "components/Qwen__Qwen3.5-35B-A3B/map_expert_qwen__qwen3.5-35b-a3b_math_l17.pt",
+  "units_remote": null,
+  "signature": {
+    "method": "router pick rate on skill text over general_text, per expert; an expert is listed when its log ratio is positive on both halves; the top experts by search log ratio are kept",
+    "skill": "math",
+    "data": "Orca-Math word problems (approved pool); digit tokens of the worked solution",
+    "n_units": 8,
+    "experts": [
+      103,
+      51,
+      20,
+      193,
+      15,
+      111,
+      40,
+      107
+    ],
+    "details": [
+      {
+        "expert": 103,
+        "skill_freq": 0.163098,
+        "general_freq": 0.0,
+        "log_ratio": 7.3975,
+        "heldout_log_ratio": 7.371
+      },
+      {
+        "expert": 51,
+        "skill_freq": 0.056634,
+        "general_freq": 0.0,
+        "log_ratio": 6.341,
+        "heldout_log_ratio": 4.9373
+      },
+      {
+        "expert": 20,
+        "skill_freq": 0.102194,
+        "general_freq": 0.000155,
+        "log_ratio": 5.9943,
+        "heldout_log_ratio": 5.5454
+      },
+      {
+        "expert": 193,
+        "skill_freq": 0.022147,
+        "general_freq": 0.0,
+        "log_ratio": 5.4048,
+        "heldout_log_ratio": 5.4941
+      },
+      {
+        "expert": 15,
+        "skill_freq": 0.013025,
+        "general_freq": 0.0,
+        "log_ratio": 4.8771,
+        "heldout_log_ratio": 4.7735
+      },
+      {
+        "expert": 111,
+        "skill_freq": 0.030268,
+        "general_freq": 0.000155,
+        "log_ratio": 4.7799,
+        "heldout_log_ratio": 4.2147
+      },
+      {
+        "expert": 40,
+        "skill_freq": 0.007488,
+        "general_freq": 0.0,
+        "log_ratio": 4.3292,
+        "heldout_log_ratio": 4.4886
+      },
+      {
+        "expert": 107,
+        "skill_freq": 0.091278,
+        "general_freq": 0.001392,
+        "log_ratio": 4.1149,
+        "heldout_log_ratio": 3.9868
+      }
+    ],
+    "scope": "measured inside the donor only, not a gain on a host"
+  },
+  "selection_data": "Orca-Math word problems (approved pool); digit tokens of the worked solution",
+  "map_source": "person_a/mine/maps.py",
+  "params_b": 35.95,
+  "n_layers": 40,
+  "hidden": 2048,
+  "family": "qwen3_5_moe",
+  "architecture": "Qwen3_5MoeForCausalLM",
+  "license": "apache-2.0",
+  "revision": "59d61f3ce65a6d9863b86d2e96597125219dc754"
+}
