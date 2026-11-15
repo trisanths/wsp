@@ -56,6 +56,19 @@ def _build_meta_model(config):
     """Build the donor on the meta device from its config alone."""
     import transformers
 
+    # Import the model class BEFORE entering the device context. transformers
+    # model modules import torch._dynamo, and that import fails with a
+    # circular import under an active torch.device context. In a fresh
+    # process this showed as "Could not find Qwen2ForCausalLM" (round 24).
+    try:
+        import torch._dynamo  # noqa: F401
+    except Exception:
+        pass
+    try:
+        transformers.AutoModelForCausalLM._model_mapping[type(config)]
+    except Exception:
+        pass
+
     with torch.device("meta"):
         try:
             return transformers.AutoModelForCausalLM.from_config(config)

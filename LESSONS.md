@@ -118,3 +118,11 @@ something fails. Each entry: what went wrong, then the rule.
   3-D parameters, not per-expert tensors). Two GPU smokes died before the
   mining session found this. A verifier's "checked in a scratch 5.23
   environment" claim is not a test in the suite; put the check in the suite.
+- Do not import a transformers model class for the first time inside
+  `with torch.device("meta")`. Model modules import torch._dynamo, which
+  fails with a circular import under an active device context, and the error
+  reads "Could not find Qwen2ForCausalLM". Earlier rounds never hit it
+  because they loaded a model first; round 24's prefetch step did not, and
+  the mining session hit the same thing in the giants profiler. Import
+  torch._dynamo and resolve the class before entering the context, and test
+  such helpers in a fresh process.
